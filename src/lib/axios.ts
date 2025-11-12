@@ -1,4 +1,6 @@
 import axios from 'axios'
+import toast from 'react-hot-toast'
+import { logError, logInfo } from './errorHandler'
 
 /**
  * Axios 인스턴스 설정
@@ -27,11 +29,11 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
-    console.log('📤 요청:', config.method?.toUpperCase(), config.url)
+    logInfo('API 요청', config.method?.toUpperCase(), config.url)
     return config
   },
   (error) => {
-    console.error('❌ 요청 에러:', error)
+    logError('요청 에러', error)
     return Promise.reject(error)
   }
 )
@@ -42,7 +44,7 @@ axiosInstance.interceptors.request.use(
  */
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log('📥 응답:', response.status, response.config.url)
+    logInfo('API 응답', response.status, response.config.url)
     return response
   },
   async (error) => {
@@ -56,48 +58,61 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken')
 
         if (!refreshToken) {
-          throw new Error('No refresh token')
+          throw new Error('Refresh Token이 없습니다')
         }
 
+        logInfo('토큰 갱신 시도')
+
         // Refresh Token으로 새 Access Token 발급
-        const response = await axios.post(`${apiBaseUrl}/api/auth/refresh`, {
-          refreshToken
-        })
+        const response = await axios.post(
+          `${apiBaseUrl}/api/auth/refresh`,
+          {
+            refreshToken,
+          }
+        )
 
         const newAccessToken = response.data.data.accessToken
         const newRefreshToken = response.data.data.refreshToken
 
         // 새 토큰 저장
         localStorage.setItem('accessToken', newAccessToken)
-        if (newRefreshToken) {
-          localStorage.setItem('refreshToken', newRefreshToken)
-        }
+        localStorage.setItem('refreshToken', newRefreshToken)
+
+        logInfo('토큰 갱신 성공', '원래 요청 재시도')
 
         // 실패했던 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         return axiosInstance(originalRequest)
       } catch (refreshError) {
         // Refresh Token도 만료됨 → 로그아웃 처리
-        console.error('토큰 갱신 실패:', refreshError)
+        logError('토큰 갱신 실패', refreshError)
+
+        // 로컬 스토리지 클리어
         localStorage.clear()
+
+        // 사용자에게 알림
         if (typeof window !== 'undefined') {
-          window.location.href = '/login'
+          toast.error('세션이 만료되었습니다. 다시 로그인해주세요.', {
+            duration: 3000,
+          })
+
+          // 잠시 후 로그인 페이지로 이동
+          setTimeout(() => {
+            window.location.href = '/login'
+          }, 1000)
         }
+
         return Promise.reject(refreshError)
       }
     }
 
-    // 에러 처리
-    if (error.response) {
-      // 서버가 응답했지만 에러 상태 코드
-      console.error('❌ 응답 에러:', error.response.status, error.response.data)
-    } else if (error.request) {
-      // 요청은 보냈지만 응답을 받지 못함
-      console.error('❌ 응답 없음:', error.request)
-    } else {
-      // 요청 설정 중 에러 발생
-      console.error('❌ 요청 설정 에러:', error.message)
-    }
+    // 에러 로깅 (개발 환경에서만)
+    logError('API 에러', {
+      status: error.response?.status,
+      url: error.config?.url,
+      data: error.response?.data,
+    })
+
     return Promise.reject(error)
   }
 )

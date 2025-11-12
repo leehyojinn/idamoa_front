@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import toast from 'react-hot-toast'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -15,6 +14,7 @@ import {
   getGoogleAuthUrl,
 } from '@/lib/api/auth'
 import { useAuthStore } from '@/store/authStore'
+import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
@@ -70,7 +70,7 @@ export default function LoginPage() {
           currentRole: response.data.currentRole,
         })
 
-        toast.success('로그인 성공!')
+        showSuccessToast('로그인 성공!')
 
         // 프로필 완성 여부에 따라 리다이렉트
         if (!response.data.profileCompleted) {
@@ -80,10 +80,8 @@ export default function LoginPage() {
         }
       }
     } catch (error: any) {
-      console.error('로그인 실패:', error)
-      toast.error(
-        error.response?.data?.message || '로그인에 실패했습니다'
-      )
+      logError('로그인 실패', error)
+      showErrorToast(error, '로그인에 실패했습니다')
     } finally {
       setIsLoading(false)
     }
@@ -109,8 +107,8 @@ export default function LoginPage() {
         window.location.href = response.data.authorizationUrl
       }
     } catch (error: any) {
-      console.error(`${provider} 로그인 실패:`, error)
-      toast.error('로그인에 실패했습니다. 다시 시도해주세요.')
+      logError(`${provider} 로그인 실패`, error)
+      showErrorToast(error, '로그인에 실패했습니다. 다시 시도해주세요')
     }
   }
 

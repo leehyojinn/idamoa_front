@@ -6,9 +6,11 @@ export interface NavItem {
 }
 
 export interface User {
-  id: string
-  name: string
   email: string
+  profileCompleted: boolean
+  currentRole: string
+  id?: string
+  name?: string
   avatar?: string
 }
 

@@ -18,8 +18,15 @@ const NAV_ITEMS = [
   { id: 'resources', label: '자료실', href: '/resources' },
   { id: 'notices', label: '공지/이벤트', href: '/notices' },
   { id: 'estimates', label: '견적의뢰', href: '/estimates' },
-  { id: 'matching', label: '업체 AI 추천', href: '/matching' },
-  { id: 'estimate-calculator', label: '예상 견적', href: '/estimate-calculator' },
+  {
+    id: 'ai-manager',
+    label: 'AI사무장',
+    href: '#',
+    children: [
+      { id: 'matching', label: '업체 AI 추천', href: '/matching' },
+      { id: 'estimate-calculator', label: '예상견적', href: '/estimate-calculator' },
+    ]
+  },
   { id: 'planner', label: '플래너', href: '/planner' },
   { id: 'consultations', label: '빠른상담', href: '/consultations' },
   { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },

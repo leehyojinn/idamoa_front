@@ -1,8 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
-import { FaTimes } from 'react-icons/fa'
+import { FaTimes, FaChevronDown } from 'react-icons/fa'
 import type { NavItem } from '@/types/navbar'
 
 interface MobileMenuProps {
@@ -12,6 +13,12 @@ interface MobileMenuProps {
 }
 
 export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null)
+
+  const toggleExpanded = (itemId: string) => {
+    setExpandedItemId(expandedItemId === itemId ? null : itemId)
+  }
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -53,22 +60,67 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
               {/* Navigation Items */}
               <nav className="flex-1 overflow-y-auto py-4">
                 <ul className="space-y-1 px-2">
-                  {navItems.map((item, index) => (
-                    <motion.li
-                      key={item.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Link
-                        href={item.href}
-                        onClick={onClose}
-                        className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
+                  {navItems.map((item, index) => {
+                    const hasChildren = item.children && item.children.length > 0
+                    const isExpanded = expandedItemId === item.id
+
+                    return (
+                      <motion.li
+                        key={item.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
                       >
-                        {item.label}
-                      </Link>
-                    </motion.li>
-                  ))}
+                        {hasChildren ? (
+                          <div>
+                            <button
+                              onClick={() => toggleExpanded(item.id)}
+                              className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
+                            >
+                              <span>{item.label}</span>
+                              <motion.div
+                                animate={{ rotate: isExpanded ? 180 : 0 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                <FaChevronDown className="w-3 h-3" />
+                              </motion.div>
+                            </button>
+                            <AnimatePresence>
+                              {isExpanded && (
+                                <motion.ul
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="overflow-hidden pl-4 mt-1 space-y-1"
+                                >
+                                  {item.children?.map((child) => (
+                                    <li key={child.id}>
+                                      <Link
+                                        href={child.href}
+                                        onClick={onClose}
+                                        className="block px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:text-secondary transition-colors"
+                                      >
+                                        {child.label}
+                                      </Link>
+                                    </li>
+                                  ))}
+                                </motion.ul>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        ) : (
+                          <Link
+                            href={item.href}
+                            onClick={onClose}
+                            className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
+                          >
+                            {item.label}
+                          </Link>
+                        )}
+                      </motion.li>
+                    )
+                  })}
                 </ul>
               </nav>
 

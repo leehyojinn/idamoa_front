@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import toast from 'react-hot-toast'
 import { signupStart } from '@/lib/api/auth'
+import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Checkbox from '@/components/ui/Checkbox'
@@ -107,13 +107,11 @@ export default function SignupPage() {
       sessionStorage.setItem('signupToken', response.data.signupToken)
       sessionStorage.setItem('signupEmail', data.email)
 
-      toast.success('이메일 인증을 진행해주세요')
+      showSuccessToast('이메일 인증을 진행해주세요')
       router.push('/signup/verify')
     } catch (error: any) {
-      console.error('회원가입 시작 실패:', error)
-      toast.error(
-        error.response?.data?.message || '회원가입 중 오류가 발생했습니다'
-      )
+      logError('회원가입 시작 실패', error)
+      showErrorToast(error, '회원가입 중 오류가 발생했습니다')
     } finally {
       setIsLoading(false)
     }

@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import toast from 'react-hot-toast'
 import {
   sendEmailVerification,
   verifyEmail,
   completeSignup,
 } from '@/lib/api/auth'
+import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
@@ -50,7 +50,7 @@ export default function VerifyPage() {
     const userEmail = sessionStorage.getItem('signupEmail')
 
     if (!token || !userEmail) {
-      toast.error('잘못된 접근입니다')
+      showErrorToast(null, '잘못된 접근입니다')
       router.push('/signup')
       return
     }
@@ -89,13 +89,11 @@ export default function VerifyPage() {
         signupToken: token,
         email: userEmail,
       })
-      toast.success('인증 코드가 이메일로 발송되었습니다')
+      showSuccessToast('인증 코드가 이메일로 발송되었습니다')
       setTimer(600) // 타이머 리셋
     } catch (error: any) {
-      console.error('인증 코드 발송 실패:', error)
-      toast.error(
-        error.response?.data?.message || '인증 코드 발송에 실패했습니다'
-      )
+      logError('인증 코드 발송 실패', error)
+      showErrorToast(error, '인증 코드 발송에 실패했습니다')
     } finally {
       setIsSending(false)
     }
@@ -117,7 +115,7 @@ export default function VerifyPage() {
         code: data.code,
       })
 
-      toast.success('이메일 인증이 완료되었습니다')
+      showSuccessToast('이메일 인증이 완료되었습니다')
 
       // 2. 회원가입 완료 (User 생성)
       const response = await completeSignup({
@@ -133,11 +131,11 @@ export default function VerifyPage() {
       sessionStorage.removeItem('signupEmail')
 
       // 5. 프로필 타입 선택 페이지로 이동
-      toast.success('회원가입이 완료되었습니다. 프로필을 설정해주세요')
+      showSuccessToast('회원가입이 완료되었습니다. 프로필을 설정해주세요')
       router.push('/signup/profile-type')
     } catch (error: any) {
-      console.error('인증 실패:', error)
-      toast.error(error.response?.data?.message || '인증에 실패했습니다')
+      logError('인증 실패', error)
+      showErrorToast(error, '인증에 실패했습니다')
     } finally {
       setIsLoading(false)
     }

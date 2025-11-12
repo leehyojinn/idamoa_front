@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/store/authStore'
-import toast from 'react-hot-toast'
+import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 
 // ========================================
 // Component
@@ -25,12 +25,10 @@ export default function OAuthCallbackPage() {
           searchParams.get('requiresProfileSetup') === 'true'
         const email = searchParams.get('email')
 
-        if (success === 'true' && accessToken) {
+        if (success === 'true' && accessToken && refreshToken) {
           // 토큰 저장
           localStorage.setItem('accessToken', accessToken)
-          if (refreshToken) {
-            localStorage.setItem('refreshToken', refreshToken)
-          }
+          localStorage.setItem('refreshToken', refreshToken)
 
           // 사용자 정보 저장
           setUser({
@@ -39,7 +37,7 @@ export default function OAuthCallbackPage() {
             currentRole: 'USER',
           })
 
-          toast.success('로그인 성공!')
+          showSuccessToast('로그인 성공!')
 
           // 프로필 설정이 필요하면 프로필 설정 페이지로, 아니면 메인 페이지로
           if (requiresProfileSetup) {
@@ -51,8 +49,8 @@ export default function OAuthCallbackPage() {
           throw new Error('로그인에 실패했습니다.')
         }
       } catch (error) {
-        console.error('OAuth 콜백 처리 실패:', error)
-        toast.error('로그인에 실패했습니다.')
+        logError('OAuth 콜백 처리 실패', error)
+        showErrorToast(error, '로그인에 실패했습니다')
         router.push('/login')
       }
     }

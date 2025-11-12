@@ -39,7 +39,7 @@ export default function HeroSlide() {
       subtitle: '다모아에서 시작하세요',
       description: '개원부터 리모델링까지\n병원 공간의 완벽한 솔루션',
       buttonText: '무료 상담 신청',
-      routerLink: ['/', 'planner'],
+      routerLink: ['planner'],
       imageUrl: '/images/slide/new_slide_1.png',
     },
     {
@@ -59,7 +59,7 @@ export default function HeroSlide() {
       subtitle: '공개 입찰 시스템',
       description: '여러 업체 견적을 한번에\n투명하게 비교하세요',
       buttonText: '견적 의뢰하기',
-      routerLink: ['/', 'estimates'],
+      routerLink: ['estimates'],
       imageUrl: '/images/slide/new_slide_3.png',
     },
     {
@@ -69,7 +69,7 @@ export default function HeroSlide() {
       subtitle: '직접 도면 설계',
       description: '도면을 직접 조닝하여\n맞춤형 인테리어 계획 수립',
       buttonText: '평면도 설계툴',
-      routerLink: ['/', 'mock-tools', 'floorplan-tool'],
+      routerLink: ['mock-tools', 'floorplan-tool'],
       imageUrl: '/images/slide/new_slide_4.png',
     },
   ];
@@ -144,7 +144,7 @@ export default function HeroSlide() {
                       <p className="slide-description whitespace-pre-line">{slide.description}</p>
                       {slide.routerLink && (
                         <Link
-                          href={slide.routerLink.join('/')}
+                          href={'/' + slide.routerLink.join('/')}
                           className="slide-button"
                         >
                           {slide.buttonText}

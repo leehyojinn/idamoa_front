@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/store/authStore'
 import { login as loginApi, logout as logoutApi } from '@/lib/api/auth'
 import { useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
+import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 
 export const useAuth = () => {
   const router = useRouter()
@@ -23,7 +23,7 @@ export const useAuth = () => {
           currentRole: response.data.currentRole,
         })
 
-        toast.success('로그인 성공!')
+        showSuccessToast('로그인 성공!')
 
         // 프로필 완성 여부에 따라 리다이렉트
         if (!response.data.profileCompleted) {
@@ -35,8 +35,8 @@ export const useAuth = () => {
         return response
       }
     } catch (error: any) {
-      console.error('로그인 실패:', error)
-      toast.error(error.response?.data?.message || '로그인에 실패했습니다')
+      logError('로그인 실패', error)
+      showErrorToast(error, '로그인에 실패했습니다')
       throw error
     }
   }
@@ -49,10 +49,10 @@ export const useAuth = () => {
       localStorage.clear()
       clearAuth()
 
-      toast.success('로그아웃되었습니다')
+      showSuccessToast('로그아웃되었습니다')
       router.push('/login')
     } catch (error: any) {
-      console.error('로그아웃 실패:', error)
+      logError('로그아웃 실패', error)
       // 에러가 나도 로컬 데이터는 삭제
       localStorage.clear()
       clearAuth()
