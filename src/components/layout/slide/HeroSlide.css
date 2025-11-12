@@ -1,0 +1,202 @@
+.hero-slider-container {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-wrapper {
+  position: relative;
+}
+
+.slide-card {
+  height: 100%;
+  min-height: 280px;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.slide-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.slide-content {
+  display: flex;
+  height: 100%;
+  padding: 2rem;
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .slide-content {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+}
+
+.slide-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: white;
+  z-index: 1;
+}
+
+.slide-subtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  opacity: 0.95;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+@media (min-width: 768px) {
+  .slide-subtitle {
+    font-size: 1rem;
+  }
+}
+
+.slide-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 1350px) {
+  .slide-title {
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.slide-description {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+}
+
+@media (min-width: 768px) {
+  .slide-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.slide-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: #1f2937;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+}
+
+@media (min-width: 1100px) {
+  .slide-button {
+    padding: 0.875rem 1.75rem;
+    font-size: 0.9rem;
+  }
+}
+
+.slide-button:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.slide_img {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.slide_img img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+@media (max-width: 768px) {
+  .slide_img {
+    max-height: 150px;
+  }
+}
+
+/* Navigation Buttons */
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 10;
+  color: #1f2937;
+  display: none; /* 1000px 미만에서는 숨김 */
+}
+
+/* 1000px 이상에서만 표시 (기본적으로 투명) */
+@media (min-width: 1000px) {
+  .nav-button {
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* 슬라이더에 호버할 때만 화살표 표시 */
+  .slider-wrapper:hover .nav-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-button:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .nav-button:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+}
+
+.nav-button-prev {
+  left: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .nav-button-prev {
+    left: 30rem;
+  }
+}
+
+.nav-button-next {
+  right: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .nav-button-next {
+    right: 30rem;
+  }
+}

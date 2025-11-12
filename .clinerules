@@ -1,0 +1,909 @@
+# 프로젝트 설정
+- Framework: Next.js 15.0.0 (App Router)
+- Language: TypeScript 5.6.3
+- Package Manager: npm
+- React: 18.3.1
+
+## 디자인 시스템
+-- 모든페이지에 헤더 푸터 공통으로 적용
+
+## 컴포넌트
+-- 인풋들은 공통 컴포넌트로 재사용
+
+
+### 색상 팔레트
+- Primary: #3b82f6
+- Secondary: rgba(17,24,39,1)
+- Accent: #10B981 (Green-500)
+- Background: #FFFFFF
+- Background Dark: #0F172A (Slate-900)
+- Text Primary: #1F2937 (Gray-800)
+- Text Secondary: #6B7280 (Gray-500)
+- Border: #E5E7EB (Gray-200)
+- Error: #EF4444 (Red-500)
+- Warning: #F59E0B (Amber-500)
+- Success: #10B981 (Green-500)
+
+### 타이포그래피
+- Font Family: pretendard-sans, sans-serif
+- Base Font Size: 16px (text-base)
+- Heading: font-bold
+- Body: font-normal
+- Small: text-sm
+- Large: text-lg
+
+### 간격 (Spacing)
+- Section Padding: py-16 px-4
+- Card Padding: p-6
+- Button Padding: px-4 py-2
+- Gap: gap-4 (기본)
+
+## 라이브러리 스택 (실제 설치됨)
+
+### UI 컴포넌트
+- Styling: Tailwind CSS 3.4.14
+- Icons: react-icons 5.3.0
+- Notifications: react-hot-toast 2.4.1
+
+### 상태 관리
+- Client State: Zustand 5.0.2
+- Server State: TanStack Query (React Query) 5.59.20
+
+### 폼 처리
+- Form Library: react-hook-form 7.53.2
+- Validation: zod 3.23.8
+- Resolvers: @hookform/resolvers 3.9.1
+
+### HTTP 클라이언트
+- API Client: axios 1.7.7
+
+### 애니메이션
+- Motion: framer-motion 11.11.17
+- Transitions: Tailwind transitions
+
+### 유틸리티
+- Date: date-fns 4.1.0
+
+## 코딩 규칙
+
+### 컴포넌트 구조
+- 서버 컴포넌트를 기본으로 사용
+- 클라이언트 컴포넌트는 'use client' 명시
+- 파일명: kebab-case (예: user-profile.tsx)
+- 컴포넌트명: PascalCase (예: UserProfile)
+
+### 폴더 구조
+```
+src/
+├── app/              # Next.js App Router
+├── components/       # 재사용 컴포넌트
+│   ├── ui/          # shadcn/ui 컴포넌트
+│   └── layout/      # 레이아웃 컴포넌트
+├── lib/             # 유틸리티 함수
+├── hooks/           # 커스텀 훅
+├── types/           # TypeScript 타입 정의
+└── styles/          # 글로벌 스타일
+```
+
+### 타입스크립트
+- 모든 함수에 타입 명시
+- any 사용 금지
+- interface보다 type 선호
+- Props는 별도 타입으로 정의
+
+### 스타일링
+- Tailwind CSS 유틸리티 클래스 우선 사용
+- cn() 유틸로 조건부 클래스 병합
+- 색상은 위에 정의된 팔레트 사용
+- 반응형: mobile-first (sm, md, lg, xl)
+
+## 반응형 디자인
+
+### 브레이크포인트
+- Mobile: < 640px (기본, mobile-first)
+- Tablet: sm: 640px ~ 768px
+- Desktop: md: 768px ~ 1024px
+- Large: lg: 1024px ~ 1280px
+- XLarge: xl: 1280px+
+
+### 반응형 패턴
+- Grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
+- Padding: `px-4 md:px-8 lg:px-16`
+- Text: `text-sm md:text-base lg:text-lg`
+- Hidden: `hidden md:block` (모바일에서 숨김)
+
+## 컴포넌트 패턴
+
+### 버튼 스타일
+```typescript
+// Primary Button
+className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+
+// Secondary Button
+className="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-violet-600 transition"
+
+// Outline Button
+className="border-2 border-primary text-primary px-4 py-2 rounded-lg hover:bg-primary hover:text-white transition"
+
+// Ghost Button
+className="text-primary px-4 py-2 rounded-lg hover:bg-blue-50 transition"
+
+// Disabled
+className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed"
+```
+
+### Input 스타일
+```typescript
+// 기본 Input
+className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+
+// Error State
+className="w-full px-4 py-2 border-2 border-red-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+
+// Disabled
+className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-100 cursor-not-allowed"
+```
+
+### Card 스타일
+```typescript
+// 기본 Card
+className="bg-white p-6 rounded-xl shadow-md border border-gray-200"
+
+// Hover Card
+className="bg-white p-6 rounded-xl shadow-md border border-gray-200 hover:shadow-lg transition cursor-pointer"
+
+// Dark Card
+className="bg-slate-900 p-6 rounded-xl shadow-md border border-slate-700"
+```
+
+### 그림자 (Shadow/Elevation)
+- Low: `shadow-sm` - 미묘한 그림자
+- Medium: `shadow-md` - 기본 Card
+- High: `shadow-lg` - Hover, Modal
+- Extra: `shadow-xl` - Popup, Dropdown
+- Hover: `hover:shadow-lg transition` - 인터랙션
+
+## API & 데이터 처리
+
+### API 구조
+```typescript
+// API Routes 위치: /app/api/[endpoint]/route.ts
+// 환경변수: .env.local
+// 클라이언트 노출: NEXT_PUBLIC_ 접두사
+
+// axios 인스턴스 설정 (lib/axios.ts)
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  timeout: 10000,
+})
+```
+
+### 에러 처리
+```typescript
+// Try-Catch 패턴
+try {
+  const response = await api.get('/endpoint')
+  return response.data
+} catch (error) {
+  if (axios.isAxiosError(error)) {
+    toast.error(error.response?.data?.message || '오류가 발생했습니다')
+  }
+  throw error
+}
+
+// React Query 에러 처리
+const { data, error, isError } = useQuery({
+  queryKey: ['key'],
+  queryFn: fetchData,
+  onError: (error) => {
+    toast.error('데이터를 불러올 수 없습니다')
+  }
+})
+```
+
+### Toast 메시지 (react-hot-toast)
+```typescript
+// 성공
+toast.success('저장되었습니다')
+
+// 에러
+toast.error('오류가 발생했습니다')
+
+// 로딩
+const toastId = toast.loading('처리 중...')
+toast.success('완료!', { id: toastId })
+
+// 커스텀 스타일
+toast.success('성공', {
+  duration: 3000,
+  position: 'top-center',
+})
+```
+
+## 로딩 & 상태 관리
+
+### 로딩 상태
+```typescript
+// Spinner 컴포넌트
+<div className="flex items-center justify-center py-8">
+  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+</div>
+
+// Skeleton (간단한 버전)
+<div className="animate-pulse bg-gray-200 h-4 rounded w-full"></div>
+
+// Button Loading
+<button disabled className="bg-primary text-white px-4 py-2 rounded-lg opacity-50 cursor-not-allowed">
+  <span className="animate-spin mr-2">⏳</span>
+  처리 중...
+</button>
+```
+
+### React Query 패턴
+```typescript
+// 데이터 페칭
+const { data, isLoading, error } = useQuery({
+  queryKey: ['users'],
+  queryFn: () => api.get('/users').then(res => res.data)
+})
+
+// 뮤테이션
+const mutation = useMutation({
+  mutationFn: (data) => api.post('/users', data),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['users'] })
+    toast.success('저장되었습니다')
+  }
+})
+```
+
+### Zustand 패턴
+```typescript
+// store/useStore.ts
+type Store = {
+  count: number
+  increment: () => void
+}
+
+export const useStore = create<Store>((set) => ({
+  count: 0,
+  increment: () => set((state) => ({ count: state.count + 1 }))
+}))
+
+// 컴포넌트에서 사용
+const { count, increment } = useStore()
+```
+
+## 폼 처리 (react-hook-form + zod)
+
+### 폼 패턴
+```typescript
+// Zod 스키마
+const schema = z.object({
+  email: z.string().email('올바른 이메일을 입력하세요'),
+  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다')
+})
+
+type FormData = z.infer<typeof schema>
+
+// react-hook-form
+const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  resolver: zodResolver(schema)
+})
+
+const onSubmit = (data: FormData) => {
+  console.log(data)
+}
+
+// JSX
+<form onSubmit={handleSubmit(onSubmit)}>
+  <input {...register('email')} className="..." />
+  {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+</form>
+```
+
+## SEO & 메타데이터 (Next.js)
+
+### 메타데이터 설정
+```typescript
+// app/layout.tsx 또는 page.tsx
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '페이지 제목',
+  description: '페이지 설명 (150-160자)',
+  keywords: ['키워드1', '키워드2'],
+  openGraph: {
+    title: 'OG 제목',
+    description: 'OG 설명',
+    images: ['/og-image.jpg'],
+    url: 'https://example.com',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '트위터 제목',
+    description: '트위터 설명',
+    images: ['/twitter-image.jpg'],
+  },
+}
+```
+
+### 동적 메타데이터
+```typescript
+// app/blog/[slug]/page.tsx
+export async function generateMetadata({ params }): Promise<Metadata> {
+  const post = await getPost(params.slug)
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      images: [post.image],
+    },
+  }
+}
+```
+
+### Sitemap & Robots
+```typescript
+// app/sitemap.ts
+export default function sitemap() {
+  return [
+    {
+      url: 'https://example.com',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+  ]
+}
+
+// app/robots.ts
+export default function robots() {
+  return {
+    rules: {
+      userAgent: '*',
+      allow: '/',
+      disallow: '/admin/',
+    },
+    sitemap: 'https://example.com/sitemap.xml',
+  }
+}
+```
+
+## 애니메이션 패턴 (Framer Motion)
+
+### 페이드인 애니메이션
+```typescript
+import { motion } from 'framer-motion'
+
+<motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: 0.5 }}
+>
+  콘텐츠
+</motion.div>
+```
+
+### 슬라이드 애니메이션
+```typescript
+// 왼쪽에서 슬라이드
+<motion.div
+  initial={{ x: -100, opacity: 0 }}
+  animate={{ x: 0, opacity: 1 }}
+  transition={{ duration: 0.5 }}
+>
+  콘텐츠
+</motion.div>
+
+// 아래에서 슬라이드
+<motion.div
+  initial={{ y: 50, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{ duration: 0.5 }}
+>
+  콘텐츠
+</motion.div>
+```
+
+### 스케일 애니메이션
+```typescript
+<motion.div
+  whileHover={{ scale: 1.05 }}
+  whileTap={{ scale: 0.95 }}
+  transition={{ duration: 0.2 }}
+>
+  호버 가능한 요소
+</motion.div>
+```
+
+### 리스트 애니메이션
+```typescript
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
+
+const item = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 }
+}
+
+<motion.ul variants={container} initial="hidden" animate="show">
+  {items.map((item) => (
+    <motion.li key={item.id} variants={item}>
+      {item.name}
+    </motion.li>
+  ))}
+</motion.ul>
+```
+
+### 페이지 전환 애니메이션
+```typescript
+// app/template.tsx
+'use client'
+import { motion } from 'framer-motion'
+
+export default function Template({ children }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+```
+
+### 공통 애니메이션 Variants
+```typescript
+// lib/animations.ts
+export const fadeIn = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 }
+}
+
+export const slideUp = {
+  initial: { y: 50, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  exit: { y: -50, opacity: 0 }
+}
+
+export const scaleIn = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  exit: { scale: 0.8, opacity: 0 }
+}
+```
+
+## 레이아웃 패턴
+
+### Container (컨테이너)
+```typescript
+// 기본 Container
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  콘텐츠
+</div>
+
+// 좁은 Container (블로그, 폼)
+<div className="max-w-3xl mx-auto px-4">
+  콘텐츠
+</div>
+
+// 넓은 Container
+<div className="max-w-[1440px] mx-auto px-4">
+  콘텐츠
+</div>
+```
+
+### Section (섹션)
+```typescript
+// 기본 Section
+<section className="py-16 px-4">
+  <div className="max-w-7xl mx-auto">
+    콘텐츠
+  </div>
+</section>
+
+// 배경색 있는 Section
+<section className="py-16 px-4 bg-gray-50">
+  <div className="max-w-7xl mx-auto">
+    콘텐츠
+  </div>
+</section>
+```
+
+### Header (헤더)
+```typescript
+// components/layout/Header.tsx
+<header className="sticky top-0 z-50 bg-white border-b border-gray-200">
+  <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="flex items-center gap-8">
+      <Logo />
+      <nav className="hidden md:flex items-center gap-6">
+        <Link href="/">홈</Link>
+        <Link href="/about">소개</Link>
+      </nav>
+    </div>
+    <div className="flex items-center gap-4">
+      <button>로그인</button>
+    </div>
+  </div>
+</header>
+```
+
+### Footer (푸터)
+```typescript
+// components/layout/Footer.tsx
+<footer className="bg-gray-900 text-gray-300 py-12">
+  <div className="max-w-7xl mx-auto px-4">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div>
+        <h3 className="text-white font-bold mb-4">회사명</h3>
+        <p className="text-sm">설명</p>
+      </div>
+      <div>
+        <h4 className="text-white font-bold mb-4">링크</h4>
+        <ul className="space-y-2 text-sm">
+          <li><Link href="/">홈</Link></li>
+        </ul>
+      </div>
+    </div>
+    <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
+      © 2024 회사명. All rights reserved.
+    </div>
+  </div>
+</footer>
+```
+
+### Sidebar (사이드바)
+```typescript
+// 데스크톱 사이드바
+<div className="flex min-h-screen">
+  <aside className="hidden lg:block w-64 bg-gray-50 border-r border-gray-200 p-6">
+    <nav className="space-y-2">
+      <Link href="/dashboard" className="block px-4 py-2 rounded-lg hover:bg-gray-200">
+        대시보드
+      </Link>
+    </nav>
+  </aside>
+  <main className="flex-1 p-6">
+    콘텐츠
+  </main>
+</div>
+```
+
+### Grid 레이아웃
+```typescript
+// 2열 그리드
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div>왼쪽</div>
+  <div>오른쪽</div>
+</div>
+
+// 3열 그리드 (카드)
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  {items.map(item => <Card key={item.id} {...item} />)}
+</div>
+
+// 4열 그리드
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+  {items.map(item => <Item key={item.id} {...item} />)}
+</div>
+```
+
+## 인증 & 보호 라우트
+
+### 인증 상태 관리 (Zustand)
+```typescript
+// store/useAuthStore.ts
+type AuthStore = {
+  user: User | null
+  isAuthenticated: boolean
+  login: (user: User) => void
+  logout: () => void
+}
+
+export const useAuthStore = create<AuthStore>((set) => ({
+  user: null,
+  isAuthenticated: false,
+  login: (user) => set({ user, isAuthenticated: true }),
+  logout: () => set({ user: null, isAuthenticated: false }),
+}))
+```
+
+### Protected Route (클라이언트)
+```typescript
+// components/ProtectedRoute.tsx
+'use client'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+
+export default function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuthStore()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/login')
+    }
+  }, [isAuthenticated, router])
+
+  if (!isAuthenticated) {
+    return <div>로딩 중...</div>
+  }
+
+  return <>{children}</>
+}
+
+// 사용법
+<ProtectedRoute>
+  <Dashboard />
+</ProtectedRoute>
+```
+
+### 서버 컴포넌트 인증
+```typescript
+// app/dashboard/page.tsx
+import { redirect } from 'next/navigation'
+import { getServerSession } from 'next-auth' // 또는 다른 인증 라이브러리
+
+export default async function DashboardPage() {
+  const session = await getServerSession()
+
+  if (!session) {
+    redirect('/login')
+  }
+
+  return <div>대시보드</div>
+}
+```
+
+### 미들웨어 인증
+```typescript
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('token')
+
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/profile/:path*']
+}
+```
+
+### 로그인 폼 예시
+```typescript
+// app/login/page.tsx
+'use client'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
+
+const schema = z.object({
+  email: z.string().email('올바른 이메일을 입력하세요'),
+  password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다')
+})
+
+type FormData = z.infer<typeof schema>
+
+export default function LoginPage() {
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema)
+  })
+  const { login } = useAuthStore()
+  const router = useRouter()
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const response = await axios.post('/api/auth/login', data)
+      login(response.data.user)
+      toast.success('로그인 성공!')
+      router.push('/dashboard')
+    } catch (error) {
+      toast.error('로그인 실패')
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto p-6">
+      <input {...register('email')} placeholder="이메일" />
+      {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+
+      <input {...register('password')} type="password" placeholder="비밀번호" />
+      {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+
+      <button type="submit" className="bg-primary text-white px-4 py-2 rounded-lg">
+        로그인
+      </button>
+    </form>
+  )
+}
+```
+
+## 성능 최적화
+
+### Next.js Image 최적화
+```typescript
+import Image from 'next/image'
+
+// 기본 사용
+<Image
+  src="/image.jpg"
+  alt="설명"
+  width={500}
+  height={300}
+  priority // LCP 이미지에 사용
+/>
+
+// Fill 모드 (부모 크기에 맞춤)
+<div className="relative w-full h-64">
+  <Image
+    src="/image.jpg"
+    alt="설명"
+    fill
+    className="object-cover"
+  />
+</div>
+
+// 외부 이미지
+// next.config.mjs에 domains 추가 필요
+<Image
+  src="https://example.com/image.jpg"
+  alt="설명"
+  width={500}
+  height={300}
+/>
+```
+
+### Dynamic Import (코드 스플리팅)
+```typescript
+// 클라이언트 컴포넌트 동적 로드
+import dynamic from 'next/dynamic'
+
+const Chart = dynamic(() => import('@/components/Chart'), {
+  loading: () => <p>로딩 중...</p>,
+  ssr: false // 클라이언트에서만 렌더링
+})
+
+// 사용
+<Chart data={data} />
+```
+
+### React.lazy (클라이언트 컴포넌트)
+```typescript
+'use client'
+import { lazy, Suspense } from 'react'
+
+const HeavyComponent = lazy(() => import('@/components/HeavyComponent'))
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <HeavyComponent />
+    </Suspense>
+  )
+}
+```
+
+### 메모이제이션
+```typescript
+// React.memo - 컴포넌트 메모이제이션
+import { memo } from 'react'
+
+const ExpensiveComponent = memo(({ data }) => {
+  return <div>{data}</div>
+})
+
+// useMemo - 값 메모이제이션
+const memoizedValue = useMemo(() => {
+  return expensiveCalculation(data)
+}, [data])
+
+// useCallback - 함수 메모이제이션
+const memoizedCallback = useCallback(() => {
+  doSomething(a, b)
+}, [a, b])
+```
+
+### Font 최적화
+```typescript
+// app/layout.tsx
+import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap', // FOUT 방지
+  variable: '--font-inter',
+})
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="ko" className={inter.variable}>
+      <body>{children}</body>
+    </html>
+  )
+}
+
+// tailwind.config.ts
+fontFamily: {
+  sans: ['var(--font-inter)', 'sans-serif'],
+}
+```
+
+### Streaming & Suspense
+```typescript
+// app/dashboard/page.tsx
+import { Suspense } from 'react'
+
+async function SlowComponent() {
+  const data = await fetchSlowData()
+  return <div>{data}</div>
+}
+
+export default function Dashboard() {
+  return (
+    <div>
+      <h1>대시보드</h1>
+      <Suspense fallback={<div>로딩 중...</div>}>
+        <SlowComponent />
+      </Suspense>
+    </div>
+  )
+}
+```
+
+### 번들 분석
+```bash
+# package.json scripts에 추가
+"analyze": "ANALYZE=true npm run build"
+
+# next.config.mjs
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
+module.exports = withBundleAnalyzer({})
+```
+
+### 환경변수 최적화
+```typescript
+// .env.local (개발)
+NEXT_PUBLIC_API_URL=http://localhost:3000/api
+DATABASE_URL=postgresql://...
+
+// .env.production (프로덕션)
+NEXT_PUBLIC_API_URL=https://api.example.com
+DATABASE_URL=postgresql://...
+
+// 사용
+const apiUrl = process.env.NEXT_PUBLIC_API_URL
+const dbUrl = process.env.DATABASE_URL // 서버에서만 접근 가능
+```
+
+## 주석 규칙
+- 복잡한 로직에만 주석 작성
+- TODO, FIXME 태그 활용
+- JSDoc for 공개 함수
