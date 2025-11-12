@@ -34,7 +34,7 @@ export const useAuth = () => {
 
         return response
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('로그인 실패', error)
       showErrorToast(error, '로그인에 실패했습니다')
       throw error
@@ -51,7 +51,7 @@ export const useAuth = () => {
 
       showSuccessToast('로그아웃되었습니다')
       router.push('/login')
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('로그아웃 실패', error)
       // 에러가 나도 로컬 데이터는 삭제
       localStorage.clear()

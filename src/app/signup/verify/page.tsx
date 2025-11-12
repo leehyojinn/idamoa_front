@@ -91,7 +91,7 @@ export default function VerifyPage() {
       })
       showSuccessToast('인증 코드가 이메일로 발송되었습니다')
       setTimer(600) // 타이머 리셋
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('인증 코드 발송 실패', error)
       showErrorToast(error, '인증 코드 발송에 실패했습니다')
     } finally {
@@ -133,7 +133,7 @@ export default function VerifyPage() {
       // 5. 프로필 타입 선택 페이지로 이동
       showSuccessToast('회원가입이 완료되었습니다. 프로필을 설정해주세요')
       router.push('/signup/profile-type')
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('인증 실패', error)
       showErrorToast(error, '인증에 실패했습니다')
     } finally {

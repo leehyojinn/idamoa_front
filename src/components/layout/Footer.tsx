@@ -1,4 +1,6 @@
+'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function Footer() {
   return (
@@ -9,7 +11,7 @@ export default function Footer() {
             <div className="mb-4">
               <Image
                 src="/images/bi/bi-logo-wide-white.svg"
-                alt="MyApp Logo"
+                alt="Logo"
                 width={120}
                 height={40}
                 className="h-8 w-auto"
@@ -32,10 +34,10 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">서비스</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><a href="#" className="hover:text-white transition-colors">고객후기</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">제휴/광고 문의</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">이용약관</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">개인정보처리방침</a></li>
+              <li><Link href="/reviews" className="hover:text-white transition-colors">고객후기</Link></li>
+              <li><Link href="/partnership" className="hover:text-white transition-colors">제휴/광고 문의</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">이용약관</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link></li>
             </ul>
           </div>
 

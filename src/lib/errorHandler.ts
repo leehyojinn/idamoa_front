@@ -51,24 +51,45 @@ const STATUS_MESSAGES: Record<number, string> = {
   503: '서비스를 일시적으로 사용할 수 없습니다',
 }
 
-interface ApiError {
-  response?: {
-    status?: number
-    data?: {
-      errorCode?: string
-      message?: string
-    }
+interface ApiErrorResponse {
+  status: number
+  data?: {
+    errorCode?: string
+    message?: string
   }
-  request?: any
-  message?: string
+}
+
+interface ApiError extends Error {
+  response?: ApiErrorResponse
+  request?: XMLHttpRequest
   code?: string
+  config?: {
+    url?: string
+    method?: string
+  }
+}
+
+// 타입 가드 함수
+function isApiError(error: unknown): error is ApiError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    ('response' in error || 'request' in error || 'code' in error)
+  )
 }
 
 /**
  * API 에러를 사용자 친화적인 메시지로 변환
  */
-export const getErrorMessage = (error: any): string => {
-  const apiError = error as ApiError
+export const getErrorMessage = (error: unknown): string => {
+  if (!isApiError(error)) {
+    if (error instanceof Error) {
+      return error.message || ERROR_MESSAGES.UNKNOWN_ERROR
+    }
+    return ERROR_MESSAGES.UNKNOWN_ERROR
+  }
+
+  const apiError = error
 
   // 1. 서버에서 보낸 에러 코드가 있는 경우
   if (apiError.response?.data?.errorCode) {
@@ -107,8 +128,8 @@ export const getErrorMessage = (error: any): string => {
 /**
  * 에러를 토스트로 표시
  */
-export const showErrorToast = (error: any, fallbackMessage?: string): void => {
-  const message = getErrorMessage(error)
+export const showErrorToast = (error: unknown, fallbackMessage?: string): void => {
+  const message = error ? getErrorMessage(error) : fallbackMessage || ERROR_MESSAGES.UNKNOWN_ERROR
   toast.error(fallbackMessage || message)
 }
 
@@ -122,7 +143,7 @@ export const showSuccessToast = (message: string): void => {
 /**
  * 개발 환경에서만 에러 로깅
  */
-export const logError = (context: string, error: any): void => {
+export const logError = (context: string, error: unknown): void => {
   if (process.env.NODE_ENV === 'development') {
     console.error(`[${context}]`, error)
   }
@@ -131,7 +152,7 @@ export const logError = (context: string, error: any): void => {
 /**
  * 개발 환경에서만 일반 로깅
  */
-export const logInfo = (context: string, ...args: any[]): void => {
+export const logInfo = (context: string, ...args: unknown[]): void => {
   if (process.env.NODE_ENV === 'development') {
     console.log(`[${context}]`, ...args)
   }
@@ -140,12 +161,19 @@ export const logInfo = (context: string, ...args: any[]): void => {
 /**
  * 에러 객체에서 필요한 정보만 추출 (에러 리포팅용)
  */
-export const sanitizeError = (error: any) => {
-  const apiError = error as ApiError
+export const sanitizeError = (error: unknown) => {
+  if (!isApiError(error)) {
+    return {
+      status: undefined,
+      errorCode: undefined,
+      message: error instanceof Error ? error.message : ERROR_MESSAGES.UNKNOWN_ERROR,
+      timestamp: new Date().toISOString(),
+    }
+  }
 
   return {
-    status: apiError.response?.status,
-    errorCode: apiError.response?.data?.errorCode,
+    status: error.response?.status,
+    errorCode: error.response?.data?.errorCode,
     message: getErrorMessage(error),
     timestamp: new Date().toISOString(),
   }

@@ -109,7 +109,7 @@ export default function SignupPage() {
 
       showSuccessToast('이메일 인증을 진행해주세요')
       router.push('/signup/verify')
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('회원가입 시작 실패', error)
       showErrorToast(error, '회원가입 중 오류가 발생했습니다')
     } finally {

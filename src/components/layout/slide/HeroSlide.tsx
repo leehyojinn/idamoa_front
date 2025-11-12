@@ -2,6 +2,7 @@
 
 import { useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
@@ -163,7 +164,14 @@ export default function HeroSlide() {
                       )}
                     </div>
                     <div className="slide_img">
-                      <img src={slide.imageUrl} alt={slide.title} />
+                      <Image
+                        src={slide.imageUrl}
+                        alt={slide.title}
+                        width={800}
+                        height={600}
+                        className="w-full h-full object-contain"
+                        priority={slide.id <= 4}
+                      />
                     </div>
                   </div>
                 </div>

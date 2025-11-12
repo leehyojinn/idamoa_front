@@ -1,4 +1,6 @@
 import { createPageMetadata } from '@/lib/metadata'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
 
 export const metadata = createPageMetadata({
   title: '개인정보 처리방침',
@@ -9,7 +11,9 @@ export const metadata = createPageMetadata({
 
 export default function PrivacyPage() {
     return (
-        <main>
+        <>
+            <Navbar />
+            <main>
             <div className="container mx-auto px-6 py-12">
                 <h1 className="text-3xl font-bold mb-6">개인정보 처리방침</h1>
 
@@ -185,5 +189,7 @@ export default function PrivacyPage() {
                 </section>
             </div>
         </main>
+        <Footer />
+        </>
     );
 }

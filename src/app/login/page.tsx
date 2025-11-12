@@ -79,7 +79,7 @@ export default function LoginPage() {
           router.push('/')
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError('로그인 실패', error)
       showErrorToast(error, '로그인에 실패했습니다')
     } finally {
@@ -106,7 +106,7 @@ export default function LoginPage() {
         // OAuth 인가 페이지로 리다이렉트
         window.location.href = response.data.authorizationUrl
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logError(`${provider} 로그인 실패`, error)
       showErrorToast(error, '로그인에 실패했습니다. 다시 시도해주세요')
     }

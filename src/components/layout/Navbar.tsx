@@ -36,7 +36,7 @@ const NAV_ITEMS = [
     ]
   },
   { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },
-  { id: 'notices', label: '공지/이벤트', href: '/notices' },
+  { id: 'notices', label: '공지/이벤트', href: '/notices' },  
   { id: 'review', label: '고객후기', href: '/review' },
 ]
 
@@ -76,10 +76,10 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
               <Link href="/" className="flex items-center focus:outline-none focus:ring-2 focus:ring-primary rounded-lg">
                 <Image
                   src="/images/bi/bi-logo-wide-blue.svg"
-                  alt="MyApp Logo"
+                  alt="Logo"
                   width={120}
                   height={40}
-                  className="h-8 w-auto"
+                  style={{width:'150px'}}
                 />
               </Link>
             </div>
