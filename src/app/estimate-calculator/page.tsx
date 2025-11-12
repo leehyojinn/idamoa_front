@@ -257,6 +257,23 @@ export default function EstimateCalculatorPage() {
     return spaceInfoMap[spaceValue] || ''
   }
 
+  const formatPrice = (price: number): string => {
+    const rounded = Math.round(price)
+
+    if (rounded >= 10000) {
+      const eok = Math.floor(rounded / 10000)
+      const man = rounded % 10000
+
+      if (man === 0) {
+        return `${eok.toLocaleString()}억원`
+      } else {
+        return `${eok.toLocaleString()}억 ${man.toLocaleString()}만원`
+      }
+    } else {
+      return `${rounded.toLocaleString()}만원`
+    }
+  }
+
   const getSpaceIcon = (spaceValue: string): string => {
     const iconMap: { [key: string]: string } = {
       'demolition': '🔨',
@@ -448,7 +465,7 @@ export default function EstimateCalculatorPage() {
     const screenPrice = screenAvgPrice * screenCount
 
     return discountedPrice + screenPrice
-  }, [selectedConstructionGrade, selectedSpaces, area, screenCount])
+  }, [selectedConstructionGrade, selectedSpaces, area, screenCount, selectedHospitalType])
 
   const minEstimate = useMemo(() => {
     let totalPerPyeong = 0
@@ -476,7 +493,7 @@ export default function EstimateCalculatorPage() {
     const screenPrice = screenPricePerUnit.min * screenCount
 
     return discountedPrice + screenPrice
-  }, [selectedConstructionGrade, selectedSpaces, area, screenCount])
+  }, [selectedConstructionGrade, selectedSpaces, area, screenCount, selectedHospitalType])
 
   const maxEstimate = useMemo(() => {
     let totalPerPyeong = 0
@@ -504,7 +521,7 @@ export default function EstimateCalculatorPage() {
     const screenPrice = screenPricePerUnit.max * screenCount
 
     return discountedPrice + screenPrice
-  }, [selectedConstructionGrade, selectedSpaces, area, screenCount])
+  }, [selectedConstructionGrade, selectedSpaces, area, screenCount, selectedHospitalType])
 
   return (
     <>
@@ -902,11 +919,10 @@ export default function EstimateCalculatorPage() {
                   className="bg-white/10 rounded-lg p-4 backdrop-blur-sm mb-4"
                 >
                   <div className="text-3xl sm:text-4xl font-bold">
-                    {minEstimate.toFixed(0)} ~ {maxEstimate.toFixed(0)}
-                    <span className="text-lg">만원</span>
+                    {formatPrice(minEstimate)} ~ {formatPrice(maxEstimate)}
                   </div>
                   <div className="text-xs opacity-75 mt-2">
-                    평균 약 {totalEstimate.toFixed(0)}만원
+                    평균 약 {formatPrice(totalEstimate)}
                   </div>
                 </motion.div>
 

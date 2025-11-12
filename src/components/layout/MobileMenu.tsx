@@ -73,18 +73,27 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
                       >
                         {hasChildren ? (
                           <div>
-                            <button
-                              onClick={() => toggleExpanded(item.id)}
-                              className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
-                            >
-                              <span>{item.label}</span>
-                              <motion.div
-                                animate={{ rotate: isExpanded ? 180 : 0 }}
-                                transition={{ duration: 0.2 }}
+                            <div className="flex items-center">
+                              <Link
+                                href={item.href}
+                                onClick={onClose}
+                                className="flex-1 px-4 py-3 rounded-l-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
                               >
-                                <FaChevronDown className="w-3 h-3" />
-                              </motion.div>
-                            </button>
+                                {item.label}
+                              </Link>
+                              <button
+                                onClick={() => toggleExpanded(item.id)}
+                                className="px-3 py-3 rounded-r-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors"
+                                aria-label={`${item.label} 하위 메뉴 ${isExpanded ? '접기' : '펼치기'}`}
+                              >
+                                <motion.div
+                                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  <FaChevronDown className="w-3 h-3" />
+                                </motion.div>
+                              </button>
+                            </div>
                             <AnimatePresence>
                               {isExpanded && (
                                 <motion.ul
