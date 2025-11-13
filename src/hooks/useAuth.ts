@@ -12,9 +12,10 @@ export const useAuth = () => {
       const response = await loginApi({ email, password })
 
       if (response.success) {
-        // 토큰 저장
-        localStorage.setItem('accessToken', response.data.accessToken)
-        localStorage.setItem('refreshToken', response.data.refreshToken)
+        // ✅ Access Token만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
+        if (response.data.accessToken) {
+          localStorage.setItem('accessToken', response.data.accessToken)
+        }
 
         // 사용자 정보 저장
         setUser({
@@ -45,8 +46,8 @@ export const useAuth = () => {
     try {
       await logoutApi()
 
-      // 로컬 스토리지 및 상태 클리어
-      localStorage.clear()
+      // ✅ Access Token만 삭제 (Refresh Token은 백엔드에서 쿠키 삭제)
+      localStorage.removeItem('accessToken')
       clearAuth()
 
       showSuccessToast('로그아웃되었습니다')
@@ -54,7 +55,7 @@ export const useAuth = () => {
     } catch (error: unknown) {
       logError('로그아웃 실패', error)
       // 에러가 나도 로컬 데이터는 삭제
-      localStorage.clear()
+      localStorage.removeItem('accessToken')
       clearAuth()
       router.push('/login')
     }

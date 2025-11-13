@@ -11,7 +11,12 @@
       "Bash(find:*)",
       "Bash(git check-ignore:*)",
       "Bash(npm audit:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd //c \"taskkill /F /PID 14332\")"
     ],
     "deny": [],
     "ask": []

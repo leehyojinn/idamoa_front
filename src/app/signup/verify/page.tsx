@@ -122,9 +122,10 @@ export default function VerifyPage() {
         signupToken,
       })
 
-      // 3. 토큰 저장
-      localStorage.setItem('accessToken', response.data.accessToken)
-      localStorage.setItem('refreshToken', response.data.refreshToken)
+      // 3. Access Token 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
+      if (response.data.accessToken) {
+        localStorage.setItem('accessToken', response.data.accessToken)
+      }
 
       // 4. signupToken 제거
       sessionStorage.removeItem('signupToken')

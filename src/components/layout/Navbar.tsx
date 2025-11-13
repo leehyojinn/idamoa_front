@@ -28,9 +28,9 @@ const NAV_ITEMS = [
   },
   {
     id: 'consultation-request',
-    label : '상담신청',
-    href : '/consultations',
-    children : [
+    label: '상담신청',
+    href: '/consultations',
+    children: [
       { id: 'consultations', label: '빠른상담', href: '/consultations' },
       { id: 'planner', label: '플래너', href: '/planner' },
     ]

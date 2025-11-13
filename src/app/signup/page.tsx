@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { signupStart } from '@/lib/api/auth'
-import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
+import { useSignupStart } from '@/hooks/useAuthMutations'
+import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import Checkbox from '@/components/ui/Checkbox'
@@ -49,8 +49,10 @@ type SignupForm = z.infer<typeof signupSchema>
 
 export default function SignupPage() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
   const [allAgreed, setAllAgreed] = useState(false)
+
+  // React Query mutation
+  const signupStartMutation = useSignupStart()
 
   const {
     register,
@@ -93,28 +95,28 @@ export default function SignupPage() {
   }
 
   const onSubmit = async (data: SignupForm) => {
-    setIsLoading(true)
-    try {
-      const response = await signupStart({
+    signupStartMutation.mutate(
+      {
         email: data.email,
         password: data.password,
         termsAgreed: data.termsAgreed,
         privacyAgreed: data.privacyAgreed,
         marketingAgreed: data.marketingAgreed || false,
-      })
+      },
+      {
+        onSuccess: (response) => {
+          // signupToken을 sessionStorage에 저장
+          sessionStorage.setItem('signupToken', response.data.signupToken)
+          sessionStorage.setItem('signupEmail', data.email)
 
-      // signupToken을 sessionStorage에 저장
-      sessionStorage.setItem('signupToken', response.data.signupToken)
-      sessionStorage.setItem('signupEmail', data.email)
-
-      showSuccessToast('이메일 인증을 진행해주세요')
-      router.push('/signup/verify')
-    } catch (error: unknown) {
-      logError('회원가입 시작 실패', error)
-      showErrorToast(error, '회원가입 중 오류가 발생했습니다')
-    } finally {
-      setIsLoading(false)
-    }
+          showSuccessToast('이메일 인증을 진행해주세요')
+          router.push('/signup/verify')
+        },
+        onError: (error) => {
+          showErrorToast(error, '회원가입 중 오류가 발생했습니다')
+        },
+      }
+    )
   }
 
   return (
@@ -242,10 +244,10 @@ export default function SignupPage() {
             <div>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={signupStartMutation.isPending}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                {isLoading ? '처리 중...' : '다음'}
+                {signupStartMutation.isPending ? '처리 중...' : '다음'}
               </button>
             </div>
 

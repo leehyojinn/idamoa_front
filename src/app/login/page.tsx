@@ -59,9 +59,10 @@ export default function LoginPage() {
       })
 
       if (response.success) {
-        // 토큰 저장
-        localStorage.setItem('accessToken', response.data.accessToken)
-        localStorage.setItem('refreshToken', response.data.refreshToken)
+        // ✅ Access Token만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
+        if (response.data.accessToken) {
+          localStorage.setItem('accessToken', response.data.accessToken)
+        }
 
         // 사용자 정보 저장
         setUser({

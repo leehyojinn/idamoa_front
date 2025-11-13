@@ -20,15 +20,13 @@ export default function OAuthCallbackPage() {
         // URL 파라미터에서 데이터 추출
         const success = searchParams.get('success')
         const accessToken = searchParams.get('accessToken')
-        const refreshToken = searchParams.get('refreshToken')
         const requiresProfileSetup =
           searchParams.get('requiresProfileSetup') === 'true'
         const email = searchParams.get('email')
 
-        if (success === 'true' && accessToken && refreshToken) {
-          // 토큰 저장
+        if (success === 'true' && accessToken) {
+          // ✅ Access Token만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
           localStorage.setItem('accessToken', accessToken)
-          localStorage.setItem('refreshToken', refreshToken)
 
           // 사용자 정보 저장
           setUser({

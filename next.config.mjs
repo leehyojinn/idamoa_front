@@ -11,6 +11,24 @@ const nextConfig = {
   experimental: {
     optimizeCss: true, // CSS 최적화 활성화
   },
+
+  // 외부 이미지 도메인 설정
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'hip-damoa-uploads-local.s3.ap-northeast-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.s3.ap-northeast-2.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudfront.net',
+      },
+    ],
+  },
 }
 
 export default nextConfig

@@ -15,6 +15,7 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // ⭐ 쿠키 자동 전송/수신 활성화
 })
 
 /**
@@ -55,28 +56,20 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken')
-
-        if (!refreshToken) {
-          throw new Error('Refresh Token이 없습니다')
-        }
-
         logInfo('토큰 갱신 시도')
 
         // Refresh Token으로 새 Access Token 발급
+        // refreshToken은 httpOnly 쿠키로 자동 전송됨
         const response = await axios.post(
           `${apiBaseUrl}/api/auth/refresh`,
-          {
-            refreshToken,
-          }
+          {}, // ⭐ 빈 객체 (쿠키가 자동으로 전송됨)
+          { withCredentials: true } // ⭐ 쿠키 전송 활성화
         )
 
         const newAccessToken = response.data.data.accessToken
-        const newRefreshToken = response.data.data.refreshToken
 
-        // 새 토큰 저장
+        // ✅ 새 Access Token만 저장 (Refresh Token은 쿠키에 자동 저장)
         localStorage.setItem('accessToken', newAccessToken)
-        localStorage.setItem('refreshToken', newRefreshToken)
 
         logInfo('토큰 갱신 성공', '원래 요청 재시도')
 
@@ -87,8 +80,8 @@ axiosInstance.interceptors.response.use(
         // Refresh Token도 만료됨 → 로그아웃 처리
         logError('토큰 갱신 실패', refreshError)
 
-        // 로컬 스토리지 클리어
-        localStorage.clear()
+        // ✅ Access Token만 삭제 (Refresh Token은 쿠키로 관리됨)
+        localStorage.removeItem('accessToken')
 
         // 사용자에게 알림
         if (typeof window !== 'undefined') {

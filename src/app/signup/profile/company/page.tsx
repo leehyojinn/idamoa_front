@@ -10,6 +10,7 @@ import { createCompanyProfile } from '@/lib/api/profile'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
+import { logError, showErrorToast } from '@/lib/errorHandler'
 
 // ========================================
 // Validation Schema
