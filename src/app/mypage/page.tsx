@@ -342,6 +342,14 @@ export default function MyPage() {
                   </div>
                 )}
               </div>
+
+              {/* 비밀번호 변경 버튼 */}
+              <button
+                onClick={() => router.push('/mypage/password-change')}
+                className="w-full mt-4 py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+              >
+                비밀번호 변경
+              </button>
             </div>
           </div>
         </div>

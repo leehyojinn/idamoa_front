@@ -11,6 +11,7 @@ import MobileMenu from './MobileMenu'
 import UserMenu from './UserMenu'
 import { useScrollPosition } from '@/hooks/useScrollPosition'
 import { useAuth } from '@/hooks/useAuth'
+import { useDialog } from '@/hooks/useDialog'
 import type { NavbarProps } from '@/types/navbar'
 
 const NAV_ITEMS = [
@@ -44,6 +45,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { isScrolled } = useScrollPosition(20)
   const { user, logout } = useAuth()
+  const { confirm } = useDialog()
 
   const handleLogin = () => {
     // Redirect to login page
@@ -52,8 +54,15 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
     }
   }
 
-  const handleLogout = async () => {
-    await logout()
+  const handleLogout = () => {
+    confirm('로그아웃 하시겠습니까?', {
+      title: '로그아웃',
+      confirmText: '로그아웃',
+      cancelText: '취소',
+      onConfirm: async () => {
+        await logout()
+      },
+    })
   }
 
   return (

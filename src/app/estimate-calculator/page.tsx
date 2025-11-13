@@ -532,7 +532,7 @@ export default function EstimateCalculatorPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-gradient-to-r from-purple-600 to-purple-800 py-16 px-4"
+          className="bg-gradient-to-r from-blue-600 to-blue-800 py-16 px-4"
         >
           <div className="container mx-auto text-center text-white">
             <h1 className="text-3xl sm:text-4xl font-bold mb-3">

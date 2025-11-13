@@ -17,6 +17,11 @@ interface FormData {
   description: string
   detailContent: string
 
+  // 사업자 정보
+  businessRegistrationNumber: string
+  representativeName: string
+  companyType: string
+
   // 연락처
   primaryPhone: string
   secondaryPhone: string
@@ -32,9 +37,17 @@ interface FormData {
 
   // 영업 정보
   businessHoursNote: string
+  mondayHours: string
+  tuesdayHours: string
+  wednesdayHours: string
+  thursdayHours: string
+  fridayHours: string
+  saturdayHours: string
+  sundayHours: string
   serviceAreas: string
   tags: string
   keywords: string
+  filterOptionIds: string
 
   // SNS 링크
   facebookUrl: string
@@ -60,6 +73,10 @@ export default function CompanyEditPage() {
   const [logoImageUrl, setLogoImageUrl] = useState<string>('')
   const [coverImageUrl, setCoverImageUrl] = useState<string>('')
   const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([])
+
+  // 좌표 상태 관리
+  const [latitude, setLatitude] = useState<number | undefined>(undefined)
+  const [longitude, setLongitude] = useState<number | undefined>(undefined)
 
   // React Query
   const { data: companyResponse, isLoading: isLoadingCompany } = useCompanyByUuid(companyUuid)
@@ -103,6 +120,14 @@ export default function CompanyEditPage() {
       setValue('description', company.description)
       setValue('detailContent', company.detailContent || '')
 
+      // 사업자 정보
+      if (company.businessInfo) {
+        const info = company.businessInfo as Record<string, string>
+        setValue('businessRegistrationNumber', info.businessRegistrationNumber || '')
+        setValue('representativeName', info.representativeName || '')
+        setValue('companyType', info.companyType || '')
+      }
+
       // 연락처
       setValue('primaryPhone', company.primaryPhone)
       setValue('secondaryPhone', company.secondaryPhone || '')
@@ -119,11 +144,34 @@ export default function CompanyEditPage() {
       setValue('addressDetail', detailAddress || '')
       setValue('postalCode', company.postalCode)
 
+      // 좌표
+      if (company.latitude !== undefined) setLatitude(company.latitude)
+      if (company.longitude !== undefined) setLongitude(company.longitude)
+
       // 영업 정보
       setValue('businessHoursNote', company.businessHoursNote || '')
+
+      // 영업시간 구조화
+      if (company.businessHours) {
+        const hours = company.businessHours as Record<string, string>
+        setValue('mondayHours', hours.monday || '')
+        setValue('tuesdayHours', hours.tuesday || '')
+        setValue('wednesdayHours', hours.wednesday || '')
+        setValue('thursdayHours', hours.thursday || '')
+        setValue('fridayHours', hours.friday || '')
+        setValue('saturdayHours', hours.saturday || '')
+        setValue('sundayHours', hours.sunday || '')
+      }
+
       setValue('serviceAreas', company.serviceAreas?.join(', ') || '')
       setValue('tags', company.tags?.join(', ') || '')
       setValue('keywords', company.keywords?.join(', ') || '')
+
+      // 필터 옵션
+      if (company.filterOptions && company.filterOptions.length > 0) {
+        const filterIds = company.filterOptions.map(opt => opt.id).join(', ')
+        setValue('filterOptionIds', filterIds)
+      }
 
       // SNS 링크
       if (company.socialLinks) {
@@ -157,6 +205,12 @@ export default function CompanyEditPage() {
     openAddressSearch((data) => {
       setValue('address', data.address)
       setValue('postalCode', data.zonecode)
+
+      // 좌표 저장
+      if (data.latitude !== undefined && data.longitude !== undefined) {
+        setLatitude(data.latitude)
+        setLongitude(data.longitude)
+      }
     })
   }
 
@@ -170,6 +224,22 @@ export default function CompanyEditPage() {
       .toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '')
+
+    // 사업자 정보 객체 생성
+    const businessInfo: Record<string, string> = {}
+    if (data.businessRegistrationNumber) businessInfo.businessRegistrationNumber = data.businessRegistrationNumber
+    if (data.representativeName) businessInfo.representativeName = data.representativeName
+    if (data.companyType) businessInfo.companyType = data.companyType
+
+    // 영업시간 구조화 객체 생성
+    const businessHours: Record<string, string> = {}
+    if (data.mondayHours) businessHours.monday = data.mondayHours
+    if (data.tuesdayHours) businessHours.tuesday = data.tuesdayHours
+    if (data.wednesdayHours) businessHours.wednesday = data.wednesdayHours
+    if (data.thursdayHours) businessHours.thursday = data.thursdayHours
+    if (data.fridayHours) businessHours.friday = data.fridayHours
+    if (data.saturdayHours) businessHours.saturday = data.saturdayHours
+    if (data.sundayHours) businessHours.sunday = data.sundayHours
 
     // SNS 링크 객체 생성
     const socialLinks: Record<string, string> = {}
@@ -185,6 +255,13 @@ export default function CompanyEditPage() {
       detailContent: data.detailContent || undefined,
       detailContentFormat: 'text',
 
+      // 사업자 정보
+      businessInfo: Object.keys(businessInfo).length > 0 ? businessInfo : undefined,
+
+      // 영업시간
+      businessHours: Object.keys(businessHours).length > 0 ? businessHours : undefined,
+      businessHoursNote: data.businessHoursNote || undefined,
+
       primaryPhone: data.primaryPhone,
       secondaryPhone: data.secondaryPhone || undefined,
       emergencyContact: data.emergencyContact || undefined,
@@ -195,7 +272,9 @@ export default function CompanyEditPage() {
       address: fullAddress,
       postalCode: data.postalCode,
 
-      businessHoursNote: data.businessHoursNote || undefined,
+      // 좌표 정보
+      latitude: latitude,
+      longitude: longitude,
 
       // 배열 변환 (쉼표로 구분된 문자열을 배열로)
       serviceAreas: data.serviceAreas
@@ -206,6 +285,9 @@ export default function CompanyEditPage() {
         : undefined,
       keywords: data.keywords
         ? data.keywords.split(',').map(s => s.trim()).filter(Boolean)
+        : undefined,
+      filterOptionIds: data.filterOptionIds
+        ? data.filterOptionIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
         : undefined,
 
       // SNS 링크
@@ -326,6 +408,55 @@ export default function CompanyEditPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="회사의 강점, 주요 서비스, 경력 등을 자유롭게 작성해주세요"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* 사업자 정보 */}
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">사업자 정보</h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="businessRegistrationNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                    사업자등록번호
+                  </label>
+                  <input
+                    id="businessRegistrationNumber"
+                    type="text"
+                    {...register('businessRegistrationNumber')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="000-00-00000"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="representativeName" className="block text-sm font-medium text-gray-700 mb-1">
+                    대표자명
+                  </label>
+                  <input
+                    id="representativeName"
+                    type="text"
+                    {...register('representativeName')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="홍길동"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="companyType" className="block text-sm font-medium text-gray-700 mb-1">
+                    업체 형태
+                  </label>
+                  <select
+                    id="companyType"
+                    {...register('companyType')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                    <option value="">선택하세요</option>
+                    <option value="individual">개인사업자</option>
+                    <option value="corporation">법인사업자</option>
+                    <option value="other">기타</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -493,6 +624,83 @@ export default function CompanyEditPage() {
                   />
                 </div>
 
+                {/* 요일별 영업시간 */}
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">요일별 영업시간 (선택사항)</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="mondayHours" className="block text-xs text-gray-600 mb-1">월요일</label>
+                      <input
+                        id="mondayHours"
+                        type="text"
+                        {...register('mondayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="tuesdayHours" className="block text-xs text-gray-600 mb-1">화요일</label>
+                      <input
+                        id="tuesdayHours"
+                        type="text"
+                        {...register('tuesdayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="wednesdayHours" className="block text-xs text-gray-600 mb-1">수요일</label>
+                      <input
+                        id="wednesdayHours"
+                        type="text"
+                        {...register('wednesdayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="thursdayHours" className="block text-xs text-gray-600 mb-1">목요일</label>
+                      <input
+                        id="thursdayHours"
+                        type="text"
+                        {...register('thursdayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="fridayHours" className="block text-xs text-gray-600 mb-1">금요일</label>
+                      <input
+                        id="fridayHours"
+                        type="text"
+                        {...register('fridayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="saturdayHours" className="block text-xs text-gray-600 mb-1">토요일</label>
+                      <input
+                        id="saturdayHours"
+                        type="text"
+                        {...register('saturdayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="sundayHours" className="block text-xs text-gray-600 mb-1">일요일</label>
+                      <input
+                        id="sundayHours"
+                        type="text"
+                        {...register('sundayHours')}
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="09:00-18:00 또는 휴무"
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <label htmlFor="serviceAreas" className="block text-sm font-medium text-gray-700 mb-1">
                     서비스 지역
@@ -637,6 +845,22 @@ export default function CompanyEditPage() {
                   />
                   <p className="mt-1 text-xs text-gray-500">
                     검색에 사용될 키워드를 쉼표(,)로 구분하여 입력해주세요
+                  </p>
+                </div>
+
+                <div>
+                  <label htmlFor="filterOptionIds" className="block text-sm font-medium text-gray-700 mb-1">
+                    필터 옵션 ID
+                  </label>
+                  <input
+                    id="filterOptionIds"
+                    type="text"
+                    {...register('filterOptionIds')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="쉼표로 구분하여 입력 (예: 1, 2, 3)"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    필터 옵션 ID를 쉼표(,)로 구분하여 입력해주세요
                   </p>
                 </div>
               </div>

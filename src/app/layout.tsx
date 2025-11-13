@@ -3,6 +3,8 @@ import QueryProvider from '@/providers/QueryProvider'
 import { Toaster } from 'react-hot-toast'
 import Script from 'next/script'
 import { defaultMetadata } from '@/lib/metadata'
+import Dialog from '@/components/ui/Dialog'
+import PasswordResetModal from '@/components/ui/PasswordResetModal'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -69,7 +71,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </QueryProvider>
         <Toaster position="top-right" />
-
+        <Dialog />
+        <PasswordResetModal />
       </body>
     </html>
   )

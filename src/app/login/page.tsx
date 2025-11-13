@@ -15,6 +15,7 @@ import {
 } from '@/lib/api/auth'
 import { useAuthStore } from '@/store/authStore'
 import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
+import { usePasswordResetStore } from '@/stores/usePasswordResetStore'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
@@ -37,6 +38,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const setUser = useAuthStore((state) => state.setUser)
+  const openPasswordResetModal = usePasswordResetStore((state) => state.openModal)
 
   const {
     register,
@@ -181,12 +183,13 @@ export default function LoginPage() {
 
             {/* Forgot Password */}
             <div className="flex items-center justify-center">
-              <Link
-                href="/forgot-password"
+              <button
+                type="button"
+                onClick={openPasswordResetModal}
                 className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
               >
                 비밀번호를 잊으셨나요?
-              </Link>
+              </button>
             </div>
 
             {/* Submit Button */}
