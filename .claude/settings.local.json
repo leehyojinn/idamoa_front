@@ -16,7 +16,8 @@
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
       "Bash(findstr:*)",
-      "Bash(cmd //c \"taskkill /F /PID 14332\")"
+      "Bash(cmd //c \"taskkill /F /PID 14332\")",
+      "Bash(cmd //c \"taskkill /F /PID 26900\")"
     ],
     "deny": [],
     "ask": []

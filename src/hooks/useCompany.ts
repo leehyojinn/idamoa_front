@@ -30,12 +30,13 @@ export const companyKeys = {
 /**
  * 내 회사 정보 조회
  */
-export const useMyCompany = () => {
+export const useMyCompany = (enabled: boolean = true) => {
   return useQuery({
     queryKey: companyKeys.my(),
     queryFn: getMyCompany,
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5분
+    enabled, // 조건부 실행
   })
 }
 
@@ -78,19 +79,19 @@ export const useCreateCompany = () => {
 /**
  * 회사 정보 수정
  */
-export const useUpdateCompany = (companyUuid: string) => {
+export const useUpdateCompany = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
     ApiResponse<CompanyResponse>,
     Error,
-    Partial<CompanyRegistrationData>
+    { companyUuid: string; data: Partial<CompanyRegistrationData> }
   >({
-    mutationFn: (data) => updateCompany(companyUuid, data),
-    onSuccess: () => {
+    mutationFn: ({ companyUuid, data }) => updateCompany(companyUuid, data),
+    onSuccess: (_, variables) => {
       // 내 회사 정보 및 해당 회사 상세 정보 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: companyKeys.my() })
-      queryClient.invalidateQueries({ queryKey: companyKeys.detail(companyUuid) })
+      queryClient.invalidateQueries({ queryKey: companyKeys.detail(variables.companyUuid) })
     },
   })
 }

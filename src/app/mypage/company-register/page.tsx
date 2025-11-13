@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
-import { useCreateCompany } from '@/hooks/useCompany'
+import { useCreateCompany, useUpdateCompany, useMyCompany } from '@/hooks/useCompany'
+import { useProfile } from '@/hooks/useProfile'
 import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import ImageUpload from '@/components/ui/ImageUpload'
@@ -49,6 +50,10 @@ interface FormData {
   keywords: string
   filterOptionIds: string
 
+  // 통계 정보
+  portfolioCount: number
+  completedProjects: number
+
   // SNS 링크
   facebookUrl: string
   instagramUrl: string
@@ -64,7 +69,14 @@ interface FormData {
 export default function CompanyRegisterPage() {
   const router = useRouter()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const { isScriptLoaded, openAddressSearch } = useKakaoAddress()
+
+  // 프로필 정보 가져오기
+  const { data: profileResponse, isLoading: profileLoading } = useProfile()
+
+  // 회사 정보 가져오기 (수정 모드용)
+  const { data: companyResponse, isLoading: companyLoading } = useMyCompany(true)
 
   // 이미지 URL 상태 관리
   const [logoImageUrl, setLogoImageUrl] = useState<string>('')
@@ -77,6 +89,9 @@ export default function CompanyRegisterPage() {
 
   // React Query mutation
   const createCompanyMutation = useCreateCompany()
+  const updateCompanyMutation = useUpdateCompany()
+  const isEditMode = !!companyResponse?.data
+  const companyUuid = companyResponse?.data?.uuid || ''
 
   const {
     register,
@@ -105,6 +120,99 @@ export default function CompanyRegisterPage() {
     checkAuth()
   }, [router])
 
+  // 회사 정보를 폼에 자동 입력 (수정 모드)
+  useEffect(() => {
+    if (companyResponse?.data) {
+      const company = companyResponse.data
+
+      // 기본 정보
+      if (company.name) setValue('name', company.name)
+      if (company.description) setValue('description', company.description)
+      if (company.detailContent) setValue('detailContent', company.detailContent)
+
+      // 연락처
+      if (company.primaryPhone) setValue('primaryPhone', company.primaryPhone)
+      if (company.secondaryPhone) setValue('secondaryPhone', company.secondaryPhone)
+      if (company.emergencyContact) setValue('emergencyContact', company.emergencyContact)
+      if (company.email) setValue('email', company.email)
+      if (company.websiteUrl) setValue('websiteUrl', company.websiteUrl)
+      if (company.kakaoChatUrl) setValue('kakaoChatUrl', company.kakaoChatUrl)
+
+      // 주소
+      if (company.address) setValue('address', company.address)
+      if (company.postalCode) setValue('postalCode', company.postalCode)
+      if (company.latitude) setLatitude(company.latitude)
+      if (company.longitude) setLongitude(company.longitude)
+
+      // 사업자 정보
+      if (company.businessInfo) {
+        const businessInfo = company.businessInfo as Record<string, string>
+        if (businessInfo.businessRegistrationNumber) setValue('businessRegistrationNumber', businessInfo.businessRegistrationNumber)
+        if (businessInfo.representativeName) setValue('representativeName', businessInfo.representativeName)
+        if (businessInfo.companyType) setValue('companyType', businessInfo.companyType)
+      }
+
+      // 영업시간
+      if (company.businessHours) {
+        const businessHours = company.businessHours as Record<string, string>
+        if (businessHours.monday) setValue('mondayHours', businessHours.monday)
+        if (businessHours.tuesday) setValue('tuesdayHours', businessHours.tuesday)
+        if (businessHours.wednesday) setValue('wednesdayHours', businessHours.wednesday)
+        if (businessHours.thursday) setValue('thursdayHours', businessHours.thursday)
+        if (businessHours.friday) setValue('fridayHours', businessHours.friday)
+        if (businessHours.saturday) setValue('saturdayHours', businessHours.saturday)
+        if (businessHours.sunday) setValue('sundayHours', businessHours.sunday)
+      }
+      if (company.businessHoursNote) setValue('businessHoursNote', company.businessHoursNote)
+
+      // 서비스 지역, 태그, 키워드
+      if (company.serviceAreas) setValue('serviceAreas', company.serviceAreas.join(', '))
+      if (company.tags) setValue('tags', company.tags.join(', '))
+      if (company.keywords) setValue('keywords', company.keywords.join(', '))
+
+      // 필터 옵션
+      if (company.filterOptions) {
+        const filterIds = company.filterOptions.map(opt => opt.id).join(', ')
+        setValue('filterOptionIds', filterIds)
+      }
+
+      // SNS 링크
+      if (company.socialLinks) {
+        const socialLinks = company.socialLinks as Record<string, string>
+        if (socialLinks.facebook) setValue('facebookUrl', socialLinks.facebook)
+        if (socialLinks.instagram) setValue('instagramUrl', socialLinks.instagram)
+        if (socialLinks.youtube) setValue('youtubeUrl', socialLinks.youtube)
+        if (socialLinks.blog) setValue('blogUrl', socialLinks.blog)
+      }
+
+      // 이미지
+      if (company.images && company.images.length > 0) {
+        const logo = company.images.find(img => img.imageType === 'LOGO')
+        const cover = company.images.find(img => img.imageType === 'COVER')
+        const gallery = company.images.filter(img => img.imageType === 'GALLERY')
+
+        if (logo) setLogoImageUrl(logo.imageUrl)
+        if (cover) setCoverImageUrl(cover.imageUrl)
+        if (gallery.length > 0) setGalleryImageUrls(gallery.map(img => img.imageUrl))
+      }
+    }
+  }, [companyResponse, setValue])
+
+  // 프로필 정보를 폼에 자동 입력 (회사 정보가 없을 때만)
+  useEffect(() => {
+    if (profileResponse?.data && !companyResponse?.data) {
+      const profile = profileResponse.data
+
+      // 기본 정보 자동 입력
+      if (profile.name) setValue('name', profile.name)
+      if (profile.email) setValue('email', profile.email)
+      if (profile.phone) setValue('primaryPhone', profile.phone)
+      if (profile.address) setValue('address', profile.address)
+      if (profile.postalCode) setValue('postalCode', profile.postalCode)
+      if (profile.bio) setValue('description', profile.bio)
+    }
+  }, [profileResponse, companyResponse, setValue])
+
   // 주소 검색
   const handleAddressSearch = () => {
     if (!isScriptLoaded) {
@@ -125,103 +233,145 @@ export default function CompanyRegisterPage() {
   }
 
   const onSubmit = async (data: FormData) => {
-    const fullAddress = data.addressDetail
-      ? `${data.address} ${data.addressDetail}`
-      : data.address
-
-    // slug 생성 (회사명을 기반으로)
-    const slug = data.name
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^a-z0-9-]/g, '')
-
-    // 사업자 정보 객체 생성
-    const businessInfo: Record<string, string> = {}
-    if (data.businessRegistrationNumber) businessInfo.businessRegistrationNumber = data.businessRegistrationNumber
-    if (data.representativeName) businessInfo.representativeName = data.representativeName
-    if (data.companyType) businessInfo.companyType = data.companyType
-
-    // 영업시간 구조화 객체 생성
-    const businessHours: Record<string, string> = {}
-    if (data.mondayHours) businessHours.monday = data.mondayHours
-    if (data.tuesdayHours) businessHours.tuesday = data.tuesdayHours
-    if (data.wednesdayHours) businessHours.wednesday = data.wednesdayHours
-    if (data.thursdayHours) businessHours.thursday = data.thursdayHours
-    if (data.fridayHours) businessHours.friday = data.fridayHours
-    if (data.saturdayHours) businessHours.saturday = data.saturdayHours
-    if (data.sundayHours) businessHours.sunday = data.sundayHours
-
-    // SNS 링크 객체 생성
-    const socialLinks: Record<string, string> = {}
-    if (data.facebookUrl) socialLinks.facebook = data.facebookUrl
-    if (data.instagramUrl) socialLinks.instagram = data.instagramUrl
-    if (data.youtubeUrl) socialLinks.youtube = data.youtubeUrl
-    if (data.blogUrl) socialLinks.blog = data.blogUrl
-
-    const registrationData: CompanyRegistrationData = {
-      name: data.name,
-      slug: slug + '-' + Date.now(), // 고유성 보장
-      description: data.description,
-      detailContent: data.detailContent || undefined,
-      detailContentFormat: 'text',
-
-      // 사업자 정보
-      businessInfo: Object.keys(businessInfo).length > 0 ? businessInfo : undefined,
-
-      // 영업시간
-      businessHours: Object.keys(businessHours).length > 0 ? businessHours : undefined,
-      businessHoursNote: data.businessHoursNote || undefined,
-
-      primaryPhone: data.primaryPhone,
-      secondaryPhone: data.secondaryPhone || undefined,
-      emergencyContact: data.emergencyContact || undefined,
-      email: data.email,
-      websiteUrl: data.websiteUrl || undefined,
-      kakaoChatUrl: data.kakaoChatUrl || undefined,
-
-      address: fullAddress,
-      postalCode: data.postalCode,
-
-      // 좌표 정보
-      latitude: latitude,
-      longitude: longitude,
-
-      // 배열 변환 (쉼표로 구분된 문자열을 배열로)
-      serviceAreas: data.serviceAreas
-        ? data.serviceAreas.split(',').map(s => s.trim()).filter(Boolean)
-        : undefined,
-      tags: data.tags
-        ? data.tags.split(',').map(s => s.trim()).filter(Boolean)
-        : undefined,
-      keywords: data.keywords
-        ? data.keywords.split(',').map(s => s.trim()).filter(Boolean)
-        : undefined,
-      filterOptionIds: data.filterOptionIds
-        ? data.filterOptionIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
-        : undefined,
-
-      // SNS 링크
-      socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
-
-      // 이미지 URL 추가
-      logoImageUrl: logoImageUrl || undefined,
-      coverImageUrl: coverImageUrl || undefined,
-      galleryImageUrls: galleryImageUrls.length > 0 ? galleryImageUrls : undefined,
+    // 중복 제출 방지
+    if (isSubmitting) {
+      console.log('이미 제출 중입니다')
+      return
     }
 
-    createCompanyMutation.mutate(registrationData, {
-      onSuccess: () => {
-        showSuccessToast('회사 정보가 등록되었습니다!')
-        router.push('/mypage')
-      },
-      onError: (error) => {
-        showErrorToast(error, '회사 등록 중 오류가 발생했습니다')
-      },
-    })
+    setIsSubmitting(true)
+
+    try {
+      const fullAddress = data.addressDetail
+        ? `${data.address} ${data.addressDetail}`
+        : data.address
+
+      // slug 생성 (회사명을 기반으로)
+      const slug = data.name
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '')
+
+      // 사업자 정보 객체 생성
+      const businessInfo: Record<string, string> = {}
+      if (data.businessRegistrationNumber) businessInfo.businessRegistrationNumber = data.businessRegistrationNumber
+      if (data.representativeName) businessInfo.representativeName = data.representativeName
+      if (data.companyType) businessInfo.companyType = data.companyType
+
+      // 영업시간 구조화 객체 생성
+      const businessHours: Record<string, string> = {}
+      if (data.mondayHours) businessHours.monday = data.mondayHours
+      if (data.tuesdayHours) businessHours.tuesday = data.tuesdayHours
+      if (data.wednesdayHours) businessHours.wednesday = data.wednesdayHours
+      if (data.thursdayHours) businessHours.thursday = data.thursdayHours
+      if (data.fridayHours) businessHours.friday = data.fridayHours
+      if (data.saturdayHours) businessHours.saturday = data.saturdayHours
+      if (data.sundayHours) businessHours.sunday = data.sundayHours
+
+      // SNS 링크 객체 생성
+      const socialLinks: Record<string, string> = {}
+      if (data.facebookUrl) socialLinks.facebook = data.facebookUrl
+      if (data.instagramUrl) socialLinks.instagram = data.instagramUrl
+      if (data.youtubeUrl) socialLinks.youtube = data.youtubeUrl
+      if (data.blogUrl) socialLinks.blog = data.blogUrl
+
+      const registrationData: CompanyRegistrationData = {
+        name: data.name,
+        ...(isEditMode ? {} : { slug: slug + '-' + Date.now() }), // 신규 등록일 때만 slug 생성
+        description: data.description,
+        detailContent: data.detailContent || undefined,
+        detailContentFormat: 'text',
+
+        // 사업자 정보
+        businessInfo: Object.keys(businessInfo).length > 0 ? businessInfo : undefined,
+
+        // 영업시간
+        businessHours: Object.keys(businessHours).length > 0 ? businessHours : undefined,
+        businessHoursNote: data.businessHoursNote || undefined,
+
+        primaryPhone: data.primaryPhone,
+        secondaryPhone: data.secondaryPhone || undefined,
+        emergencyContact: data.emergencyContact || undefined,
+        email: data.email,
+        websiteUrl: data.websiteUrl || undefined,
+        kakaoChatUrl: data.kakaoChatUrl || undefined,
+
+        address: fullAddress,
+        postalCode: data.postalCode,
+
+        // 좌표 정보
+        latitude: latitude,
+        longitude: longitude,
+
+        // 배열 변환 (쉼표로 구분된 문자열을 배열로)
+        serviceAreas: data.serviceAreas
+          ? data.serviceAreas.split(',').map(s => s.trim()).filter(Boolean)
+          : undefined,
+        tags: data.tags
+          ? data.tags.split(',').map(s => s.trim()).filter(Boolean)
+          : undefined,
+        keywords: data.keywords
+          ? data.keywords.split(',').map(s => s.trim()).filter(Boolean)
+          : undefined,
+        filterOptionIds: data.filterOptionIds
+          ? data.filterOptionIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
+          : undefined,
+
+        // SNS 링크
+        socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
+
+        // 이미지 URL 추가
+        logoImageUrl: logoImageUrl || undefined,
+        coverImageUrl: coverImageUrl || undefined,
+        galleryImageUrls: galleryImageUrls.length > 0 ? galleryImageUrls : undefined,
+      }
+
+      if (isEditMode) {
+        // 수정 모드
+        if (!companyUuid) {
+          showErrorToast(null, '회사 UUID를 찾을 수 없습니다')
+          setIsSubmitting(false)
+          return
+        }
+
+        console.log('업체 수정 요청:', {
+          companyUuid,
+          isEditMode,
+          dataKeys: Object.keys(registrationData)
+        })
+
+        updateCompanyMutation.mutate({ companyUuid, data: registrationData }, {
+          onSuccess: () => {
+            showSuccessToast('회사 정보가 수정되었습니다!')
+            router.push('/mypage')
+          },
+          onError: (error) => {
+            console.error('수정 오류:', error)
+            showErrorToast(error, '회사 수정 중 오류가 발생했습니다')
+            setIsSubmitting(false)
+          },
+        })
+      } else {
+        // 등록 모드
+        createCompanyMutation.mutate(registrationData, {
+          onSuccess: () => {
+            showSuccessToast('회사 정보가 등록되었습니다!')
+            router.push('/mypage')
+          },
+          onError: (error) => {
+            showErrorToast(error, '회사 등록 중 오류가 발생했습니다')
+            setIsSubmitting(false)
+          },
+        })
+      }
+    } catch (error) {
+      console.error('Submit error:', error)
+      setIsSubmitting(false)
+    }
   }
 
-  // 로그인 체크 중
-  if (isCheckingAuth) {
+  // 로그인 체크 중 또는 프로필 로딩 중
+  if (isCheckingAuth || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -239,9 +389,11 @@ export default function CompanyRegisterPage() {
       <main className="flex-1 bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">회사 정보 등록</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              {isEditMode ? '업체 상세정보 수정' : '회사 정보 등록'}
+            </h1>
             <p className="mt-2 text-sm text-gray-600">
-              업체 정보를 등록하여 고객에게 알려보세요
+              {isEditMode ? '업체 정보를 수정하여 최신 정보를 유지하세요' : '업체 정보를 등록하여 고객에게 알려보세요'}
             </p>
           </div>
 
@@ -793,16 +945,19 @@ export default function CompanyRegisterPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                disabled={isSubmitting}
+                className="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 취소
               </button>
               <button
                 type="submit"
-                disabled={createCompanyMutation.isPending}
+                disabled={isSubmitting || createCompanyMutation.isPending || updateCompanyMutation.isPending}
                 className="flex-1 py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {createCompanyMutation.isPending ? '등록 중...' : '회사 정보 등록'}
+                {isSubmitting || createCompanyMutation.isPending || updateCompanyMutation.isPending
+                  ? isEditMode ? '수정 중...' : '등록 중...'
+                  : isEditMode ? '업체 정보 수정' : '회사 정보 등록'}
               </button>
             </div>
           </form>

@@ -4,9 +4,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  getProfile,
   getProfileStatus,
   createUserProfile,
   createCompanyProfile,
+  type GetProfileResponse,
   type ProfileStatusResponse,
   type CreateUserProfileRequest,
   type CreateUserProfileResponse,
@@ -20,12 +22,26 @@ import {
 
 export const profileKeys = {
   all: ['profile'] as const,
+  detail: () => [...profileKeys.all, 'detail'] as const,
   status: () => [...profileKeys.all, 'status'] as const,
 }
 
 // ========================================
 // Queries
 // ========================================
+
+/**
+ * 프로필 조회 (통합)
+ * USER와 COMPANY 프로필을 통합 조회
+ */
+export const useProfile = () => {
+  return useQuery<GetProfileResponse, Error>({
+    queryKey: profileKeys.detail(),
+    queryFn: getProfile,
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5분
+  })
+}
 
 /**
  * 프로필 상태 확인
@@ -56,7 +72,8 @@ export const useCreateUserProfile = () => {
   >({
     mutationFn: createUserProfile,
     onSuccess: () => {
-      // 프로필 상태 쿼리 무효화
+      // 프로필 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: profileKeys.detail() })
       queryClient.invalidateQueries({ queryKey: profileKeys.status() })
     },
   })
@@ -75,7 +92,8 @@ export const useCreateCompanyProfile = () => {
   >({
     mutationFn: createCompanyProfile,
     onSuccess: () => {
-      // 프로필 상태 쿼리 무효화
+      // 프로필 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: profileKeys.detail() })
       queryClient.invalidateQueries({ queryKey: profileKeys.status() })
     },
   })

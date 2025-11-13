@@ -4,6 +4,41 @@ import axiosInstance from '@/lib/axios'
 // Types
 // ========================================
 
+export type ProfileType = 'USER_PROFILE' | 'COMPANY'
+export type ProfileVisibility = 'PUBLIC' | 'PRIVATE' | 'FRIENDS_ONLY'
+
+export interface TokenInfo {
+  grantType: string
+  accessToken: string
+  refreshToken: string
+  profileCompleted: boolean
+  currentRole: string
+}
+
+export interface ProfileData {
+  profileType: ProfileType
+  id: number
+  name: string
+  phone: string
+  email: string
+  address?: string
+  postalCode?: string
+  bio?: string
+  // USER 전용 필드
+  nickname?: string
+  avatarUrl?: string
+  profileVisibility?: ProfileVisibility
+  // 프로필 생성 시에만 포함
+  tokenInfo?: TokenInfo
+}
+
+export interface GetProfileResponse {
+  success: boolean
+  data: ProfileData | null
+  errorCode: string | null
+  message: string | null
+}
+
 export interface ProfileStatusResponse {
   success: boolean
   data: {
@@ -67,6 +102,15 @@ export interface CreateCompanyProfileResponse {
 // ========================================
 // API Functions
 // ========================================
+
+/**
+ * 프로필 조회 (통합)
+ * USER와 COMPANY 프로필을 자동으로 판단하여 반환
+ */
+export const getProfile = async (): Promise<GetProfileResponse> => {
+  const response = await axiosInstance.get<GetProfileResponse>('/profile')
+  return response.data
+}
 
 /**
  * 프로필 상태 확인
