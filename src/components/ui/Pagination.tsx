@@ -15,7 +15,7 @@ export default function Pagination({
   onPageChange,
   maxVisible = 5,
 }: PaginationProps) {
-  if (totalPages <= 1) return null
+  if (totalPages === 0) return null
 
   const getPageNumbers = () => {
     const pages: (number | string)[] = []
