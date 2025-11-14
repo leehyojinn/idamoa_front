@@ -143,3 +143,56 @@ export const getCompanyByUuid = async (
   const response = await axiosInstance.get(`/companies/${companyUuid}`)
   return response.data
 }
+
+/**
+ * 활성 업체 목록 조회 (페이지네이션)
+ */
+export interface GetCompaniesParams {
+  page?: number
+  size?: number
+  sort?: string
+}
+
+export interface CompanyListItem {
+  id: number
+  uuid: string
+  name: string
+  slug: string
+  description: string
+  primaryPhone: string
+  address: string
+  avgRating: number
+  reviewCount: number
+  viewCount: number
+  likeCount: number
+  completedProjects: number
+  status: string
+  featured: boolean
+  verified: boolean
+  isPremium: boolean
+  premiumTier: string | null
+  isLiked: boolean
+  images: CompanyImage[]
+  createdAt: string
+}
+
+export interface CompanyListResponse {
+  content: CompanyListItem[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+  first: boolean
+  last: boolean
+  empty: boolean
+}
+
+export const getCompanies = async (
+  params: GetCompaniesParams = {}
+): Promise<ApiResponse<CompanyListResponse>> => {
+  const { page = 0, size = 20, sort = 'createdAt,DESC' } = params
+  const response = await axiosInstance.get('/companies', {
+    params: { page, size, sort },
+  })
+  return response.data
+}

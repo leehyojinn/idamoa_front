@@ -12,6 +12,7 @@ import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import ImageUpload from '@/components/ui/ImageUpload'
 import Checkbox from '@/components/ui/Checkbox'
+import Select from '@/components/ui/Select'
 import { formatPhoneNumber, formatBusinessNumber, formatUrl } from '@/lib/utils'
 import { LOCATION_LISTS, SKILL_LISTS, SPECIALTY_LISTS } from '@/lib/constants'
 
@@ -103,6 +104,7 @@ export default function CompanyRegisterPage() {
   const secondaryPhoneValue = watch('secondaryPhone')
   const emergencyContactValue = watch('emergencyContact')
   const businessNumberValue = watch('businessRegistrationNumber')
+  const companyTypeValue = watch('companyType')
 
   // 로그인 체크
   useEffect(() => {
@@ -490,19 +492,17 @@ export default function CompanyRegisterPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="companyType" className="block text-sm font-medium text-gray-700 mb-1">
-                    업체 형태
-                  </label>
-                  <select
-                    id="companyType"
-                    {...register('companyType')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  >
-                    <option value="">선택하세요</option>
-                    <option value="individual">개인사업자</option>
-                    <option value="corporation">법인사업자</option>
-                    <option value="other">기타</option>
-                  </select>
+                  <Select
+                    label="업체 형태"
+                    options={[
+                      { value: 'individual', label: '개인사업자' },
+                      { value: 'corporation', label: '법인사업자' },
+                      { value: 'other', label: '기타' },
+                    ]}
+                    value={companyTypeValue}
+                    onChange={(value) => setValue('companyType', value)}
+                    placeholder="선택하세요"
+                  />
                 </div>
               </div>
             </div>

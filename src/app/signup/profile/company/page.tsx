@@ -61,6 +61,7 @@ export default function CompanyProfilePage() {
       addressDetail: '',
       postalCode: '',
     },
+    shouldFocusError: true,
   })
 
   const primaryPhoneValue = watch('primaryPhone')
@@ -106,6 +107,15 @@ export default function CompanyProfilePage() {
     setValue('primaryPhone', formatted)
   }
 
+  const onValidationError = () => {
+    const firstError = Object.values(errors)[0]
+    if (firstError?.message) {
+      showErrorToast(null, firstError.message)
+    } else {
+      showErrorToast(null, '입력 정보를 확인해주세요')
+    }
+  }
+
   const onSubmit = async (data: CompanyProfileForm) => {
     setIsLoading(true)
     try {
@@ -127,7 +137,21 @@ export default function CompanyProfilePage() {
       router.push('/') // 메인 페이지로 이동
     } catch (error: unknown) {
       logError('프로필 생성 실패', error)
-      showErrorToast(error, '프로필 생성 중 오류가 발생했습니다')
+
+      // 에러 메시지 추출
+      let errorMessage = '프로필 생성 중 오류가 발생했습니다'
+
+      if (error && typeof error === 'object' && 'response' in error) {
+        const apiError = error as { response?: { data?: { message?: string; error?: string } } }
+        const responseMessage = apiError.response?.data?.message || apiError.response?.data?.error
+        if (responseMessage) {
+          errorMessage = responseMessage
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message || errorMessage
+      }
+
+      showErrorToast(error, errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -163,7 +187,7 @@ export default function CompanyProfilePage() {
         {/* Form */}
         <form
           className="mt-8 space-y-6 bg-white p-8 rounded-lg shadow"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit, onValidationError)}
         >
           <div className="space-y-4">
             {/* Company Name */}
