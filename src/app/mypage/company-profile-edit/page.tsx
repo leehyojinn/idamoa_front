@@ -9,7 +9,6 @@ import { useProfile, useUpdateCompanyProfile } from '@/hooks/useProfile'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 import { showErrorToast } from '@/lib/errorHandler'
 import { useDialog } from '@/hooks/useDialog'
-import { formatPhoneNumber } from '@/lib/utils'
 import type { UpdateCompanyProfileRequest } from '@/lib/api/profile'
 
 interface CompanyProfileFormData {

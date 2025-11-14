@@ -9,7 +9,7 @@ import { useProfile, useUpdateUserProfile } from '@/hooks/useProfile'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 import { showErrorToast } from '@/lib/errorHandler'
 import { useDialog } from '@/hooks/useDialog'
-import { formatPhoneNumber, removePhoneHyphens } from '@/lib/utils'
+import { formatPhoneNumber } from '@/lib/utils'
 import type { UpdateUserProfileRequest, ProfileVisibility } from '@/lib/api/profile'
 
 interface UserProfileFormData {

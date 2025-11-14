@@ -13,69 +13,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import ImageUpload from '@/components/ui/ImageUpload'
 import Checkbox from '@/components/ui/Checkbox'
 import { formatPhoneNumber, formatBusinessNumber, formatUrl } from '@/lib/utils'
-
-// 서비스 지역
-const locationLists = [
-  { label: '서울', value: 'seoul' },
-  { label: '경기', value: 'gyeonggi' },
-  { label: '인천', value: 'incheon' },
-  { label: '부산', value: 'busan' },
-  { label: '대구', value: 'daegu' },
-  { label: '광주', value: 'gwangju' },
-  { label: '대전', value: 'daejeon' },
-  { label: '세종', value: 'sejong' },
-  { label: '강원', value: 'gangwon' },
-  { label: '충북', value: 'chungbuk' },
-  { label: '충남', value: 'chungnam' },
-  { label: '전북', value: 'jeonbuk' },
-  { label: '전남', value: 'jeonnam' },
-  { label: '경북', value: 'gyeongbuk' },
-  { label: '경남', value: 'gyeongnam' },
-  { label: '제주', value: 'jeju' },
-]
-
-// 전문 서비스
-const skillLists = [
-  { label: '인테리어', value: 'interior' },
-  { label: '마케팅', value: 'marketing' },
-  { label: '홈페이지', value: 'website' },
-  { label: '에어컨', value: 'aircon' },
-  { label: '간판', value: 'signage' },
-  { label: '인터넷 / 전화', value: 'communication' },
-  { label: '보안', value: 'security' },
-  { label: '네트워크', value: 'network' },
-  { label: '용도변경', value: 'purpose_change' },
-  { label: '침구', value: 'bedding' },
-  { label: '정기청소', value: 'regular_cleaning' },
-  { label: '유니폼', value: 'uniform' },
-  { label: '의료장비', value: 'medical_equipment' },
-  { label: '카드체크기', value: 'card_checker' },
-]
-
-// 전문 분야
-const specialtyLists = [
-  { label: '피부과', value: 'dermatology' },
-  { label: '성형외과', value: 'plastic_surgery' },
-  { label: '정형외과', value: 'orthopedic' },
-  { label: '내과', value: 'internal_medicine' },
-  { label: '치과', value: 'dental' },
-  { label: '안과', value: 'ophthalmology' },
-  { label: '한의원', value: 'oriental_medicine' },
-  { label: '한방병원', value: 'oriental_hospital' },
-  { label: '산부인과', value: 'obstetrics_gynecology' },
-  { label: '비뇨기과', value: 'urology' },
-  { label: '이비인후과', value: 'ent' },
-  { label: '가정의학과', value: 'family_medicine' },
-  { label: '재활의학과', value: 'rehabilitation_medicine' },
-  { label: '신경외과', value: 'neurosurgery' },
-  { label: '마취통증의학과', value: 'anesthesiology' },
-  { label: '정신과', value: 'psychiatry' },
-  { label: '외과', value: 'surgery' },
-  { label: '영상의학과', value: 'radiology' },
-  { label: '소아과', value: 'pediatrics' },
-  { label: '건강검진센터', value: 'health_checkup_center' },
-  { label: '종합병원', value: 'general_hospital' },
-]
+import { LOCATION_LISTS, SKILL_LISTS, SPECIALTY_LISTS } from '@/lib/constants'
 
 interface FormData {
   // 기본 정보
@@ -139,10 +77,6 @@ export default function CompanyRegisterPage() {
   const [logoImageUrl, setLogoImageUrl] = useState<string>('')
   const [coverImageUrl, setCoverImageUrl] = useState<string>('')
   const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([])
-
-  // 좌표 상태 관리
-  const [latitude, setLatitude] = useState<number | undefined>(undefined)
-  const [longitude, setLongitude] = useState<number | undefined>(undefined)
 
   // 지역, 태그, 키워드 상태 관리
   const [serviceAreas, setServiceAreas] = useState<string[]>([])
@@ -208,8 +142,6 @@ export default function CompanyRegisterPage() {
       // 주소
       if (company.address) setValue('address', company.address)
       if (company.postalCode) setValue('postalCode', company.postalCode)
-      if (company.latitude) setLatitude(company.latitude)
-      if (company.longitude) setLongitude(company.longitude)
 
       // 사업자 정보
       if (company.businessInfo) {
@@ -312,12 +244,6 @@ export default function CompanyRegisterPage() {
     openAddressSearch((data) => {
       setValue('address', data.address)
       setValue('postalCode', data.zonecode)
-
-      // 좌표 저장
-      if (data.latitude !== undefined && data.longitude !== undefined) {
-        setLatitude(data.latitude)
-        setLongitude(data.longitude)
-      }
     })
   }
 
@@ -392,10 +318,6 @@ export default function CompanyRegisterPage() {
 
         address: fullAddress,
         postalCode: data.postalCode,
-
-        // 좌표 정보
-        latitude: latitude,
-        longitude: longitude,
 
         // 배열 데이터
         serviceAreas: serviceAreas.length > 0 ? serviceAreas : undefined,
@@ -840,10 +762,10 @@ export default function CompanyRegisterPage() {
                       서비스 지역
                     </label>
                     <Checkbox
-                      checked={serviceAreas.length === locationLists.length}
+                      checked={serviceAreas.length === LOCATION_LISTS.length}
                       onChange={(checked) => {
                         if (checked) {
-                          setServiceAreas(locationLists.map(loc => loc.label))
+                          setServiceAreas(LOCATION_LISTS.map(loc => loc.label))
                         } else {
                           setServiceAreas([])
                         }
@@ -853,7 +775,7 @@ export default function CompanyRegisterPage() {
                     />
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {locationLists.map((location) => (
+                    {LOCATION_LISTS.map((location) => (
                       <Checkbox
                         key={location.value}
                         checked={serviceAreas.includes(location.label)}
@@ -982,14 +904,14 @@ export default function CompanyRegisterPage() {
                       전문 서비스
                     </label>
                     <Checkbox
-                      checked={skillLists.every(skill => tags.includes(skill.value))}
+                      checked={SKILL_LISTS.every(skill => tags.includes(skill.value))}
                       onChange={(checked) => {
                         if (checked) {
-                          const allSkills = skillLists.map(s => s.value)
+                          const allSkills = SKILL_LISTS.map(s => s.value)
                           const otherTags = tags.filter(t => !allSkills.includes(t))
                           setTags([...otherTags, ...allSkills])
                         } else {
-                          const allSkills = skillLists.map(s => s.value)
+                          const allSkills = SKILL_LISTS.map(s => s.value)
                           setTags(tags.filter(t => !allSkills.includes(t)))
                         }
                       }}
@@ -998,7 +920,7 @@ export default function CompanyRegisterPage() {
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {skillLists.map((skill) => (
+                    {SKILL_LISTS.map((skill) => (
                       <Checkbox
                         key={skill.value}
                         checked={tags.includes(skill.value)}
@@ -1023,14 +945,14 @@ export default function CompanyRegisterPage() {
                       전문분야
                     </label>
                     <Checkbox
-                      checked={specialtyLists.every(specialty => tags.includes(specialty.value))}
+                      checked={SPECIALTY_LISTS.every(specialty => tags.includes(specialty.value))}
                       onChange={(checked) => {
                         if (checked) {
-                          const allSpecialties = specialtyLists.map(s => s.value)
+                          const allSpecialties = SPECIALTY_LISTS.map(s => s.value)
                           const otherTags = tags.filter(t => !allSpecialties.includes(t))
                           setTags([...otherTags, ...allSpecialties])
                         } else {
-                          const allSpecialties = specialtyLists.map(s => s.value)
+                          const allSpecialties = SPECIALTY_LISTS.map(s => s.value)
                           setTags(tags.filter(t => !allSpecialties.includes(t)))
                         }
                       }}
@@ -1039,7 +961,7 @@ export default function CompanyRegisterPage() {
                     />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                    {specialtyLists.map((specialty) => (
+                    {SPECIALTY_LISTS.map((specialty) => (
                       <Checkbox
                         key={specialty.value}
                         checked={tags.includes(specialty.value)}
