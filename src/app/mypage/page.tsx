@@ -14,6 +14,53 @@ import { formatPhoneNumber } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 
 // ========================================
+// Constants
+// ========================================
+
+// 전문 서비스
+const skillLists = [
+  { label: '인테리어', value: 'interior' },
+  { label: '마케팅', value: 'marketing' },
+  { label: '홈페이지', value: 'website' },
+  { label: '에어컨', value: 'aircon' },
+  { label: '간판', value: 'signage' },
+  { label: '인터넷 / 전화', value: 'communication' },
+  { label: '보안', value: 'security' },
+  { label: '네트워크', value: 'network' },
+  { label: '용도변경', value: 'purpose_change' },
+  { label: '침구', value: 'bedding' },
+  { label: '정기청소', value: 'regular_cleaning' },
+  { label: '유니폼', value: 'uniform' },
+  { label: '의료장비', value: 'medical_equipment' },
+  { label: '카드체크기', value: 'card_checker' },
+]
+
+// 전문 분야
+const specialtyLists = [
+  { label: '피부과', value: 'dermatology' },
+  { label: '성형외과', value: 'plastic_surgery' },
+  { label: '정형외과', value: 'orthopedic' },
+  { label: '내과', value: 'internal_medicine' },
+  { label: '치과', value: 'dental' },
+  { label: '안과', value: 'ophthalmology' },
+  { label: '한의원', value: 'oriental_medicine' },
+  { label: '한방병원', value: 'oriental_hospital' },
+  { label: '산부인과', value: 'obstetrics_gynecology' },
+  { label: '비뇨기과', value: 'urology' },
+  { label: '이비인후과', value: 'ent' },
+  { label: '가정의학과', value: 'family_medicine' },
+  { label: '재활의학과', value: 'rehabilitation_medicine' },
+  { label: '신경외과', value: 'neurosurgery' },
+  { label: '마취통증의학과', value: 'anesthesiology' },
+  { label: '정신과', value: 'psychiatry' },
+  { label: '외과', value: 'surgery' },
+  { label: '영상의학과', value: 'radiology' },
+  { label: '소아과', value: 'pediatrics' },
+  { label: '건강검진센터', value: 'health_checkup_center' },
+  { label: '종합병원', value: 'general_hospital' },
+]
+
+// ========================================
 // Component
 // ========================================
 
@@ -81,486 +128,6 @@ export default function MyPage() {
 
   const profile = profileResponse?.data
   const company = companyResponse?.data
-
-  // Profile API 실패했지만 Company API는 성공한 경우 - Company 프로필로 간주
-  if (!profile && company) {
-    const companyProfile = {
-      profileType: 'COMPANY' as const,
-      id: company.id,
-      name: company.name,
-      phone: company.primaryPhone,
-      email: company.email,
-      address: company.address,
-      postalCode: company.postalCode,
-      bio: company.description,
-    }
-
-    const primaryImage = company.images?.find((img) => img.isPrimary)?.imageUrl || company.images?.[0]?.imageUrl
-
-    return (
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <Navbar />
-
-        <main className="flex-1 container mx-auto px-4 py-8">
-          {/* 프로필 기본 정보 */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">{companyProfile.name}</h2>
-                <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-                  <span className="flex items-center gap-1">
-                    <FaPhone className="text-blue-600" />
-                    {formatPhoneNumber(companyProfile.phone)}
-                  </span>
-                  {companyProfile.email && (
-                    <span className="flex items-center gap-1">
-                      <FaEnvelope className="text-blue-600" />
-                      {companyProfile.email}
-                    </span>
-                  )}
-                  {companyProfile.address && (
-                    <span className="flex items-center gap-1">
-                      <FaMapMarkerAlt className="text-blue-600" />
-                      {companyProfile.address}
-                    </span>
-                  )}
-                </div>
-                {companyProfile.bio && (
-                  <p className="mt-2 text-gray-600">{companyProfile.bio}</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 업체 상세 정보 */}
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-            {/* 커버 이미지 */}
-            {primaryImage && (
-              <div className="relative w-full h-64 bg-gray-200">
-                <Image
-                  src={primaryImage}
-                  alt={company.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
-
-            {/* 기본 정보 */}
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
-                    {company.verified && (
-                      <span className="flex items-center gap-1 text-blue-600 text-sm">
-                        <FaCheckCircle />
-                        인증됨
-                      </span>
-                    )}
-                    {company.isPremium && (
-                      <span className="flex items-center gap-1 text-yellow-600 text-sm">
-                        <FaCrown />
-                        프리미엄
-                      </span>
-                    )}
-                  </div>
-                  {company.description && (
-                    <p className="text-gray-600 text-lg mb-4">{company.description}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* 통계 정보 */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-t border-gray-200">
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 text-yellow-500 mb-1">
-                    <FaStar />
-                    <span className="text-xl font-bold text-gray-900">{company.avgRating.toFixed(1)}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">평점</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900">{company.reviewCount.toLocaleString()}</p>
-                  <p className="text-sm text-gray-600">리뷰</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <FaEye className="text-gray-500" />
-                    <span className="text-xl font-bold text-gray-900">{company.viewCount.toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">조회수</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1 mb-1">
-                    <FaHeart className="text-red-500" />
-                    <span className="text-xl font-bold text-gray-900">{company.likeCount.toLocaleString()}</span>
-                  </div>
-                  <p className="text-sm text-gray-600">좋아요</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 왼쪽: 상세 정보 */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* 상세 설명 */}
-              {company.detailContent && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">상세 설명</h2>
-                  <div
-                    className="prose max-w-none text-gray-700"
-                    dangerouslySetInnerHTML={{ __html: company.detailContent }}
-                  />
-                </div>
-              )}
-
-              {/* 이미지 갤러리 */}
-              {company.images && company.images.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">갤러리</h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    {company.images.map((image) => (
-                      <div key={image.id} className="relative aspect-square rounded-lg overflow-hidden bg-gray-200">
-                        <Image
-                          src={image.imageUrl}
-                          alt={image.title || company.name}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform"
-                        />
-                        {image.imageType && (
-                          <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-xs rounded">
-                            {image.imageType}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 서비스 지역 */}
-              {company.serviceAreas && company.serviceAreas.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">서비스 지역</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {company.serviceAreas.map((area, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                      >
-                        {area}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 태그 */}
-              {company.tags && company.tags.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">태그</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {company.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 검색 키워드 */}
-              {company.keywords && company.keywords.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">검색 키워드</h2>
-                  <div className="flex flex-wrap gap-2">
-                    {company.keywords.map((keyword, index) => (
-                      <span
-                        key={index}
-                        className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 오른쪽: 연락처 및 부가 정보 */}
-            <div className="space-y-6">
-              {/* 연락처 정보 */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">연락처</h2>
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <FaPhone className="text-primary mt-1 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm text-gray-600">대표 전화</p>
-                      <p className="font-semibold text-gray-900">{formatPhoneNumber(company.primaryPhone)}</p>
-                    </div>
-                  </div>
-                  {company.secondaryPhone && (
-                    <div className="flex items-start gap-3">
-                      <FaPhone className="text-primary mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-gray-600">보조 전화</p>
-                        <p className="font-semibold text-gray-900">{company.secondaryPhone}</p>
-                      </div>
-                    </div>
-                  )}
-                  {company.emergencyContact && (
-                    <div className="flex items-start gap-3">
-                      <FaPhone className="text-red-600 mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-gray-600">긴급 연락처</p>
-                        <p className="font-semibold text-gray-900">{company.emergencyContact}</p>
-                      </div>
-                    </div>
-                  )}
-                  {company.email && (
-                    <div className="flex items-start gap-3">
-                      <FaEnvelope className="text-primary mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-gray-600">이메일</p>
-                        <p className="font-semibold text-gray-900">{company.email}</p>
-                      </div>
-                    </div>
-                  )}
-                  {company.address && (
-                    <div className="flex items-start gap-3">
-                      <FaMapMarkerAlt className="text-primary mt-1 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm text-gray-600">주소</p>
-                        <p className="font-semibold text-gray-900">{company.address}</p>
-                        {company.postalCode && (
-                          <p className="text-sm text-gray-600">{company.postalCode}</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 웹사이트 및 소셜 링크 */}
-                <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
-                  {company.websiteUrl && (
-                    <a
-                      href={company.websiteUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
-                    >
-                      <FaGlobe />
-                      <span>웹사이트</span>
-                    </a>
-                  )}
-                  {company.kakaoChatUrl && (
-                    <a
-                      href={company.kakaoChatUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-yellow-600 hover:text-yellow-700 text-sm"
-                    >
-                      <SiKakaotalk />
-                      <span>카카오톡 채널</span>
-                    </a>
-                  )}
-                  {company.socialLinks && (
-                    <>
-                      {(company.socialLinks as Record<string, string>).instagram && (
-                        <a
-                          href={(company.socialLinks as Record<string, string>).instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-pink-600 hover:text-pink-700 text-sm"
-                        >
-                          <FaInstagram />
-                          <span>Instagram</span>
-                        </a>
-                      )}
-                      {(company.socialLinks as Record<string, string>).facebook && (
-                        <a
-                          href={(company.socialLinks as Record<string, string>).facebook}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-blue-700 hover:text-blue-800 text-sm"
-                        >
-                          <FaFacebook />
-                          <span>Facebook</span>
-                        </a>
-                      )}
-                      {(company.socialLinks as Record<string, string>).youtube && (
-                        <a
-                          href={(company.socialLinks as Record<string, string>).youtube}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm"
-                        >
-                          <FaYoutube />
-                          <span>YouTube</span>
-                        </a>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* 영업 시간 */}
-              {company.businessHours && Object.keys(company.businessHours).length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">영업 시간</h2>
-                  <div className="space-y-2">
-                    {(() => {
-                      const dayMap: Record<string, string> = {
-                        monday: '월요일',
-                        tuesday: '화요일',
-                        wednesday: '수요일',
-                        thursday: '목요일',
-                        friday: '금요일',
-                        saturday: '토요일',
-                        sunday: '일요일'
-                      }
-                      const dayOrder = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-                      const businessHours = company.businessHours as Record<string, string>
-
-                      return dayOrder
-                        .filter(day => businessHours[day])
-                        .map(day => (
-                          <div key={day} className="flex justify-between text-sm">
-                            <span className="text-gray-600">{dayMap[day]}</span>
-                            <span className="text-gray-900 font-medium">{businessHours[day]}</span>
-                          </div>
-                        ))
-                    })()}
-                  </div>
-                  {company.businessHoursNote && (
-                    <p className="mt-3 text-sm text-gray-600 pt-3 border-t">
-                      {company.businessHoursNote}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* 사업자 정보 */}
-              {company.businessInfo && Object.keys(company.businessInfo).length > 0 ? (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">사업자 정보</h2>
-                  <div className="space-y-2 text-sm">
-                    {(() => {
-                      const businessInfo = company.businessInfo as Record<string, string | number>
-                      const hasData = businessInfo.businessRegistrationNumber || businessInfo.representativeName || businessInfo.companyType || businessInfo.establishedYear
-
-                      if (!hasData) {
-                        return <p className="text-gray-500">등록된 사업자 정보가 없습니다</p>
-                      }
-
-                      return (
-                        <>
-                          {businessInfo.businessRegistrationNumber && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">사업자번호</span>
-                              <span className="font-semibold text-gray-900">
-                                {String(businessInfo.businessRegistrationNumber)}
-                              </span>
-                            </div>
-                          )}
-                          {businessInfo.representativeName && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">대표자명</span>
-                              <span className="font-semibold text-gray-900">
-                                {String(businessInfo.representativeName)}
-                              </span>
-                            </div>
-                          )}
-                          {businessInfo.companyType && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">업체 형태</span>
-                              <span className="font-semibold text-gray-900">
-                                {(() => {
-                                  const typeMap: Record<string, string> = {
-                                    individual: '개인사업자',
-                                    corporation: '법인사업자',
-                                    other: '기타'
-                                  }
-                                  return typeMap[String(businessInfo.companyType)] || String(businessInfo.companyType)
-                                })()}
-                              </span>
-                            </div>
-                          )}
-                          {businessInfo.establishedYear && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">설립 연도</span>
-                              <span className="font-semibold text-gray-900">
-                                {String(businessInfo.establishedYear)}년
-                              </span>
-                            </div>
-                          )}
-                        </>
-                      )
-                    })()}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">사업자 정보</h2>
-                  <p className="text-gray-500 text-sm">등록된 사업자 정보가 없습니다</p>
-                </div>
-              )}
-
-              {/* 필터 옵션 */}
-              {company.filterOptions && company.filterOptions.length > 0 && (
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">전문 분야</h2>
-                  <div className="space-y-2">
-                    {company.filterOptions.map((option) => (
-                      <div key={option.id} className="flex items-center gap-2">
-                        <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs">
-                          {option.categoryName}
-                        </span>
-                        <span className="text-sm text-gray-900">{option.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* 계정 설정 */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">계정 설정</h2>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => router.push('/mypage/company-profile-edit')}
-                    className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
-                  >
-                    업체 기본 정보 수정
-                  </button>
-                  <button
-                    onClick={() => router.push('/mypage/company-register')}
-                    className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
-                  >
-                    업체 상세정보 수정
-                  </button>
-                  <button
-                    onClick={() => router.push('/mypage/password-change')}
-                    className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-                  >
-                    비밀번호 변경
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-
-        <Footer />
-      </div>
-    )
-  }
 
   // 프로필 정보 없음 (Profile과 Company 둘 다 실패)
   if (!profile) {
@@ -813,7 +380,27 @@ export default function MyPage() {
   }
 
   // COMPANY 프로필 - 상세 정보 표시
+  if (!company) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <div className="text-center max-w-md mx-auto px-4">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">업체 정보를 불러올 수 없습니다</h2>
+            <p className="text-gray-600 mb-6">잠시 후 다시 시도해주세요</p>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
+
   const primaryImage = company.images?.find((img) => img.isPrimary)?.imageUrl || company.images?.[0]?.imageUrl
+  const displayName = profile?.name || company.name
+  const displayPhone = profile?.phone || company.primaryPhone
+  const displayEmail = profile?.email || company.email
+  const displayAddress = profile?.address || company.address
+  const displayBio = profile?.bio || company.description
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -824,27 +411,27 @@ export default function MyPage() {
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{profile.name}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{displayName}</h2>
               <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                 <span className="flex items-center gap-1">
                   <FaPhone className="text-blue-600" />
-                  {formatPhoneNumber(profile.phone)}
+                  {formatPhoneNumber(displayPhone)}
                 </span>
-                {profile.email && (
+                {displayEmail && (
                   <span className="flex items-center gap-1">
                     <FaEnvelope className="text-blue-600" />
-                    {profile.email}
+                    {displayEmail}
                   </span>
                 )}
-                {profile.address && (
+                {displayAddress && (
                   <span className="flex items-center gap-1">
                     <FaMapMarkerAlt className="text-blue-600" />
-                    {profile.address}
+                    {displayAddress}
                   </span>
                 )}
               </div>
-              {profile.bio && (
-                <p className="mt-2 text-gray-600">{profile.bio}</p>
+              {displayBio && (
+                <p className="mt-2 text-gray-600">{displayBio}</p>
               )}
             </div>
           </div>
@@ -975,19 +562,42 @@ export default function MyPage() {
               </div>
             )}
 
-            {/* 태그 */}
-            {company.tags && company.tags.length > 0 && (
+            {/* 전문 서비스 */}
+            {company.tags && company.tags.some(tag => skillLists.some(skill => skill.value === tag)) && (
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">태그</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">전문 서비스</h2>
                 <div className="flex flex-wrap gap-2">
-                  {company.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+                  {company.tags.map((tag) => {
+                    const skill = skillLists.find(s => s.value === tag)
+                    return skill ? (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                      >
+                        {skill.label}
+                      </span>
+                    ) : null
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 전문분야 */}
+            {company.tags && company.tags.some(tag => specialtyLists.some(specialty => specialty.value === tag)) && (
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">전문분야</h2>
+                <div className="flex flex-wrap gap-2">
+                  {company.tags.map((tag) => {
+                    const specialty = specialtyLists.find(s => s.value === tag)
+                    return specialty ? (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
+                      >
+                        {specialty.label}
+                      </span>
+                    ) : null
+                  })}
                 </div>
               </div>
             )}
@@ -1227,23 +837,6 @@ export default function MyPage() {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">사업자 정보</h2>
                 <p className="text-gray-500 text-sm">등록된 사업자 정보가 없습니다</p>
-              </div>
-            )}
-
-            {/* 필터 옵션 */}
-            {company.filterOptions && company.filterOptions.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">전문 분야</h2>
-                <div className="space-y-2">
-                  {company.filterOptions.map((option) => (
-                    <div key={option.id} className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-purple-50 text-purple-700 rounded text-xs">
-                        {option.categoryName}
-                      </span>
-                      <span className="text-sm text-gray-900">{option.name}</span>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
 
