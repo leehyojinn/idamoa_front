@@ -8,12 +8,18 @@ import {
   getProfileStatus,
   createUserProfile,
   createCompanyProfile,
+  updateUserProfile,
+  updateCompanyProfile,
   type GetProfileResponse,
   type ProfileStatusResponse,
   type CreateUserProfileRequest,
   type CreateUserProfileResponse,
   type CreateCompanyProfileRequest,
   type CreateCompanyProfileResponse,
+  type UpdateUserProfileRequest,
+  type UpdateUserProfileResponse,
+  type UpdateCompanyProfileRequest,
+  type UpdateCompanyProfileResponse,
 } from '@/lib/api/profile'
 
 // ========================================
@@ -91,6 +97,46 @@ export const useCreateCompanyProfile = () => {
     CreateCompanyProfileRequest
   >({
     mutationFn: createCompanyProfile,
+    onSuccess: () => {
+      // 프로필 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: profileKeys.detail() })
+      queryClient.invalidateQueries({ queryKey: profileKeys.status() })
+    },
+  })
+}
+
+/**
+ * USER 프로필 수정
+ */
+export const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    UpdateUserProfileResponse,
+    Error,
+    UpdateUserProfileRequest
+  >({
+    mutationFn: updateUserProfile,
+    onSuccess: () => {
+      // 프로필 쿼리 무효화
+      queryClient.invalidateQueries({ queryKey: profileKeys.detail() })
+      queryClient.invalidateQueries({ queryKey: profileKeys.status() })
+    },
+  })
+}
+
+/**
+ * COMPANY 프로필 수정
+ */
+export const useUpdateCompanyProfile = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    UpdateCompanyProfileResponse,
+    Error,
+    UpdateCompanyProfileRequest
+  >({
+    mutationFn: updateCompanyProfile,
     onSuccess: () => {
       // 프로필 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: profileKeys.detail() })

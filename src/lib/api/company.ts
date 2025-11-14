@@ -108,6 +108,14 @@ export const createCompany = async (
 }
 
 /**
+ * 업체 등록 여부 확인
+ */
+export const checkCompanyExists = async (): Promise<ApiResponse<{ hasCompany: boolean }>> => {
+  const response = await axiosInstance.get('/companies/check')
+  return response.data
+}
+
+/**
  * 내 회사 정보 조회
  */
 export const getMyCompany = async (): Promise<ApiResponse<CompanyResponse>> => {

@@ -10,6 +10,8 @@ import Footer from '@/components/layout/Footer'
 import { useProfile } from '@/hooks/useProfile'
 import { useMyCompany } from '@/hooks/useCompany'
 import { showErrorToast } from '@/lib/errorHandler'
+import { formatPhoneNumber } from '@/lib/utils'
+import { useQuery } from '@tanstack/react-query'
 
 // ========================================
 // Component
@@ -22,9 +24,22 @@ export default function MyPage() {
   // 프로필 정보 조회 (USER or COMPANY)
   const { data: profileResponse, isLoading: profileLoading, error: profileError } = useProfile()
 
-  // COMPANY인 경우 상세 정보 조회 (또는 profile API 실패 시 fallback)
+  // COMPANY인 경우 먼저 업체 등록 여부 확인
   const isCompanyProfile = profileResponse?.data?.profileType === 'COMPANY'
-  const shouldFetchCompany = isCompanyProfile || profileError !== null
+  const shouldCheckCompany = isCompanyProfile && !profileLoading
+  const { data: checkResponse, isLoading: checkLoading } = useQuery({
+    queryKey: ['companies', 'check'],
+    queryFn: async () => {
+      const { checkCompanyExists } = await import('@/lib/api/company')
+      return checkCompanyExists()
+    },
+    enabled: shouldCheckCompany,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // 업체 등록 여부에 따라 상세 정보 조회
+  const shouldFetchCompany = isCompanyProfile && checkResponse?.data?.hasCompany === true
   const { data: companyResponse, isLoading: companyLoading, error: companyError } = useMyCompany(shouldFetchCompany)
 
   // 인증 체크
@@ -45,23 +60,15 @@ export default function MyPage() {
   useEffect(() => {
     // Profile API 실패했지만 Company API는 성공한 경우 에러 무시
     if (profileError && !isCheckingAuth && !companyResponse) {
-      console.error('Profile Error:', profileError)
       // Company API도 시도해볼 수 있으므로 즉시 에러 표시하지 않음
     }
     if (companyError && !isCheckingAuth && !profileResponse) {
-      console.error('Company Error:', companyError)
       showErrorToast(companyError, '정보를 불러오는데 실패했습니다')
     }
   }, [profileError, companyError, isCheckingAuth, profileResponse, companyResponse])
 
-  // 디버깅용 로그
-  useEffect(() => {
-    console.log('Profile Response:', profileResponse)
-    console.log('Company Response:', companyResponse)
-  }, [profileResponse, companyResponse])
-
   // 로딩 중
-  if (isCheckingAuth || profileLoading || (shouldFetchCompany && companyLoading)) {
+  if (isCheckingAuth || profileLoading || (isCompanyProfile && checkLoading) || (shouldFetchCompany && companyLoading)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -103,7 +110,7 @@ export default function MyPage() {
                 <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                   <span className="flex items-center gap-1">
                     <FaPhone className="text-blue-600" />
-                    {companyProfile.phone}
+                    {formatPhoneNumber(companyProfile.phone)}
                   </span>
                   {companyProfile.email && (
                     <span className="flex items-center gap-1">
@@ -165,7 +172,7 @@ export default function MyPage() {
               </div>
 
               {/* 통계 정보 */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 py-4 border-t border-gray-200">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-t border-gray-200">
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1 text-yellow-500 mb-1">
                     <FaStar />
@@ -190,14 +197,6 @@ export default function MyPage() {
                     <span className="text-xl font-bold text-gray-900">{company.likeCount.toLocaleString()}</span>
                   </div>
                   <p className="text-sm text-gray-600">좋아요</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900">{company.portfolioCount.toLocaleString()}</p>
-                  <p className="text-sm text-gray-600">포트폴리오</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-bold text-gray-900">{company.completedProjects.toLocaleString()}</p>
-                  <p className="text-sm text-gray-600">완료 프로젝트</p>
                 </div>
               </div>
             </div>
@@ -303,7 +302,7 @@ export default function MyPage() {
                     <FaPhone className="text-primary mt-1 flex-shrink-0" />
                     <div>
                       <p className="text-sm text-gray-600">대표 전화</p>
-                      <p className="font-semibold text-gray-900">{company.primaryPhone}</p>
+                      <p className="font-semibold text-gray-900">{formatPhoneNumber(company.primaryPhone)}</p>
                     </div>
                   </div>
                   {company.secondaryPhone && (
@@ -535,8 +534,14 @@ export default function MyPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">계정 설정</h2>
                 <div className="space-y-2">
                   <button
-                    onClick={() => router.push('/mypage/company-register')}
+                    onClick={() => router.push('/mypage/company-profile-edit')}
                     className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
+                  >
+                    업체 기본 정보 수정
+                  </button>
+                  <button
+                    onClick={() => router.push('/mypage/company-register')}
+                    className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
                   >
                     업체 상세정보 수정
                   </button>
@@ -567,7 +572,7 @@ export default function MyPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">등록된 프로필이 없습니다</h2>
             <p className="text-gray-600 mb-6">프로필을 등록하고 다양한 서비스를 이용해보세요</p>
             <button
-              onClick={() => router.push('/profile-setup')}
+              onClick={() => router.push('/signup/profile-type')}
               className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
             >
               프로필 등록하기
@@ -615,13 +620,6 @@ export default function MyPage() {
                     )}
                   </div>
                 </div>
-                <button
-                  onClick={() => router.push('/mypage/profile-edit')}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors"
-                >
-                  <FaEdit />
-                  수정
-                </button>
               </div>
             </div>
           </div>
@@ -635,7 +633,7 @@ export default function MyPage() {
                   <FaPhone className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="text-sm text-gray-600">전화번호</p>
-                    <p className="font-semibold text-gray-900">{profile.phone}</p>
+                    <p className="font-semibold text-gray-900">{formatPhoneNumber(profile.phone)}</p>
                   </div>
                 </div>
                 {profile.email && (
@@ -677,13 +675,20 @@ export default function MyPage() {
                 </div>
               )}
 
-              {/* 비밀번호 변경 버튼 */}
-              <button
-                onClick={() => router.push('/mypage/password-change')}
-                className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-              >
-                비밀번호 변경
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => router.push('/mypage/profile-edit')}
+                  className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/password-change')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  비밀번호 변경
+                </button>
+              </div>
             </div>
           </div>
         </main>
@@ -709,7 +714,7 @@ export default function MyPage() {
                 <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                   <span className="flex items-center gap-1">
                     <FaPhone className="text-blue-600" />
-                    {profile.phone}
+                    {formatPhoneNumber(profile.phone)}
                   </span>
                   {profile.email && (
                     <span className="flex items-center gap-1">
@@ -754,7 +759,7 @@ export default function MyPage() {
                   <FaPhone className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="text-sm text-gray-600">전화번호</p>
-                    <p className="font-semibold text-gray-900">{profile.phone}</p>
+                    <p className="font-semibold text-gray-900">{formatPhoneNumber(profile.phone)}</p>
                   </div>
                 </div>
                 {profile.email && (
@@ -784,12 +789,20 @@ export default function MyPage() {
             {/* 계정 설정 */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">계정 설정</h2>
-              <button
-                onClick={() => router.push('/mypage/password-change')}
-                className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
-              >
-                비밀번호 변경
-              </button>
+              <div className="space-y-2">
+                <button
+                  onClick={() => router.push('/mypage/company-profile-edit')}
+                  className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
+                >
+                  업체 기본 정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/password-change')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  비밀번호 변경
+                </button>
+              </div>
             </div>
           </div>
         </main>
@@ -815,7 +828,7 @@ export default function MyPage() {
               <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                 <span className="flex items-center gap-1">
                   <FaPhone className="text-blue-600" />
-                  {profile.phone}
+                  {formatPhoneNumber(profile.phone)}
                 </span>
                 {profile.email && (
                   <span className="flex items-center gap-1">
@@ -877,7 +890,7 @@ export default function MyPage() {
             </div>
 
             {/* 통계 정보 */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 py-4 border-t border-gray-200">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-t border-gray-200">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-yellow-500 mb-1">
                   <FaStar />
@@ -902,14 +915,6 @@ export default function MyPage() {
                   <span className="text-xl font-bold text-gray-900">{company.likeCount.toLocaleString()}</span>
                 </div>
                 <p className="text-sm text-gray-600">좋아요</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-900">{company.portfolioCount.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">포트폴리오</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xl font-bold text-gray-900">{company.completedProjects.toLocaleString()}</p>
-                <p className="text-sm text-gray-600">완료 프로젝트</p>
               </div>
             </div>
           </div>
@@ -1015,7 +1020,7 @@ export default function MyPage() {
                   <FaPhone className="text-primary mt-1 flex-shrink-0" />
                   <div>
                     <p className="text-sm text-gray-600">대표 전화</p>
-                    <p className="font-semibold text-gray-900">{company.primaryPhone}</p>
+                    <p className="font-semibold text-gray-900">{formatPhoneNumber(company.primaryPhone)}</p>
                   </div>
                 </div>
                 {company.secondaryPhone && (
@@ -1023,7 +1028,7 @@ export default function MyPage() {
                     <FaPhone className="text-primary mt-1 flex-shrink-0" />
                     <div>
                       <p className="text-sm text-gray-600">보조 전화</p>
-                      <p className="font-semibold text-gray-900">{company.secondaryPhone}</p>
+                      <p className="font-semibold text-gray-900">{formatPhoneNumber(company.secondaryPhone)}</p>
                     </div>
                   </div>
                 )}
@@ -1032,7 +1037,7 @@ export default function MyPage() {
                     <FaPhone className="text-red-600 mt-1 flex-shrink-0" />
                     <div>
                       <p className="text-sm text-gray-600">긴급 연락처</p>
-                      <p className="font-semibold text-gray-900">{company.emergencyContact}</p>
+                      <p className="font-semibold text-gray-900">{formatPhoneNumber(company.emergencyContact)}</p>
                     </div>
                   </div>
                 )}
@@ -1247,8 +1252,14 @@ export default function MyPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-4">계정 설정</h2>
               <div className="space-y-2">
                 <button
-                  onClick={() => router.push('/mypage/company-register')}
+                  onClick={() => router.push('/mypage/company-profile-edit')}
                   className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
+                >
+                  업체 기본 정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/company-register')}
+                  className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   업체 상세정보 수정
                 </button>

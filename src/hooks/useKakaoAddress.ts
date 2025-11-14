@@ -24,19 +24,6 @@ declare global {
     daum?: {
       Postcode: DaumPostcode
     }
-    kakao?: {
-      maps: {
-        services: {
-          Geocoder: new () => {
-            addressSearch: (
-              address: string,
-              callback: (result: { x: string; y: string }[], status: string) => void
-            ) => void
-          }
-        }
-        load: (callback: () => void) => void
-      }
-    }
   }
 }
 
@@ -46,8 +33,6 @@ interface AddressData {
   roadAddress: string
   jibunAddress: string
   buildingName: string
-  latitude?: number
-  longitude?: number
 }
 
 export const useKakaoAddress = () => {
@@ -55,7 +40,7 @@ export const useKakaoAddress = () => {
 
   useEffect(() => {
     // 이미 스크립트가 로드되었는지 확인
-    if (window.daum?.Postcode && window.kakao?.maps) {
+    if (window.daum?.Postcode) {
       setIsScriptLoaded(true)
       return
     }
@@ -66,41 +51,18 @@ export const useKakaoAddress = () => {
       '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js'
     postcodeScript.async = true
 
-    // Kakao Maps 스크립트 동적 로드
-    const mapsScript = document.createElement('script')
-    mapsScript.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_APP_KEY}&libraries=services&autoload=false`
-    mapsScript.async = true
-
-    let postcodeLoaded = false
-    let mapsLoaded = false
-
-    const checkAllLoaded = () => {
-      if (postcodeLoaded && mapsLoaded) {
-        if (window.kakao?.maps) {
-          window.kakao.maps.load(() => {
-            setIsScriptLoaded(true)
-          })
-        }
-      }
-    }
-
     postcodeScript.onload = () => {
-      postcodeLoaded = true
-      checkAllLoaded()
+      setIsScriptLoaded(true)
     }
 
-    mapsScript.onload = () => {
-      mapsLoaded = true
-      checkAllLoaded()
+    postcodeScript.onerror = () => {
+      // 스크립트 로드 실패
     }
 
     document.head.appendChild(postcodeScript)
-    document.head.appendChild(mapsScript)
 
     return () => {
       // cleanup: 스크립트 제거 (선택사항)
-      // document.head.removeChild(postcodeScript)
-      // document.head.removeChild(mapsScript)
     }
   }, [])
 
@@ -108,7 +70,6 @@ export const useKakaoAddress = () => {
     onComplete: (data: AddressData) => void
   ): void => {
     if (!isScriptLoaded || !window.daum) {
-      console.error('Daum Postcode script is not loaded yet')
       return
     }
 
@@ -126,19 +87,7 @@ export const useKakaoAddress = () => {
           buildingName: buildingName,
         }
 
-        // Geocoder를 사용해서 좌표 가져오기
-        if (window.kakao?.maps?.services) {
-          const geocoder = new window.kakao.maps.services.Geocoder()
-          geocoder.addressSearch(fullAddress, (result, status) => {
-            if (status === 'OK' && result.length > 0) {
-              addressData.latitude = parseFloat(result[0].y)
-              addressData.longitude = parseFloat(result[0].x)
-            }
-            onComplete(addressData)
-          })
-        } else {
-          onComplete(addressData)
-        }
+        onComplete(addressData)
       },
     }).open()
   }

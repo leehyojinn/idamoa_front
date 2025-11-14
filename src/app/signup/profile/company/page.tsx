@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,6 +11,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 import { logError, showErrorToast } from '@/lib/errorHandler'
+import { formatPhoneNumber } from '@/lib/utils'
 
 // ========================================
 // Validation Schema
@@ -40,12 +41,14 @@ type CompanyProfileForm = z.infer<typeof companyProfileSchema>
 export default function CompanyProfilePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const { openAddressSearch } = useKakaoAddress()
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<CompanyProfileForm>({
     resolver: zodResolver(companyProfileSchema),
@@ -60,11 +63,47 @@ export default function CompanyProfilePage() {
     },
   })
 
+  const primaryPhoneValue = watch('primaryPhone')
+
+  // 로그인 및 프로필 상태 체크
+  useEffect(() => {
+    const checkAuth = async () => {
+      const accessToken = localStorage.getItem('accessToken')
+      if (!accessToken) {
+        showErrorToast(null, '로그인이 필요한 페이지입니다')
+        router.push('/login')
+        return
+      }
+
+      // 프로필 완성 여부 확인
+      try {
+        const { getProfileStatus } = await import('@/lib/api/profile')
+        const response = await getProfileStatus()
+
+        if (response.data.profileCompleted) {
+          showErrorToast(null, '이미 프로필이 등록되어 있습니다')
+          router.push('/mypage')
+          return
+        }
+      } catch (error) {
+        // 프로필 상태 확인 실패 시 계속 진행
+      }
+
+      setIsCheckingAuth(false)
+    }
+    checkAuth()
+  }, [router])
+
   const handleAddressSearch = () => {
     openAddressSearch((data) => {
       setValue('address', data.address)
       setValue('postalCode', data.zonecode)
     })
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('primaryPhone', formatted)
   }
 
   const onSubmit = async (data: CompanyProfileForm) => {
@@ -92,6 +131,18 @@ export default function CompanyProfilePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // 로딩 중
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -168,17 +219,27 @@ export default function CompanyProfilePage() {
                 대표 전화번호 <span className="text-red-500">*</span>
               </label>
               <input
-                {...register('primaryPhone')}
                 type="tel"
                 id="primaryPhone"
+                value={primaryPhoneValue || ''}
+                onChange={handlePhoneChange}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
                 placeholder="02-1234-5678"
+                maxLength={13}
               />
-              {errors.primaryPhone && (
+              {!primaryPhoneValue && (
                 <p className="mt-1 text-sm text-red-600">
-                  {errors.primaryPhone.message}
+                  대표 전화번호를 입력해주세요
                 </p>
               )}
+              {primaryPhoneValue && !/^\d{2,3}-\d{3,4}-\d{4}$/.test(primaryPhoneValue) && (
+                <p className="mt-1 text-sm text-red-600">
+                  올바른 전화번호 형식이 아닙니다 (예: 02-1234-5678)
+                </p>
+              )}
+              <p className="mt-1 text-xs text-gray-500">
+                숫자를 입력하면 자동으로 하이픈이 추가됩니다
+              </p>
             </div>
 
             {/* Email */}

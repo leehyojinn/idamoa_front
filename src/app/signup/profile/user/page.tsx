@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -11,6 +11,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 import { logError, showErrorToast } from '@/lib/errorHandler'
+import { formatPhoneNumber, removePhoneHyphens } from '@/lib/utils'
 
 // ========================================
 // Validation Schema
@@ -21,7 +22,11 @@ const userProfileSchema = z.object({
   nickname: z.string().optional(),
   phone: z
     .string()
-    .regex(/^01[0-9]{8,9}$/, '01로 시작하는 10-11자리 숫자를 입력해주세요'),
+    .min(1, '전화번호를 입력해주세요')
+    .regex(
+      /^(0(2|[3-6][0-9]|70))-?\d{3,4}-?\d{4}$|^01[0-9]-?\d{3,4}-?\d{4}$/,
+      '올바른 전화번호 형식이 아닙니다 (예: 02-1234-5678, 010-1234-5678)'
+    ),
   bio: z.string().optional(),
   address: z.string().optional(),
   addressDetail: z.string().optional(),
@@ -37,12 +42,43 @@ type UserProfileForm = z.infer<typeof userProfileSchema>
 export default function UserProfilePage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const { openAddressSearch } = useKakaoAddress()
+
+  // 로그인 및 프로필 상태 체크
+  useEffect(() => {
+    const checkAuth = async () => {
+      const accessToken = localStorage.getItem('accessToken')
+      if (!accessToken) {
+        showErrorToast(null, '로그인이 필요한 페이지입니다')
+        router.push('/login')
+        return
+      }
+
+      // 프로필 완성 여부 확인
+      try {
+        const { getProfileStatus } = await import('@/lib/api/profile')
+        const response = await getProfileStatus()
+
+        if (response.data.profileCompleted) {
+          showErrorToast(null, '이미 프로필이 등록되어 있습니다')
+          router.push('/mypage')
+          return
+        }
+      } catch (error) {
+        // 프로필 상태 확인 실패 시 계속 진행
+      }
+
+      setIsCheckingAuth(false)
+    }
+    checkAuth()
+  }, [router])
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<UserProfileForm>({
     resolver: zodResolver(userProfileSchema),
@@ -57,11 +93,18 @@ export default function UserProfilePage() {
     },
   })
 
+  const phoneValue = watch('phone')
+
   const handleAddressSearch = () => {
     openAddressSearch((data) => {
       setValue('address', data.address)
       setValue('postalCode', data.zonecode)
     })
+  }
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('phone', formatted, { shouldValidate: true })
   }
 
   const onSubmit = async (data: UserProfileForm) => {
@@ -75,7 +118,7 @@ export default function UserProfilePage() {
       await createUserProfile({
         name: data.name,
         nickname: data.nickname || undefined,
-        phone: data.phone,
+        phone: removePhoneHyphens(data.phone), // 하이픈 제거
         bio: data.bio || undefined,
         address: fullAddress,
         postalCode: data.postalCode || undefined,
@@ -89,6 +132,18 @@ export default function UserProfilePage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // 로딩 중
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -165,17 +220,22 @@ export default function UserProfilePage() {
                 전화번호 <span className="text-red-500">*</span>
               </label>
               <input
-                {...register('phone')}
                 type="tel"
                 id="phone"
+                value={phoneValue || ''}
+                onChange={handlePhoneChange}
                 className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="01012345678"
+                placeholder="02-1234-5678 또는 010-1234-5678"
+                maxLength={13}
               />
               {errors.phone && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.phone.message}
                 </p>
               )}
+              <p className="mt-1 text-xs text-gray-500">
+                휴대폰 또는 일반 전화번호를 입력하면 자동으로 하이픈이 추가됩니다
+              </p>
             </div>
 
             {/* Bio */}

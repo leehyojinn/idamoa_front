@@ -11,6 +11,7 @@ import { useProfile } from '@/hooks/useProfile'
 import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import ImageUpload from '@/components/ui/ImageUpload'
+import { formatPhoneNumber, formatBusinessNumber, formatUrl } from '@/lib/utils'
 
 interface FormData {
   // 기본 정보
@@ -45,14 +46,6 @@ interface FormData {
   fridayHours: string
   saturdayHours: string
   sundayHours: string
-  serviceAreas: string
-  tags: string
-  keywords: string
-  filterOptionIds: string
-
-  // 통계 정보
-  portfolioCount: number
-  completedProjects: number
 
   // SNS 링크
   facebookUrl: string
@@ -87,6 +80,14 @@ export default function CompanyRegisterPage() {
   const [latitude, setLatitude] = useState<number | undefined>(undefined)
   const [longitude, setLongitude] = useState<number | undefined>(undefined)
 
+  // 지역, 태그, 키워드 상태 관리
+  const [serviceAreas, setServiceAreas] = useState<string[]>([])
+  const [tags, setTags] = useState<string[]>([])
+  const [keywords, setKeywords] = useState<string[]>([])
+  const [serviceAreaInput, setServiceAreaInput] = useState('')
+  const [tagInput, setTagInput] = useState('')
+  const [keywordInput, setKeywordInput] = useState('')
+
   // React Query mutation
   const createCompanyMutation = useCreateCompany()
   const updateCompanyMutation = useUpdateCompany()
@@ -102,6 +103,10 @@ export default function CompanyRegisterPage() {
   } = useForm<FormData>()
 
   const address = watch('address')
+  const primaryPhoneValue = watch('primaryPhone')
+  const secondaryPhoneValue = watch('secondaryPhone')
+  const emergencyContactValue = watch('emergencyContact')
+  const businessNumberValue = watch('businessRegistrationNumber')
 
   // 로그인 체크
   useEffect(() => {
@@ -131,9 +136,9 @@ export default function CompanyRegisterPage() {
       if (company.detailContent) setValue('detailContent', company.detailContent)
 
       // 연락처
-      if (company.primaryPhone) setValue('primaryPhone', company.primaryPhone)
-      if (company.secondaryPhone) setValue('secondaryPhone', company.secondaryPhone)
-      if (company.emergencyContact) setValue('emergencyContact', company.emergencyContact)
+      if (company.primaryPhone) setValue('primaryPhone', formatPhoneNumber(company.primaryPhone))
+      if (company.secondaryPhone) setValue('secondaryPhone', formatPhoneNumber(company.secondaryPhone))
+      if (company.emergencyContact) setValue('emergencyContact', formatPhoneNumber(company.emergencyContact))
       if (company.email) setValue('email', company.email)
       if (company.websiteUrl) setValue('websiteUrl', company.websiteUrl)
       if (company.kakaoChatUrl) setValue('kakaoChatUrl', company.kakaoChatUrl)
@@ -147,7 +152,7 @@ export default function CompanyRegisterPage() {
       // 사업자 정보
       if (company.businessInfo) {
         const businessInfo = company.businessInfo as Record<string, string>
-        if (businessInfo.businessRegistrationNumber) setValue('businessRegistrationNumber', businessInfo.businessRegistrationNumber)
+        if (businessInfo.businessRegistrationNumber) setValue('businessRegistrationNumber', formatBusinessNumber(businessInfo.businessRegistrationNumber))
         if (businessInfo.representativeName) setValue('representativeName', businessInfo.representativeName)
         if (businessInfo.companyType) setValue('companyType', businessInfo.companyType)
       }
@@ -166,15 +171,9 @@ export default function CompanyRegisterPage() {
       if (company.businessHoursNote) setValue('businessHoursNote', company.businessHoursNote)
 
       // 서비스 지역, 태그, 키워드
-      if (company.serviceAreas) setValue('serviceAreas', company.serviceAreas.join(', '))
-      if (company.tags) setValue('tags', company.tags.join(', '))
-      if (company.keywords) setValue('keywords', company.keywords.join(', '))
-
-      // 필터 옵션
-      if (company.filterOptions) {
-        const filterIds = company.filterOptions.map(opt => opt.id).join(', ')
-        setValue('filterOptionIds', filterIds)
-      }
+      if (company.serviceAreas) setServiceAreas(company.serviceAreas)
+      if (company.tags) setTags(company.tags)
+      if (company.keywords) setKeywords(company.keywords)
 
       // SNS 링크
       if (company.socialLinks) {
@@ -206,12 +205,40 @@ export default function CompanyRegisterPage() {
       // 기본 정보 자동 입력
       if (profile.name) setValue('name', profile.name)
       if (profile.email) setValue('email', profile.email)
-      if (profile.phone) setValue('primaryPhone', profile.phone)
+      if (profile.phone) setValue('primaryPhone', formatPhoneNumber(profile.phone))
       if (profile.address) setValue('address', profile.address)
       if (profile.postalCode) setValue('postalCode', profile.postalCode)
       if (profile.bio) setValue('description', profile.bio)
     }
   }, [profileResponse, companyResponse, setValue])
+
+  // 전화번호 핸들러 함수
+  const handlePrimaryPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('primaryPhone', formatted)
+  }
+
+  const handleSecondaryPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('secondaryPhone', formatted)
+  }
+
+  const handleEmergencyContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('emergencyContact', formatted)
+  }
+
+  // 사업자 등록번호 핸들러
+  const handleBusinessNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatBusinessNumber(e.target.value)
+    setValue('businessRegistrationNumber', formatted)
+  }
+
+  // URL 포맷 핸들러
+  const handleUrlBlur = (fieldName: keyof FormData) => (e: React.FocusEvent<HTMLInputElement>) => {
+    const formatted = formatUrl(e.target.value)
+    setValue(fieldName, formatted)
+  }
 
   // 주소 검색
   const handleAddressSearch = () => {
@@ -235,7 +262,12 @@ export default function CompanyRegisterPage() {
   const onSubmit = async (data: FormData) => {
     // 중복 제출 방지
     if (isSubmitting) {
-      console.log('이미 제출 중입니다')
+      return
+    }
+
+    // 필수 전화번호 유효성 검사
+    if (!primaryPhoneValue || primaryPhoneValue.trim() === '') {
+      showErrorToast(null, '대표 전화번호를 입력해주세요')
       return
     }
 
@@ -289,9 +321,9 @@ export default function CompanyRegisterPage() {
         businessHours: Object.keys(businessHours).length > 0 ? businessHours : undefined,
         businessHoursNote: data.businessHoursNote || undefined,
 
-        primaryPhone: data.primaryPhone,
-        secondaryPhone: data.secondaryPhone || undefined,
-        emergencyContact: data.emergencyContact || undefined,
+        primaryPhone: primaryPhoneValue,
+        secondaryPhone: secondaryPhoneValue || undefined,
+        emergencyContact: emergencyContactValue || undefined,
         email: data.email,
         websiteUrl: data.websiteUrl || undefined,
         kakaoChatUrl: data.kakaoChatUrl || undefined,
@@ -303,19 +335,10 @@ export default function CompanyRegisterPage() {
         latitude: latitude,
         longitude: longitude,
 
-        // 배열 변환 (쉼표로 구분된 문자열을 배열로)
-        serviceAreas: data.serviceAreas
-          ? data.serviceAreas.split(',').map(s => s.trim()).filter(Boolean)
-          : undefined,
-        tags: data.tags
-          ? data.tags.split(',').map(s => s.trim()).filter(Boolean)
-          : undefined,
-        keywords: data.keywords
-          ? data.keywords.split(',').map(s => s.trim()).filter(Boolean)
-          : undefined,
-        filterOptionIds: data.filterOptionIds
-          ? data.filterOptionIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n))
-          : undefined,
+        // 배열 데이터
+        serviceAreas: serviceAreas.length > 0 ? serviceAreas : undefined,
+        tags: tags.length > 0 ? tags : undefined,
+        keywords: keywords.length > 0 ? keywords : undefined,
 
         // SNS 링크
         socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
@@ -334,19 +357,12 @@ export default function CompanyRegisterPage() {
           return
         }
 
-        console.log('업체 수정 요청:', {
-          companyUuid,
-          isEditMode,
-          dataKeys: Object.keys(registrationData)
-        })
-
         updateCompanyMutation.mutate({ companyUuid, data: registrationData }, {
           onSuccess: () => {
             showSuccessToast('회사 정보가 수정되었습니다!')
             router.push('/mypage')
           },
           onError: (error) => {
-            console.error('수정 오류:', error)
             showErrorToast(error, '회사 수정 중 오류가 발생했습니다')
             setIsSubmitting(false)
           },
@@ -365,7 +381,6 @@ export default function CompanyRegisterPage() {
         })
       }
     } catch (error) {
-      console.error('Submit error:', error)
       setIsSubmitting(false)
     }
   }
@@ -466,10 +481,15 @@ export default function CompanyRegisterPage() {
                   <input
                     id="businessRegistrationNumber"
                     type="text"
-                    {...register('businessRegistrationNumber')}
+                    value={businessNumberValue || ''}
+                    onChange={handleBusinessNumberChange}
+                    maxLength={12}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="000-00-00000"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                 </div>
 
                 <div>
@@ -515,16 +535,15 @@ export default function CompanyRegisterPage() {
                   <input
                     id="primaryPhone"
                     type="tel"
-                    {...register('primaryPhone', {
-                      required: '대표 전화번호를 입력해주세요',
-                      pattern: {
-                        value: /^[0-9-]+$/,
-                        message: '올바른 전화번호 형식이 아닙니다',
-                      },
-                    })}
+                    value={primaryPhoneValue || ''}
+                    onChange={handlePrimaryPhoneChange}
+                    maxLength={13}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="02-1234-5678"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                   {errors.primaryPhone && (
                     <p className="mt-1 text-sm text-red-600">{errors.primaryPhone.message}</p>
                   )}
@@ -537,10 +556,15 @@ export default function CompanyRegisterPage() {
                   <input
                     id="secondaryPhone"
                     type="tel"
-                    {...register('secondaryPhone')}
+                    value={secondaryPhoneValue || ''}
+                    onChange={handleSecondaryPhoneChange}
+                    maxLength={13}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="010-1234-5678"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                 </div>
 
                 <div>
@@ -550,10 +574,15 @@ export default function CompanyRegisterPage() {
                   <input
                     id="emergencyContact"
                     type="tel"
-                    {...register('emergencyContact')}
+                    value={emergencyContactValue || ''}
+                    onChange={handleEmergencyContactChange}
+                    maxLength={13}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="010-9999-9999"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                 </div>
 
                 <div>
@@ -747,15 +776,60 @@ export default function CompanyRegisterPage() {
                   <label htmlFor="serviceAreas" className="block text-sm font-medium text-gray-700 mb-1">
                     서비스 지역
                   </label>
-                  <input
-                    id="serviceAreas"
-                    type="text"
-                    {...register('serviceAreas')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="쉼표로 구분하여 입력 (예: 서울, 경기, 인천)"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      id="serviceAreas"
+                      type="text"
+                      value={serviceAreaInput}
+                      onChange={(e) => setServiceAreaInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          const value = serviceAreaInput.trim()
+                          if (value && !serviceAreas.includes(value)) {
+                            setServiceAreas([...serviceAreas, value])
+                            setServiceAreaInput('')
+                          }
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="지역을 입력하고 엔터를 누르세요"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const value = serviceAreaInput.trim()
+                        if (value && !serviceAreas.includes(value)) {
+                          setServiceAreas([...serviceAreas, value])
+                          setServiceAreaInput('')
+                        }
+                      }}
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      추가
+                    </button>
+                  </div>
+                  {serviceAreas.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {serviceAreas.map((area, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                        >
+                          <span>{area}</span>
+                          <button
+                            type="button"
+                            onClick={() => setServiceAreas(serviceAreas.filter((_, i) => i !== index))}
+                            className="hover:text-blue-900"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <p className="mt-1 text-xs text-gray-500">
-                    지역을 쉼표(,)로 구분하여 입력해주세요
+                    지역을 입력하고 엔터 또는 추가 버튼을 클릭하세요
                   </p>
                 </div>
               </div>
@@ -774,23 +848,11 @@ export default function CompanyRegisterPage() {
                     id="websiteUrl"
                     type="url"
                     {...register('websiteUrl')}
+                    onBlur={handleUrlBlur('websiteUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://www.example.com"
                   />
-                </div>
-
-                <div>
-                  <label htmlFor="kakaoChatUrl" className="block text-sm font-medium text-gray-700 mb-1">
-                    카카오톡 채널 URL
-                  </label>
-                  <input
-                    id="kakaoChatUrl"
-                    type="url"
-                    {...register('kakaoChatUrl')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="https://pf.kakao.com/..."
-                  />
-                </div>
+                </div>                
               </div>
             </div>
 
@@ -800,6 +862,19 @@ export default function CompanyRegisterPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
+                  <label htmlFor="kakaoChatUrl" className="block text-sm font-medium text-gray-700 mb-1">
+                    카카오톡 채널 URL
+                  </label>
+                  <input
+                    id="kakaoChatUrl"
+                    type="url"
+                    {...register('kakaoChatUrl')}
+                    onBlur={handleUrlBlur('kakaoChatUrl')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://pf.kakao.com/..."
+                  />
+                </div>
+                <div>
                   <label htmlFor="facebookUrl" className="block text-sm font-medium text-gray-700 mb-1">
                     페이스북
                   </label>
@@ -807,6 +882,7 @@ export default function CompanyRegisterPage() {
                     id="facebookUrl"
                     type="url"
                     {...register('facebookUrl')}
+                    onBlur={handleUrlBlur('facebookUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://facebook.com/..."
                   />
@@ -820,6 +896,7 @@ export default function CompanyRegisterPage() {
                     id="instagramUrl"
                     type="url"
                     {...register('instagramUrl')}
+                    onBlur={handleUrlBlur('instagramUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://instagram.com/..."
                   />
@@ -833,6 +910,7 @@ export default function CompanyRegisterPage() {
                     id="youtubeUrl"
                     type="url"
                     {...register('youtubeUrl')}
+                    onBlur={handleUrlBlur('youtubeUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://youtube.com/..."
                   />
@@ -846,6 +924,7 @@ export default function CompanyRegisterPage() {
                     id="blogUrl"
                     type="url"
                     {...register('blogUrl')}
+                    onBlur={handleUrlBlur('blogUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://blog.naver.com/..."
                   />
@@ -862,15 +941,60 @@ export default function CompanyRegisterPage() {
                   <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-1">
                     태그
                   </label>
-                  <input
-                    id="tags"
-                    type="text"
-                    {...register('tags')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="쉼표로 구분하여 입력 (예: 병원인테리어, 의료시설, 리모델링)"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      id="tags"
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          const value = tagInput.trim()
+                          if (value && !tags.includes(value)) {
+                            setTags([...tags, value])
+                            setTagInput('')
+                          }
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="태그를 입력하고 엔터를 누르세요"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const value = tagInput.trim()
+                        if (value && !tags.includes(value)) {
+                          setTags([...tags, value])
+                          setTagInput('')
+                        }
+                      }}
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      추가
+                    </button>
+                  </div>
+                  {tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {tags.map((tag, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                        >
+                          <span>{tag}</span>
+                          <button
+                            type="button"
+                            onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                            className="hover:text-green-900"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <p className="mt-1 text-xs text-gray-500">
-                    태그를 쉼표(,)로 구분하여 입력해주세요
+                    태그를 입력하고 엔터 또는 추가 버튼을 클릭하세요
                   </p>
                 </div>
 
@@ -878,31 +1002,60 @@ export default function CompanyRegisterPage() {
                   <label htmlFor="keywords" className="block text-sm font-medium text-gray-700 mb-1">
                     검색 키워드
                   </label>
-                  <input
-                    id="keywords"
-                    type="text"
-                    {...register('keywords')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="쉼표로 구분하여 입력 (예: 인테리어, 병원, 개원)"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      id="keywords"
+                      type="text"
+                      value={keywordInput}
+                      onChange={(e) => setKeywordInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          const value = keywordInput.trim()
+                          if (value && !keywords.includes(value)) {
+                            setKeywords([...keywords, value])
+                            setKeywordInput('')
+                          }
+                        }
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="키워드를 입력하고 엔터를 누르세요"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const value = keywordInput.trim()
+                        if (value && !keywords.includes(value)) {
+                          setKeywords([...keywords, value])
+                          setKeywordInput('')
+                        }
+                      }}
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      추가
+                    </button>
+                  </div>
+                  {keywords.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {keywords.map((keyword, index) => (
+                        <div
+                          key={index}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                        >
+                          <span>{keyword}</span>
+                          <button
+                            type="button"
+                            onClick={() => setKeywords(keywords.filter((_, i) => i !== index))}
+                            className="hover:text-purple-900"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <p className="mt-1 text-xs text-gray-500">
-                    검색에 사용될 키워드를 쉼표(,)로 구분하여 입력해주세요
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="filterOptionIds" className="block text-sm font-medium text-gray-700 mb-1">
-                    필터 옵션 ID
-                  </label>
-                  <input
-                    id="filterOptionIds"
-                    type="text"
-                    {...register('filterOptionIds')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="쉼표로 구분하여 입력 (예: 1, 2, 3)"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    필터 옵션 ID를 쉼표(,)로 구분하여 입력해주세요
+                    검색에 사용될 키워드를 입력하고 엔터 또는 추가 버튼을 클릭하세요
                   </p>
                 </div>
               </div>

@@ -1,12 +1,56 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { FiUser, FiUsers } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { showErrorToast } from '@/lib/errorHandler'
 
 export default function ProfileTypePage() {
   const router = useRouter()
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+
+  // 로그인 및 프로필 상태 체크
+  useEffect(() => {
+    const checkAuth = async () => {
+      const accessToken = localStorage.getItem('accessToken')
+      if (!accessToken) {
+        showErrorToast(null, '로그인이 필요한 페이지입니다')
+        router.push('/login')
+        return
+      }
+
+      // 프로필 완성 여부 확인
+      try {
+        const { getProfileStatus } = await import('@/lib/api/profile')
+        const response = await getProfileStatus()
+
+        if (response.data.profileCompleted) {
+          showErrorToast(null, '이미 프로필이 등록되어 있습니다')
+          router.push('/mypage')
+          return
+        }
+      } catch (error) {
+        // 프로필 상태 확인 실패 시 계속 진행
+      }
+
+      setIsCheckingAuth(false)
+    }
+    checkAuth()
+  }, [router])
+
+  // 로딩 중
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-gray-600">로딩 중...</p>
+        </div>
+      </div>
+    )
+  }
 
   const handleSelectType = (type: 'user' | 'company') => {
     if (type === 'user') {

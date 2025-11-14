@@ -1,6 +1,7 @@
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { logError, logInfo } from './errorHandler'
+import { useAuthStore } from '@/store/authStore'
 
 /**
  * Axios 인스턴스 설정
@@ -80,8 +81,9 @@ axiosInstance.interceptors.response.use(
         // Refresh Token도 만료됨 → 로그아웃 처리
         logError('토큰 갱신 실패', refreshError)
 
-        // ✅ Access Token만 삭제 (Refresh Token은 쿠키로 관리됨)
+        // ✅ Access Token 삭제 및 인증 상태 초기화
         localStorage.removeItem('accessToken')
+        useAuthStore.getState().clearAuth()
 
         // 사용자에게 알림
         if (typeof window !== 'undefined') {

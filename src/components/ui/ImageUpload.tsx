@@ -50,7 +50,6 @@ export default function ImageUpload({
           setUploadProgress(((index + 1) / files.length) * 100)
           return url
         } catch (error) {
-          console.error(`파일 업로드 실패: ${file.name}`, error)
           throw error
         }
       })

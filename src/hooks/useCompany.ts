@@ -8,6 +8,7 @@ import {
   getMyCompany,
   updateCompany,
   getCompanyByUuid,
+  checkCompanyExists,
   type CompanyRegistrationData,
   type CompanyResponse,
 } from '@/lib/api/company'
@@ -19,6 +20,7 @@ import type { ApiResponse } from '@/types/api'
 
 export const companyKeys = {
   all: ['companies'] as const,
+  check: () => [...companyKeys.all, 'check'] as const,
   my: () => [...companyKeys.all, 'my'] as const,
   detail: (uuid: string) => [...companyKeys.all, 'detail', uuid] as const,
 }
@@ -28,13 +30,32 @@ export const companyKeys = {
 // ========================================
 
 /**
+ * 업체 등록 여부 확인
+ */
+export const useCheckCompany = () => {
+  return useQuery({
+    queryKey: companyKeys.check(),
+    queryFn: checkCompanyExists,
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5분
+  })
+}
+
+/**
  * 내 회사 정보 조회
  */
 export const useMyCompany = (enabled: boolean = true) => {
   return useQuery({
     queryKey: companyKeys.my(),
     queryFn: getMyCompany,
-    retry: 1,
+    retry: (failureCount, error) => {
+      // 404 에러는 재시도하지 않음 (업체 상세정보가 없는 정상적인 상태)
+      if ((error as any)?.response?.status === 404) {
+        return false
+      }
+      // 그 외 에러는 1번까지 재시도
+      return failureCount < 1
+    },
     staleTime: 5 * 60 * 1000, // 5분
     enabled, // 조건부 실행
   })

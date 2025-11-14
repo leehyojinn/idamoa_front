@@ -10,6 +10,7 @@ import { useCompanyByUuid, useUpdateCompany } from '@/hooks/useCompany'
 import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import ImageUpload from '@/components/ui/ImageUpload'
+import { formatPhoneNumber, formatBusinessNumber, formatUrl } from '@/lib/utils'
 
 interface FormData {
   // 기본 정보
@@ -92,6 +93,10 @@ export default function CompanyEditPage() {
   } = useForm<FormData>()
 
   const address = watch('address')
+  const primaryPhoneValue = watch('primaryPhone')
+  const secondaryPhoneValue = watch('secondaryPhone')
+  const emergencyContactValue = watch('emergencyContact')
+  const businessNumberValue = watch('businessRegistrationNumber')
 
   // 로그인 체크
   useEffect(() => {
@@ -123,15 +128,15 @@ export default function CompanyEditPage() {
       // 사업자 정보
       if (company.businessInfo) {
         const info = company.businessInfo as Record<string, string>
-        setValue('businessRegistrationNumber', info.businessRegistrationNumber || '')
+        setValue('businessRegistrationNumber', formatBusinessNumber(info.businessRegistrationNumber || ''))
         setValue('representativeName', info.representativeName || '')
         setValue('companyType', info.companyType || '')
       }
 
       // 연락처
-      setValue('primaryPhone', company.primaryPhone)
-      setValue('secondaryPhone', company.secondaryPhone || '')
-      setValue('emergencyContact', company.emergencyContact || '')
+      setValue('primaryPhone', formatPhoneNumber(company.primaryPhone))
+      setValue('secondaryPhone', company.secondaryPhone ? formatPhoneNumber(company.secondaryPhone) : '')
+      setValue('emergencyContact', company.emergencyContact ? formatPhoneNumber(company.emergencyContact) : '')
       setValue('email', company.email)
       setValue('websiteUrl', company.websiteUrl || '')
       setValue('kakaoChatUrl', company.kakaoChatUrl || '')
@@ -195,6 +200,34 @@ export default function CompanyEditPage() {
     }
   }, [companyResponse, setValue])
 
+  // 전화번호 핸들러 함수
+  const handlePrimaryPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('primaryPhone', formatted)
+  }
+
+  const handleSecondaryPhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('secondaryPhone', formatted)
+  }
+
+  const handleEmergencyContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value)
+    setValue('emergencyContact', formatted)
+  }
+
+  // 사업자 등록번호 핸들러
+  const handleBusinessNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatBusinessNumber(e.target.value)
+    setValue('businessRegistrationNumber', formatted)
+  }
+
+  // URL 포맷 핸들러
+  const handleUrlBlur = (fieldName: keyof FormData) => (e: React.FocusEvent<HTMLInputElement>) => {
+    const formatted = formatUrl(e.target.value)
+    setValue(fieldName, formatted)
+  }
+
   // 주소 검색
   const handleAddressSearch = () => {
     if (!isScriptLoaded) {
@@ -215,6 +248,12 @@ export default function CompanyEditPage() {
   }
 
   const onSubmit = async (data: FormData) => {
+    // 필수 전화번호 유효성 검사
+    if (!primaryPhoneValue || primaryPhoneValue.trim() === '') {
+      showErrorToast(null, '대표 전화번호를 입력해주세요')
+      return
+    }
+
     const fullAddress = data.addressDetail
       ? `${data.address} ${data.addressDetail}`
       : data.address
@@ -262,9 +301,9 @@ export default function CompanyEditPage() {
       businessHours: Object.keys(businessHours).length > 0 ? businessHours : undefined,
       businessHoursNote: data.businessHoursNote || undefined,
 
-      primaryPhone: data.primaryPhone,
-      secondaryPhone: data.secondaryPhone || undefined,
-      emergencyContact: data.emergencyContact || undefined,
+      primaryPhone: primaryPhoneValue,
+      secondaryPhone: secondaryPhoneValue || undefined,
+      emergencyContact: emergencyContactValue || undefined,
       email: data.email,
       websiteUrl: data.websiteUrl || undefined,
       kakaoChatUrl: data.kakaoChatUrl || undefined,
@@ -424,10 +463,15 @@ export default function CompanyEditPage() {
                   <input
                     id="businessRegistrationNumber"
                     type="text"
-                    {...register('businessRegistrationNumber')}
+                    value={businessNumberValue || ''}
+                    onChange={handleBusinessNumberChange}
+                    maxLength={12}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="000-00-00000"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                 </div>
 
                 <div>
@@ -473,16 +517,15 @@ export default function CompanyEditPage() {
                   <input
                     id="primaryPhone"
                     type="tel"
-                    {...register('primaryPhone', {
-                      required: '대표 전화번호를 입력해주세요',
-                      pattern: {
-                        value: /^[0-9-]+$/,
-                        message: '올바른 전화번호 형식이 아닙니다',
-                      },
-                    })}
+                    value={primaryPhoneValue || ''}
+                    onChange={handlePrimaryPhoneChange}
+                    maxLength={13}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="02-1234-5678"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                   {errors.primaryPhone && (
                     <p className="mt-1 text-sm text-red-600">{errors.primaryPhone.message}</p>
                   )}
@@ -495,10 +538,15 @@ export default function CompanyEditPage() {
                   <input
                     id="secondaryPhone"
                     type="tel"
-                    {...register('secondaryPhone')}
+                    value={secondaryPhoneValue || ''}
+                    onChange={handleSecondaryPhoneChange}
+                    maxLength={13}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="010-1234-5678"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                 </div>
 
                 <div>
@@ -508,10 +556,15 @@ export default function CompanyEditPage() {
                   <input
                     id="emergencyContact"
                     type="tel"
-                    {...register('emergencyContact')}
+                    value={emergencyContactValue || ''}
+                    onChange={handleEmergencyContactChange}
+                    maxLength={13}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="010-9999-9999"
                   />
+                  <p className="mt-1 text-xs text-gray-500">
+                    숫자를 입력하면 자동으로 하이픈이 추가됩니다
+                  </p>
                 </div>
 
                 <div>
@@ -732,11 +785,17 @@ export default function CompanyEditPage() {
                     id="websiteUrl"
                     type="url"
                     {...register('websiteUrl')}
+                    onBlur={handleUrlBlur('websiteUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://www.example.com"
                   />
                 </div>
-
+              </div>
+            </div>
+            {/* SNS 링크 */}
+            <div className="bg-white shadow-md rounded-lg p-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">SNS 링크</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="kakaoChatUrl" className="block text-sm font-medium text-gray-700 mb-1">
                     카카오톡 채널 URL
@@ -745,18 +804,11 @@ export default function CompanyEditPage() {
                     id="kakaoChatUrl"
                     type="url"
                     {...register('kakaoChatUrl')}
+                    onBlur={handleUrlBlur('kakaoChatUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://pf.kakao.com/..."
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* SNS 링크 */}
-            <div className="bg-white shadow-md rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">SNS 링크</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="facebookUrl" className="block text-sm font-medium text-gray-700 mb-1">
                     페이스북
@@ -765,6 +817,7 @@ export default function CompanyEditPage() {
                     id="facebookUrl"
                     type="url"
                     {...register('facebookUrl')}
+                    onBlur={handleUrlBlur('facebookUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://facebook.com/..."
                   />
@@ -778,6 +831,7 @@ export default function CompanyEditPage() {
                     id="instagramUrl"
                     type="url"
                     {...register('instagramUrl')}
+                    onBlur={handleUrlBlur('instagramUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://instagram.com/..."
                   />
@@ -791,6 +845,7 @@ export default function CompanyEditPage() {
                     id="youtubeUrl"
                     type="url"
                     {...register('youtubeUrl')}
+                    onBlur={handleUrlBlur('youtubeUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://youtube.com/..."
                   />
@@ -804,6 +859,7 @@ export default function CompanyEditPage() {
                     id="blogUrl"
                     type="url"
                     {...register('blogUrl')}
+                    onBlur={handleUrlBlur('blogUrl')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="https://blog.naver.com/..."
                   />

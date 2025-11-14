@@ -131,9 +131,9 @@ export default function VerifyPage() {
       sessionStorage.removeItem('signupToken')
       sessionStorage.removeItem('signupEmail')
 
-      // 5. 프로필 타입 선택 페이지로 이동
-      showSuccessToast('회원가입이 완료되었습니다. 프로필을 설정해주세요')
-      router.push('/signup/profile-type')
+      // 5. 로그인 페이지로 이동
+      showSuccessToast('회원가입이 완료되었습니다. 로그인해주세요')
+      router.push('/login')
     } catch (error: unknown) {
       logError('인증 실패', error)
       showErrorToast(error, '인증에 실패했습니다')

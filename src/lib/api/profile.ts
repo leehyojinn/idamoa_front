@@ -22,6 +22,7 @@ export interface ProfileData {
   phone: string
   email: string
   address?: string
+  addressDetail?: string
   postalCode?: string
   bio?: string
   // USER 전용 필드
@@ -99,6 +100,58 @@ export interface CreateCompanyProfileResponse {
   }
 }
 
+export interface UpdateUserProfileRequest {
+  name?: string
+  nickname?: string
+  phone?: string
+  bio?: string
+  address?: string
+  postalCode?: string
+  avatarUrl?: string
+  profileVisibility?: ProfileVisibility
+}
+
+export interface UpdateUserProfileResponse {
+  success: boolean
+  data: {
+    id: number
+    name: string
+    nickname: string | null
+    phone: string
+    bio: string | null
+    avatarUrl: string | null
+    address: string | null
+    postalCode: string | null
+    profileVisibility: string
+    tokenInfo: null
+  }
+}
+
+export interface UpdateCompanyProfileRequest {
+  name?: string
+  description?: string
+  primaryPhone?: string
+  email?: string
+  address?: string
+  addressDetail?: string
+  postalCode?: string
+}
+
+export interface UpdateCompanyProfileResponse {
+  success: boolean
+  data: {
+    id: number
+    name: string
+    description: string | null
+    primaryPhone: string
+    email: string | null
+    address: string | null
+    postalCode: string | null
+    status: string
+    tokenInfo: null
+  }
+}
+
 // ========================================
 // API Functions
 // ========================================
@@ -137,5 +190,25 @@ export const createCompanyProfile = async (
   data: CreateCompanyProfileRequest
 ): Promise<CreateCompanyProfileResponse> => {
   const response = await axiosInstance.post('/companies/profile', data)
+  return response.data
+}
+
+/**
+ * USER 프로필 수정
+ */
+export const updateUserProfile = async (
+  data: UpdateUserProfileRequest
+): Promise<UpdateUserProfileResponse> => {
+  const response = await axiosInstance.put('/users/profile', data)
+  return response.data
+}
+
+/**
+ * COMPANY 프로필 수정
+ */
+export const updateCompanyProfile = async (
+  data: UpdateCompanyProfileRequest
+): Promise<UpdateCompanyProfileResponse> => {
+  const response = await axiosInstance.put('/companies/profile', data)
   return response.data
 }
