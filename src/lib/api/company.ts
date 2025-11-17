@@ -90,6 +90,7 @@ export interface CompanyResponse {
   verifiedAt?: string
   premiumUntil?: string
   isPremium: boolean
+  premiumTier?: string
   isLiked: boolean
   createdAt: string
   updatedAt: string
@@ -194,5 +195,40 @@ export const getCompanies = async (
   const response = await axiosInstance.get('/companies', {
     params: { page, size, sort },
   })
+  return response.data
+}
+
+/**
+ * Slug로 업체 정보 조회
+ */
+export const getCompanyBySlug = async (
+  slug: string
+): Promise<ApiResponse<CompanyResponse>> => {
+  const response = await axiosInstance.get(`/companies/slug/${slug}`)
+  return response.data
+}
+
+/**
+ * 회사 삭제 (Soft Delete)
+ */
+export const deleteCompany = async (
+  companyUuid: string
+): Promise<ApiResponse<null>> => {
+  const response = await axiosInstance.delete(`/companies/${companyUuid}`)
+  return response.data
+}
+
+/**
+ * 업체 좋아요 토글
+ */
+export interface ToggleLikeResponse {
+  isLiked: boolean
+  message: string
+}
+
+export const toggleCompanyLike = async (
+  companyUuid: string
+): Promise<ApiResponse<ToggleLikeResponse>> => {
+  const response = await axiosInstance.post(`/companies/${companyUuid}/like`)
   return response.data
 }

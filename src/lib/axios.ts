@@ -25,10 +25,12 @@ const axiosInstance = axios.create({
  */
 axiosInstance.interceptors.request.use(
   (config) => {
-    // 토큰이 있으면 헤더에 추가
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // 토큰이 있으면 헤더에 추가 (클라이언트에서만)
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('accessToken')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
     }
 
     logInfo('API 요청', config.method?.toUpperCase(), config.url)
@@ -70,7 +72,9 @@ axiosInstance.interceptors.response.use(
         const newAccessToken = response.data.data.accessToken
 
         // ✅ 새 Access Token만 저장 (Refresh Token은 쿠키에 자동 저장)
-        localStorage.setItem('accessToken', newAccessToken)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('accessToken', newAccessToken)
+        }
 
         logInfo('토큰 갱신 성공', '원래 요청 재시도')
 
@@ -82,8 +86,10 @@ axiosInstance.interceptors.response.use(
         logError('토큰 갱신 실패', refreshError)
 
         // ✅ Access Token 삭제 및 인증 상태 초기화
-        localStorage.removeItem('accessToken')
-        useAuthStore.getState().clearAuth()
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken')
+          useAuthStore.getState().clearAuth()
+        }
 
         // 사용자에게 알림
         if (typeof window !== 'undefined') {

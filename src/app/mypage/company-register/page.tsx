@@ -904,14 +904,14 @@ export default function CompanyRegisterPage() {
                       전문 서비스
                     </label>
                     <Checkbox
-                      checked={SKILL_LISTS.every(skill => tags.includes(skill.value))}
+                      checked={SKILL_LISTS.every(skill => tags.includes(skill.value as string))}
                       onChange={(checked) => {
                         if (checked) {
-                          const allSkills = SKILL_LISTS.map(s => s.value)
+                          const allSkills = SKILL_LISTS.map(s => s.value as string)
                           const otherTags = tags.filter(t => !allSkills.includes(t))
                           setTags([...otherTags, ...allSkills])
                         } else {
-                          const allSkills = SKILL_LISTS.map(s => s.value)
+                          const allSkills = SKILL_LISTS.map(s => s.value as string)
                           setTags(tags.filter(t => !allSkills.includes(t)))
                         }
                       }}
@@ -923,10 +923,10 @@ export default function CompanyRegisterPage() {
                     {SKILL_LISTS.map((skill) => (
                       <Checkbox
                         key={skill.value}
-                        checked={tags.includes(skill.value)}
+                        checked={tags.includes(skill.value as string)}
                         onChange={(checked) => {
                           if (checked) {
-                            setTags([...tags, skill.value])
+                            setTags([...tags, skill.value as string])
                           } else {
                             setTags(tags.filter(t => t !== skill.value))
                           }
@@ -945,14 +945,14 @@ export default function CompanyRegisterPage() {
                       전문분야
                     </label>
                     <Checkbox
-                      checked={SPECIALTY_LISTS.every(specialty => tags.includes(specialty.value))}
+                      checked={SPECIALTY_LISTS.every(specialty => tags.includes(specialty.value as string))}
                       onChange={(checked) => {
                         if (checked) {
-                          const allSpecialties = SPECIALTY_LISTS.map(s => s.value)
+                          const allSpecialties = SPECIALTY_LISTS.map(s => s.value as string)
                           const otherTags = tags.filter(t => !allSpecialties.includes(t))
                           setTags([...otherTags, ...allSpecialties])
                         } else {
-                          const allSpecialties = SPECIALTY_LISTS.map(s => s.value)
+                          const allSpecialties = SPECIALTY_LISTS.map(s => s.value as string)
                           setTags(tags.filter(t => !allSpecialties.includes(t)))
                         }
                       }}
@@ -964,10 +964,10 @@ export default function CompanyRegisterPage() {
                     {SPECIALTY_LISTS.map((specialty) => (
                       <Checkbox
                         key={specialty.value}
-                        checked={tags.includes(specialty.value)}
+                        checked={tags.includes(specialty.value as string)}
                         onChange={(checked) => {
                           if (checked) {
-                            setTags([...tags, specialty.value])
+                            setTags([...tags, specialty.value as string])
                           } else {
                             setTags(tags.filter(t => t !== specialty.value))
                           }

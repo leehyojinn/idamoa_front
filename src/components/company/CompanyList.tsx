@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
-import { showErrorToast } from '@/lib/errorHandler'
-import { getCompanies, type CompanyListItem } from '@/lib/api/company'
+import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { getCompanies, toggleCompanyLike, type CompanyListItem } from '@/lib/api/company'
 import {
   IoStar,
   IoEye,
@@ -42,25 +42,11 @@ export default function CompanyList() {
     setLoading(true)
 
     try {
-      console.log('=== API 요청 정보 ===')
-      console.log('Page:', page)
-      console.log('Size:', 12)
-      console.log('Sort:', sortBy)
-
       const result = await getCompanies({
         page,
         size: 12,
         sort: sortBy,
       })
-
-      console.log('=== API 응답 데이터 ===')
-      console.log('전체 응답:', result)
-      console.log('Success:', result.success)
-      console.log('업체 개수:', result.data?.content?.length)
-      console.log('총 업체 수:', result.data?.totalElements)
-      console.log('총 페이지:', result.data?.totalPages)
-      console.log('현재 페이지:', result.data?.number)
-      console.log('업체 목록:', result.data?.content)
 
       if (result.success && result.data) {
         setCompanies(result.data.content)
@@ -68,8 +54,6 @@ export default function CompanyList() {
         setTotalElements(result.data.totalElements)
       }
     } catch (error) {
-      console.error('=== API 요청 실패 ===')
-      console.error('Error:', error)
       showErrorToast(error, '업체 목록을 불러오는데 실패했습니다')
     } finally {
       setLoading(false)
@@ -86,12 +70,50 @@ export default function CompanyList() {
     setPage(0)
   }
 
-  const handleCompanyClick = (uuid: string) => {
-    router.push(`/companies/${uuid}`)
+  const handleCompanyClick = (slug: string) => {
+    router.push(`/companies/${slug}`)
   }
 
-  const getPrimaryImage = (images: CompanyImage[]) => {
-    return images.find((img) => img.isPrimary)?.imageUrl || images[0]?.imageUrl
+  const handleLikeClick = async (e: React.MouseEvent, companyUuid: string, currentIsLiked: boolean) => {
+    e.stopPropagation() // 카드 클릭 이벤트 방지
+
+    // 로그인 체크
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('accessToken')
+      if (!token) {
+        showErrorToast(null, '로그인이 필요합니다')
+        router.push('/login')
+        return
+      }
+    }
+
+    try {
+      const result = await toggleCompanyLike(companyUuid)
+
+      if (result.success) {
+        // 상태 업데이트
+        setCompanies(prevCompanies =>
+          prevCompanies.map(company =>
+            company.uuid === companyUuid
+              ? {
+                  ...company,
+                  isLiked: result.data.isLiked,
+                  likeCount: result.data.isLiked
+                    ? company.likeCount + 1
+                    : company.likeCount - 1,
+                }
+              : company
+          )
+        )
+        showSuccessToast(result.data.message)
+      }
+    } catch (error) {
+      showErrorToast(error, '좋아요 처리 중 오류가 발생했습니다')
+    }
+  }
+
+  const getPrimaryImage = (images: any[]) => {
+    return images.find((img) => img.isPrimary)?.imageUrl || images[0]?.imageUrl || '/images/img-placeholder.png'
   }
 
   return (
@@ -136,23 +158,17 @@ export default function CompanyList() {
               {companies.map((company) => (
                 <div
                   key={company.uuid}
-                  onClick={() => handleCompanyClick(company.uuid)}
+                  onClick={() => handleCompanyClick(company.slug)}
                   className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer group"
                 >
                   {/* 이미지 */}
                   <div className="relative h-48 bg-gray-200 overflow-hidden">
-                    {company.images && company.images.length > 0 ? (
-                      <Image
-                        src={getPrimaryImage(company.images) || '/images/placeholder.jpg'}
-                        alt={company.name}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-100 to-gray-200">
-                        <span className="text-gray-400 text-4xl">🏢</span>
-                      </div>
-                    )}
+                    <Image
+                      src={getPrimaryImage(company.images)}
+                      alt={company.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
 
                     {/* 프리미엄 배지 */}
                     {company.isPremium && company.premiumTier && (
@@ -235,17 +251,17 @@ export default function CompanyList() {
                           <IoEye className="text-gray-400" />
                           <span>{company.viewCount.toLocaleString()}</span>
                         </div>
-                        <div className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => handleLikeClick(e, company.uuid, company.isLiked)}
+                          className="flex items-center gap-1 hover:scale-110 transition-transform"
+                        >
                           {company.isLiked ? (
                             <IoHeart className="text-red-500" />
                           ) : (
-                            <IoHeartOutline className="text-gray-400" />
+                            <IoHeartOutline className="text-gray-400 hover:text-red-500" />
                           )}
                           <span>{company.likeCount.toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <div className="text-xs font-medium text-primary">
-                        완료 {company.completedProjects}건
+                        </button>
                       </div>
                     </div>
                   </div>

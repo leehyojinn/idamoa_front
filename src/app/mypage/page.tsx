@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { FaStar, FaHeart, FaEye, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaCrown, FaUser, FaGlobe, FaInstagram, FaFacebook, FaYoutube } from 'react-icons/fa'
-import { SiKakaotalk } from 'react-icons/si'
+import { SiKakaotalk, SiNaver } from 'react-icons/si'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useProfile } from '@/hooks/useProfile'
 import { useMyCompany } from '@/hooks/useCompany'
-import { showErrorToast } from '@/lib/errorHandler'
+import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { formatPhoneNumber } from '@/lib/utils'
+import { deleteCompany } from '@/lib/api/company'
 import { SKILL_LISTS, SPECIALTY_LISTS, DAY_MAP, DAY_ORDER } from '@/lib/constants'
 import { useQuery } from '@tanstack/react-query'
+import { useDialogStore } from '@/stores/useDialogStore'
 
 // ========================================
 // Component
@@ -21,6 +23,8 @@ import { useQuery } from '@tanstack/react-query'
 export default function MyPage() {
   const router = useRouter()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const { showDialog } = useDialogStore()
 
   // 프로필 정보 조회 (USER or COMPANY)
   const { data: profileResponse, isLoading: profileLoading, error: profileError } = useProfile()
@@ -67,6 +71,56 @@ export default function MyPage() {
       showErrorToast(companyError, '정보를 불러오는데 실패했습니다')
     }
   }, [profileError, companyError, isCheckingAuth, profileResponse, companyResponse])
+
+  // 업체 삭제 처리
+  const handleDeleteCompany = () => {
+    if (!company?.uuid) {
+      showErrorToast(null, '업체 정보를 찾을 수 없습니다')
+      return
+    }
+
+    // 첫 번째 확인 다이얼로그
+    showDialog({
+      title: '업체 삭제',
+      message: '정말로 업체를 삭제하시겠습니까?\n\n삭제된 업체는 복구할 수 없으며, 다음 정보가 영구적으로 삭제됩니다:\n\n• 업체 기본 정보\n• 업체 상세 정보\n• 업체 이미지\n\n삭제 후 새로운 업체를 다시 등록할 수 있습니다.',
+      type: 'confirm',
+      confirmText: '다음',
+      cancelText: '취소',
+      onConfirm: () => {
+        // 두 번째 확인 다이얼로그 (다음 틱에 열기)
+        setTimeout(() => {
+          showDialog({
+            title: '최종 확인',
+            message: '정말로 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.',
+            type: 'confirm',
+            confirmText: '삭제',
+            cancelText: '취소',
+            onConfirm: async () => {
+              setIsDeleting(true)
+
+              try {
+                const result = await deleteCompany(company.uuid)
+
+                if (result.success) {
+                  showSuccessToast('업체가 삭제되었습니다.')
+                  // 1초 후 마이페이지 새로고침
+                  setTimeout(() => {
+                    window.location.reload()
+                  }, 1000)
+                } else {
+                  showErrorToast(null, result.message || '업체 삭제에 실패했습니다')
+                }
+              } catch (error) {
+                showErrorToast(error, '업체 삭제 중 오류가 발생했습니다')
+              } finally {
+                setIsDeleting(false)
+              }
+            },
+          })
+        }, 100)
+      },
+    })
+  }
 
   // 로딩 중
   if (isCheckingAuth || profileLoading || (isCompanyProfile && checkLoading) || (shouldFetchCompany && companyLoading)) {
@@ -349,7 +403,7 @@ export default function MyPage() {
     )
   }
 
-  const primaryImage = company.images?.find((img) => img.isPrimary)?.imageUrl || company.images?.[0]?.imageUrl
+  const primaryImage = company.images?.find((img) => img.isPrimary)?.imageUrl || company.images?.[0]?.imageUrl || '/images/img-placeholder.png'
   const displayName = profile?.name || company.name
   const displayPhone = profile?.phone || company.primaryPhone
   const displayEmail = profile?.email || company.email
@@ -394,16 +448,14 @@ export default function MyPage() {
         {/* 업체 상세 정보 */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
           {/* 커버 이미지 */}
-          {primaryImage && (
-            <div className="relative w-full h-64 bg-gray-200">
-              <Image
-                src={primaryImage}
-                alt={company.name}
-                fill
-                className="object-cover"
-              />
-            </div>
-          )}
+          <div className="relative w-full h-64 bg-gray-200">
+            <Image
+              src={primaryImage}
+              alt={company.name}
+              fill
+              className="object-cover"
+            />
+          </div>
 
           {/* 기본 정보 */}
           <div className="p-6">
@@ -687,6 +739,17 @@ export default function MyPage() {
                         <span>YouTube</span>
                       </a>
                     )}
+                    {(company.socialLinks as Record<string, string>).blog && (
+                      <a
+                        href={(company.socialLinks as Record<string, string>).blog}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-green-600 hover:text-green-700 text-sm"
+                      >
+                        <SiNaver />
+                        <span>블로그</span>
+                      </a>
+                    )}
                   </>
                 )}
               </div>
@@ -806,6 +869,20 @@ export default function MyPage() {
                 >
                   비밀번호 변경
                 </button>
+
+                {/* 구분선 */}
+                <div className="pt-4 mt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleDeleteCompany}
+                    disabled={isDeleting}
+                    className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-lg transition-colors text-sm font-medium"
+                  >
+                    {isDeleting ? '삭제 중...' : '업체 삭제'}
+                  </button>
+                  <p className="text-xs text-red-600 mt-2 text-center">
+                    ⚠️ 삭제된 업체는 복구할 수 없습니다
+                  </p>
+                </div>
               </div>
             </div>
           </div>
