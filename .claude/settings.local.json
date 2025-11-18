@@ -18,7 +18,20 @@
       "Bash(findstr:*)",
       "Bash(cmd //c \"taskkill /F /PID 14332\")",
       "Bash(cmd //c \"taskkill /F /PID 26900\")",
-      "Bash(cmd //c \"taskkill /F /PID 21828\")"
+      "Bash(cmd //c \"taskkill /F /PID 21828\")",
+      "Bash(cmd //c \"taskkill /F /PID 30112\")",
+      "Bash(timeout /t 2)",
+      "Bash(cmd //c \"taskkill /F /PID 32176\")",
+      "Bash(npm start)",
+      "Bash(cmd //c \"taskkill /F /IM node.exe\")",
+      "Bash(dir:*)",
+      "Bash(cmd //c \"if exist .next (rmdir /s /q .next)\")",
+      "Bash(timeout /t 5)",
+      "Bash(npx lighthouse:*)",
+      "Bash(node:*)",
+      "Bash(del:*)",
+      "Bash(git log:*)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []

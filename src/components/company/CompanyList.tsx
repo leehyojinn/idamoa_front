@@ -7,6 +7,7 @@ import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { getCompanies, toggleCompanyLike, type CompanyListItem } from '@/lib/api/company'
+import { useAuthStore } from '@/stores/authStore'
 import {
   IoStar,
   IoEye,
@@ -27,6 +28,7 @@ const SORT_OPTIONS = [
 
 export default function CompanyList() {
   const router = useRouter()
+  const accessToken = useAuthStore((state) => state.accessToken)
   const [companies, setCompanies] = useState<CompanyListItem[]>([])
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -78,13 +80,10 @@ export default function CompanyList() {
     e.stopPropagation() // 카드 클릭 이벤트 방지
 
     // 로그인 체크
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken')
-      if (!token) {
-        showErrorToast(null, '로그인이 필요합니다')
-        router.push('/login')
-        return
-      }
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push('/login')
+      return
     }
 
     try {
@@ -167,7 +166,9 @@ export default function CompanyList() {
                       src={getPrimaryImage(company.images)}
                       alt={company.name}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      loading="lazy"
                     />
 
                     {/* 프리미엄 배지 */}

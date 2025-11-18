@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { IoHeart, IoHeartOutline } from 'react-icons/io5'
 import { toggleCompanyLike } from '@/lib/api/company'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 
 interface CompanyLikeButtonProps {
@@ -18,19 +19,17 @@ export default function CompanyLikeButton({
   initialLikeCount,
 }: CompanyLikeButtonProps) {
   const router = useRouter()
+  const accessToken = useAuthStore((state) => state.accessToken)
   const [isLiked, setIsLiked] = useState(initialIsLiked)
   const [likeCount, setLikeCount] = useState(initialLikeCount)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleLikeClick = async () => {
     // 로그인 체크
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken')
-      if (!token) {
-        showErrorToast(null, '로그인이 필요합니다')
-        router.push('/login')
-        return
-      }
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push('/login')
+      return
     }
 
     setIsLoading(true)

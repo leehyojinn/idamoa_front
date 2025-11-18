@@ -13,7 +13,7 @@ import {
   getNaverAuthUrl,
   getGoogleAuthUrl,
 } from '@/lib/api/auth'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 import { usePasswordResetStore } from '@/stores/usePasswordResetStore'
 import Navbar from '@/components/layout/Navbar'
@@ -38,6 +38,7 @@ export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const setUser = useAuthStore((state) => state.setUser)
+  const setAccessToken = useAuthStore((state) => state.setAccessToken)
   const openPasswordResetModal = usePasswordResetStore((state) => state.openModal)
 
   const {
@@ -61,9 +62,9 @@ export default function LoginPage() {
       })
 
       if (response.success) {
-        // ✅ Access Token만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
+        // ✅ Access Token을 메모리에만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
         if (response.data.accessToken) {
-          localStorage.setItem('accessToken', response.data.accessToken)
+          setAccessToken(response.data.accessToken)
         }
 
         // 사용자 정보 저장

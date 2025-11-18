@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { FaStar, FaHeart, FaEye, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaCrown, FaUser, FaGlobe, FaInstagram, FaFacebook, FaYoutube } from 'react-icons/fa'
 import { SiKakaotalk, SiNaver } from 'react-icons/si'
+import DOMPurify from 'isomorphic-dompurify'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { useProfile } from '@/hooks/useProfile'
 import { useMyCompany } from '@/hooks/useCompany'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { formatPhoneNumber } from '@/lib/utils'
 import { deleteCompany } from '@/lib/api/company'
@@ -22,6 +24,7 @@ import { useDialogStore } from '@/stores/useDialogStore'
 
 export default function MyPage() {
   const router = useRouter()
+  const { accessToken, _hasHydrated } = useAuthStore()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isDeleting, setIsDeleting] = useState(false)
   const { showDialog } = useDialogStore()
@@ -47,19 +50,17 @@ export default function MyPage() {
   const shouldFetchCompany = isCompanyProfile && checkResponse?.data?.hasCompany === true
   const { data: companyResponse, isLoading: companyLoading, error: companyError } = useMyCompany(shouldFetchCompany)
 
-  // 인증 체크
+  // 인증 체크 - localStorage hydration 완료 대기
   useEffect(() => {
-    const checkAuth = () => {
-      const accessToken = localStorage.getItem('accessToken')
-      if (!accessToken) {
-        showErrorToast(null, '로그인이 필요한 페이지입니다')
-        router.push('/login')
-        return
-      }
-      setIsCheckingAuth(false)
+    if (!_hasHydrated) return // localStorage 로딩 대기
+
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요한 페이지입니다')
+      router.push('/login')
+      return
     }
-    checkAuth()
-  }, [router])
+    setIsCheckingAuth(false)
+  }, [router, accessToken, _hasHydrated])
 
   // 에러 처리
   useEffect(() => {
@@ -522,7 +523,7 @@ export default function MyPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">상세 설명</h2>
                 <div
                   className="prose max-w-none text-gray-700"
-                  dangerouslySetInnerHTML={{ __html: company.detailContent }}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(company.detailContent) }}
                 />
               </div>
             )}

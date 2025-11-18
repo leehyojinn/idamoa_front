@@ -2,31 +2,6 @@
 
 import { useEffect, useState } from 'react'
 
-interface DaumPostcodeData {
-  zonecode: string
-  roadAddress: string
-  jibunAddress: string
-  buildingName: string
-  apartment: string
-  userSelectedType: string
-}
-
-interface DaumPostcode {
-  new (options: {
-    oncomplete: (data: DaumPostcodeData) => void
-  }): {
-    open: () => void
-  }
-}
-
-declare global {
-  interface Window {
-    daum?: {
-      Postcode: DaumPostcode
-    }
-  }
-}
-
 interface AddressData {
   address: string
   zonecode: string
@@ -74,7 +49,7 @@ export const useKakaoAddress = () => {
     }
 
     new window.daum.Postcode({
-      oncomplete: function (data: DaumPostcodeData) {
+      oncomplete: function (data: any) {
         // 도로명 주소 우선, 없으면 지번 주소 사용
         const fullAddress = data.roadAddress || data.jibunAddress
         const buildingName = data.buildingName || ''

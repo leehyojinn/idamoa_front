@@ -7,6 +7,7 @@ import { IoStar, IoStarOutline, IoStarHalf } from 'react-icons/io5'
 import { getCompanyReviews, createReview, updateReview, deleteReview, createReply, updateReply, deleteReply, type ReviewResponse } from '@/lib/api/review'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useDialogStore } from '@/stores/useDialogStore'
+import { useAuthStore } from '@/stores/authStore'
 import Pagination from '@/components/ui/Pagination'
 import ImageUpload from '@/components/ui/ImageUpload'
 
@@ -71,13 +72,11 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
     e.preventDefault()
 
     // 로그인 체크
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken')
-      if (!token) {
-        showErrorToast(null, '로그인이 필요합니다')
-        router.push('/login')
-        return
-      }
+    const { accessToken } = useAuthStore.getState()
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push('/login')
+      return
     }
 
     if (content.length < 10) {

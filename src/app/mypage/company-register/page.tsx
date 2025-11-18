@@ -10,6 +10,7 @@ import { useCreateCompany, useUpdateCompany, useMyCompany } from '@/hooks/useCom
 import { useProfile } from '@/hooks/useProfile'
 import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { useAuthStore } from '@/stores/authStore'
 import ImageUpload from '@/components/ui/ImageUpload'
 import Checkbox from '@/components/ui/Checkbox'
 import Select from '@/components/ui/Select'
@@ -74,6 +75,9 @@ export default function CompanyRegisterPage() {
   // 회사 정보 가져오기 (수정 모드용)
   const { data: companyResponse, isLoading: companyLoading } = useMyCompany(true)
 
+  // 인증 상태 가져오기
+  const { accessToken, _hasHydrated } = useAuthStore()
+
   // 이미지 URL 상태 관리
   const [logoImageUrl, setLogoImageUrl] = useState<string>('')
   const [coverImageUrl, setCoverImageUrl] = useState<string>('')
@@ -106,22 +110,17 @@ export default function CompanyRegisterPage() {
   const businessNumberValue = watch('businessRegistrationNumber')
   const companyTypeValue = watch('companyType')
 
-  // 로그인 체크
+  // 인증 체크 - localStorage hydration 완료 대기
   useEffect(() => {
-    const checkAuth = () => {
-      const accessToken = localStorage.getItem('accessToken')
+    if (!_hasHydrated) return // localStorage 로딩 대기
 
-      if (!accessToken) {
-        showErrorToast(null, '로그인이 필요한 페이지입니다')
-        router.push('/login')
-        return
-      }
-
-      setIsCheckingAuth(false)
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요한 페이지입니다')
+      router.push('/login')
+      return
     }
-
-    checkAuth()
-  }, [router])
+    setIsCheckingAuth(false)
+  }, [router, accessToken, _hasHydrated])
 
   // 회사 정보를 폼에 자동 입력 (수정 모드)
   useEffect(() => {

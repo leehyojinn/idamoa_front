@@ -3,16 +3,27 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { FaBars } from 'react-icons/fa'
-import { motion, AnimatePresence } from 'framer-motion'
 import Quickmenu from './Quickmenu'
 import DesktopNav from './DesktopNav'
-import MobileMenu from './MobileMenu'
-import UserMenu from './UserMenu'
 import { useScrollPosition } from '@/hooks/useScrollPosition'
 import { useAuth } from '@/hooks/useAuth'
 import { useDialog } from '@/hooks/useDialog'
 import type { NavbarProps } from '@/types/navbar'
+
+const UserMenu = dynamic(() => import('./UserMenu'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center px-4 py-2">
+      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-600"></div>
+    </div>
+  ),
+})
+
+const MobileMenu = dynamic(() => import('./MobileMenu'), {
+  ssr: false,
+})
 
 const NAV_ITEMS = [
   { id: 'photos', label: '사진', href: '/photos' },
@@ -68,14 +79,12 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
   return (
     <>
       {showQuickmenu && <Quickmenu />}
-      <motion.nav
-        initial={false}
-        animate={{
-          backgroundColor: isScrolled || variant === 'default' ? 'rgb(255, 255, 255)' : 'rgba(255, 255, 255, 0.8)',
-          boxShadow: isScrolled ? '0 1px 3px 0 rgb(0 0 0 / 0.1)' : '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-        }}
-        transition={{ duration: 0.2 }}
-        className="sticky top-0 z-40 border-b border-gray-200 backdrop-blur-sm"
+      <nav
+        className={`sticky top-0 z-40 border-b border-gray-200 backdrop-blur-sm transition-all duration-200 ${
+          isScrolled || variant === 'default'
+            ? 'bg-white shadow-sm'
+            : 'bg-white/80 shadow-[0_1px_2px_0_rgb(0_0_0/0.05)]'
+        }`}
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -117,7 +126,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
             <DesktopNav navItems={NAV_ITEMS} />
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Mobile Menu */}
       <MobileMenu

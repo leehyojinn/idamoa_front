@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast } from '@/lib/errorHandler'
 
 // 프로필 체크를 건너뛸 경로들
@@ -19,6 +20,7 @@ const SKIP_PATHS = [
 export default function ProfileGuard() {
   const router = useRouter()
   const pathname = usePathname()
+  const accessToken = useAuthStore((state) => state.accessToken)
 
   useEffect(() => {
     const checkProfile = async () => {
@@ -28,7 +30,6 @@ export default function ProfileGuard() {
       }
 
       // 로그인 여부 확인
-      const accessToken = localStorage.getItem('accessToken')
       if (!accessToken) {
         return // 로그인하지 않은 경우 체크하지 않음
       }
@@ -48,7 +49,7 @@ export default function ProfileGuard() {
     }
 
     checkProfile()
-  }, [pathname, router])
+  }, [pathname, router, accessToken])
 
   return null
 }

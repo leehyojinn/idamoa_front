@@ -18,7 +18,7 @@ import {
   IoArrowBack,
 } from 'react-icons/io5'
 import { SiKakaotalk, SiNaver } from 'react-icons/si'
-import { getCompanyBySlug } from '@/lib/api/company'
+import { getCompanyBySlug, getCompanyByUuid } from '@/lib/api/company'
 import { DAY_MAP, DAY_ORDER, SKILL_LISTS, SPECIALTY_LISTS } from '@/lib/constants'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -31,11 +31,19 @@ interface PageProps {
   }>
 }
 
+// UUID 형식인지 확인하는 헬퍼 함수
+const isUuid = (str: string): boolean => {
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  return uuidPattern.test(str)
+}
+
 // SEO 메타데이터 생성
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params
-    const result = await getCompanyBySlug(slug)
+    const result = isUuid(slug)
+      ? await getCompanyByUuid(slug)
+      : await getCompanyBySlug(slug)
 
     if (!result.success || !result.data) {
       return {
@@ -81,7 +89,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CompanyDetailPage({ params }: PageProps) {
   const { slug } = await params
-  const result = await getCompanyBySlug(slug)
+  const result = isUuid(slug)
+    ? await getCompanyByUuid(slug)
+    : await getCompanyBySlug(slug)
 
   if (!result.success || !result.data) {
     notFound()

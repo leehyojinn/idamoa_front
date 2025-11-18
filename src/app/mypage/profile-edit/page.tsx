@@ -9,6 +9,7 @@ import { useProfile, useUpdateUserProfile } from '@/hooks/useProfile'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 import { showErrorToast } from '@/lib/errorHandler'
 import { useDialog } from '@/hooks/useDialog'
+import { useAuthStore } from '@/stores/authStore'
 import { formatPhoneNumber } from '@/lib/utils'
 import type { UpdateUserProfileRequest, ProfileVisibility } from '@/lib/api/profile'
 
@@ -26,6 +27,7 @@ export default function ProfileEditPage() {
   const { alert } = useDialog()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const { openAddressSearch, isScriptLoaded } = useKakaoAddress()
+  const { accessToken, _hasHydrated } = useAuthStore()
 
   // 프로필 정보 조회
   const { data: profileResponse, isLoading: profileLoading } = useProfile()
@@ -39,22 +41,17 @@ export default function ProfileEditPage() {
     formState: { errors },
   } = useForm<UserProfileFormData>()
 
-  // 로그인 체크
+  // 인증 체크 - localStorage hydration 완료 대기
   useEffect(() => {
-    const checkAuth = () => {
-      const accessToken = localStorage.getItem('accessToken')
+    if (!_hasHydrated) return // localStorage 로딩 대기
 
-      if (!accessToken) {
-        showErrorToast(null, '로그인이 필요한 페이지입니다')
-        router.push('/login')
-        return
-      }
-
-      setIsCheckingAuth(false)
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요한 페이지입니다')
+      router.push('/login')
+      return
     }
-
-    checkAuth()
-  }, [router])
+    setIsCheckingAuth(false)
+  }, [router, accessToken, _hasHydrated])
 
   // 프로필 데이터 로드 후 폼 초기화
   useEffect(() => {

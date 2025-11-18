@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
 import type { NavItem } from '@/types/navbar'
 
 interface DesktopNavProps {
@@ -23,7 +22,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
         return (
           <div
             key={item.id}
-            className="relative"
+            className="relative flex items-center justify-center"
             onMouseEnter={() => hasChildren && setHoveredItemId(item.id)}
             onMouseLeave={() => hasChildren && setHoveredItemId(null)}
           >
@@ -33,32 +32,22 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
             >
               {item.label}
               {isActive && (
-                <motion.div
-                  layoutId="navbar-indicator"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                  initial={false}
-                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary transition-all duration-300"
                 />
               )}
             </Link>
 
-            {/* Dropdown Menu */}
-            <AnimatePresence>
-              {hasChildren && hoveredItemId === item.id && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, left: '50%', x: '-50%' }}
-                  animate={{ opacity: 1, y: 0, left: '50%', x: '-50%' }}
-                  exit={{ opacity: 0, y: -10, left: '50%', x: '-50%' }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 w-fit min-w-[120px] text-center"
-                >
+            {hasChildren && hoveredItemId === item.id && (
+              <div className="absolute top-full left-0 right-0 mt-1 z-50 flex justify-center animate-fadeIn">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[140px] whitespace-nowrap">
                   {item.children?.map((child) => {
                     const isChildActive = pathname === child.href
                     return (
                       <Link
                         key={child.id}
                         href={child.href}
-                        className={`block px-4 py-2 text-sm transition-colors ${
+                        className={`block px-4 py-2 text-sm text-center transition-colors ${
                           isChildActive
                             ? 'text-primary bg-blue-50 font-medium'
                             : 'text-gray-700 hover:text-secondary hover:bg-gray-50'
@@ -68,9 +57,9 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
                       </Link>
                     )
                   })}
-                </motion.div>
-              )}
-            </AnimatePresence>
+                </div>
+              </div>
+            )}
           </div>
         )
       })}

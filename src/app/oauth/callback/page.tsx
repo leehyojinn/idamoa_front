@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 
 // ========================================
@@ -13,6 +13,7 @@ function OAuthCallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const setUser = useAuthStore((state) => state.setUser)
+  const setAccessToken = useAuthStore((state) => state.setAccessToken)
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
@@ -25,8 +26,8 @@ function OAuthCallbackContent() {
         const email = searchParams.get('email')
 
         if (success === 'true' && accessToken) {
-          // ✅ Access Token만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
-          localStorage.setItem('accessToken', accessToken)
+          // ✅ Access Token을 메모리에만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
+          setAccessToken(accessToken)
 
           // 사용자 정보 저장
           setUser({

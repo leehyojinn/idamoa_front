@@ -10,6 +10,7 @@ import {
   verifyEmail,
   completeSignup,
 } from '@/lib/api/auth'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -35,6 +36,7 @@ export default function VerifyPage() {
   const [signupToken, setSignupToken] = useState<string>('')
   const [email, setEmail] = useState<string>('')
   const [timer, setTimer] = useState(600) // 10분 = 600초
+  const setAccessToken = useAuthStore((state) => state.setAccessToken)
 
   const {
     register,
@@ -122,9 +124,9 @@ export default function VerifyPage() {
         signupToken,
       })
 
-      // 3. Access Token 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
+      // 3. Access Token을 메모리에만 저장 (Refresh Token은 httpOnly 쿠키로 자동 저장)
       if (response.data.accessToken) {
-        localStorage.setItem('accessToken', response.data.accessToken)
+        setAccessToken(response.data.accessToken)
       }
 
       // 4. signupToken 제거

@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuthStore } from '@/store/authStore'
+import { useAuthStore } from '@/stores/authStore'
 import CompanyReviews from './CompanyReviews'
 
 interface CompanyReviewsWrapperProps {

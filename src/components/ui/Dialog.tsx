@@ -3,7 +3,7 @@
 import { useDialogStore } from '@/stores/useDialogStore'
 import { useEffect } from 'react'
 
-export default function Dialog() {
+export default function GlobalDialog() {
   const { isOpen, title, message, type, confirmText, cancelText, onConfirm, onCancel, closeDialog } =
     useDialogStore()
 
@@ -124,4 +124,87 @@ export default function Dialog() {
       `}</style>
     </div>
   )
+}
+
+// ========================================
+// Reusable Dialog Components
+// ========================================
+
+interface DialogCompProps {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  children: React.ReactNode
+}
+
+export function Dialog({ open, onOpenChange, children }: DialogCompProps) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [open])
+
+  if (!open) return null
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={() => onOpenChange?.(false)}
+      />
+      {children}
+    </div>
+  )
+}
+
+interface DialogContentProps {
+  children: React.ReactNode
+  className?: string
+}
+
+export function DialogContent({ children, className = '' }: DialogContentProps) {
+  return (
+    <div
+      className={`relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6 ${className}`}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {children}
+    </div>
+  )
+}
+
+interface DialogHeaderProps {
+  children: React.ReactNode
+}
+
+export function DialogHeader({ children }: DialogHeaderProps) {
+  return <div className="mb-4">{children}</div>
+}
+
+interface DialogTitleProps {
+  children: React.ReactNode
+}
+
+export function DialogTitle({ children }: DialogTitleProps) {
+  return <h3 className="text-xl font-bold text-gray-900">{children}</h3>
+}
+
+interface DialogDescriptionProps {
+  children: React.ReactNode
+}
+
+export function DialogDescription({ children }: DialogDescriptionProps) {
+  return <p className="text-sm text-gray-600 mt-2">{children}</p>
+}
+
+interface DialogFooterProps {
+  children: React.ReactNode
+}
+
+export function DialogFooter({ children }: DialogFooterProps) {
+  return <div className="mt-6 flex gap-3 justify-end">{children}</div>
 }

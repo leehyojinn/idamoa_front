@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer'
 import { changePassword } from '@/lib/api/password'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useDialog } from '@/hooks/useDialog'
+import { useAuthStore } from '@/stores/authStore'
 
 interface PasswordChangeFormData {
   currentPassword: string
@@ -20,6 +21,7 @@ export default function PasswordChangePage() {
   const { alert } = useDialog()
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
+  const { accessToken, _hasHydrated } = useAuthStore()
 
   const {
     register,
@@ -31,22 +33,17 @@ export default function PasswordChangePage() {
 
   const newPassword = watch('newPassword')
 
-  // 로그인 체크
+  // 인증 체크 - localStorage hydration 완료 대기
   useEffect(() => {
-    const checkAuth = () => {
-      const accessToken = localStorage.getItem('accessToken')
+    if (!_hasHydrated) return // localStorage 로딩 대기
 
-      if (!accessToken) {
-        showErrorToast(null, '로그인이 필요한 페이지입니다')
-        router.push('/login')
-        return
-      }
-
-      setIsCheckingAuth(false)
+    if (!accessToken) {
+      showErrorToast(null, '로그인이 필요한 페이지입니다')
+      router.push('/login')
+      return
     }
-
-    checkAuth()
-  }, [router])
+    setIsCheckingAuth(false)
+  }, [router, accessToken, _hasHydrated])
 
   const onSubmit = async (data: PasswordChangeFormData) => {
     if (data.newPassword !== data.confirmPassword) {

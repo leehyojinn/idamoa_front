@@ -3,10 +3,39 @@ import QueryProvider from '@/providers/QueryProvider'
 import { Toaster } from 'react-hot-toast'
 import Script from 'next/script'
 import { defaultMetadata } from '@/lib/metadata'
-import Dialog from '@/components/ui/Dialog'
+import GlobalDialog from '@/components/ui/dialog'
 import PasswordResetModal from '@/components/ui/PasswordResetModal'
 import ProfileGuard from '@/components/auth/ProfileGuard'
+import localFont from 'next/font/local'
 import type { Metadata } from 'next'
+
+const pretendard = localFont({
+  src: [
+    {
+      path: '../../public/fonts/Pretendard-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/Pretendard-Medium.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/Pretendard-SemiBold.woff2',
+      weight: '600',
+      style: 'normal',
+    },
+    {
+      path: '../../public/fonts/Pretendard-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-pretendard',
+  display: 'swap',
+  preload: true,
+})
 
 export const metadata: Metadata = {
   ...defaultMetadata,
@@ -57,8 +86,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <head>
         {/* Google Analytics */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-0GWCFDQ9SE" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-0GWCFDQ9SE" strategy="lazyOnload" />
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -66,14 +95,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             gtag('config', 'G-0GWCFDQ9SE');
           `}
         </Script>
+        {/* Daum Postcode (Kakao Address) */}
+        <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="lazyOnload" />
       </head>
-      <body className="antialiased">
+      <body className={`${pretendard.variable} antialiased`} style={{ fontFamily: 'var(--font-pretendard)' }}>
         <QueryProvider>
           <ProfileGuard />
           {children}
         </QueryProvider>
         <Toaster position="top-right" />
-        <Dialog />
+        <GlobalDialog />
         <PasswordResetModal />
       </body>
     </html>

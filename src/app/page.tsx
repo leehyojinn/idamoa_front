@@ -1,8 +1,8 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
-import HeroSlide from '@/components/layout/slide/HeroSlide'
 import CompanyList from '@/components/company/CompanyList'
+import HeroSlide from '@/components/layout/slide/HeroSlide'
 
 export const metadata = createPageMetadata({
   title: '병원인테리어 다모아 - 의료기관 인테리어 전문 플랫폼',
