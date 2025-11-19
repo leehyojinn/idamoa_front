@@ -31,7 +31,12 @@
       "Bash(node:*)",
       "Bash(del:*)",
       "Bash(git log:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(ping:*)",
+      "Bash(cmd //c \"if exist .next (rmdir /s /q .next) && timeout /t 2 && npm run dev\")",
+      "Bash(timeout /t 10)",
+      "Bash(cmd //c \"dir /b public\\fonts\\Pretendard*.woff2 2>nul || echo No font files found\")",
+      "Bash(cmd //c:*)"
     ],
     "deny": [],
     "ask": []

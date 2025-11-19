@@ -11,7 +11,8 @@ import type { ApiResponse } from '@/types/api'
 
 export interface ProposalAttachment {
   id?: number
-  fileUrl: string
+  fileUuid?: string
+  fileUrl?: string
   fileType: 'DRAWING' | 'PHOTO' | 'DOCUMENT' | 'ESTIMATE'
   fileDescription: string
   displayOrder: number
@@ -43,6 +44,7 @@ export interface Proposal {
   requestId: number
   requestUuid: string
   requestTitle: string
+  requestDeletedAt?: string
   createdAt: string
   updatedAt: string
 }

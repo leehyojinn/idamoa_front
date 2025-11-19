@@ -11,7 +11,8 @@ import type { ApiResponse } from '@/types/api'
 
 export interface EstimateAttachment {
   id?: number
-  fileUrl: string
+  fileUuid?: string
+  fileUrl?: string
   fileType: 'DRAWING' | 'PHOTO' | 'DOCUMENT' | 'ESTIMATE'
   fileDescription: string
   displayOrder: number
@@ -66,6 +67,7 @@ export interface EstimateRequest {
   expiresAt?: string
   createdAt: string
   updatedAt: string
+  deletedAt?: string
   metadata?: Record<string, unknown>
   clientName?: string
   businessType?: string

@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation'
 import { IoAddCircleOutline, IoCloseCircleOutline } from 'react-icons/io5'
 import { createProposal, type CreateProposalRequest, type ProposalAttachment } from '@/lib/api/proposal'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import FileUpload, { type FileAttachment } from '@/components/ui/FileUpload'
+import { uploadFile } from '@/lib/api/file'
+
+// 천단위 콤마 추가
+const formatNumber = (value: string): string => {
+  const number = value.replace(/[^\d]/g, '')
+  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+// 콤마 제거하고 숫자만 추출
+const parseNumber = (value: string): string => {
+  return value.replace(/[^\d]/g, '')
+}
 
 interface ProposalCreateFormProps {
   requestUuid: string
@@ -33,8 +46,8 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
   const [timelineKey, setTimelineKey] = useState('')
   const [timelineValue, setTimelineValue] = useState('')
 
-  // 첨부파일 (실제 업로드는 별도 구현 필요)
-  const [attachments, setAttachments] = useState<ProposalAttachment[]>([])
+  // 첨부파일
+  const [attachments, setAttachments] = useState<FileAttachment[]>([])
 
   const handleAddPricing = () => {
     if (pricingKey && pricingValue) {
@@ -86,6 +99,34 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
     setIsSubmitting(true)
 
     try {
+      // 파일 업로드 처리
+      const uploadedAttachments: ProposalAttachment[] = []
+      if (attachments.length > 0) {
+        for (const att of attachments) {
+          if (att.file) {
+            try {
+              const result = await uploadFile(att.file, 'OTHER')
+              uploadedAttachments.push({
+                fileUuid: result.uuid,
+                fileType: att.fileType,
+                fileDescription: att.fileDescription,
+                displayOrder: att.displayOrder,
+              })
+            } catch (error) {
+              console.error('파일 업로드 실패:', error)
+              throw new Error(`파일 업로드 실패: ${att.originalFilename}`)
+            }
+          } else if (att.fileUuid) {
+            uploadedAttachments.push({
+              fileUuid: att.fileUuid,
+              fileType: att.fileType,
+              fileDescription: att.fileDescription,
+              displayOrder: att.displayOrder,
+            })
+          }
+        }
+      }
+
       const data: CreateProposalRequest = {
         title: title.trim(),
         description: description.trim(),
@@ -95,7 +136,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
         proposedEndDate: proposedEndDate ? proposedEndDate.toISOString() : undefined,
         pricingDetails: Object.keys(pricingDetails).length > 0 ? pricingDetails : undefined,
         timeline: Object.keys(timeline).length > 0 ? timeline : undefined,
-        attachments: attachments.length > 0 ? attachments : undefined,
+        attachments: uploadedAttachments.length > 0 ? uploadedAttachments : undefined,
       }
 
       const result = await createProposal(requestUuid, data)
@@ -163,14 +204,13 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   제안 금액 (원) <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  min="0"
+                  type="text"
+                  value={formatNumber(price)}
+                  onChange={(e) => setPrice(parseNumber(e.target.value))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="80000000"
+                  placeholder="80,000,000"
                 />
-                {price && (
+                {price && parseInt(price) > 0 && (
                   <p className="text-sm text-gray-500 mt-1">
                     {(parseInt(price) / 10000).toLocaleString()}만원
                   </p>
@@ -233,10 +273,9 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   placeholder="항목명 (예: 재료비)"
                 />
                 <input
-                  type="number"
-                  value={pricingValue}
-                  onChange={(e) => setPricingValue(e.target.value)}
-                  min="0"
+                  type="text"
+                  value={formatNumber(pricingValue)}
+                  onChange={(e) => setPricingValue(parseNumber(e.target.value))}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="금액 (원)"
                 />
@@ -321,6 +360,16 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                 </div>
               )}
             </div>
+          </div>
+
+          {/* 첨부파일 */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">첨부파일</h2>
+            <FileUpload
+              attachments={attachments}
+              onChange={setAttachments}
+              maxFiles={10}
+            />
           </div>
 
           {/* 제출 버튼 */}

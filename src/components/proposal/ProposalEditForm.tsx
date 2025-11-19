@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation'
 import { IoSaveOutline, IoCloseCircleOutline } from 'react-icons/io5'
 import { updateProposal, type Proposal, type UpdateProposalRequest, type ProposalAttachment } from '@/lib/api/proposal'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import FileUpload, { type FileAttachment } from '@/components/ui/FileUpload'
+import { uploadFile } from '@/lib/api/file'
+
+// 천단위 콤마 추가
+const formatNumber = (value: string): string => {
+  const number = value.replace(/[^\d]/g, '')
+  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+// 콤마 제거하고 숫자만 추출
+const parseNumber = (value: string): string => {
+  return value.replace(/[^\d]/g, '')
+}
 
 interface ProposalEditFormProps {
   proposal: Proposal
@@ -33,7 +46,7 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
   const [timelineValue, setTimelineValue] = useState('')
 
   // 첨부파일
-  const [attachments, setAttachments] = useState<ProposalAttachment[]>([])
+  const [attachments, setAttachments] = useState<FileAttachment[]>([])
 
   // 기존 데이터로 초기화
   useEffect(() => {
@@ -45,7 +58,19 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
     setProposedEndDate(proposal.proposedEndDate ? new Date(proposal.proposedEndDate) : null)
     setPricingDetails(proposal.pricingDetails || {})
     setTimeline(proposal.timeline || {})
-    setAttachments(proposal.attachments || [])
+    setAttachments(
+      proposal.attachments?.map((att, index) => ({
+        id: att.id,
+        fileUuid: att.fileUuid,
+        fileUrl: att.fileUrl,
+        fileType: att.fileType,
+        fileDescription: att.fileDescription,
+        displayOrder: att.displayOrder ?? index,
+        originalFilename: att.originalFilename,
+        mimeType: att.mimeType,
+        fileSize: att.fileSize,
+      })) || []
+    )
   }, [proposal])
 
   const handleAddPricing = () => {
@@ -98,6 +123,37 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
     setIsSubmitting(true)
 
     try {
+      // 파일이 변경되었는지 확인 (새 파일 추가 또는 파일 삭제)
+      const hasNewFiles = attachments.some(att => att.file)
+      const originalFileCount = proposal.attachments?.length || 0
+      const currentFileCount = attachments.length
+      const filesChanged = hasNewFiles || (originalFileCount !== currentFileCount)
+
+      // 파일 업로드 처리
+      let uploadedAttachments: ProposalAttachment[] | undefined = undefined
+
+      if (filesChanged) {
+        uploadedAttachments = []
+        for (const att of attachments) {
+          if (att.file) {
+            // 새 파일 업로드
+            try {
+              const result = await uploadFile(att.file, 'OTHER')
+              uploadedAttachments.push({
+                fileUuid: result.uuid,
+                fileType: att.fileType,
+                fileDescription: att.fileDescription,
+                displayOrder: att.displayOrder,
+              })
+            } catch (error) {
+              console.error('파일 업로드 실패:', error)
+              throw new Error(`파일 업로드 실패: ${att.originalFilename}`)
+            }
+          }
+          // 기존 파일은 무시 (새 파일만 업로드)
+        }
+      }
+
       const data: UpdateProposalRequest = {
         title: title.trim(),
         description: description.trim(),
@@ -107,7 +163,7 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
         proposedEndDate: proposedEndDate ? proposedEndDate.toISOString() : undefined,
         pricingDetails: Object.keys(pricingDetails).length > 0 ? pricingDetails : undefined,
         timeline: Object.keys(timeline).length > 0 ? timeline : undefined,
-        attachments: attachments.length > 0 ? attachments : undefined,
+        ...(filesChanged ? { attachments: uploadedAttachments } : {}),
       }
 
       const result = await updateProposal(proposal.uuid, data)
@@ -167,14 +223,13 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
                   제안 금액 (원) <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  min="0"
+                  type="text"
+                  value={formatNumber(price)}
+                  onChange={(e) => setPrice(parseNumber(e.target.value))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="80000000"
+                  placeholder="80,000,000"
                 />
-                {price && (
+                {price && parseInt(price) > 0 && (
                   <p className="text-sm text-gray-500 mt-1">
                     {(parseInt(price) / 10000).toLocaleString()}만원
                   </p>
@@ -237,10 +292,9 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
                   placeholder="항목명 (예: 재료비)"
                 />
                 <input
-                  type="number"
-                  value={pricingValue}
-                  onChange={(e) => setPricingValue(e.target.value)}
-                  min="0"
+                  type="text"
+                  value={formatNumber(pricingValue)}
+                  onChange={(e) => setPricingValue(parseNumber(e.target.value))}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="금액 (원)"
                 />
@@ -325,6 +379,16 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* 첨부파일 */}
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">첨부파일</h2>
+            <FileUpload
+              attachments={attachments}
+              onChange={setAttachments}
+              maxFiles={10}
+            />
           </div>
 
           {/* 제출 버튼 */}

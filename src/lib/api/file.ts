@@ -44,6 +44,7 @@ export interface FileUploadCompleteRequest {
 
 export interface FileUploadCompleteResponse {
   id: number
+  uuid: string
   originalFilename: string
   storedFilename: string
   fileUrl: string
@@ -102,7 +103,7 @@ export const uploadFile = async (
   file: File,
   entityType: EntityType,
   entityId?: number | null
-): Promise<string> => {
+): Promise<{ uuid: string; fileUrl: string }> => {
   // 1. Presigned URL 요청
   const presignedResponse = await createPresignedUrl({
     filename: file.name,
@@ -129,6 +130,9 @@ export const uploadFile = async (
     throw new Error('파일 업로드 완료 처리 실패')
   }
 
-  // 4. 파일 URL 반환
-  return completeResponse.data.fileUrl
+  // 4. fileUuid와 fileUrl 반환
+  return {
+    uuid: completeResponse.data.uuid,
+    fileUrl: completeResponse.data.fileUrl,
+  }
 }

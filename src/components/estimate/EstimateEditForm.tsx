@@ -10,11 +10,25 @@ import {
   IoSearchOutline,
   IoCalendarOutline,
 } from 'react-icons/io5'
-import { updateEstimateRequest, type UpdateEstimateRequest, type EstimateRequestDetail } from '@/lib/api/estimate'
+import { updateEstimateRequest, type UpdateEstimateRequest, type EstimateRequestDetail, type EstimateAttachment } from '@/lib/api/estimate'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { Button } from '@/components/ui/button'
 import Checkbox from '@/components/ui/Checkbox'
+import Select from '@/components/ui/Select'
 import { formatPhoneNumber } from '@/lib/utils'
+import FileUpload, { type FileAttachment } from '@/components/ui/FileUpload'
+import { uploadFile } from '@/lib/api/file'
+
+// 천단위 콤마 추가
+const formatNumber = (value: string): string => {
+  const number = value.replace(/[^\d]/g, '')
+  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+// 콤마 제거하고 숫자만 추출
+const parseNumber = (value: string): string => {
+  return value.replace(/[^\d]/g, '')
+}
 
 interface EstimateEditFormProps {
   estimate: EstimateRequestDetail
@@ -60,6 +74,21 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
     siteAddress === '미정' || siteCity === '미정' || siteState === '미정'
   )
 
+  // 첨부파일
+  const [attachments, setAttachments] = useState<FileAttachment[]>(
+    estimate.attachments?.map((att, index) => ({
+      id: att.id,
+      fileUuid: att.fileUuid,
+      fileUrl: att.fileUrl,
+      fileType: att.fileType,
+      fileDescription: att.fileDescription,
+      displayOrder: att.displayOrder ?? index,
+      originalFilename: att.originalFilename,
+      mimeType: att.mimeType,
+      fileSize: att.fileSize,
+    })) || []
+  )
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -79,6 +108,37 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
 
     setIsSubmitting(true)
     try {
+      // 파일이 변경되었는지 확인 (새 파일 추가 또는 파일 삭제)
+      const hasNewFiles = attachments.some(att => att.file)
+      const originalFileCount = estimate.attachments?.length || 0
+      const currentFileCount = attachments.length
+      const filesChanged = hasNewFiles || (originalFileCount !== currentFileCount)
+
+      // 파일 업로드 처리
+      let uploadedAttachments: EstimateAttachment[] | undefined = undefined
+
+      if (filesChanged) {
+        uploadedAttachments = []
+        for (const att of attachments) {
+          if (att.file) {
+            // 새 파일 업로드
+            try {
+              const result = await uploadFile(att.file, 'OTHER')
+              uploadedAttachments.push({
+                fileUuid: result.uuid,
+                fileType: att.fileType,
+                fileDescription: att.fileDescription,
+                displayOrder: att.displayOrder,
+              })
+            } catch (error) {
+              console.error('파일 업로드 실패:', error)
+              throw new Error(`파일 업로드 실패: ${att.originalFilename}`)
+            }
+          }
+          // 기존 파일은 무시 (새 파일만 업로드)
+        }
+      }
+
       const data: UpdateEstimateRequest = {
         title: title.trim(),
         description: description.trim(),
@@ -98,6 +158,7 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
         isPublic,
         contactName: contactName.trim() || undefined,
         contactPhone: contactPhone.trim() || undefined,
+        ...(filesChanged ? { attachments: uploadedAttachments } : {}),
       }
 
       const result = await updateEstimateRequest(estimate.uuid, data)
@@ -211,22 +272,18 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
 
             {/* Estimate Type */}
             <div>
-              <label htmlFor="estimateType" className="block text-sm font-semibold text-gray-700 mb-2">
-                견적 유형 <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="estimateType"
+              <Select
+                label="견적 유형"
+                options={[
+                  { value: '신규공사', label: '신규공사' },
+                  { value: '리모델링', label: '리모델링' },
+                  { value: '부분시공', label: '부분시공' },
+                  { value: '기타', label: '기타' },
+                ]}
                 value={estimateType}
-                onChange={(e) => setEstimateType(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="INTERIOR">인테리어</option>
-                <option value="CONSTRUCTION">건축</option>
-                <option value="REMODELING">리모델링</option>
-                <option value="EXTERIOR">외관</option>
-                <option value="OTHER">기타</option>
-              </select>
+                onChange={(value) => setEstimateType(value)}
+                placeholder="견적 유형을 선택하세요"
+              />
             </div>
 
             {/* Client Name & Business Type */}
@@ -407,12 +464,12 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
                   최소 예산 (만원)
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="budgetMin"
-                  value={budgetMin}
-                  onChange={(e) => setBudgetMin(e.target.value)}
+                  value={formatNumber(budgetMin)}
+                  onChange={(e) => setBudgetMin(parseNumber(e.target.value))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="예: 3000"
+                  placeholder="예: 3,000"
                 />
               </div>
               <div>
@@ -420,12 +477,12 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
                   최대 예산 (만원)
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="budgetMax"
-                  value={budgetMax}
-                  onChange={(e) => setBudgetMax(e.target.value)}
+                  value={formatNumber(budgetMax)}
+                  onChange={(e) => setBudgetMax(parseNumber(e.target.value))}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="예: 5000"
+                  placeholder="예: 5,000"
                 />
               </div>
             </div>
@@ -523,6 +580,16 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
               />
             </div>
           </div>
+        </div>
+
+        {/* 첨부파일 */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">첨부파일</h2>
+          <FileUpload
+            attachments={attachments}
+            onChange={setAttachments}
+            maxFiles={10}
+          />
         </div>
 
         {/* Form Actions */}

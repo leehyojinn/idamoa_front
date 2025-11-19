@@ -42,21 +42,23 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
       }
 
       try {
-        // 내 견적 요청 개수
-        const myEstimatesResult = await getMyEstimateRequests(0, 1, 'createdAt,desc')
+        // 내 견적 요청 개수 (삭제된 견적 제외)
+        const myEstimatesResult = await getMyEstimateRequests(0, 100, 'createdAt,desc')
         if (myEstimatesResult.success && myEstimatesResult.data) {
-          setMyEstimatesCount(myEstimatesResult.data.totalElements)
+          const activeEstimates = myEstimatesResult.data.content.filter(e => !e.deletedAt)
+          setMyEstimatesCount(activeEstimates.length)
         }
       } catch (error) {
         // 내 견적 요청 API 에러 시 0으로 처리
         setMyEstimatesCount(0)
       }
 
-      // 내 제안 개수
+      // 내 제안 개수 (철회된 제안 제외)
       try {
-        const myProposalsResult = await getMyProposals(0, 1, 'createdAt,desc')
+        const myProposalsResult = await getMyProposals(0, 100, 'createdAt,desc')
         if (myProposalsResult.success && myProposalsResult.data) {
-          setMyProposalsCount(myProposalsResult.data.totalElements)
+          const activeProposals = myProposalsResult.data.content.filter(p => p.status !== 'WITHDRAWN')
+          setMyProposalsCount(activeProposals.length)
         }
       } catch (error) {
         // 내 제안 API 에러 시 0으로 처리
@@ -76,8 +78,8 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
           // 내가 제안한 견적 목록 가져오기
           const proposalsResult = await getMyProposals(page, 20, 'createdAt,desc')
           if (proposalsResult.success && proposalsResult.data) {
-            // Proposal 데이터를 EstimateRequest 형식으로 변환
-            const proposals = proposalsResult.data.content
+            // Proposal 데이터를 EstimateRequest 형식으로 변환 (철회된 제안만 제외)
+            const proposals = proposalsResult.data.content.filter(p => p.status !== 'WITHDRAWN')
             const estimateRequests = proposals.map(proposal => ({
               id: proposal.requestId,
               uuid: proposal.requestUuid,
@@ -105,14 +107,14 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
               data: {
                 content: estimateRequests,
                 pageable: proposalsResult.data.pageable,
-                totalPages: proposalsResult.data.totalPages,
-                totalElements: proposalsResult.data.totalElements,
+                totalPages: Math.ceil(proposals.length / 20),
+                totalElements: proposals.length,
                 last: proposalsResult.data.last,
                 first: proposalsResult.data.first,
                 size: proposalsResult.data.size,
                 number: proposalsResult.data.number,
-                numberOfElements: proposalsResult.data.numberOfElements,
-                empty: proposalsResult.data.empty,
+                numberOfElements: proposals.length,
+                empty: proposals.length === 0,
               }
             }
           }
@@ -137,6 +139,13 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
         }
       } else if (mode === 'MY') {
         result = await getMyEstimateRequests(page, 20, 'createdAt,desc')
+        // 삭제된 견적 제외
+        if (result?.success && result.data) {
+          result.data.content = result.data.content.filter(e => !e.deletedAt)
+          result.data.totalElements = result.data.content.length
+          result.data.numberOfElements = result.data.content.length
+          result.data.empty = result.data.content.length === 0
+        }
       } else {
         result = await getEstimateRequests(page, 20, 'createdAt,desc')
       }
@@ -255,7 +264,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
 
   // 필터별 카운트
   const getStatusCount = (status: string) => {
-    if (status === 'ALL') return data.totalElements
+    if (status === 'ALL') return data.content.length
     if (status === 'EXPIRED') {
       return data.content.filter(e => e.status === 'PUBLISHED' && e.expiresAt && new Date(e.expiresAt) < new Date()).length
     }

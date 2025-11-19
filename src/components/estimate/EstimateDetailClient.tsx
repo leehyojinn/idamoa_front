@@ -36,6 +36,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import AttachmentList from '@/components/ui/AttachmentList'
 
 interface EstimateDetailClientProps {
   estimate: EstimateRequestDetail
@@ -716,36 +717,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             {/* Attachments */}
             {estimate.attachments && estimate.attachments.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
-                  <h2 className="text-2xl font-bold text-gray-900">첨부 파일</h2>
-                </div>
-                <div className="space-y-3">
-                  {estimate.attachments.map((attachment, index) => (
-                    <div
-                      key={attachment.id || index}
-                      className="group flex items-center gap-4 p-5 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:shadow-md"
-                    >
-                      <div className="p-3 bg-white rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                        <IoDocumentTextOutline className="text-3xl text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-gray-900 mb-1">
-                          {attachment.originalFilename || attachment.fileDescription}
-                        </p>
-                        <p className="text-sm text-gray-500">{attachment.fileType}</p>
-                      </div>
-                      <a
-                        href={attachment.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium transform hover:-translate-y-0.5"
-                      >
-                        다운로드
-                      </a>
-                    </div>
-                  ))}
-                </div>
+                <AttachmentList attachments={estimate.attachments} />
               </div>
             )}
 

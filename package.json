@@ -15,7 +15,7 @@
     "axios": "^1.7.7",
     "critters": "^0.0.23",
     "date-fns": "^4.1.0",
-    "framer-motion": "^11.11.17",
+    "framer-motion": "^12.23.24",
     "isomorphic-dompurify": "^2.32.0",
     "js-cookie": "^3.0.5",
     "next": "^15.0.0",

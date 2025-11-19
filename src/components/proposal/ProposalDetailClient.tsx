@@ -19,6 +19,7 @@ import { acceptProposal, rejectProposal, withdrawProposal, type Proposal } from 
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuthStore } from '@/stores/authStore'
 import { useDialog } from '@/hooks/useDialog'
+import AttachmentList from '@/components/ui/AttachmentList'
 
 interface ProposalDetailClientProps {
   initialData: Proposal
@@ -391,34 +392,8 @@ export default function ProposalDetailClient({
 
       {/* 첨부파일 */}
       {proposal.attachments && proposal.attachments.length > 0 && (
-        <div className="bg-white rounded-xl shadow-md p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">첨부파일</h2>
-          <div className="space-y-4">
-            {proposal.attachments.map((attachment) => (
-              <a
-                key={attachment.id}
-                href={attachment.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="p-3 bg-blue-600 rounded-lg">
-                  <IoDocumentTextOutline className="text-white text-2xl" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-semibold text-gray-900">
-                    {attachment.originalFilename || attachment.fileDescription}
-                  </p>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span>{attachment.fileType}</span>
-                    {attachment.fileSize && (
-                      <span>{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB</span>
-                    )}
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
+          <AttachmentList attachments={proposal.attachments} />
         </div>
       )}
     </div>
