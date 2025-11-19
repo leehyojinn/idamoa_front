@@ -71,6 +71,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
   const handleDelete = async () => {
     if (!notice) return
 
+    console.log('삭제 시작:', { uuid, boardType: notice.boardType })
     setIsDeleting(true)
     try {
       const response =
@@ -78,13 +79,17 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
           ? await deleteNotice(uuid)
           : await deleteEvent(uuid)
 
+      console.log('삭제 응답:', response)
+
       if (response.success) {
         showSuccessToast('삭제되었습니다')
         router.push('/notices')
       } else {
+        console.error('삭제 실패:', response)
         showErrorToast(null, response.message || '삭제에 실패했습니다')
       }
     } catch (error) {
+      console.error('삭제 에러:', error)
       showErrorToast(error, '삭제에 실패했습니다')
     } finally {
       setIsDeleting(false)
@@ -229,17 +234,15 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
         </div>
 
         {/* 썸네일 */}
-        {notice.thumbnail && (
-          <div className="relative w-full aspect-video bg-gray-100">
-            <Image
-              src={notice.thumbnail.fileUrl}
-              alt={notice.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        )}
+        <div className="relative w-full aspect-video bg-gray-100">
+          <Image
+            src={notice.thumbnail?.fileUrl || '/images/img-placeholder.png'}
+            alt={notice.title}
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
 
         {/* 본문 내용 */}
         <div className="p-6 md:p-8">
@@ -319,42 +322,47 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
 
       {/* 삭제 확인 다이얼로그 */}
       <Dialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        title="삭제 확인"
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
       >
-        <div className="space-y-4">
-          <p className="text-gray-700">
-            정말로 이 {notice?.boardType === 'NOTICE' ? '공지사항' : '이벤트'}을 삭제하시겠습니까?
-          </p>
-          <p className="text-sm text-gray-500">
-            삭제된 항목은 복구할 수 없습니다.
-          </p>
-          <div className="flex gap-3 justify-end pt-4">
-            <button
-              onClick={() => setShowDeleteDialog(false)}
-              disabled={isDeleting}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
-            >
-              취소
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
-            >
-              {isDeleting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  삭제 중...
-                </>
-              ) : (
-                <>
-                  <FiTrash2 />
-                  삭제
-                </>
-              )}
-            </button>
+        <div
+          className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h2 className="text-xl font-bold text-gray-900 mb-4">삭제 확인</h2>
+          <div className="space-y-4">
+            <p className="text-gray-700">
+              정말로 이 {notice?.boardType === 'NOTICE' ? '공지사항' : '이벤트'}을 삭제하시겠습니까?
+            </p>
+            <p className="text-sm text-gray-500">
+              삭제된 항목은 복구할 수 없습니다.
+            </p>
+            <div className="flex gap-3 justify-end pt-4">
+              <button
+                onClick={() => setShowDeleteDialog(false)}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg font-medium transition-colors disabled:opacity-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    삭제 중...
+                  </>
+                ) : (
+                  <>
+                    <FiTrash2 />
+                    삭제
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </Dialog>

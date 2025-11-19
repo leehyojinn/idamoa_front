@@ -243,15 +243,13 @@ export default function NoticeListClient() {
                     className="block p-3 bg-white rounded-lg hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-3">
-                      {item.thumbnail && (
-                        <div className="flex-shrink-0 w-20 h-20 bg-gray-200 rounded overflow-hidden">
-                          <img
-                            src={item.thumbnail.fileUrl}
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
+                      <div className="flex-shrink-0 w-20 h-20 bg-gray-200 rounded overflow-hidden">
+                        <img
+                          src={item.thumbnail?.fileUrl || '/images/img-placeholder.png'}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-medium text-gray-900 line-clamp-1 mb-1">
                           {item.title}
@@ -312,19 +310,13 @@ export default function NoticeListClient() {
                   >
                     <div className="flex gap-4">
                       {/* 썸네일 */}
-                      {item.thumbnail ? (
-                        <div className="flex-shrink-0 w-32 h-32 bg-gray-200 rounded-lg overflow-hidden">
-                          <img
-                            src={item.thumbnail.fileUrl}
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex-shrink-0 w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                          <FiImage className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
+                      <div className="flex-shrink-0 w-32 h-32 bg-gray-200 rounded-lg overflow-hidden">
+                        <img
+                          src={item.thumbnail?.fileUrl || '/images/img-placeholder.png'}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
 
                       {/* 내용 */}
                       <div className="flex-1 min-w-0">

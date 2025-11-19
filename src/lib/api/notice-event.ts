@@ -249,6 +249,18 @@ export async function updateEvent(uuid: string, data: UpdateEventRequest): Promi
 export async function deleteNotice(uuid: string): Promise<ApiResponse<null>> {
   try {
     const response = await axiosInstance.delete(`/admin/boards/notice/${uuid}`)
+
+    // DELETE 요청은 204 No Content를 반환할 수 있으므로 status code로 판단
+    if (response.status >= 200 && response.status < 300) {
+      return {
+        success: true,
+        data: null,
+        errorCode: null,
+        message: null,
+      }
+    }
+
+    // response.data가 있으면 그대로 반환
     return response.data
   } catch (error: any) {
     console.error('공지사항 삭제 실패:', error)
@@ -262,6 +274,18 @@ export async function deleteNotice(uuid: string): Promise<ApiResponse<null>> {
 export async function deleteEvent(uuid: string): Promise<ApiResponse<null>> {
   try {
     const response = await axiosInstance.delete(`/admin/boards/event/${uuid}`)
+
+    // DELETE 요청은 204 No Content를 반환할 수 있으므로 status code로 판단
+    if (response.status >= 200 && response.status < 300) {
+      return {
+        success: true,
+        data: null,
+        errorCode: null,
+        message: null,
+      }
+    }
+
+    // response.data가 있으면 그대로 반환
     return response.data
   } catch (error: any) {
     console.error('이벤트 삭제 실패:', error)
