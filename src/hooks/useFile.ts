@@ -20,7 +20,7 @@ export interface UploadFileParams {
  * Presigned URL 생성 → S3 업로드 → 완료 알림
  */
 export const useFileUpload = () => {
-  return useMutation<string, Error, UploadFileParams>({
+  return useMutation<{ uuid: string; fileUrl: string }, Error, UploadFileParams>({
     mutationFn: async ({ file, entityType, entityId }) => {
       return await uploadFile(file, entityType, entityId)
     },

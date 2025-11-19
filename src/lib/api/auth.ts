@@ -98,6 +98,23 @@ export interface OAuthAuthorizeResponse {
   message: string | null
 }
 
+export interface UserMeResponse {
+  success: boolean
+  data: {
+    id: number
+    email: string
+    name?: string
+    profileCompleted: boolean
+    roles: string[]
+    isAdmin: boolean
+    isCompany: boolean
+    isUser: boolean
+    status: string
+  }
+  errorCode: string | null
+  message: string | null
+}
+
 // ========================================
 // API Functions
 // ========================================
@@ -197,5 +214,13 @@ export const getNaverAuthUrl = async (): Promise<OAuthAuthorizeResponse> => {
  */
 export const getGoogleAuthUrl = async (): Promise<OAuthAuthorizeResponse> => {
   const response = await axiosInstance.get('/oauth/google/authorize')
+  return response.data
+}
+
+/**
+ * 내 정보 조회
+ */
+export const getMyInfo = async (): Promise<UserMeResponse> => {
+  const response = await axiosInstance.get('/auth/me')
   return response.data
 }
