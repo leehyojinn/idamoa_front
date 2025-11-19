@@ -25,23 +25,13 @@ export default function NoticeListClient() {
   useEffect(() => {
     const fetchMyInfo = async () => {
       try {
-        console.log('=== /api/auth/me 호출 ===')
         const response = await getMyInfo()
-        console.log('응답:', response)
         if (response.success && response.data) {
-          console.log('이메일:', response.data.email)
-          console.log('이름:', response.data.name)
-          console.log('역할 목록:', response.data.roles)
-          console.log('프로필 완성:', response.data.profileCompleted)
-          console.log('관리자 여부:', response.data.isAdmin)
-
           // roles 배열에 'ADMIN'이 있고 isAdmin이 true인 경우만 관리자로 설정
           const adminStatus = response.data.roles.includes('ADMIN') && response.data.isAdmin === true
           setIsAdmin(adminStatus)
-          console.log('관리자 권한:', adminStatus)
         }
       } catch (error) {
-        console.log('내 정보 조회 실패 (로그인 안 됨):', error)
         setIsAdmin(false)
       }
     }
@@ -49,15 +39,6 @@ export default function NoticeListClient() {
     fetchMyInfo()
   }, [])
 
-  // useAuth 유저 정보도 출력
-  useEffect(() => {
-    console.log('=== useAuth 유저 정보 ===')
-    console.log('user:', user)
-    console.log('로그인 상태:', user ? '로그인됨' : '로그아웃')
-    if (user) {
-      console.log('이메일:', user.email)
-    }
-  }, [user])
 
   // 탭 변경 시 데이터 로드
   useEffect(() => {
@@ -128,7 +109,6 @@ export default function NoticeListClient() {
         setPinnedItems([])
       }
     } catch (error) {
-      console.error('고정 목록 조회 실패:', error)
       setPinnedItems([])
     }
   }

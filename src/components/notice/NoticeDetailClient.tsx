@@ -71,7 +71,6 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
   const handleDelete = async () => {
     if (!notice) return
 
-    console.log('삭제 시작:', { uuid, boardType: notice.boardType })
     setIsDeleting(true)
     try {
       const response =
@@ -79,17 +78,13 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
           ? await deleteNotice(uuid)
           : await deleteEvent(uuid)
 
-      console.log('삭제 응답:', response)
-
       if (response.success) {
         showSuccessToast('삭제되었습니다')
         router.push('/notices')
       } else {
-        console.error('삭제 실패:', response)
         showErrorToast(null, response.message || '삭제에 실패했습니다')
       }
     } catch (error) {
-      console.error('삭제 에러:', error)
       showErrorToast(error, '삭제에 실패했습니다')
     } finally {
       setIsDeleting(false)

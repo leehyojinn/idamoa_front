@@ -102,7 +102,6 @@ export async function getNoticeEvent(uuid: string): Promise<ApiResponse<NoticeEv
     const response = await axiosInstance.get(`/boards/notice-event/${uuid}`)
     return response.data
   } catch (error: any) {
-    console.error('공지사항/이벤트 조회 실패:', error)
     throw error
   }
 }
@@ -125,7 +124,6 @@ export async function searchNoticeEvents(params: NoticeEventSearchParams = {}): 
     const response = await axiosInstance.get(url)
     return response.data
   } catch (error: any) {
-    console.error('공지사항/이벤트 검색 실패:', error)
     throw error
   }
 }
@@ -142,7 +140,6 @@ export async function getPinnedNoticeEvents(boardType?: 'NOTICE' | 'EVENT' | 'FA
     const response = await axiosInstance.get(url)
     return response.data
   } catch (error: any) {
-    console.error('고정 공지사항/이벤트 조회 실패:', error)
     throw error
   }
 }
@@ -165,7 +162,6 @@ export async function createNotice(data: CreateNoticeRequest): Promise<ApiRespon
     const response = await axiosInstance.post('/admin/boards/notice', data)
     return response.data
   } catch (error: any) {
-    console.error('공지사항 생성 실패:', error)
     throw error
   }
 }
@@ -190,7 +186,6 @@ export async function createEvent(data: CreateEventRequest): Promise<ApiResponse
     const response = await axiosInstance.post('/admin/boards/event', data)
     return response.data
   } catch (error: any) {
-    console.error('이벤트 생성 실패:', error)
     throw error
   }
 }
@@ -213,7 +208,6 @@ export async function updateNotice(uuid: string, data: UpdateNoticeRequest): Pro
     const response = await axiosInstance.put(`/admin/boards/notice/${uuid}`, data)
     return response.data
   } catch (error: any) {
-    console.error('공지사항 수정 실패:', error)
     throw error
   }
 }
@@ -238,7 +232,6 @@ export async function updateEvent(uuid: string, data: UpdateEventRequest): Promi
     const response = await axiosInstance.put(`/admin/boards/event/${uuid}`, data)
     return response.data
   } catch (error: any) {
-    console.error('이벤트 수정 실패:', error)
     throw error
   }
 }
@@ -263,7 +256,6 @@ export async function deleteNotice(uuid: string): Promise<ApiResponse<null>> {
     // response.data가 있으면 그대로 반환
     return response.data
   } catch (error: any) {
-    console.error('공지사항 삭제 실패:', error)
     throw error
   }
 }
@@ -288,7 +280,6 @@ export async function deleteEvent(uuid: string): Promise<ApiResponse<null>> {
     // response.data가 있으면 그대로 반환
     return response.data
   } catch (error: any) {
-    console.error('이벤트 삭제 실패:', error)
     throw error
   }
 }
