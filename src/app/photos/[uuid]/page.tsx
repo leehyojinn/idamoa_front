@@ -1,9 +1,15 @@
 import { Suspense } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import GalleryListClient from '@/components/gallery/GalleryListClient'
+import GalleryDetailClient from '@/components/gallery/GalleryDetailClient'
 
-export default function PhotosPage() {
+interface PageProps {
+  params: Promise<{ uuid: string }>
+}
+
+export default async function GalleryDetailPage({ params }: PageProps) {
+  const { uuid } = await params
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -13,7 +19,7 @@ export default function PhotosPage() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
           </div>
         }>
-          <GalleryListClient />
+          <GalleryDetailClient uuid={uuid} />
         </Suspense>
       </main>
       <Footer />

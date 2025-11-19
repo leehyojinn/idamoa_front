@@ -39,7 +39,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
             </Link>
 
             {hasChildren && hoveredItemId === item.id && (
-              <div className="absolute top-full left-0 right-0 mt-1 z-50 flex justify-center animate-fadeIn">
+              <div className="absolute top-full left-0 right-0 pt-2 z-50 flex justify-center animate-fadeIn">
                 <div className="bg-white rounded-lg shadow-lg border border-gray-200 py-2 min-w-[140px] whitespace-nowrap">
                   {item.children?.map((child) => {
                     const isChildActive = pathname === child.href

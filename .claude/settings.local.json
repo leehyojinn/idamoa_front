@@ -36,7 +36,10 @@
       "Bash(cmd //c \"if exist .next (rmdir /s /q .next) && timeout /t 2 && npm run dev\")",
       "Bash(timeout /t 10)",
       "Bash(cmd //c \"dir /b public\\fonts\\Pretendard*.woff2 2>nul || echo No font files found\")",
-      "Bash(cmd //c:*)"
+      "Bash(cmd //c:*)",
+      "Bash(tasklist:*)",
+      "Bash(curl:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
