@@ -57,8 +57,45 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    // 401 에러 && 아직 재시도 안했으면 토큰 갱신
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    console.log('🔴 API 에러 발생:', {
+      status: error.response?.status,
+      url: originalRequest?.url,
+      currentPath: typeof window !== 'undefined' ? window.location.pathname : ''
+    })
+
+    // 상담 조회 비밀번호 검증 실패는 토큰 갱신 로직 건너뛰기
+    const isConsultationVerify = originalRequest.url?.includes('/consultations/') && originalRequest.url?.includes('/verify')
+
+    // 403 에러 (권한 없음) - 관리자 페이지 접근 시
+    if (error.response?.status === 403) {
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
+
+      console.log('🚫 403 에러 감지:', { currentPath })
+
+      // 관리자 페이지에서 403 에러가 나면 홈으로 리다이렉트
+      if (currentPath.startsWith('/admin')) {
+        console.log('✅ 관리자 페이지에서 403 - 홈으로 리다이렉트')
+        if (typeof window !== 'undefined' && !isRedirecting) {
+          isRedirecting = true
+
+          toast.error('관리자 권한이 필요합니다.', {
+            duration: 3000,
+          })
+
+          setTimeout(() => {
+            window.location.href = '/'
+            setTimeout(() => {
+              isRedirecting = false
+            }, 1000)
+          }, 1000)
+        }
+
+        return Promise.reject(error)
+      }
+    }
+
+    // 401 에러 && 아직 재시도 안했으면 토큰 갱신 (단, 상담 조회는 제외)
+    if (error.response?.status === 401 && !originalRequest._retry && !isConsultationVerify) {
       originalRequest._retry = true
 
       try {

@@ -29,6 +29,11 @@ export interface ProfileData {
   nickname?: string
   avatarUrl?: string
   profileVisibility?: ProfileVisibility
+  // 약관 동의 정보
+  personalInfoConsent?: boolean
+  thirdPartyConsent?: boolean
+  termsOfServiceConsent?: boolean
+  marketingConsent?: boolean
   // 프로필 생성 시에만 포함
   tokenInfo?: TokenInfo
 }

@@ -62,6 +62,7 @@ const ADMIN_PAGES = [
   { id: 'admin-galleries', label: '갤러리 관리', href: '/admin/galleries' },
   { id: 'admin-resources', label: '자료실 관리', href: '/admin/resources' },
   { id: 'admin-estimates', label: '견적 관리', href: '/admin/estimates' },
+  { id: 'admin-consultations', label: '빠른상담 관리', href: '/admin/consultations' },
   { id: 'admin-settings', label: '시스템 설정', href: '/admin/settings' },
 ]
 
