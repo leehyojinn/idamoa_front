@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiInfo, FiExternalLink } from 'react-icons/fi'
 import { getGallery, deleteGallery, toggleBookmark, type Gallery } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
@@ -37,11 +38,7 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [showImageViewer, setShowImageViewer] = useState(false)
 
-  useEffect(() => {
-    fetchGallery()
-  }, [uuid])
-
-  const fetchGallery = async () => {
+  const fetchGallery = useCallback(async () => {
     setIsLoading(true)
     try {
       const result = await getGallery(uuid)
@@ -58,7 +55,11 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [uuid, router])
+
+  useEffect(() => {
+    fetchGallery()
+  }, [fetchGallery])
 
   const handleDelete = async () => {
     if (!gallery) return
@@ -275,12 +276,14 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
               <div
                 key={image.uuid}
                 onClick={() => openImageViewer(index)}
-                className="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
               >
-                <img
+                <Image
                   src={image.fileUrl}
                   alt={image.originalFilename}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover"
                 />
               </div>
             ))}
@@ -367,10 +370,13 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
             className="max-w-7xl max-h-screen p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
+            <Image
               src={gallery.images[selectedImageIndex].fileUrl}
               alt={gallery.images[selectedImageIndex].originalFilename}
+              width={1920}
+              height={1080}
               className="max-w-full max-h-screen object-contain"
+              unoptimized
             />
             <div className="text-center mt-4 text-white">
               {selectedImageIndex + 1} / {gallery.images.length}

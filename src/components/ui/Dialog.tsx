@@ -1,11 +1,25 @@
 'use client'
 
 import { useDialogStore } from '@/stores/useDialogStore'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 
 export default function GlobalDialog() {
   const { isOpen, title, message, type, confirmText, cancelText, onConfirm, onCancel, closeDialog } =
     useDialogStore()
+
+  const handleConfirm = async () => {
+    if (onConfirm) {
+      await onConfirm()
+    }
+    closeDialog()
+  }
+
+  const handleCancel = useCallback(async () => {
+    if (onCancel) {
+      await onCancel()
+    }
+    closeDialog()
+  }, [onCancel, closeDialog])
 
   // ESC 키로 닫기
   useEffect(() => {
@@ -25,21 +39,7 @@ export default function GlobalDialog() {
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = 'unset'
     }
-  }, [isOpen])
-
-  const handleConfirm = async () => {
-    if (onConfirm) {
-      await onConfirm()
-    }
-    closeDialog()
-  }
-
-  const handleCancel = async () => {
-    if (onCancel) {
-      await onCancel()
-    }
-    closeDialog()
-  }
+  }, [isOpen, handleCancel])
 
   if (!isOpen) return null
 

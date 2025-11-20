@@ -34,39 +34,38 @@ interface ConstructionGrade {
   description: string
 }
 
-export default function EstimateCalculatorPage() {
-  // STEP1: 병원 공간 타입
-  const hospitalTypes: HospitalType[] = [
-    { label: '성형외과', value: '1', priceMultiplier: 1.2 },
-    { label: '피부과', value: '2', priceMultiplier: 1.2 },
-    { label: '정형외과', value: '3', priceMultiplier: 1.0 },
-    { label: '내과', value: '4', priceMultiplier: 1.0 },
-    { label: '치과', value: '5', priceMultiplier: 1.0 },
-    { label: '안과', value: '6', priceMultiplier: 1.0 },
-    { label: '한의원', value: '7', priceMultiplier: 1.0 },
-    { label: '한방병원', value: '8', priceMultiplier: 1.0 },
-    { label: '산부인과', value: '9', priceMultiplier: 1.0 },
-    { label: '비뇨기과', value: '10', priceMultiplier: 1.0 },
-    { label: '이비인후과', value: '11', priceMultiplier: 1.0 },
-    { label: '가정의학과', value: '12', priceMultiplier: 1.0 },
-    { label: '재활의학과', value: '13', priceMultiplier: 1.0 },
-    { label: '신경외과', value: '14', priceMultiplier: 1.0 },
-    { label: '마취통증학과', value: '15', priceMultiplier: 1.0 },
-    { label: '정신과', value: '16', priceMultiplier: 1.0 },
-    { label: '외과', value: '17', priceMultiplier: 1.0 },
-    { label: '영상의학과', value: '18', priceMultiplier: 1.0 },
-    { label: '소아과', value: '19', priceMultiplier: 1.0 },
-    { label: '건강검진센터', value: '20', priceMultiplier: 1.0 },
-    { label: '종합병원', value: '21', priceMultiplier: 1.0 },
-  ]
+// STEP1: 병원 공간 타입
+const hospitalTypes: HospitalType[] = [
+  { label: '성형외과', value: '1', priceMultiplier: 1.2 },
+  { label: '피부과', value: '2', priceMultiplier: 1.2 },
+  { label: '정형외과', value: '3', priceMultiplier: 1.0 },
+  { label: '내과', value: '4', priceMultiplier: 1.0 },
+  { label: '치과', value: '5', priceMultiplier: 1.0 },
+  { label: '안과', value: '6', priceMultiplier: 1.0 },
+  { label: '한의원', value: '7', priceMultiplier: 1.0 },
+  { label: '한방병원', value: '8', priceMultiplier: 1.0 },
+  { label: '산부인과', value: '9', priceMultiplier: 1.0 },
+  { label: '비뇨기과', value: '10', priceMultiplier: 1.0 },
+  { label: '이비인후과', value: '11', priceMultiplier: 1.0 },
+  { label: '가정의학과', value: '12', priceMultiplier: 1.0 },
+  { label: '재활의학과', value: '13', priceMultiplier: 1.0 },
+  { label: '신경외과', value: '14', priceMultiplier: 1.0 },
+  { label: '마취통증학과', value: '15', priceMultiplier: 1.0 },
+  { label: '정신과', value: '16', priceMultiplier: 1.0 },
+  { label: '외과', value: '17', priceMultiplier: 1.0 },
+  { label: '영상의학과', value: '18', priceMultiplier: 1.0 },
+  { label: '소아과', value: '19', priceMultiplier: 1.0 },
+  { label: '건강검진센터', value: '20', priceMultiplier: 1.0 },
+  { label: '종합병원', value: '21', priceMultiplier: 1.0 },
+]
 
-  const constructionGrades: ConstructionGrade[] = [
-    { label: '저가', value: 'low', minPrice: 150, maxPrice: 200, description: '기본 자재 및 시공' },
-    { label: '중가', value: 'medium', minPrice: 200, maxPrice: 250, description: '중급 자재 및 시공' },
-    { label: '고가', value: 'high', minPrice: 250, maxPrice: 300, description: '고급 자재 및 시공' },
-  ]
+const constructionGrades: ConstructionGrade[] = [
+  { label: '저가', value: 'low', minPrice: 150, maxPrice: 200, description: '기본 자재 및 시공' },
+  { label: '중가', value: 'medium', minPrice: 200, maxPrice: 250, description: '중급 자재 및 시공' },
+  { label: '고가', value: 'high', minPrice: 250, maxPrice: 300, description: '고급 자재 및 시공' },
+]
 
-  const spaceTypes: SpaceOption[] = [
+const spaceTypes: SpaceOption[] = [
     {
       label: '철거 공사',
       value: 'demolition',
@@ -196,17 +195,18 @@ export default function EstimateCalculatorPage() {
         { label: '필요없음', value: 'not_required', minPrice: 0, maxPrice: 0 }
       ]
     },
-  ]
+]
 
-  const spaceInfoMap: { [key: string]: string } = {
-    'exterior': '건물 외부의 복도, 출입구, EV홀 공사 등을 포함합니다. 건물 외관을 개선하고 브랜드 이미지를 구축하는 공사입니다.',
-    'exhaust': '실내 공기를 강제로 배출하는 환기 설비 공사입니다. 쾌적한 실내 환경 유지를 위해 오염된 공기를 외부로 배출하고 신선한 공기를 유입시킵니다.',
-    'electrical_installation': '건물 외부에서 전기를 끌어오는 초기 전기 인입 공사 및 전기 용량 증설 공사입니다. 기존 전기 용량이 부족할 경우 필요합니다.',
-    'plumbing_installation': '상하수도 배관을 건물 외부에서 끌어오는 초기 배관 공사입니다. 급수, 배수 시스템의 기본 인프라를 구축합니다.'
-  }
+const spaceInfoMap: { [key: string]: string } = {
+  'exterior': '건물 외부의 복도, 출입구, EV홀 공사 등을 포함합니다. 건물 외관을 개선하고 브랜드 이미지를 구축하는 공사입니다.',
+  'exhaust': '실내 공기를 강제로 배출하는 환기 설비 공사입니다. 쾌적한 실내 환경 유지를 위해 오염된 공기를 외부로 배출하고 신선한 공기를 유입시킵니다.',
+  'electrical_installation': '건물 외부에서 전기를 끌어오는 초기 전기 인입 공사 및 전기 용량 증설 공사입니다. 기존 전기 용량이 부족할 경우 필요합니다.',
+  'plumbing_installation': '상하수도 배관을 건물 외부에서 끌어오는 초기 배관 공사입니다. 급수, 배수 시스템의 기본 인프라를 구축합니다.'
+}
 
-  const screenPricePerUnit = { min: 10, max: 20 }
+const screenPricePerUnit = { min: 10, max: 20 }
 
+export default function EstimateCalculatorPage() {
   // States
   const [selectedHospitalType, setSelectedHospitalType] = useState<string>('')
   const [area, setArea] = useState<number>(50)
@@ -458,8 +458,10 @@ export default function EstimateCalculatorPage() {
       }
     })
 
-    const basePrice = totalPerPyeong * area * getHospitalMultiplier()
-    const discountedPrice = applyDiscount(basePrice)
+    const hospitalMultiplier = hospitalTypes.find(t => t.value === selectedHospitalType)?.priceMultiplier || 1.0
+    const discountRate = Math.min(Math.floor(area / 50) * 0.11, 0.4)
+    const basePrice = totalPerPyeong * area * hospitalMultiplier
+    const discountedPrice = basePrice * (1 - discountRate)
 
     const screenAvgPrice = (screenPricePerUnit.min + screenPricePerUnit.max) / 2
     const screenPrice = screenAvgPrice * screenCount
@@ -487,8 +489,10 @@ export default function EstimateCalculatorPage() {
       }
     })
 
-    const basePrice = totalPerPyeong * area * getHospitalMultiplier()
-    const discountedPrice = applyDiscount(basePrice)
+    const hospitalMultiplier = hospitalTypes.find(t => t.value === selectedHospitalType)?.priceMultiplier || 1.0
+    const discountRate = Math.min(Math.floor(area / 50) * 0.11, 0.4)
+    const basePrice = totalPerPyeong * area * hospitalMultiplier
+    const discountedPrice = basePrice * (1 - discountRate)
 
     const screenPrice = screenPricePerUnit.min * screenCount
 
@@ -515,8 +519,10 @@ export default function EstimateCalculatorPage() {
       }
     })
 
-    const basePrice = totalPerPyeong * area * getHospitalMultiplier()
-    const discountedPrice = applyDiscount(basePrice)
+    const hospitalMultiplier = hospitalTypes.find(t => t.value === selectedHospitalType)?.priceMultiplier || 1.0
+    const discountRate = Math.min(Math.floor(area / 50) * 0.11, 0.4)
+    const basePrice = totalPerPyeong * area * hospitalMultiplier
+    const discountedPrice = basePrice * (1 - discountRate)
 
     const screenPrice = screenPricePerUnit.max * screenCount
 

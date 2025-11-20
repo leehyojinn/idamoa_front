@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { FiPlus, FiX, FiImage, FiTag } from 'react-icons/fi'
 import { createGallery, type CreateGalleryRequest } from '@/lib/api/gallery'
 import { uploadFile } from '@/lib/api/file'
@@ -412,10 +413,13 @@ export default function GalleryCreateForm() {
                       key={index}
                       className="flex items-center gap-4 bg-gray-50 rounded-lg p-4"
                     >
-                      <img
+                      <Image
                         src={image.preview}
                         alt={image.file.name}
+                        width={80}
+                        height={80}
                         className="w-20 h-20 object-cover rounded"
+                        unoptimized
                       />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">

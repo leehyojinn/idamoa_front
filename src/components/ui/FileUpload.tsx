@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { FiUpload, FiX, FiFile, FiImage } from 'react-icons/fi'
 
 export interface FileAttachment {
@@ -139,11 +140,13 @@ export default function FileUpload({ attachments, onChange, maxFiles = 10 }: Fil
                 {/* 파일 미리보기 */}
                 <div className="flex-shrink-0">
                   {isImage(attachment.mimeType) ? (
-                    <div className="w-20 h-20 rounded overflow-hidden bg-gray-100">
-                      <img
-                        src={attachment.fileUrl}
-                        alt={attachment.originalFilename}
-                        className="w-full h-full object-cover"
+                    <div className="relative w-20 h-20 rounded overflow-hidden bg-gray-100">
+                      <Image
+                        src={attachment.fileUrl || ''}
+                        alt={attachment.originalFilename || 'File preview'}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
                       />
                     </div>
                   ) : (

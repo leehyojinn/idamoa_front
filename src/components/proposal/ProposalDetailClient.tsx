@@ -393,7 +393,7 @@ export default function ProposalDetailClient({
       {/* 첨부파일 */}
       {proposal.attachments && proposal.attachments.length > 0 && (
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
-          <AttachmentList attachments={proposal.attachments} />
+          <AttachmentList attachments={proposal.attachments.filter(a => a.fileUrl) as any} />
         </div>
       )}
     </div>

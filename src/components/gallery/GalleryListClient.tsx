@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiChevronDown, FiChevronUp } from 'react-icons/fi'
+import Image from 'next/image'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiChevronDown, FiChevronUp, FiRefreshCw } from 'react-icons/fi'
 import { searchGalleries, deleteGallery, toggleBookmark, type GalleryListItem, type GallerySearchParams } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
@@ -22,6 +23,20 @@ const TAG_CATEGORIES = {
   컬러: ['화이트', '그레이', '베이지', '블랙', '브라운', '레드', '오렌지', '엘로우', '그린', '블루'],
   자재: ['도장', '도배', '금속', '유리', '벽돌', '타일/대리석', '에폭시', '시멘트', '콩자갈', '조경', '사인', '간판'],
   유형: ['3D', '실사']
+}
+
+// 컬러 이름 -> CSS 색상 매핑
+const COLOR_MAP: { [key: string]: string } = {
+  '화이트': '#FFFFFF',
+  '그레이': '#9CA3AF',
+  '베이지': '#F5F5DC',
+  '블랙': '#000000',
+  '브라운': '#8B4513',
+  '레드': '#EF4444',
+  '오렌지': '#F97316',
+  '엘로우': '#EAB308',
+  '그린': '#22C55E',
+  '블루': '#3B82F6'
 }
 
 export default function GalleryListClient() {
@@ -119,28 +134,18 @@ export default function GalleryListClient() {
     })
   }
 
-  useEffect(() => {
-    // URL 파라미터에서 검색 조건 복원
-    const page = parseInt(searchParams.get('page') || '0')
-    const keyword = searchParams.get('keyword') || ''
-    const tags = searchParams.get('tags')?.split(',').filter(Boolean) || []
-    const sortBy = (searchParams.get('sortBy') || 'CREATED_AT') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
-    const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
-    const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
-    const onlyMyPosts = searchParams.get('onlyMyPosts') === 'true'
+  const handleResetFilters = () => {
+    setKeyword('')
+    setSelectedTags([])
+    setSortBy('CREATED_AT')
+    setSortDirection('DESC')
+    setOnlyBookmarked(false)
+    setOnlyMyPosts(false)
+    // URL을 초기 상태로
+    router.push('/photos', { scroll: false })
+  }
 
-    setCurrentPage(page)
-    setKeyword(keyword)
-    setSelectedTags(tags)
-    setSortBy(sortBy)
-    setSortDirection(sortDirection)
-    setOnlyBookmarked(onlyBookmarked)
-    setOnlyMyPosts(onlyMyPosts)
-
-    fetchGalleries({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
-  }, [searchParams])
-
-  const fetchGalleries = async (params: GallerySearchParams = {}) => {
+  const fetchGalleries = useCallback(async (params: GallerySearchParams = {}) => {
     setIsLoading(true)
     try {
       // 백엔드 태그 검색 버그로 인해 태그 검색 비활성화
@@ -173,7 +178,28 @@ export default function GalleryListClient() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [sortBy, sortDirection])
+
+  useEffect(() => {
+    // URL 파라미터에서 검색 조건 복원
+    const page = parseInt(searchParams.get('page') || '0')
+    const keyword = searchParams.get('keyword') || ''
+    const tags = searchParams.get('tags')?.split(',').filter(Boolean) || []
+    const sortBy = (searchParams.get('sortBy') || 'CREATED_AT') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
+    const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
+    const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
+    const onlyMyPosts = searchParams.get('onlyMyPosts') === 'true'
+
+    setCurrentPage(page)
+    setKeyword(keyword)
+    setSelectedTags(tags)
+    setSortBy(sortBy)
+    setSortDirection(sortDirection)
+    setOnlyBookmarked(onlyBookmarked)
+    setOnlyMyPosts(onlyMyPosts)
+
+    fetchGalleries({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
+  }, [searchParams, fetchGalleries])
 
   const updateURL = (params: GallerySearchParams) => {
     const query = new URLSearchParams()
@@ -321,9 +347,9 @@ export default function GalleryListClient() {
       </div>
 
       {/* 검색 및 필터 */}
-      <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">
         {/* 검색바 */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <div className="flex-1">
             <div className="relative">
               <input
@@ -339,98 +365,141 @@ export default function GalleryListClient() {
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+            className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
           >
             검색
           </button>
         </div>
 
         {/* 빠른 필터 및 정렬 */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* 정렬 */}
-          <div className="flex items-center gap-2">
-            <Select
-              label=""
-              options={[
-                { value: 'CREATED_AT', label: '최신순' },
-                { value: 'VIEW_COUNT', label: '조회순' },
-                { value: 'BOOKMARK_COUNT', label: '북마크순' },
-              ]}
-              value={sortBy}
-              onChange={handleSortChange}
-            />
+        <div className="space-y-3">
+          {/* 첫 번째 줄: 정렬 */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+            <div className="w-full sm:w-auto sm:min-w-[140px]">
+              <Select
+                label=""
+                options={[
+                  { value: 'CREATED_AT', label: '최신순' },
+                  { value: 'VIEW_COUNT', label: '조회순' },
+                ]}
+                value={sortBy}
+                onChange={handleSortChange}
+              />
+            </div>
+
+            {/* 데스크톱: 초기화/상세필터 버튼 */}
+            <div className="hidden sm:flex items-center gap-3 ml-auto">
+              <button
+                onClick={handleResetFilters}
+                disabled={!keyword && selectedTags.length === 0 && sortBy === 'CREATED_AT' && !onlyBookmarked && !onlyMyPosts}
+                className="flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                <FiRefreshCw />
+                초기화
+              </button>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${
+                  showFilters || selectedTags.length > 0
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <FiFilter />
+                상세 필터
+                {selectedTags.length > 0 && (
+                  <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {selectedTags.length}
+                  </span>
+                )}
+                {showFilters ? <FiChevronUp /> : <FiChevronDown />}
+              </button>
+            </div>
           </div>
 
-          {/* 빠른 필터 (로그인 시) */}
-          {user && (
-            <>
-              <button
-                onClick={() => {
-                  const newValue = !onlyBookmarked
-                  setOnlyBookmarked(newValue)
-                  updateURL({
-                    page: 0,
-                    keyword,
-                    tags: selectedTags,
-                    sortBy,
-                    sortDirection,
-                    onlyBookmarked: newValue,
-                    onlyMyPosts,
-                  })
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  onlyBookmarked
-                    ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
-                    : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
-                }`}
-              >
-                <FiBookmark className={onlyBookmarked ? 'fill-current' : ''} />
-                북마크만
-              </button>
-              <button
-                onClick={() => {
-                  const newValue = !onlyMyPosts
-                  setOnlyMyPosts(newValue)
-                  updateURL({
-                    page: 0,
-                    keyword,
-                    tags: selectedTags,
-                    sortBy,
-                    sortDirection,
-                    onlyBookmarked,
-                    onlyMyPosts: newValue,
-                  })
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  onlyMyPosts
-                    ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
-                    : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
-                }`}
-              >
-                <FiEdit />
-                내 글만
-              </button>
-            </>
-          )}
-
-          {/* 상세 필터 토글 버튼 */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ml-auto ${
-              showFilters || selectedTags.length > 0
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <FiFilter />
-            상세 필터
-            {selectedTags.length > 0 && (
-              <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                {selectedTags.length}
-              </span>
+          {/* 두 번째 줄: 빠른 필터 (로그인 시) + 모바일 버튼 */}
+          <div className="flex flex-wrap items-center gap-2">
+            {user && (
+              <>
+                <button
+                  onClick={() => {
+                    const newValue = !onlyBookmarked
+                    setOnlyBookmarked(newValue)
+                    updateURL({
+                      page: 0,
+                      keyword,
+                      tags: selectedTags,
+                      sortBy,
+                      sortDirection,
+                      onlyBookmarked: newValue,
+                      onlyMyPosts,
+                    })
+                  }}
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+                    onlyBookmarked
+                      ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                  }`}
+                >
+                  <FiBookmark className={onlyBookmarked ? 'fill-current' : ''} />
+                  <span className="whitespace-nowrap">북마크만</span>
+                </button>
+                <button
+                  onClick={() => {
+                    const newValue = !onlyMyPosts
+                    setOnlyMyPosts(newValue)
+                    updateURL({
+                      page: 0,
+                      keyword,
+                      tags: selectedTags,
+                      sortBy,
+                      sortDirection,
+                      onlyBookmarked,
+                      onlyMyPosts: newValue,
+                    })
+                  }}
+                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+                    onlyMyPosts
+                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                  }`}
+                >
+                  <FiEdit />
+                  <span className="whitespace-nowrap">내 글만</span>
+                </button>
+              </>
             )}
-            {showFilters ? <FiChevronUp /> : <FiChevronDown />}
-          </button>
+
+            {/* 모바일: 초기화/상세필터 버튼 */}
+            <div className="flex sm:hidden items-center gap-2 ml-auto">
+              <button
+                onClick={handleResetFilters}
+                disabled={!keyword && selectedTags.length === 0 && sortBy === 'CREATED_AT' && !onlyBookmarked && !onlyMyPosts}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FiRefreshCw />
+                <span className="whitespace-nowrap">초기화</span>
+              </button>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  showFilters || selectedTags.length > 0
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <FiFilter />
+                <span className="whitespace-nowrap">필터</span>
+                {selectedTags.length > 0 && (
+                  <span className="bg-white text-blue-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                    {selectedTags.length}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* 선택된 태그 미리보기 */}
@@ -481,7 +550,11 @@ export default function GalleryListClient() {
                   label={category}
                   options={[
                     { value: '', label: `${category} 선택` },
-                    ...tagList.map(tag => ({ value: tag, label: tag }))
+                    ...tagList.map(tag => ({
+                      value: tag,
+                      label: tag,
+                      color: category === '컬러' ? COLOR_MAP[tag] : undefined
+                    }))
                   ]}
                   value=""
                   onChange={(value) => {
@@ -571,10 +644,12 @@ export default function GalleryListClient() {
                     {/* 썸네일 */}
                     <div className="aspect-video bg-gray-200 relative overflow-hidden">
                       {getThumbnailUrl(gallery) ? (
-                        <img
+                        <Image
                           src={getThumbnailUrl(gallery)}
                           alt={gallery.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -687,7 +762,7 @@ export default function GalleryListClient() {
           </div>
 
           {/* 페이지네이션 */}
-          {totalPages > 1 && (
+          {totalPages >= 1 && (
             <div className="flex justify-center items-center gap-2 mt-8">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -698,16 +773,16 @@ export default function GalleryListClient() {
               </button>
 
               <div className="flex gap-2">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                {Array.from({ length: Math.min(10, totalPages) }, (_, i) => {
                   let pageNum
-                  if (totalPages <= 5) {
+                  if (totalPages <= 10) {
                     pageNum = i
-                  } else if (currentPage < 3) {
+                  } else if (currentPage < 5) {
                     pageNum = i
-                  } else if (currentPage > totalPages - 3) {
-                    pageNum = totalPages - 5 + i
+                  } else if (currentPage > totalPages - 6) {
+                    pageNum = totalPages - 10 + i
                   } else {
-                    pageNum = currentPage - 2 + i
+                    pageNum = currentPage - 5 + i
                   }
 
                   return (

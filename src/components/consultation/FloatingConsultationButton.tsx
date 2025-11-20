@@ -67,11 +67,11 @@ export default function FloatingConsultationButton() {
       try {
         const response = await getProfile()
         if (response.success && response.data) {
-          // 약관 동의 정보 저장 (프로필 API 필드명 매핑)
+          // 약관 동의 정보 저장
           const consents = {
-            personalInfoConsent: response.data?.privacyAgreed || false,
-            termsOfServiceConsent: response.data?.termsAgreed || false,
-            marketingConsent: response.data?.marketingAgreed || false,
+            personalInfoConsent: response.data?.personalInfoConsent || false,
+            termsOfServiceConsent: response.data?.termsOfServiceConsent || false,
+            marketingConsent: response.data?.marketingConsent || false,
           }
           setProfileConsents(consents)
 
@@ -417,7 +417,7 @@ export default function FloatingConsultationButton() {
                   {/* 전체 동의만 크게 표시 */}
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <Checkbox
-                      checked={isAllPendingConsentsChecked}
+                      checked={!!isAllPendingConsentsChecked}
                       onChange={handleAllConsents}
                       label="필수 약관 전체 동의"
                       size="sm"
@@ -430,7 +430,7 @@ export default function FloatingConsultationButton() {
                       <label className="flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={formData.personalInfoConsent}
+                          checked={!!formData.personalInfoConsent}
                           onChange={(e) => handleConsentChange('personalInfoConsent', e.target.checked)}
                           className="w-3 h-3"
                         />
@@ -442,7 +442,7 @@ export default function FloatingConsultationButton() {
                       <label className="flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={formData.termsOfServiceConsent}
+                          checked={!!formData.termsOfServiceConsent}
                           onChange={(e) => handleConsentChange('termsOfServiceConsent', e.target.checked)}
                           className="w-3 h-3"
                         />
@@ -454,7 +454,7 @@ export default function FloatingConsultationButton() {
                       <label className="flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={formData.marketingConsent}
+                          checked={!!formData.marketingConsent}
                           onChange={(e) => handleConsentChange('marketingConsent', e.target.checked)}
                           className="w-3 h-3"
                         />

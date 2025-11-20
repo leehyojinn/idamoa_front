@@ -9,18 +9,20 @@ export const metadata: Metadata = {
 }
 
 interface NoticeDetailPageProps {
-  params: {
+  params: Promise<{
     uuid: string
-  }
+  }>
 }
 
-export default function NoticeDetailPage({ params }: NoticeDetailPageProps) {
+export default async function NoticeDetailPage({ params }: NoticeDetailPageProps) {
+  const { uuid } = await params
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 bg-gray-50 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <NoticeDetailClient uuid={params.uuid} />
+          <NoticeDetailClient uuid={uuid} />
         </div>
       </main>
       <Footer />

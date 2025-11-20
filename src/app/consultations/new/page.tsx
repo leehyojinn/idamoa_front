@@ -50,11 +50,11 @@ export default function ConsultationsPage() {
       try {
         const response = await getProfile()
         if (response.success && response.data) {
-          // 약관 동의 정보 저장 (프로필 API 필드명 매핑)
+          // 약관 동의 정보 저장
           const consents = {
-            personalInfoConsent: response.data?.privacyAgreed || false,
-            termsOfServiceConsent: response.data?.termsAgreed || false,
-            marketingConsent: response.data?.marketingAgreed || false,
+            personalInfoConsent: response.data?.personalInfoConsent || false,
+            termsOfServiceConsent: response.data?.termsOfServiceConsent || false,
+            marketingConsent: response.data?.marketingConsent || false,
           }
           setProfileConsents(consents)
 
@@ -334,7 +334,7 @@ export default function ConsultationsPage() {
               {/* 전체 동의 */}
               <div className="pb-4 border-b border-gray-200">
                 <Checkbox
-                  checked={isAllPendingConsentsChecked}
+                  checked={!!isAllPendingConsentsChecked}
                   onChange={handleAllConsents}
                   label="전체 동의"
                   size="md"
@@ -345,7 +345,7 @@ export default function ConsultationsPage() {
               <div className="space-y-3 pt-2">
                 {pendingConsents.personalInfoConsent && (
                   <Checkbox
-                    checked={formData.personalInfoConsent}
+                    checked={!!formData.personalInfoConsent}
                     onChange={(checked) => handleConsentChange('personalInfoConsent', checked)}
                     label="개인정보 수집 및 이용 동의 (필수)"
                     size="sm"
@@ -354,7 +354,7 @@ export default function ConsultationsPage() {
 
                 {pendingConsents.termsOfServiceConsent && (
                   <Checkbox
-                    checked={formData.termsOfServiceConsent}
+                    checked={!!formData.termsOfServiceConsent}
                     onChange={(checked) => handleConsentChange('termsOfServiceConsent', checked)}
                     label="이용약관 동의 (필수)"
                     size="sm"
@@ -363,7 +363,7 @@ export default function ConsultationsPage() {
 
                 {pendingConsents.marketingConsent && (
                   <Checkbox
-                    checked={formData.marketingConsent}
+                    checked={!!formData.marketingConsent}
                     onChange={(checked) => handleConsentChange('marketingConsent', checked)}
                     label="마케팅 수신 동의 (선택)"
                     size="sm"

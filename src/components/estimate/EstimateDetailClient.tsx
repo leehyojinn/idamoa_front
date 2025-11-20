@@ -717,7 +717,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             {/* Attachments */}
             {estimate.attachments && estimate.attachments.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
-                <AttachmentList attachments={estimate.attachments} />
+                <AttachmentList attachments={estimate.attachments.filter(a => a.fileUrl) as any} />
               </div>
             )}
 

@@ -176,7 +176,7 @@ export async function searchGalleries(params: GallerySearchParams = {}): Promise
     // sort 파라미터 조합 (API 문서: "publishedAt,DESC" 형식)
     if (params.sortBy && params.sortDirection) {
       // sortBy 변환 (API 문서 기준)
-      let sortField = params.sortBy
+      let sortField: string = params.sortBy
       if (sortField === 'CREATED_AT') sortField = 'publishedAt'  // API 문서에서는 publishedAt 사용
       else if (sortField === 'VIEW_COUNT') sortField = 'viewCount'
       else if (sortField === 'BOOKMARK_COUNT') sortField = 'likeCount'

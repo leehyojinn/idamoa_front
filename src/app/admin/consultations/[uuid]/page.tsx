@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiArrowLeft, FiClock, FiUser, FiPhone, FiMail, FiMessageSquare, FiSave } from 'react-icons/fi'
@@ -41,11 +41,7 @@ export default function AdminConsultationDetailPage() {
   const [responseMessage, setResponseMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => {
-    fetchConsultation()
-  }, [uuid])
-
-  const fetchConsultation = async () => {
+  const fetchConsultation = useCallback(async () => {
     setIsLoading(true)
     try {
       const result = await adminGetConsultation(uuid)
@@ -59,7 +55,11 @@ export default function AdminConsultationDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [uuid])
+
+  useEffect(() => {
+    fetchConsultation()
+  }, [fetchConsultation])
 
   const handleStatusUpdate = async () => {
     if (!consultation) return

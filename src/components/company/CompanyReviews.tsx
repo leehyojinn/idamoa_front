@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { IoStar, IoStarOutline, IoStarHalf } from 'react-icons/io5'
@@ -9,7 +9,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useDialogStore } from '@/stores/useDialogStore'
 import { useAuthStore } from '@/stores/authStore'
 import Pagination from '@/components/ui/Pagination'
-import ImageUpload from '@/components/ui/ImageUpload'
+import ImageUpload, { type ImageData } from '@/components/ui/ImageUpload'
 
 interface CompanyReviewsProps {
   companyUuid: string
@@ -33,7 +33,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
   const [rating, setRating] = useState(5)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [images, setImages] = useState<string[]>([])
+  const [images, setImages] = useState<ImageData[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // 리뷰 수정
@@ -41,18 +41,14 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
   const [editRating, setEditRating] = useState(5)
   const [editTitle, setEditTitle] = useState('')
   const [editContent, setEditContent] = useState('')
-  const [editImages, setEditImages] = useState<string[]>([])
+  const [editImages, setEditImages] = useState<ImageData[]>([])
   const [isEditSubmitting, setIsEditSubmitting] = useState(false)
 
   // 답변 작성/수정
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
 
-  useEffect(() => {
-    fetchReviews()
-  }, [page, companyUuid])
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     setLoading(true)
     try {
       const result = await getCompanyReviews(companyUuid, page, 10)
@@ -66,7 +62,11 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, companyUuid])
+
+  useEffect(() => {
+    fetchReviews()
+  }, [fetchReviews])
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,7 +90,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
         rating,
         title: title || undefined,
         content,
-        images: images.length > 0 ? images : undefined,
+        images: images.length > 0 ? images.map(img => img.url) : undefined,
       })
 
       if (result.success) {
@@ -118,7 +118,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
     setEditRating(review.rating)
     setEditTitle(review.title || '')
     setEditContent(review.content)
-    setEditImages(review.images || [])
+    setEditImages((review.images || []).map(url => ({ uuid: url, url })))
   }
 
   const handleUpdateReview = async (reviewUuid: string) => {
@@ -133,7 +133,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
         rating: editRating,
         title: editTitle || undefined,
         content: editContent,
-        images: editImages.length > 0 ? editImages : undefined,
+        images: editImages.length > 0 ? editImages.map(img => img.url) : undefined,
       })
 
       if (result.success) {
@@ -315,7 +315,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
             <ImageUpload
               label="리뷰 이미지 (선택사항)"
               value={images}
-              onChange={(urls) => setImages(urls as string[])}
+              onChange={(data) => setImages(Array.isArray(data) ? data : data ? [data] : [])}
               multiple={true}
               maxFiles={5}
             />
@@ -427,7 +427,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                       <ImageUpload
                         label="리뷰 이미지 (선택사항)"
                         value={editImages}
-                        onChange={(urls) => setEditImages(urls as string[])}
+                        onChange={(data) => setEditImages(Array.isArray(data) ? data : data ? [data] : [])}
                         multiple={true}
                         maxFiles={5}
                       />

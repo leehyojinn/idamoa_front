@@ -55,7 +55,7 @@ function OAuthCallbackContent() {
     }
 
     handleOAuthCallback()
-  }, [searchParams, router, setUser])
+  }, [searchParams, router, setUser, setAccessToken])
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">

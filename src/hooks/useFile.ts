@@ -31,7 +31,7 @@ export const useFileUpload = () => {
  * 여러 파일 업로드
  */
 export const useMultipleFileUpload = () => {
-  return useMutation<string[], Error, UploadFileParams[]>({
+  return useMutation<{ uuid: string; fileUrl: string }[], Error, UploadFileParams[]>({
     mutationFn: async (uploads) => {
       const uploadPromises = uploads.map(({ file, entityType, entityId }) =>
         uploadFile(file, entityType, entityId)

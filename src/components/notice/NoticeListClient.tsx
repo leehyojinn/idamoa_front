@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FiBell, FiCalendar, FiArchive, FiEye, FiClock, FiImage } from 'react-icons/fi'
 import { searchNoticeEvents, getPinnedNoticeEvents, type NoticeEventListItem } from '@/lib/api/notice-event'
 import { showErrorToast } from '@/lib/errorHandler'
@@ -40,19 +41,7 @@ export default function NoticeListClient() {
   }, [])
 
 
-  // 탭 변경 시 데이터 로드
-  useEffect(() => {
-    setCurrentPage(0)
-    fetchData(0)
-    fetchPinnedData()
-  }, [activeTab])
-
-  // 페이지 변경 시 데이터 로드
-  useEffect(() => {
-    fetchData(currentPage)
-  }, [currentPage])
-
-  const fetchData = async (page: number) => {
+  const fetchData = useCallback(async (page: number) => {
     setIsLoading(true)
     try {
       const params: any = {
@@ -90,9 +79,9 @@ export default function NoticeListClient() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [activeTab])
 
-  const fetchPinnedData = async () => {
+  const fetchPinnedData = useCallback(async () => {
     try {
       if (activeTab === 'notice') {
         const result = await getPinnedNoticeEvents('NOTICE')
@@ -111,7 +100,19 @@ export default function NoticeListClient() {
     } catch (error) {
       setPinnedItems([])
     }
-  }
+  }, [activeTab])
+
+  // 탭 변경 시 데이터 로드
+  useEffect(() => {
+    setCurrentPage(0)
+    fetchData(0)
+    fetchPinnedData()
+  }, [activeTab, fetchData, fetchPinnedData])
+
+  // 페이지 변경 시 데이터 로드
+  useEffect(() => {
+    fetchData(currentPage)
+  }, [currentPage, fetchData])
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
@@ -223,11 +224,13 @@ export default function NoticeListClient() {
                     className="block p-3 bg-white rounded-lg hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex-shrink-0 w-20 h-20 bg-gray-200 rounded overflow-hidden">
-                        <img
+                      <div className="relative flex-shrink-0 w-20 h-20 bg-gray-200 rounded overflow-hidden">
+                        <Image
                           src={item.thumbnail?.fileUrl || '/images/img-placeholder.png'}
                           alt={item.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="80px"
+                          className="object-cover"
                         />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -290,11 +293,13 @@ export default function NoticeListClient() {
                   >
                     <div className="flex gap-4">
                       {/* 썸네일 */}
-                      <div className="flex-shrink-0 w-32 h-32 bg-gray-200 rounded-lg overflow-hidden">
-                        <img
+                      <div className="relative flex-shrink-0 w-32 h-32 bg-gray-200 rounded-lg overflow-hidden">
+                        <Image
                           src={item.thumbnail?.fileUrl || '/images/img-placeholder.png'}
                           alt={item.title}
-                          className="w-full h-full object-cover"
+                          fill
+                          sizes="128px"
+                          className="object-cover"
                         />
                       </div>
 

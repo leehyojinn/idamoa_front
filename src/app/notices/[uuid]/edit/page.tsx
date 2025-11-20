@@ -9,18 +9,20 @@ export const metadata: Metadata = {
 }
 
 interface NoticeEditPageProps {
-  params: {
+  params: Promise<{
     uuid: string
-  }
+  }>
 }
 
-export default function NoticeEditPage({ params }: NoticeEditPageProps) {
+export default async function NoticeEditPage({ params }: NoticeEditPageProps) {
+  const { uuid } = await params
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 bg-gray-50 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <NoticeEditClient uuid={params.uuid} />
+          <NoticeEditClient uuid={uuid} />
         </div>
       </main>
       <Footer />

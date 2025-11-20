@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { FiDownload, FiFile, FiImage } from 'react-icons/fi'
 
 export interface Attachment {
@@ -55,10 +56,12 @@ export default function AttachmentList({ attachments, title = '첨부파일' }: 
                 key={attachment.id || index}
                 className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200"
               >
-                <img
+                <Image
                   src={attachment.fileUrl}
                   alt={attachment.fileDescription || attachment.originalFilename || '첨부 이미지'}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
                   <button

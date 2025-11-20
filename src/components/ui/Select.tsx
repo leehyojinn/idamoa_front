@@ -7,6 +7,7 @@ import { IoChevronDown } from 'react-icons/io5';
 export interface SelectOption {
   value: string;
   label: string;
+  color?: string;
 }
 
 interface SelectProps {
@@ -77,7 +78,13 @@ export default function Select({
             }
           `}
         >
-          <span className={selectedOption ? 'text-gray-900' : 'text-gray-400'}>
+          <span className={`flex items-center gap-2 ${selectedOption ? 'text-gray-900' : 'text-gray-400'}`}>
+            {selectedOption?.color && (
+              <span
+                className="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0"
+                style={{ backgroundColor: selectedOption.color }}
+              />
+            )}
             {selectedOption ? selectedOption.label : placeholder}
           </span>
           <motion.div
@@ -106,12 +113,19 @@ export default function Select({
                     className={`
                       w-full px-4 py-3 text-left transition-all duration-150
                       hover:bg-blue-50 hover:text-blue-600
+                      flex items-center gap-2
                       ${option.value === value
                         ? 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white font-medium'
                         : 'text-gray-700'
                       }
                     `}
                   >
+                    {option.color && (
+                      <span
+                        className="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0"
+                        style={{ backgroundColor: option.color }}
+                      />
+                    )}
                     {option.label}
                   </button>
                 ))}

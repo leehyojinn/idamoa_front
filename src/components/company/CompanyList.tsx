@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Pagination from '@/components/ui/Pagination'
@@ -36,11 +36,7 @@ export default function CompanyList() {
   const [loading, setLoading] = useState(false)
   const [sortBy, setSortBy] = useState('createdAt,DESC')
 
-  useEffect(() => {
-    fetchCompanies()
-  }, [page, sortBy])
-
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     setLoading(true)
 
     try {
@@ -60,7 +56,11 @@ export default function CompanyList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, sortBy])
+
+  useEffect(() => {
+    fetchCompanies()
+  }, [fetchCompanies])
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
