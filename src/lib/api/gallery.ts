@@ -8,6 +8,19 @@ export interface GalleryImage {
   fileSize: number
   mimeType: string
   fileExtension: string
+  thumbnailUrl?: string
+}
+
+export interface FilterOption {
+  id: number
+  uuid: string
+  categoryCode: string
+  categoryName: string
+  code: string
+  name: string
+  shortName: string
+  color: string
+  icon: string
 }
 
 export interface Gallery {
@@ -23,6 +36,7 @@ export interface Gallery {
   userId: number  // 백엔드는 userId 사용
   userName: string  // 백엔드는 userName 사용
   userEmail?: string
+  companyName?: string  // 업체명 (백엔드에서 제공 시)
   createdAt: string
   updatedAt: string
   isBookmarked?: boolean  // 백엔드는 isBookmarked 사용
@@ -45,8 +59,10 @@ export interface GalleryListItem {
   userId: number  // 백엔드는 userId 사용
   userName: string  // 백엔드는 userName 사용
   userEmail?: string
+  companyName?: string  // 업체명 (백엔드에서 제공 시)
   createdAt: string
   isBookmarked?: boolean  // 백엔드는 isBookmarked 사용
+  filterOptions?: FilterOption[]  // 필터 옵션
   copyright?: {
     owner: string
     license: string
@@ -58,12 +74,13 @@ export interface GallerySearchParams {
   page?: number
   size?: number
   keyword?: string
-  tags?: string[]
+  filterOptionIds?: number[]  // 필터 옵션 ID 배열
+  tags?: string[]  // 기존 호환성 유지
   authorUuid?: string
   sortBy?: 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
   sortDirection?: 'ASC' | 'DESC'
   onlyBookmarked?: boolean  // 북마크한 것만
-  myOnly?: boolean  // 내 글만
+  onlyMyPosts?: boolean  // 내 글만 (백엔드 파라미터 이름)
 }
 
 export interface GallerySearchResponse {
@@ -148,20 +165,32 @@ export async function searchGalleries(params: GallerySearchParams = {}): Promise
     if (params.page !== undefined) queryParams.append('page', params.page.toString())
     if (params.size !== undefined) queryParams.append('size', params.size.toString())
     if (params.keyword) queryParams.append('keyword', params.keyword)
-    if (params.tags && params.tags.length > 0) {
-      params.tags.forEach(tag => queryParams.append('tags', tag))
+
+    // filterOptionIds (API 문서 기준)
+    if (params.filterOptionIds && params.filterOptionIds.length > 0) {
+      params.filterOptionIds.forEach(id => queryParams.append('filterOptionIds', id.toString()))
     }
+
     if (params.authorUuid) queryParams.append('authorUuid', params.authorUuid)
-    if (params.sortBy) queryParams.append('sortBy', params.sortBy)
-    if (params.sortDirection) queryParams.append('sortDirection', params.sortDirection)
+
+    // sort 파라미터 조합 (API 문서: "publishedAt,DESC" 형식)
+    if (params.sortBy && params.sortDirection) {
+      // sortBy 변환 (API 문서 기준)
+      let sortField = params.sortBy
+      if (sortField === 'CREATED_AT') sortField = 'publishedAt'  // API 문서에서는 publishedAt 사용
+      else if (sortField === 'VIEW_COUNT') sortField = 'viewCount'
+      else if (sortField === 'BOOKMARK_COUNT') sortField = 'likeCount'
+
+      queryParams.append('sort', `${sortField},${params.sortDirection}`)
+    }
+
     if (params.onlyBookmarked) queryParams.append('onlyBookmarked', 'true')
-    if (params.myOnly) queryParams.append('myOnly', 'true')
+    if (params.onlyMyPosts) queryParams.append('onlyMyPosts', 'true')
 
     const url = `/boards/gallery/search?${queryParams.toString()}`
     const response = await axiosInstance.get(url)
     return { success: true, data: response.data.data }
   } catch (error: any) {
-    console.error('갤러리 검색 실패:', error)
     throw error
   }
 }

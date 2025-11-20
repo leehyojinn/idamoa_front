@@ -6,6 +6,8 @@ import { FiSave, FiX, FiImage, FiTag } from 'react-icons/fi'
 import { updateGallery, type Gallery, type UpdateGalleryRequest } from '@/lib/api/gallery'
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { useAuth } from '@/hooks/useAuth'
+import { getMyInfo } from '@/lib/api/auth'
 import Checkbox from '@/components/ui/Checkbox'
 
 interface ImageAttachment {
@@ -37,7 +39,10 @@ interface GalleryEditFormProps {
 
 export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
   const router = useRouter()
+  const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCompany, setIsCompany] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   // 기본 정보
   const [title, setTitle] = useState('')
@@ -48,6 +53,35 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
   // 태그
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+
+  // 업체 권한 체크
+  useEffect(() => {
+    const checkCompanyAuth = async () => {
+      if (!user) {
+        router.push('/login')
+        return
+      }
+
+      try {
+        const response = await getMyInfo()
+        if (response.success && response.data) {
+          if (response.data.isCompany || response.data.isAdmin) {
+            setIsCompany(true)
+          } else {
+            showErrorToast(null, '사진 게시판은 업체 회원 또는 관리자만 수정할 수 있습니다')
+            router.push('/photos')
+          }
+        }
+      } catch (error) {
+        showErrorToast(error, '권한 확인에 실패했습니다')
+        router.push('/photos')
+      } finally {
+        setIsCheckingAuth(false)
+      }
+    }
+
+    checkCompanyAuth()
+  }, [user, router])
 
   // 이미지
   const [images, setImages] = useState<ImageAttachment[]>([])
@@ -170,11 +204,22 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
         }
       }
 
+      // 관련링크 프로토콜 자동 추가
+      let formattedLink: string | undefined = undefined
+      if (location.trim()) {
+        const trimmedLink = location.trim()
+        if (!trimmedLink.startsWith('http://') && !trimmedLink.startsWith('https://')) {
+          formattedLink = `https://${trimmedLink}`
+        } else {
+          formattedLink = trimmedLink
+        }
+      }
+
       // 갤러리 수정
       const data: UpdateGalleryRequest = {
         title: title.trim(),
         content: description.trim(),
-        relatedLink: location.trim() || undefined,
+        relatedLink: formattedLink,
         tags,
         imageUuids,  // 항상 포함
         copyright: copyrightInfo.trim() ? {
@@ -201,6 +246,20 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // 권한 체크 중 로딩 화면
+  if (isCheckingAuth) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-md p-8">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <p className="mt-4 text-gray-600">권한 확인 중...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -246,11 +305,11 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
                   관련 링크
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="관련 링크 URL (예: https://example.com)"
+                  placeholder="관련 링크 (예: example.com)"
                 />
               </div>
 

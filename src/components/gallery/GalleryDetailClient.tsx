@@ -7,6 +7,7 @@ import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiInfo, FiExte
 import { getGallery, deleteGallery, toggleBookmark, type Gallery } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
+import { getProfile } from '@/lib/api/profile'
 import { Dialog } from '@/components/ui/Dialog'
 
 interface GalleryDetailClientProps {
@@ -94,7 +95,6 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
         setGallery({
           ...gallery,
           isBookmarked: isBookmarked,
-          likeCount: Math.max(0, gallery.likeCount + (isBookmarked ? 1 : -1)),
         })
         showSuccessToast(isBookmarked ? '북마크에 추가했습니다' : '북마크에서 제거했습니다')
       }
@@ -177,7 +177,7 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
                 }`}
               >
                 <FiBookmark className={gallery.isBookmarked ? 'fill-current' : ''} />
-                {gallery.likeCount}
+                북마크
               </button>
             )}
             {isAuthor && (
@@ -225,15 +225,11 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
               <FiEye />
               {gallery.viewCount} 조회
             </div>
-            <div className="flex items-center gap-1">
-              <FiBookmark />
-              {gallery.likeCount} 북마크
-            </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                {gallery.userName?.charAt(0) || 'U'}
+                {(gallery.companyName || gallery.userName)?.charAt(0) || 'U'}
               </div>
-              <span>{gallery.userName || '알 수 없음'}</span>
+              <span>{gallery.companyName || gallery.userName || '알 수 없음'}</span>
             </div>
             <div className="text-gray-400">
               {new Date(gallery.createdAt).toLocaleDateString('ko-KR')}

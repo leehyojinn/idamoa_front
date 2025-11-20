@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
-import { FaBars } from 'react-icons/fa'
+import { FaBars, FaTimes } from 'react-icons/fa'
+import { FiSettings } from 'react-icons/fi'
+import { motion, AnimatePresence } from 'framer-motion'
 import Quickmenu from './Quickmenu'
 import DesktopNav from './DesktopNav'
 import { useScrollPosition } from '@/hooks/useScrollPosition'
@@ -48,12 +50,24 @@ const NAV_ITEMS = [
     ]
   },
   { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },
-  { id: 'notices', label: '공지/이벤트', href: '/notices' },  
+  { id: 'notices', label: '공지/이벤트', href: '/notices' },
   { id: 'review', label: '고객후기', href: '/review' },
+]
+
+const ADMIN_PAGES = [
+  { id: 'admin-users', label: '회원 관리', href: '/admin/users' },
+  { id: 'admin-companies', label: '업체 관리', href: '/admin/companies' },
+  { id: 'admin-notices', label: '공지사항 관리', href: '/admin/notices' },
+  { id: 'admin-events', label: '이벤트 관리', href: '/admin/events' },
+  { id: 'admin-galleries', label: '갤러리 관리', href: '/admin/galleries' },
+  { id: 'admin-resources', label: '자료실 관리', href: '/admin/resources' },
+  { id: 'admin-estimates', label: '견적 관리', href: '/admin/estimates' },
+  { id: 'admin-settings', label: '시스템 설정', href: '/admin/settings' },
 ]
 
 export default function Navbar({ variant = 'default', showQuickmenu = true }: NavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false)
   const { isScrolled } = useScrollPosition(20)
   const { user, logout } = useAuth()
   const { confirm } = useDialog()
@@ -79,6 +93,18 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
   return (
     <>
       {showQuickmenu && <Quickmenu />}
+
+      {/* Admin Settings Icon - Fixed Position */}
+      {user?.currentRole === 'ADMIN' && (
+        <button
+          onClick={() => setIsAdminMenuOpen(true)}
+          className="fixed top-4 left-4 z-50 p-3 rounded-lg bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors"
+          aria-label="관리자 메뉴"
+        >
+          <FiSettings className="w-5 h-5" />
+        </button>
+      )}
+
       <nav
         className={`sticky top-0 z-40 border-b border-gray-200 backdrop-blur-sm transition-all duration-200 ${
           isScrolled || variant === 'default'
@@ -134,6 +160,71 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
         onClose={() => setIsMobileMenuOpen(false)}
         navItems={NAV_ITEMS}
       />
+
+      {/* Admin Menu Sidebar */}
+      <AnimatePresence>
+        {isAdminMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/50 z-50"
+              onClick={() => setIsAdminMenuOpen(false)}
+              aria-hidden="true"
+            />
+
+            {/* Sidebar Panel */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl z-50"
+              role="dialog"
+              aria-label="관리자 메뉴"
+            >
+              <div className="flex flex-col h-full">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-blue-600">
+                  <h2 className="text-lg font-semibold text-white">관리자 메뉴</h2>
+                  <button
+                    onClick={() => setIsAdminMenuOpen(false)}
+                    className="p-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    aria-label="메뉴 닫기"
+                  >
+                    <FaTimes className="w-5 h-5 text-white" />
+                  </button>
+                </div>
+
+                {/* Navigation Items */}
+                <nav className="flex-1 overflow-y-auto py-4">
+                  <ul className="space-y-1 px-2">
+                    {ADMIN_PAGES.map((page, index) => (
+                      <motion.li
+                        key={page.id}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <Link
+                          href={page.href}
+                          onClick={() => setIsAdminMenuOpen(false)}
+                          className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium"
+                        >
+                          {page.label}
+                        </Link>
+                      </motion.li>
+                    ))}
+                  </ul>
+                </nav>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   )
 }

@@ -71,7 +71,7 @@ export default function GalleryListClient() {
   const [sortBy, setSortBy] = useState<'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'>('CREATED_AT')
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
   const [onlyBookmarked, setOnlyBookmarked] = useState(false)
-  const [myOnly, setMyOnly] = useState(false)
+  const [onlyMyPosts, setOnlyMyPosts] = useState(false)
 
   const handleSelectTag = (category: string, tag: string) => {
     if (!selectedTags.includes(tag)) {
@@ -85,7 +85,7 @@ export default function GalleryListClient() {
         sortBy,
         sortDirection,
         onlyBookmarked,
-        myOnly,
+        onlyMyPosts,
       })
     }
   }
@@ -101,7 +101,7 @@ export default function GalleryListClient() {
       sortBy,
       sortDirection,
       onlyBookmarked,
-      myOnly,
+      onlyMyPosts,
     })
   }
 
@@ -115,7 +115,7 @@ export default function GalleryListClient() {
       sortBy,
       sortDirection,
       onlyBookmarked,
-      myOnly,
+      onlyMyPosts,
     })
   }
 
@@ -127,7 +127,7 @@ export default function GalleryListClient() {
     const sortBy = (searchParams.get('sortBy') || 'CREATED_AT') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
     const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
     const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
-    const myOnly = searchParams.get('myOnly') === 'true'
+    const onlyMyPosts = searchParams.get('onlyMyPosts') === 'true'
 
     setCurrentPage(page)
     setKeyword(keyword)
@@ -135,23 +135,25 @@ export default function GalleryListClient() {
     setSortBy(sortBy)
     setSortDirection(sortDirection)
     setOnlyBookmarked(onlyBookmarked)
-    setMyOnly(myOnly)
+    setOnlyMyPosts(onlyMyPosts)
 
-    fetchGalleries({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, myOnly })
+    fetchGalleries({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
   }, [searchParams])
 
   const fetchGalleries = async (params: GallerySearchParams = {}) => {
     setIsLoading(true)
     try {
+      // 백엔드 태그 검색 버그로 인해 태그 검색 비활성화
+      // TODO: 백엔드 BoardSpecifications.java의 array_position 타입 문제 해결 후 활성화
+
       const result = await searchGalleries({
         page: params.page || 0,
         size: 12,
-        keyword: params.keyword,
-        tags: params.tags && params.tags.length > 0 ? params.tags : undefined,
+        keyword: params.keyword || undefined,
         sortBy: params.sortBy || sortBy,
         sortDirection: params.sortDirection || sortDirection,
         onlyBookmarked: params.onlyBookmarked,
-        myOnly: params.myOnly,
+        onlyMyPosts: params.onlyMyPosts,
       })
 
       if (result.success && result.data) {
@@ -181,7 +183,7 @@ export default function GalleryListClient() {
     if (params.sortBy) query.set('sortBy', params.sortBy)
     if (params.sortDirection) query.set('sortDirection', params.sortDirection)
     if (params.onlyBookmarked) query.set('onlyBookmarked', 'true')
-    if (params.myOnly) query.set('myOnly', 'true')
+    if (params.onlyMyPosts) query.set('onlyMyPosts', 'true')
 
     router.push(`/photos?${query.toString()}`, { scroll: false })
   }
@@ -194,7 +196,7 @@ export default function GalleryListClient() {
       sortBy,
       sortDirection,
       onlyBookmarked,
-      myOnly,
+      onlyMyPosts,
     }
     updateURL(params)
   }
@@ -207,7 +209,7 @@ export default function GalleryListClient() {
       sortBy,
       sortDirection,
       onlyBookmarked,
-      myOnly,
+      onlyMyPosts,
     }
     updateURL(params)
   }
@@ -220,7 +222,7 @@ export default function GalleryListClient() {
       sortBy: newSortBy as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT',
       sortDirection,
       onlyBookmarked,
-      myOnly,
+      onlyMyPosts,
     }
     updateURL(params)
   }
@@ -248,7 +250,7 @@ export default function GalleryListClient() {
       setShowDeleteDialog(false)
       setDeletingGallery(null)
       // 목록 새로고침
-      fetchGalleries({ page: currentPage, keyword, tags: selectedTags, sortBy, sortDirection, onlyBookmarked, myOnly })
+      fetchGalleries({ page: currentPage, keyword, tags: selectedTags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
     } catch (error: any) {
       if (error?.response?.status === 403) {
         showErrorToast(error, '삭제 권한이 없습니다')
@@ -275,14 +277,10 @@ export default function GalleryListClient() {
         // result.data는 직접 boolean 값 (true: 추가됨, false: 제거됨)
         const isBookmarked = result.data
 
-        // 갤러리 목록에서 해당 갤러리의 북마크 상태 업데이트
+        // 갤러리 목록에서 해당 갤러리의 북마크 상태만 업데이트
         setGalleries(galleries.map(g =>
           g.uuid === galleryUuid
-            ? {
-                ...g,
-                isBookmarked: isBookmarked,
-                likeCount: Math.max(0, g.likeCount + (isBookmarked ? 1 : -1))
-              }
+            ? { ...g, isBookmarked: isBookmarked }
             : g
         ))
         showSuccessToast(isBookmarked ? '북마크에 추가했습니다' : '북마크에서 제거했습니다')
@@ -377,7 +375,7 @@ export default function GalleryListClient() {
                     sortBy,
                     sortDirection,
                     onlyBookmarked: newValue,
-                    myOnly,
+                    onlyMyPosts,
                   })
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -391,8 +389,8 @@ export default function GalleryListClient() {
               </button>
               <button
                 onClick={() => {
-                  const newValue = !myOnly
-                  setMyOnly(newValue)
+                  const newValue = !onlyMyPosts
+                  setOnlyMyPosts(newValue)
                   updateURL({
                     page: 0,
                     keyword,
@@ -400,11 +398,11 @@ export default function GalleryListClient() {
                     sortBy,
                     sortDirection,
                     onlyBookmarked,
-                    myOnly: newValue,
+                    onlyMyPosts: newValue,
                   })
                 }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  myOnly
+                  onlyMyPosts
                     ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
                     : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
                 }`}
@@ -626,6 +624,28 @@ export default function GalleryListClient() {
                     </button>
                   )}
 
+                  {/* 필터 옵션 배지 */}
+                  {gallery.filterOptions && gallery.filterOptions.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {gallery.filterOptions.slice(0, 3).map(filter => (
+                        <span
+                          key={filter.id}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
+                          style={{ backgroundColor: filter.color + '20', color: filter.color }}
+                        >
+                          <span>{filter.icon}</span>
+                          {filter.shortName}
+                        </span>
+                      ))}
+                      {gallery.filterOptions.length > 3 && (
+                        <span className="text-xs text-gray-400">
+                          +{gallery.filterOptions.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 태그 */}
                   {gallery.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {gallery.tags.slice(0, 3).map(tag => (
@@ -648,18 +668,14 @@ export default function GalleryListClient() {
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <div className="flex items-center gap-1 text-sm text-gray-500">
                       <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                        {gallery.userName?.charAt(0) || 'U'}
+                        {(gallery.companyName || gallery.userName)?.charAt(0) || 'U'}
                       </div>
-                      <span>{gallery.userName || '알 수 없음'}</span>
+                      <span>{gallery.companyName || gallery.userName || '알 수 없음'}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
                         <FiEye />
                         {gallery.viewCount}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FiBookmark />
-                        {gallery.likeCount}
                       </span>
                     </div>
                   </div>
