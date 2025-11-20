@@ -20,10 +20,9 @@ export default function ConsultationsPage() {
 
   // 프로필에서 가져온 약관 동의 정보 (이미 동의한 항목)
   const [profileConsents, setProfileConsents] = useState({
-    personalInfoConsent: false,
-    thirdPartyConsent: false,
-    termsOfServiceConsent: false,
-    marketingConsent: false,
+    personalInfoConsent: false, // privacyAgreed
+    termsOfServiceConsent: false, // termsAgreed
+    marketingConsent: false, // marketingAgreed
   })
 
   const [formData, setFormData] = useState<CreateConsultationRequest>({
@@ -51,12 +50,11 @@ export default function ConsultationsPage() {
       try {
         const response = await getProfile()
         if (response.success && response.data) {
-          // 약관 동의 정보 저장
+          // 약관 동의 정보 저장 (프로필 API 필드명 매핑)
           const consents = {
-            personalInfoConsent: response.data?.personalInfoConsent || false,
-            thirdPartyConsent: response.data?.thirdPartyConsent || false,
-            termsOfServiceConsent: response.data?.termsOfServiceConsent || false,
-            marketingConsent: response.data?.marketingConsent || false,
+            personalInfoConsent: response.data?.privacyAgreed || false,
+            termsOfServiceConsent: response.data?.termsAgreed || false,
+            marketingConsent: response.data?.marketingAgreed || false,
           }
           setProfileConsents(consents)
 
@@ -101,12 +99,10 @@ export default function ConsultationsPage() {
   // 미동의한 약관 목록 (로그인 시)
   const pendingConsents = user ? {
     personalInfoConsent: !profileConsents.personalInfoConsent,
-    thirdPartyConsent: !profileConsents.thirdPartyConsent,
     termsOfServiceConsent: !profileConsents.termsOfServiceConsent,
     marketingConsent: !profileConsents.marketingConsent,
   } : {
     personalInfoConsent: true,
-    thirdPartyConsent: true,
     termsOfServiceConsent: true,
     marketingConsent: true,
   }
@@ -117,7 +113,6 @@ export default function ConsultationsPage() {
   // 전체 동의 체크 상태 (미동의한 약관 중에서)
   const isAllPendingConsentsChecked =
     (!pendingConsents.personalInfoConsent || formData.personalInfoConsent) &&
-    (!pendingConsents.thirdPartyConsent || formData.thirdPartyConsent) &&
     (!pendingConsents.termsOfServiceConsent || formData.termsOfServiceConsent) &&
     (!pendingConsents.marketingConsent || formData.marketingConsent)
 
@@ -126,7 +121,6 @@ export default function ConsultationsPage() {
     setFormData(prev => ({
       ...prev,
       personalInfoConsent: pendingConsents.personalInfoConsent ? checked : prev.personalInfoConsent,
-      thirdPartyConsent: pendingConsents.thirdPartyConsent ? checked : prev.thirdPartyConsent,
       termsOfServiceConsent: pendingConsents.termsOfServiceConsent ? checked : prev.termsOfServiceConsent,
       marketingConsent: pendingConsents.marketingConsent ? checked : prev.marketingConsent,
     }))
@@ -144,7 +138,7 @@ export default function ConsultationsPage() {
     e.preventDefault()
 
     // 필수 동의 체크
-    if (!formData.personalInfoConsent || !formData.thirdPartyConsent || !formData.termsOfServiceConsent) {
+    if (!formData.personalInfoConsent || !formData.termsOfServiceConsent) {
       showErrorToast(null, '필수 동의 항목을 모두 체크해주세요')
       return
     }
@@ -354,15 +348,6 @@ export default function ConsultationsPage() {
                     checked={formData.personalInfoConsent}
                     onChange={(checked) => handleConsentChange('personalInfoConsent', checked)}
                     label="개인정보 수집 및 이용 동의 (필수)"
-                    size="sm"
-                  />
-                )}
-
-                {pendingConsents.thirdPartyConsent && (
-                  <Checkbox
-                    checked={formData.thirdPartyConsent}
-                    onChange={(checked) => handleConsentChange('thirdPartyConsent', checked)}
-                    label="개인정보 제3자 제공 동의 (필수)"
                     size="sm"
                   />
                 )}

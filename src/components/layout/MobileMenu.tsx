@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { FaTimes, FaChevronDown } from 'react-icons/fa'
+import { useAuth } from '@/hooks/useAuth'
 import type { NavItem } from '@/types/navbar'
 
 interface MobileMenuProps {
@@ -14,6 +15,7 @@ interface MobileMenuProps {
 
 export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProps) {
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null)
+  const { user, logout } = useAuth()
 
   const toggleExpanded = (itemId: string) => {
     setExpandedItemId(expandedItemId === itemId ? null : itemId)
@@ -134,13 +136,38 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
               </nav>
 
               {/* Footer Actions */}
-              <div className="p-4 border-t space-y-2">
-                <button className="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
-                  로그인
-                </button>
-                <button className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-secondary/90 transition-colors">
-                  회원가입
-                </button>
+              <div className="p-4 border-t flex flex-col space-y-2">
+                {user ? (
+                  <>
+                    <Link href="/mypage" onClick={onClose}>
+                      <button className="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                        마이페이지
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => {
+                        logout()
+                        onClose()
+                      }}
+                      className="w-full py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                    >
+                      로그아웃
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" onClick={onClose}>
+                      <button className="w-full py-3 px-4 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                        로그인
+                      </button>
+                    </Link>
+                    <Link href="/signup" onClick={onClose}>
+                      <button className="w-full py-3 px-4 bg-primary text-white rounded-lg font-medium hover:bg-secondary/90 transition-colors">
+                        회원가입
+                      </button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

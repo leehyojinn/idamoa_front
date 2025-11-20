@@ -37,7 +37,6 @@ export default function AdminConsultationsPage() {
   const [selectedStatus, setSelectedStatus] = useState<ConsultationStatus | ''>('')
 
   useEffect(() => {
-    console.log('📄 관리자 상담 페이지 useEffect 실행')
     const page = parseInt(searchParams.get('page') || '0')
     const status = (searchParams.get('status') as ConsultationStatus) || ''
 

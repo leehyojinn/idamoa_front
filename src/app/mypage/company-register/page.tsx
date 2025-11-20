@@ -11,7 +11,7 @@ import { useProfile } from '@/hooks/useProfile'
 import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuthStore } from '@/stores/authStore'
-import ImageUpload from '@/components/ui/ImageUpload'
+import ImageUpload, { type ImageData } from '@/components/ui/ImageUpload'
 import Checkbox from '@/components/ui/Checkbox'
 import Select from '@/components/ui/Select'
 import { formatPhoneNumber, formatBusinessNumber, formatUrl } from '@/lib/utils'
@@ -56,11 +56,6 @@ interface FormData {
   instagramUrl: string
   youtubeUrl: string
   blogUrl: string
-
-  // 이미지
-  logoImageUrl: string
-  coverImageUrl: string
-  galleryImageUrls: string[]
 }
 
 export default function CompanyRegisterPage() {
@@ -78,10 +73,10 @@ export default function CompanyRegisterPage() {
   // 인증 상태 가져오기
   const { accessToken, _hasHydrated } = useAuthStore()
 
-  // 이미지 URL 상태 관리
-  const [logoImageUrl, setLogoImageUrl] = useState<string>('')
-  const [coverImageUrl, setCoverImageUrl] = useState<string>('')
-  const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([])
+  // 이미지 데이터 상태 관리 (UUID + URL)
+  const [logoImage, setLogoImage] = useState<ImageData | undefined>(undefined)
+  const [coverImage, setCoverImage] = useState<ImageData | undefined>(undefined)
+  const [galleryImages, setGalleryImages] = useState<ImageData[]>([])
 
   // 지역, 태그, 키워드 상태 관리
   const [serviceAreas, setServiceAreas] = useState<string[]>([])
@@ -185,9 +180,15 @@ export default function CompanyRegisterPage() {
         const cover = company.images.find(img => img.imageType === 'COVER')
         const gallery = company.images.filter(img => img.imageType === 'GALLERY')
 
-        if (logo) setLogoImageUrl(logo.imageUrl)
-        if (cover) setCoverImageUrl(cover.imageUrl)
-        if (gallery.length > 0) setGalleryImageUrls(gallery.map(img => img.imageUrl))
+        if (logo) {
+          setLogoImage({ uuid: logo.fileUuid, url: logo.imageUrl })
+        }
+        if (cover) {
+          setCoverImage({ uuid: cover.fileUuid, url: cover.imageUrl })
+        }
+        if (gallery.length > 0) {
+          setGalleryImages(gallery.map(img => ({ uuid: img.fileUuid, url: img.imageUrl })))
+        }
       }
     }
   }, [companyResponse, setValue])
@@ -328,10 +329,10 @@ export default function CompanyRegisterPage() {
         // SNS 링크
         socialLinks: Object.keys(socialLinks).length > 0 ? socialLinks : undefined,
 
-        // 이미지 URL 추가
-        logoImageUrl: logoImageUrl || undefined,
-        coverImageUrl: coverImageUrl || undefined,
-        galleryImageUrls: galleryImageUrls.length > 0 ? galleryImageUrls : undefined,
+        // 이미지 UUID 추가
+        logoImageUuid: logoImage?.uuid,
+        coverImageUuid: coverImage?.uuid,
+        galleryImageUuids: galleryImages.length > 0 ? galleryImages.map(img => img.uuid) : undefined,
       }
 
       if (isEditMode) {
@@ -1049,24 +1050,24 @@ export default function CompanyRegisterPage() {
                 {/* 로고 이미지 */}
                 <ImageUpload
                   label="로고 이미지"
-                  value={logoImageUrl}
-                  onChange={(url) => setLogoImageUrl(url as string)}
+                  value={logoImage}
+                  onChange={(data) => setLogoImage(data as ImageData | undefined)}
                   multiple={false}
                 />
 
                 {/* 커버 이미지 */}
                 <ImageUpload
                   label="커버 이미지"
-                  value={coverImageUrl}
-                  onChange={(url) => setCoverImageUrl(url as string)}
+                  value={coverImage}
+                  onChange={(data) => setCoverImage(data as ImageData | undefined)}
                   multiple={false}
                 />
 
                 {/* 갤러리 이미지 */}
                 <ImageUpload
                   label="갤러리 이미지 (최대 10개)"
-                  value={galleryImageUrls}
-                  onChange={(urls) => setGalleryImageUrls(urls as string[])}
+                  value={galleryImages}
+                  onChange={(data) => setGalleryImages(data as ImageData[])}
                   multiple={true}
                   maxFiles={10}
                 />

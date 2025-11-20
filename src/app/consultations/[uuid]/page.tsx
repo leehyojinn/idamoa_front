@@ -9,6 +9,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/Dialog'
 import type { Consultation } from '@/types/consultation'
 
 const STATUS_LABELS = {
@@ -36,6 +37,10 @@ export default function ConsultationDetailPage() {
   const [isVerifying, setIsVerifying] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelPassword, setCancelPassword] = useState('')
 
   // 로그인한 회원은 자동으로 조회
   useEffect(() => {
@@ -81,23 +86,45 @@ export default function ConsultationDetailPage() {
     }
   }
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
     if (!consultation) return
-    if (!confirm('정말로 이 상담을 취소하시겠습니까?')) return
+    setShowCancelDialog(true)
+  }
 
-    const reason = prompt('취소 사유를 입력해주세요 (선택):')
+  const handleCancelConfirm = async () => {
+    if (!consultation) return
+
+    setShowCancelDialog(false)
+
+    // 비회원이면 비밀번호 입력 다이얼로그 표시
+    if (!user || !consultation.isMember) {
+      setShowPasswordDialog(true)
+      return
+    }
+
+    // 회원이면 바로 취소 진행
+    await executeCancellation()
+  }
+
+  const handlePasswordConfirm = async () => {
+    if (!cancelPassword || cancelPassword.length !== 4) {
+      showErrorToast(null, '4자리 비밀번호를 입력해주세요')
+      return
+    }
+
+    setShowPasswordDialog(false)
+    await executeCancellation()
+  }
+
+  const executeCancellation = async () => {
+    if (!consultation) return
 
     setIsCancelling(true)
     try {
       if (user && consultation.isMember) {
-        await cancelConsultation(uuid, reason || undefined)
+        await cancelConsultation(uuid, cancelReason || undefined)
       } else {
-        const pw = prompt('비밀번호를 입력하세요 (4자리):')
-        if (!pw) {
-          setIsCancelling(false)
-          return
-        }
-        await cancelConsultationWithPassword(uuid, pw, reason || undefined)
+        await cancelConsultationWithPassword(uuid, cancelPassword, cancelReason || undefined)
       }
       showSuccessToast('상담이 취소되었습니다')
       router.push('/consultations')
@@ -105,6 +132,8 @@ export default function ConsultationDetailPage() {
       showErrorToast(error, '상담 취소에 실패했습니다')
     } finally {
       setIsCancelling(false)
+      setCancelReason('')
+      setCancelPassword('')
     }
   }
 
@@ -329,6 +358,102 @@ export default function ConsultationDetailPage() {
       </div>
       </div>
       <Footer />
+
+      {/* 취소 사유 입력 다이얼로그 */}
+      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>상담 취소</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              정말로 이 상담을 취소하시겠습니까?
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                취소 사유 (선택)
+              </label>
+              <textarea
+                rows={4}
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                placeholder="취소 사유를 입력해주세요"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={() => {
+                setShowCancelDialog(false)
+                setCancelReason('')
+              }}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+            >
+              닫기
+            </button>
+            <button
+              onClick={handleCancelConfirm}
+              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors"
+            >
+              취소하기
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 비밀번호 입력 다이얼로그 */}
+      <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>비밀번호 확인</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              상담 신청 시 입력한 4자리 비밀번호를 입력해주세요.
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                비밀번호
+              </label>
+              <input
+                type="password"
+                maxLength={4}
+                pattern="\d{4}"
+                value={cancelPassword}
+                onChange={(e) => setCancelPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="1234"
+                autoFocus
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={() => {
+                setShowPasswordDialog(false)
+                setCancelPassword('')
+              }}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+            >
+              취소
+            </button>
+            <button
+              onClick={handlePasswordConfirm}
+              disabled={cancelPassword.length !== 4}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              확인
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

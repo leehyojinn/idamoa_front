@@ -57,12 +57,6 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config
 
-    console.log('🔴 API 에러 발생:', {
-      status: error.response?.status,
-      url: originalRequest?.url,
-      currentPath: typeof window !== 'undefined' ? window.location.pathname : ''
-    })
-
     // 상담 조회 비밀번호 검증 실패는 토큰 갱신 로직 건너뛰기
     const isConsultationVerify = originalRequest.url?.includes('/consultations/') && originalRequest.url?.includes('/verify')
 
@@ -70,11 +64,8 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 403) {
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
 
-      console.log('🚫 403 에러 감지:', { currentPath })
-
       // 관리자 페이지에서 403 에러가 나면 홈으로 리다이렉트
       if (currentPath.startsWith('/admin')) {
-        console.log('✅ 관리자 페이지에서 403 - 홈으로 리다이렉트')
         if (typeof window !== 'undefined' && !isRedirecting) {
           isRedirecting = true
 

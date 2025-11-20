@@ -7,10 +7,15 @@ import { useFileUpload } from '@/hooks/useFile'
 import FileInput from './FileInput'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 
+export interface ImageData {
+  uuid: string
+  url: string
+}
+
 interface ImageUploadProps {
   label?: string
-  value?: string | string[] // 이미 업로드된 이미지 URL
-  onChange: (url: string | string[]) => void
+  value?: ImageData | ImageData[] // 이미 업로드된 이미지 데이터
+  onChange: (data: ImageData | ImageData[] | undefined) => void
   multiple?: boolean
   maxFiles?: number
   disabled?: boolean
@@ -30,8 +35,10 @@ export default function ImageUpload({
   const [uploadProgress, setUploadProgress] = useState<number>(0)
   const fileUploadMutation = useFileUpload()
 
-  // value를 배열로 정규화
-  const imageUrls = Array.isArray(value) ? value : value ? [value] : []
+  // value를 배열로 정규화 (빈 url을 가진 이미지는 제외)
+  const images = Array.isArray(value)
+    ? value.filter(img => img.url && img.uuid)
+    : value && value.url && value.uuid ? [value] : []
 
   const handleFilesChange = async (files: File[]) => {
     if (files.length === 0) return
@@ -42,24 +49,27 @@ export default function ImageUpload({
     try {
       const uploadPromises = files.map(async (file, index) => {
         try {
-          const url = await fileUploadMutation.mutateAsync({
+          const result = await fileUploadMutation.mutateAsync({
             file,
             entityType: 'COMPANY_IMAGE',
             entityId: null,
           })
           setUploadProgress(((index + 1) / files.length) * 100)
-          return url
+          return {
+            uuid: result.uuid,
+            url: result.fileUrl,
+          }
         } catch (error) {
           throw error
         }
       })
 
-      const uploadedUrls = await Promise.all(uploadPromises)
+      const uploadedImages = await Promise.all(uploadPromises)
 
       if (multiple) {
-        onChange([...imageUrls, ...uploadedUrls])
+        onChange([...images, ...uploadedImages])
       } else {
-        onChange(uploadedUrls[0])
+        onChange(uploadedImages[0])
       }
 
       showSuccessToast('이미지 업로드 완료')
@@ -72,11 +82,11 @@ export default function ImageUpload({
   }
 
   const handleRemoveImage = (index: number) => {
-    const newUrls = imageUrls.filter((_, i) => i !== index)
+    const newImages = images.filter((_, i) => i !== index)
     if (multiple) {
-      onChange(newUrls)
+      onChange(newImages)
     } else {
-      onChange('')
+      onChange(undefined)
     }
   }
 
@@ -103,15 +113,15 @@ export default function ImageUpload({
       )}
 
       {/* 업로드된 이미지 미리보기 */}
-      {imageUrls.length > 0 && (
+      {images.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {imageUrls.map((url, index) => (
+          {images.map((image, index) => (
             <div
-              key={index}
+              key={image.uuid || index}
               className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 border border-gray-200 group"
             >
               <Image
-                src={url}
+                src={image.url}
                 alt={`업로드된 이미지 ${index + 1}`}
                 fill
                 className="object-cover"

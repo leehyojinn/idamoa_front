@@ -17,28 +17,18 @@ export default function AdminGuard({ children }: AdminGuardProps) {
 
   useEffect(() => {
     const checkAdminPermission = () => {
-      console.log('🔐 AdminGuard 체크:', {
-        _hasHydrated,
-        hasUser: !!user,
-        userRole: user?.currentRole,
-        hasChecked
-      })
-
       // hydration이 완료될 때까지 대기
       if (!_hasHydrated) {
-        console.log('⏳ hydration 대기 중...')
         return
       }
 
       // 이미 체크했으면 다시 체크하지 않음 (중복 리다이렉트 방지)
       if (hasChecked) {
-        console.log('⏭️ 이미 체크 완료 - 스킵')
         return
       }
 
       // 로그인하지 않은 경우 (user가 없으면)
       if (!user) {
-        console.log('❌ 로그인 필요 - /login으로 이동')
         setHasChecked(true)
         showErrorToast(null, '로그인이 필요합니다')
         router.push('/login')
@@ -47,14 +37,12 @@ export default function AdminGuard({ children }: AdminGuardProps) {
 
       // 관리자가 아닌 경우
       if (user.currentRole !== 'ADMIN') {
-        console.log('❌ 일반 회원 - /로 이동')
         setHasChecked(true)
         showErrorToast(null, '관리자 권한이 필요합니다')
         router.push('/')
         return
       }
 
-      console.log('✅ 관리자 확인 완료')
       setHasChecked(true)
       setIsChecking(false)
     }

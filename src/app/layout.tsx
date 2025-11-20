@@ -6,6 +6,7 @@ import { defaultMetadata } from '@/lib/metadata'
 import GlobalDialog from '@/components/ui/Dialog'
 import PasswordResetModal from '@/components/ui/PasswordResetModal'
 import ProfileGuard from '@/components/auth/ProfileGuard'
+import FloatingConsultationButton from '@/components/consultation/FloatingConsultationButton'
 import localFont from 'next/font/local'
 import type { Metadata } from 'next'
 
@@ -106,6 +107,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Toaster position="top-right" />
         <GlobalDialog />
         <PasswordResetModal />
+        <FloatingConsultationButton />
       </body>
     </html>
   )

@@ -29,13 +29,14 @@ export interface CompanyRegistrationData {
   postalCode: string
   latitude?: number
   longitude?: number
-  logoImageUrl?: string
-  coverImageUrl?: string
-  galleryImageUrls?: string[]
+  logoImageUuid?: string
+  coverImageUuid?: string
+  galleryImageUuids?: string[]
 }
 
 export interface CompanyImage {
   id: number
+  fileUuid: string
   imageUrl: string
   imageType: string
   isPrimary: boolean
