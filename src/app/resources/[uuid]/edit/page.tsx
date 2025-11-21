@@ -1,9 +1,15 @@
 import { Suspense } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import DocumentListClient from '@/components/resource/DocumentListClient'
+import DocumentEditForm from '@/components/resource/DocumentEditForm'
 
-export default function DocumentsPage() {
+interface PageProps {
+  params: Promise<{ uuid: string }>
+}
+
+export default async function DocumentEditPage({ params }: PageProps) {
+  const { uuid } = await params
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
@@ -13,7 +19,7 @@ export default function DocumentsPage() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
           </div>
         }>
-          <DocumentListClient />
+          <DocumentEditForm uuid={uuid} />
         </Suspense>
       </main>
       <Footer />
