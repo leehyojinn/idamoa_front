@@ -3,6 +3,7 @@ import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
 import CompanyList from '@/components/company/CompanyList'
 import HeroSlide from '@/components/layout/slide/HeroSlide'
+import { getCompanies } from '@/lib/api/company'
 
 export const metadata = createPageMetadata({
   title: '병원인테리어 다모아 - 의료기관 인테리어 전문 플랫폼',
@@ -11,13 +12,16 @@ export const metadata = createPageMetadata({
   keywords: ['홈','인테리어', '메인', '의료기관', '병원'],
 })
 
-export default function Home() {
+export default async function Home() {
+  // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
+  const initialData = await getCompanies({ page: 0, size: 12, sort: 'createdAt,DESC' })
+
   return (
     <div className="min-h-screen">
       <Navbar />
       <main>
         <HeroSlide />
-        <CompanyList />
+        <CompanyList initialData={initialData.data} />
       </main>
       <Footer />
     </div>

@@ -12,6 +12,7 @@ import { Dialog } from '@/components/ui/Dialog'
 
 interface DocumentDetailClientProps {
   uuid: string
+  initialData?: Document
 }
 
 // 파일 확장자별 아이콘/색상
@@ -38,12 +39,12 @@ const formatFileSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
 
-export default function DocumentDetailClient({ uuid }: DocumentDetailClientProps) {
+export default function DocumentDetailClient({ uuid, initialData }: DocumentDetailClientProps) {
   const router = useRouter()
   const { user } = useAuth()
 
-  const [document, setDocument] = useState<Document | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [document, setDocument] = useState<Document | null>(initialData || null)
+  const [isLoading, setIsLoading] = useState(!initialData)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isBookmarking, setIsBookmarking] = useState(false)
@@ -73,8 +74,10 @@ export default function DocumentDetailClient({ uuid }: DocumentDetailClientProps
   }, [uuid, router])
 
   useEffect(() => {
+    // initialData가 있으면 fetch 건너뛰기 (SSR 데이터 사용)
+    if (initialData) return
     fetchDocument()
-  }, [fetchDocument])
+  }, [fetchDocument, initialData])
 
   const handleDelete = async () => {
     if (!document) return

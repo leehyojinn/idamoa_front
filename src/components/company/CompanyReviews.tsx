@@ -90,7 +90,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
         rating,
         title: title || undefined,
         content,
-        images: images.length > 0 ? images.map(img => img.url) : undefined,
+        imageUuids: images.length > 0 ? images.map(img => img.uuid) : undefined,
       })
 
       if (result.success) {
@@ -118,7 +118,21 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
     setEditRating(review.rating)
     setEditTitle(review.title || '')
     setEditContent(review.content)
-    setEditImages((review.images || []).map(url => ({ uuid: url, url })))
+    // 기존 이미지: 객체 또는 문자열 형태 모두 처리 (UUID 우선 추출)
+    setEditImages(
+      (review.images || [])
+        .map(img => {
+          if (typeof img === 'string') {
+            return { uuid: '', url: img }
+          }
+          const imgObj = img as any
+          return {
+            uuid: imgObj?.fileUuid || imgObj?.uuid || '',
+            url: imgObj?.imageUrl || imgObj?.fileUrl || imgObj?.url || ''
+          }
+        })
+        .filter(img => img.url && img.url.startsWith('http'))
+    )
   }
 
   const handleUpdateReview = async (reviewUuid: string) => {
@@ -129,11 +143,16 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
 
     setIsEditSubmitting(true)
     try {
+      // UUID가 있는 이미지만 필터링
+      const validImageUuids = editImages
+        .map(img => img.uuid)
+        .filter(uuid => uuid && uuid.length > 0)
+
       const result = await updateReview(reviewUuid, {
         rating: editRating,
         title: editTitle || undefined,
         content: editContent,
-        images: editImages.length > 0 ? editImages.map(img => img.url) : undefined,
+        imageUuids: validImageUuids.length > 0 ? validImageUuids : undefined,
       })
 
       if (result.success) {
@@ -318,6 +337,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
               onChange={(data) => setImages(Array.isArray(data) ? data : data ? [data] : [])}
               multiple={true}
               maxFiles={5}
+              entityType="REVIEW"
             />
           </div>
 
@@ -430,6 +450,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                         onChange={(data) => setEditImages(Array.isArray(data) ? data : data ? [data] : [])}
                         multiple={true}
                         maxFiles={5}
+                        entityType="REVIEW"
                       />
                     </div>
 
@@ -494,16 +515,25 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                     {/* 리뷰 이미지 */}
                     {review.images && review.images.length > 0 && (
                       <div className="grid grid-cols-3 gap-3 mb-4">
-                        {review.images.map((image, index) => (
-                          <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
-                            <Image
-                              src={image}
-                              alt={`리뷰 이미지 ${index + 1}`}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        ))}
+                        {review.images.map((image, index) => {
+                          // 객체인 경우 fileUrl 또는 imageUrl 사용, 문자열인 경우 그대로 사용
+                          const imageUrl = typeof image === 'string'
+                            ? image
+                            : (image as any)?.fileUrl || (image as any)?.imageUrl || (image as any)?.url
+
+                          if (!imageUrl || !imageUrl.startsWith('http')) return null
+
+                          return (
+                            <div key={index} className="relative aspect-square rounded-lg overflow-hidden">
+                              <Image
+                                src={imageUrl}
+                                alt={`리뷰 이미지 ${index + 1}`}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          )
+                        })}
                       </div>
                     )}
                   </>

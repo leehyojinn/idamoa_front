@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiChevronDown, FiChevronUp, FiRefreshCw } from 'react-icons/fi'
-import { searchGalleries, deleteGallery, toggleBookmark, type GalleryListItem, type GallerySearchParams } from '@/lib/api/gallery'
+import { searchGalleries, deleteGallery, toggleBookmark, type GalleryListItem, type GallerySearchParams, type GallerySearchResponse } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
 import { useAuth } from '@/hooks/useAuth'
@@ -39,13 +39,17 @@ const COLOR_MAP: { [key: string]: string } = {
   '블루': '#3B82F6'
 }
 
-export default function GalleryListClient() {
+interface GalleryListClientProps {
+  initialData?: GallerySearchResponse
+}
+
+export default function GalleryListClient({ initialData }: GalleryListClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
 
-  const [galleries, setGalleries] = useState<GalleryListItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [galleries, setGalleries] = useState<GalleryListItem[]>(initialData?.content || [])
+  const [isLoading, setIsLoading] = useState(!initialData)
 
   // 메뉴 드롭다운 상태
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
@@ -77,8 +81,9 @@ export default function GalleryListClient() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
+  const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   // Search & Filter
   const [keyword, setKeyword] = useState('')
@@ -198,8 +203,15 @@ export default function GalleryListClient() {
     setOnlyBookmarked(onlyBookmarked)
     setOnlyMyPosts(onlyMyPosts)
 
+    // 초기 로드 시 SSR 데이터 사용, URL 파라미터 변경 시에만 fetch
+    const hasUrlParams = searchParams.toString() !== ''
+    if (isInitialLoad && initialData && !hasUrlParams) {
+      setIsInitialLoad(false)
+      return
+    }
+    setIsInitialLoad(false)
     fetchGalleries({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
-  }, [searchParams, fetchGalleries])
+  }, [searchParams, fetchGalleries, isInitialLoad, initialData])
 
   const updateURL = (params: GallerySearchParams) => {
     const query = new URLSearchParams()

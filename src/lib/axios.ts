@@ -1,4 +1,5 @@
 import axios from 'axios'
+import https from 'https'
 import toast from 'react-hot-toast'
 import { logError, logInfo } from './errorHandler'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +14,12 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 // 리다이렉트 중복 방지 플래그
 let isRedirecting = false;
 
+// 서버 사이드에서 self-signed certificate 허용 (개발 환경용)
+// TODO: 프로덕션 배포 시 정식 SSL 인증서 적용 후 제거
+const httpsAgent = typeof window === 'undefined'
+  ? new https.Agent({ rejectUnauthorized: false })
+  : undefined;
+
 const axiosInstance = axios.create({
   baseURL: `${apiBaseUrl}/api`,
   timeout: 10000,
@@ -20,6 +27,7 @@ const axiosInstance = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // ⭐ 쿠키 자동 전송/수신 활성화
+  httpsAgent, // 서버 사이드에서만 적용
 })
 
 /**

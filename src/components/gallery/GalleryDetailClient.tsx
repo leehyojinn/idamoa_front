@@ -13,13 +13,14 @@ import { Dialog } from '@/components/ui/Dialog'
 
 interface GalleryDetailClientProps {
   uuid: string
+  initialData?: Gallery
 }
 
-export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) {
+export default function GalleryDetailClient({ uuid, initialData }: GalleryDetailClientProps) {
   const router = useRouter()
   const { user } = useAuth()
 
-  const [gallery, setGallery] = useState<Gallery | null>(null)
+  const [gallery, setGallery] = useState<Gallery | null>(initialData || null)
 
   // 이미지 URL 헬퍼 함수
   const getImageUrl = (url: string | undefined) => {
@@ -29,7 +30,7 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
     // 상대 경로면 백엔드 서버 URL 붙이기
     return `http://43.203.237.51:8080${url}`
   }
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(!initialData)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isBookmarking, setIsBookmarking] = useState(false)
@@ -58,8 +59,10 @@ export default function GalleryDetailClient({ uuid }: GalleryDetailClientProps) 
   }, [uuid, router])
 
   useEffect(() => {
+    // initialData가 있으면 fetch 건너뛰기 (SSR 데이터 사용)
+    if (initialData) return
     fetchGallery()
-  }, [fetchGallery])
+  }, [fetchGallery, initialData])
 
   const handleDelete = async () => {
     if (!gallery) return

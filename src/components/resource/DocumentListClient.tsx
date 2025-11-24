@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiFile, FiX, FiMoreVertical, FiEdit, FiTrash2, FiDownload, FiFilter, FiChevronDown, FiChevronUp, FiRefreshCw } from 'react-icons/fi'
-import { searchDocuments, deleteDocument, toggleDocumentBookmark, type DocumentListItem, type DocumentSearchParams } from '@/lib/api/resource'
+import { searchDocuments, deleteDocument, toggleDocumentBookmark, type DocumentListItem, type DocumentSearchParams, type DocumentSearchResponse } from '@/lib/api/resource'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
 import { useAuth } from '@/hooks/useAuth'
@@ -34,13 +34,17 @@ const formatFileSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
 }
 
-export default function DocumentListClient() {
+interface DocumentListClientProps {
+  initialData?: DocumentSearchResponse
+}
+
+export default function DocumentListClient({ initialData }: DocumentListClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user } = useAuth()
 
-  const [documents, setDocuments] = useState<DocumentListItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [documents, setDocuments] = useState<DocumentListItem[]>(initialData?.content || [])
+  const [isLoading, setIsLoading] = useState(!initialData)
 
   // 메뉴 드롭다운 상태
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
@@ -67,8 +71,9 @@ export default function DocumentListClient() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
+  const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   // Search & Filter
   const [keyword, setKeyword] = useState('')
@@ -165,8 +170,15 @@ export default function DocumentListClient() {
     setOnlyBookmarked(onlyBookmarked)
     setOnlyMyPosts(onlyMyPosts)
 
+    // 초기 로드 시 SSR 데이터 사용, URL 파라미터 변경 시에만 fetch
+    const hasUrlParams = searchParams.toString() !== ''
+    if (isInitialLoad && initialData && !hasUrlParams) {
+      setIsInitialLoad(false)
+      return
+    }
+    setIsInitialLoad(false)
     fetchDocuments({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
-  }, [searchParams, fetchDocuments])
+  }, [searchParams, fetchDocuments, isInitialLoad, initialData])
 
   const updateURL = (params: DocumentSearchParams) => {
     const query = new URLSearchParams()

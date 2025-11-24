@@ -2,8 +2,17 @@ import { Suspense } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import DocumentListClient from '@/components/resource/DocumentListClient'
+import { searchDocuments } from '@/lib/api/resource'
 
-export default function DocumentsPage() {
+export default async function DocumentsPage() {
+  // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
+  const initialData = await searchDocuments({
+    page: 0,
+    size: 12,
+    sortBy: 'publishedAt',
+    sortDirection: 'DESC',
+  })
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
@@ -13,7 +22,7 @@ export default function DocumentsPage() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
           </div>
         }>
-          <DocumentListClient />
+          <DocumentListClient initialData={initialData.data} />
         </Suspense>
       </main>
       <Footer />

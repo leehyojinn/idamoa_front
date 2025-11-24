@@ -6,6 +6,7 @@ import { IoClose } from 'react-icons/io5'
 import { useFileUpload } from '@/hooks/useFile'
 import FileInput from './FileInput'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import type { EntityType } from '@/lib/api/file'
 
 export interface ImageData {
   uuid: string
@@ -20,6 +21,7 @@ interface ImageUploadProps {
   maxFiles?: number
   disabled?: boolean
   error?: string
+  entityType?: EntityType // 파일 엔티티 타입 (기본값: COMPANY_IMAGE)
 }
 
 export default function ImageUpload({
@@ -30,6 +32,7 @@ export default function ImageUpload({
   maxFiles = 5,
   disabled = false,
   error,
+  entityType = 'COMPANY_IMAGE',
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
@@ -51,7 +54,7 @@ export default function ImageUpload({
         try {
           const result = await fileUploadMutation.mutateAsync({
             file,
-            entityType: 'COMPANY_IMAGE',
+            entityType,
             entityId: null,
           })
           setUploadProgress(((index + 1) / files.length) * 100)

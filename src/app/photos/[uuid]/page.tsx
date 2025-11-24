@@ -1,14 +1,59 @@
 import { Suspense } from 'react'
+import { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import GalleryDetailClient from '@/components/gallery/GalleryDetailClient'
+import { getGallery } from '@/lib/api/gallery'
 
 interface PageProps {
   params: Promise<{ uuid: string }>
 }
 
+// SEO 메타데이터 생성
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  try {
+    const { uuid } = await params
+    const result = await getGallery(uuid)
+
+    if (!result.success || !result.data) {
+      return { title: '갤러리를 찾을 수 없습니다' }
+    }
+
+    const gallery = result.data
+    const primaryImage = gallery.images?.[0]?.fileUrl || '/images/img-placeholder.png'
+
+    return {
+      title: `${gallery.title} - 사진 갤러리 | 다모아`,
+      description: gallery.content || `${gallery.title} - 병원인테리어 사진 갤러리`,
+      keywords: gallery.tags?.join(', '),
+      openGraph: {
+        title: gallery.title,
+        description: gallery.content || undefined,
+        images: [{ url: primaryImage, width: 1200, height: 630, alt: gallery.title }],
+        type: 'article',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: gallery.title,
+        description: gallery.content || undefined,
+        images: [primaryImage],
+      },
+    }
+  } catch {
+    return { title: '갤러리를 찾을 수 없습니다' }
+  }
+}
+
 export default async function GalleryDetailPage({ params }: PageProps) {
   const { uuid } = await params
+
+  // SSR: 서버에서 초기 데이터 로드
+  const result = await getGallery(uuid)
+
+  if (!result.success || !result.data) {
+    notFound()
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,7 +64,7 @@ export default async function GalleryDetailPage({ params }: PageProps) {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
           </div>
         }>
-          <GalleryDetailClient uuid={uuid} />
+          <GalleryDetailClient uuid={uuid} initialData={result.data} />
         </Suspense>
       </main>
       <Footer />

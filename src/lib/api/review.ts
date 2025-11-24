@@ -45,14 +45,14 @@ export interface CreateReviewRequest {
   rating: number
   title?: string
   content: string
-  images?: string[]
+  imageUuids?: string[]
 }
 
 export interface UpdateReviewRequest {
   rating: number
   title?: string
   content: string
-  images?: string[]
+  imageUuids?: string[]
 }
 
 export interface ReplyRequest {

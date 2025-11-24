@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
-import { getCompanies, toggleCompanyLike, type CompanyListItem } from '@/lib/api/company'
+import { getCompanies, toggleCompanyLike, type CompanyListItem, type CompanyListResponse } from '@/lib/api/company'
 import { useAuthStore } from '@/stores/authStore'
 import {
   IoStar,
@@ -26,15 +26,20 @@ const SORT_OPTIONS = [
   { value: 'viewCount,DESC', label: '인기순' },
 ]
 
-export default function CompanyList() {
+interface CompanyListProps {
+  initialData?: CompanyListResponse
+}
+
+export default function CompanyList({ initialData }: CompanyListProps) {
   const router = useRouter()
   const accessToken = useAuthStore((state) => state.accessToken)
-  const [companies, setCompanies] = useState<CompanyListItem[]>([])
+  const [companies, setCompanies] = useState<CompanyListItem[]>(initialData?.content || [])
   const [page, setPage] = useState(0)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
+  const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
+  const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [loading, setLoading] = useState(false)
   const [sortBy, setSortBy] = useState('createdAt,DESC')
+  const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   const fetchCompanies = useCallback(async () => {
     setLoading(true)
@@ -59,8 +64,13 @@ export default function CompanyList() {
   }, [page, sortBy])
 
   useEffect(() => {
+    // 초기 로드 시에는 SSR 데이터 사용, 이후 변경 시에만 fetch
+    if (isInitialLoad && initialData) {
+      setIsInitialLoad(false)
+      return
+    }
     fetchCompanies()
-  }, [fetchCompanies])
+  }, [fetchCompanies, isInitialLoad, initialData])
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
