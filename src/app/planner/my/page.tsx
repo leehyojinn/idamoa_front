@@ -2,27 +2,39 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import {
-  getPublicPlannerApplications,
+  getMyPlannerApplications,
   STATUS_LABELS,
   STATUS_COLORS,
   CONSULTATION_METHOD_LABELS,
   REQUEST_TYPE_LABELS,
   type PlannerApplicationStatus,
-  type PlannerApplicationPublicListResponse,
+  type PlannerApplicationListResponse,
   type PageResponse,
 } from '@/lib/api/planner'
 import { showErrorToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
-export default function PlannerListPage() {
-  const [applications, setApplications] = useState<PageResponse<PlannerApplicationPublicListResponse> | null>(null)
+export default function MyPlannerApplicationsPage() {
+  const router = useRouter()
+  const { user, isLoading: authLoading } = useAuth()
+  const [applications, setApplications] = useState<PageResponse<PlannerApplicationListResponse> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<PlannerApplicationStatus | ''>('')
   const [page, setPage] = useState(0)
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login?redirect=/planner/my')
+    }
+  }, [user, authLoading, router])
+
   const fetchApplications = async () => {
+    if (!user) return
+
     setIsLoading(true)
     try {
       const params: { status?: PlannerApplicationStatus; page: number; size: number } = {
@@ -32,7 +44,7 @@ export default function PlannerListPage() {
       if (statusFilter) {
         params.status = statusFilter
       }
-      const response = await getPublicPlannerApplications(params)
+      const response = await getMyPlannerApplications(params)
       if (response.success) {
         setApplications(response.data)
       }
@@ -44,19 +56,32 @@ export default function PlannerListPage() {
   }
 
   useEffect(() => {
-    fetchApplications()
-  }, [statusFilter, page])
+    if (user) {
+      fetchApplications()
+    }
+  }, [user, statusFilter, page])
 
   const handleStatusFilterChange = (status: PlannerApplicationStatus | '') => {
     setStatusFilter(status)
     setPage(0)
   }
 
-  // 이름 마스킹 (홍길동 -> 홍*동)
-  const maskName = (name: string) => {
-    if (name.length <= 1) return name
-    if (name.length === 2) return name[0] + '*'
-    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1]
+  if (authLoading) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        </div>
+        <Footer />
+      </>
+    )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (
@@ -67,21 +92,21 @@ export default function PlannerListPage() {
         <div className="mb-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">플래너 상담 신청 현황</h1>
-              <p className="text-gray-600 mt-1">다모아인테리어의 플래너 상담 신청 현황을 확인하세요.</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">내 상담 신청 내역</h1>
+              <p className="text-gray-600 mt-1">내가 신청한 플래너 상담 내역을 확인하세요.</p>
             </div>
             <div className="flex gap-3">
               <Link
-                href="/planner/my"
-                className="inline-flex items-center justify-center px-5 py-3 border border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
+                href="/planner"
+                className="inline-flex items-center justify-center px-5 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
               >
-                내 신청현황
+                전체 신청현황
               </Link>
               <Link
                 href="/planner/create"
                 className="inline-flex items-center justify-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
               >
-                상담 신청하기
+                새 상담 신청
               </Link>
             </div>
           </div>
@@ -119,7 +144,15 @@ export default function PlannerListPage() {
           {isLoading ? (
             <div className="p-8 text-center text-gray-500">로딩 중...</div>
           ) : applications?.content.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">신청서가 없습니다.</div>
+            <div className="p-8 text-center">
+              <p className="text-gray-500 mb-4">신청 내역이 없습니다.</p>
+              <Link
+                href="/planner/create"
+                className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                첫 상담 신청하기
+              </Link>
+            </div>
           ) : (
             <>
               {/* 모바일 카드 뷰 */}
@@ -127,7 +160,7 @@ export default function PlannerListPage() {
                 {applications?.content.map((app) => (
                   <Link
                     key={app.uuid}
-                    href={`/planner/${app.uuid}`}
+                    href={`/planner/my/${app.uuid}`}
                     className="block p-4 hover:bg-gray-50 transition-colors"
                   >
                     <div className="flex justify-between items-start mb-2">
@@ -152,7 +185,7 @@ export default function PlannerListPage() {
                       )}
                     </div>
                     <div className="flex justify-between text-sm text-gray-500">
-                      <span>{maskName(app.applicantName)}</span>
+                      <span>{CONSULTATION_METHOD_LABELS[app.consultationMethod]}</span>
                       <span>{new Date(app.createdAt).toLocaleDateString('ko-KR')}</span>
                     </div>
                   </Link>
@@ -165,11 +198,11 @@ export default function PlannerListPage() {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">제목</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">신청자</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">상담방법</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">요청내용</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">상태</th>
                       <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">신청일</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">액션</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
@@ -177,13 +210,12 @@ export default function PlannerListPage() {
                       <tr key={app.uuid} className="hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <Link
-                            href={`/planner/${app.uuid}`}
+                            href={`/planner/my/${app.uuid}`}
                             className="text-gray-900 hover:text-blue-600 font-medium"
                           >
                             <div className="max-w-xs truncate">{app.title}</div>
                           </Link>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{maskName(app.applicantName)}</td>
                         <td className="px-4 py-3 text-gray-600">
                           {CONSULTATION_METHOD_LABELS[app.consultationMethod]}
                         </td>
@@ -211,6 +243,14 @@ export default function PlannerListPage() {
                         </td>
                         <td className="px-4 py-3 text-gray-600 text-sm">
                           {new Date(app.createdAt).toLocaleDateString('ko-KR')}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/planner/my/${app.uuid}`}
+                            className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                          >
+                            상세보기
+                          </Link>
                         </td>
                       </tr>
                     ))}

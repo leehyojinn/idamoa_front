@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { IoSaveOutline, IoCloseCircleOutline } from 'react-icons/io5'
+import DatePicker from 'react-datepicker'
+import { ko } from 'date-fns/locale'
+import { IoSaveOutline, IoCloseCircleOutline, IoCalendarOutline } from 'react-icons/io5'
 import { updateProposal, type Proposal, type UpdateProposalRequest, type ProposalAttachment } from '@/lib/api/proposal'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import FileUpload, { type FileAttachment } from '@/components/ui/FileUpload'
@@ -240,12 +242,18 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   제안 유효기간
                 </label>
-                <input
-                  type="date"
-                  value={validUntil ? validUntil.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setValidUntil(e.target.value ? new Date(e.target.value) : null)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
+                <div className="relative">
+                  <DatePicker
+                    selected={validUntil}
+                    onChange={(date) => setValidUntil(date)}
+                    locale={ko}
+                    dateFormat="yyyy년 MM월 dd일"
+                    placeholderText="날짜를 선택하세요"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    wrapperClassName="w-full"
+                  />
+                  <IoCalendarOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
