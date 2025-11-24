@@ -184,12 +184,21 @@ export const logout = async (): Promise<LogoutResponse> => {
 }
 
 /**
- * 토큰 갱신
+ * 토큰 갱신 (refreshToken 직접 전달)
  */
 export const refreshToken = async (
   data: RefreshTokenRequest
 ): Promise<RefreshTokenResponse> => {
   const response = await axiosInstance.post('/auth/refresh', data)
+  return response.data
+}
+
+/**
+ * 토큰 갱신 (httpOnly 쿠키 사용 - OAuth 콜백용)
+ * Refresh Token이 httpOnly 쿠키에 저장되어 있을 때 사용
+ */
+export const refreshTokenWithCookie = async (): Promise<RefreshTokenResponse> => {
+  const response = await axiosInstance.post('/auth/refresh', {})
   return response.data
 }
 
