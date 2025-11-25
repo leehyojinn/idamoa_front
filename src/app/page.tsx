@@ -3,6 +3,7 @@ import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
 import CompanyList from '@/components/company/CompanyList'
 import HeroSlide from '@/components/layout/slide/HeroSlide'
+import PopupManager from '@/components/popup/PopupManager'
 import { getCompanies } from '@/lib/api/company'
 
 export const metadata = createPageMetadata({
@@ -24,6 +25,7 @@ export default async function Home() {
         <CompanyList initialData={initialData.data} />
       </main>
       <Footer />
+      <PopupManager />
     </div>
   )
 }

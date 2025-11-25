@@ -57,15 +57,11 @@ const NAV_ITEMS = [
 const ADMIN_PAGES = [
   { id: 'admin-users', label: '회원 관리', href: '/admin/users' },
   { id: 'admin-companies', label: '업체 관리', href: '/admin/companies' },
-  { id: 'admin-notices', label: '공지사항 관리', href: '/admin/notices' },
-  { id: 'admin-events', label: '이벤트 관리', href: '/admin/events' },
-  { id: 'admin-galleries', label: '갤러리 관리', href: '/admin/galleries' },
-  { id: 'admin-resources', label: '자료실 관리', href: '/admin/resources' },
   { id: 'admin-estimates', label: '견적 관리', href: '/admin/estimates' },
   { id: 'admin-consultations', label: '빠른상담 관리', href: '/admin/consultations' },
   { id: 'admin-planner', label: '플래너 신청서', href: '/admin/planner-applications' },
+  { id: 'admin-popups', label: '팝업 관리', href: '/admin/popups' },
   { id: 'admin-inquiries', label: '제휴/광고 문의', href: '/admin/inquiries' },
-  { id: 'admin-settings', label: '시스템 설정', href: '/admin/settings' },
 ]
 
 export default function Navbar({ variant = 'default', showQuickmenu = true }: NavbarProps) {
