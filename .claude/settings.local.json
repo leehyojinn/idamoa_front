@@ -39,7 +39,8 @@
       "Bash(cmd //c:*)",
       "Bash(tasklist:*)",
       "Bash(curl:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(move \"[uuid]\" \"[id]\")"
     ],
     "deny": [],
     "ask": []
