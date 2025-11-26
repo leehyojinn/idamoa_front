@@ -1,10 +1,20 @@
 import { useAuthStore } from '@/stores/authStore'
 import { login as loginApi, logout as logoutApi } from '@/lib/api/auth'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 
 export const useAuth = () => {
   const router = useRouter()
+
+  // QueryClient는 선택적으로 사용 (Provider 외부에서도 동작하도록)
+  let queryClient: ReturnType<typeof useQueryClient> | null = null
+  try {
+    queryClient = useQueryClient()
+  } catch {
+    // QueryClientProvider 외부에서 호출된 경우 무시
+  }
+
   const { user, isAuthenticated, _hasHydrated, setUser, setAccessToken, clearAuth } = useAuthStore()
 
   const login = async (email: string, password: string) => {
@@ -49,12 +59,21 @@ export const useAuth = () => {
       // ✅ 인증 상태 초기화 (메모리의 accessToken도 자동 제거됨, Refresh Token은 백엔드에서 쿠키 삭제)
       clearAuth()
 
+      // ✅ React Query 캐시 모두 초기화 (로그아웃 후 이전 사용자 데이터 제거)
+      if (queryClient) {
+        queryClient.clear()
+      }
+
       showSuccessToast('로그아웃되었습니다')
       router.push('/login')
     } catch (error: unknown) {
       logError('로그아웃 실패', error)
       // 에러가 나도 로컬 데이터는 삭제
       clearAuth()
+      // React Query 캐시도 초기화
+      if (queryClient) {
+        queryClient.clear()
+      }
       router.push('/login')
     }
   }

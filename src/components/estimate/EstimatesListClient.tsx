@@ -53,15 +53,20 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
         setMyEstimatesCount(0)
       }
 
-      // 내 제안 개수 (철회된 제안 제외)
-      try {
-        const myProposalsResult = await getMyProposals(0, 100, 'createdAt,desc')
-        if (myProposalsResult.success && myProposalsResult.data) {
-          const activeProposals = myProposalsResult.data.content.filter(p => p.status !== 'WITHDRAWN')
-          setMyProposalsCount(activeProposals.length)
+      // 내 제안 개수 (철회된 제안 제외) - 업체만 조회
+      if (user.currentRole === 'COMPANY') {
+        try {
+          const myProposalsResult = await getMyProposals(0, 100, 'createdAt,desc')
+          if (myProposalsResult.success && myProposalsResult.data) {
+            const activeProposals = myProposalsResult.data.content.filter(p => p.status !== 'WITHDRAWN')
+            setMyProposalsCount(activeProposals.length)
+          }
+        } catch (error) {
+          // 내 제안 API 에러 시 0으로 처리
+          setMyProposalsCount(0)
         }
-      } catch (error) {
-        // 내 제안 API 에러 시 0으로 처리
+      } else {
+        // 업체가 아니면 0으로 설정
         setMyProposalsCount(0)
       }
     }

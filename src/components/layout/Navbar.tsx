@@ -27,6 +27,15 @@ const MobileMenu = dynamic(() => import('./MobileMenu'), {
   ssr: false,
 })
 
+const NotificationDropdown = dynamic(() => import('@/components/notification/NotificationDropdown'), {
+  ssr: false,
+  loading: () => (
+    <div className="p-2">
+      <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-gray-400"></div>
+    </div>
+  ),
+})
+
 const NAV_ITEMS = [
   { id: 'photos', label: '사진', href: '/photos' },
   { id: 'resources', label: '자료실', href: '/resources' },
@@ -129,10 +138,24 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
 
             {/* Right Side Actions */}
             <div className="flex items-center space-x-2">
+              {/* Notification - Desktop */}
+              {user && (
+                <div className="hidden lg:block">
+                  <NotificationDropdown />
+                </div>
+              )}
+
               {/* User Menu */}
               <div className="hidden lg:block">
                 <UserMenu user={user} onLogin={handleLogin} onLogout={handleLogout} />
               </div>
+
+              {/* Notification - Mobile */}
+              {user && (
+                <div className="lg:hidden">
+                  <NotificationDropdown />
+                </div>
+              )}
 
               {/* Mobile Menu Button */}
               <button
