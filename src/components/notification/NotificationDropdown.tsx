@@ -16,8 +16,8 @@ export default function NotificationDropdown() {
   const [loading, setLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  // WebSocket 기능 비활성화 (백엔드 준비 시 true로 변경)
-  const ENABLE_WEBSOCKET = false
+  // WebSocket 기능 활성화
+  const ENABLE_WEBSOCKET = true
 
   // WebSocket 콜백
   const handleNotificationReceived = useCallback((notification: Notification) => {
@@ -31,7 +31,7 @@ export default function NotificationDropdown() {
     setUnreadCount(count)
   }, [])
 
-  // WebSocket 연결 (현재 비활성화)
+  // WebSocket 연결
   const { isConnected, markAsRead: markAsReadWS } = useNotificationWebSocket({
     onNotificationReceived: handleNotificationReceived,
     onUnreadCountChanged: handleUnreadCountChanged,
@@ -114,10 +114,14 @@ export default function NotificationDropdown() {
 
   // 드롭다운 토글
   const toggleDropdown = () => {
-    setIsOpen((prev) => !prev)
-    if (!isOpen) {
-      fetchNotifications()
-    }
+    setIsOpen((prev) => {
+      const newState = !prev
+      // 드롭다운을 열 때만 목록 새로고침 (WebSocket 비활성화 시에만)
+      if (newState && !ENABLE_WEBSOCKET) {
+        fetchNotifications()
+      }
+      return newState
+    })
   }
 
   // 외부 클릭 감지
@@ -136,15 +140,23 @@ export default function NotificationDropdown() {
     }
   }, [isOpen])
 
-  // 미읽음 개수 조회 (WebSocket 비활성화 시 30초마다 폴링)
+  // 초기 데이터 로드 및 폴링 설정
   useEffect(() => {
     if (!user) return
 
+    // 초기 미읽음 개수 조회
     fetchUnreadCount()
+
+    // 초기 알림 목록 조회 (웹소켓 수신을 위해 미리 로드)
+    if (ENABLE_WEBSOCKET) {
+      fetchNotifications()
+    }
 
     // WebSocket이 비활성화되어 있으면 30초마다 폴링
     if (!ENABLE_WEBSOCKET) {
-      const interval = setInterval(fetchUnreadCount, 30000)
+      const interval = setInterval(() => {
+        fetchUnreadCount()
+      }, 30000)
       return () => clearInterval(interval)
     }
   }, [user, ENABLE_WEBSOCKET])

@@ -34,24 +34,23 @@ export function useNotificationWebSocket({
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+    const wsUrl = `${baseUrl}/ws`
+    console.log('🔌 [WebSocket] 연결 중...')
 
     const client = new Client({
-      webSocketFactory: () => new SockJS(`${baseUrl}/ws`) as WebSocket,
+      webSocketFactory: () => new SockJS(wsUrl) as WebSocket,
       connectHeaders: {
         Authorization: `Bearer ${accessToken}`,
       },
-      debug: (str) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('[WebSocket]', str)
-        }
-      },
+      // STOMP 내부 디버그 끄기 (필요시 활성화)
+      debug: () => {},
       reconnectDelay: 5000,
       heartbeatIncoming: 10000,
       heartbeatOutgoing: 10000,
     })
 
     client.onConnect = () => {
-      console.log('[WebSocket] Connected')
+      console.log('✅ [WebSocket] 연결 성공')
       setIsConnected(true)
 
       // 알림 구독
@@ -62,27 +61,30 @@ export function useNotificationWebSocket({
 
             // 새 알림 수신
             if (data.type === 'NEW_NOTIFICATION' && onNotificationReceived) {
+              console.log('🔔 새 알림:', data.notification.title)
               onNotificationReceived(data.notification)
             }
 
             // 미읽음 개수 변경
             if (data.type === 'UNREAD_COUNT_CHANGED' && onUnreadCountChanged) {
+              console.log('📊 미읽음 개수:', data.unreadCount)
               onUnreadCountChanged(data.unreadCount)
             }
           } catch (error) {
-            console.error('[WebSocket] Message parse error:', error)
+            console.error('❌ [WebSocket] 메시지 파싱 실패:', error)
           }
         })
+        console.log('✅ [WebSocket] 알림 구독 완료')
       }
     }
 
     client.onDisconnect = () => {
-      console.log('[WebSocket] Disconnected')
+      console.log('⚠️ [WebSocket] 연결 해제')
       setIsConnected(false)
     }
 
     client.onStompError = (frame) => {
-      console.error('[WebSocket] Error:', frame.headers['message'])
+      console.error('❌ [WebSocket] 에러:', frame.headers['message'])
       setIsConnected(false)
     }
 
