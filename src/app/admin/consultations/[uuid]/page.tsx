@@ -10,6 +10,7 @@ import {
   adminCreateResponse,
   adminDeleteConsultation
 } from '@/lib/api/consultation'
+import { getCompanies, assignConsultationToCompany } from '@/lib/api/admin'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -40,6 +41,12 @@ export default function AdminConsultationDetailPage() {
   const [selectedStatus, setSelectedStatus] = useState<ConsultationStatus>('SUBMITTED')
   const [responseMessage, setResponseMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 업체 배정 모달 관련
+  const [showAssignModal, setShowAssignModal] = useState(false)
+  const [companies, setCompanies] = useState<Array<{ uuid: string; name: string; description: string; primaryPhone: string; email: string; address: string }>>([])
+  const [selectedCompanyUuid, setSelectedCompanyUuid] = useState<string | null>(null)
+  const [searchKeyword, setSearchKeyword] = useState('')
 
   const fetchConsultation = useCallback(async () => {
     setIsLoading(true)
@@ -104,6 +111,34 @@ export default function AdminConsultationDetailPage() {
       router.push('/admin/consultations')
     } catch (error) {
       showErrorToast(error, '상담 삭제에 실패했습니다')
+    }
+  }
+
+  const fetchCompanies = async (keyword?: string) => {
+    try {
+      const companiesList = await getCompanies(keyword)
+      setCompanies(companiesList)
+    } catch (error) {
+      showErrorToast(error, '업체 목록을 불러오는데 실패했습니다.')
+    }
+  }
+
+  const handleSearchCompanies = () => {
+    fetchCompanies(searchKeyword || undefined)
+  }
+
+  const handleAssignCompany = async () => {
+    if (!consultation || !selectedCompanyUuid) return
+    setIsSubmitting(true)
+    try {
+      await assignConsultationToCompany(uuid, selectedCompanyUuid)
+      showSuccessToast('업체가 배정되었습니다.')
+      setShowAssignModal(false)
+      fetchConsultation()
+    } catch (error) {
+      showErrorToast(error, '업체 배정에 실패했습니다.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -316,6 +351,27 @@ export default function AdminConsultationDetailPage() {
             </div>
           </div>
 
+          {/* 업체 배정 */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">업체 배정</h3>
+            {consultation.assignedCompanyName && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600 mb-1">현재 배정된 업체</p>
+                <p className="font-medium text-gray-900">{consultation.assignedCompanyName}</p>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                fetchCompanies()
+                setShowAssignModal(true)
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+            >
+              <FiUser />
+              업체 배정하기
+            </button>
+          </div>
+
           {/* 답변 작성 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-bold text-gray-900 mb-4">답변 작성</h3>
@@ -366,6 +422,92 @@ export default function AdminConsultationDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* 업체 배정 모달 */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4">업체 배정</h3>
+            <p className="text-sm text-gray-500 mb-4">배정할 업체를 선택하세요.</p>
+
+            {/* 검색 바 */}
+            <div className="mb-4 flex gap-2">
+              <input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearchCompanies()}
+                placeholder="업체명, 사업자번호, 이메일로 검색..."
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+              <button
+                onClick={handleSearchCompanies}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                검색
+              </button>
+            </div>
+
+            {/* 업체 목록 */}
+            <div className="space-y-2 mb-6 max-h-96 overflow-y-auto">
+              {!companies || companies.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  {searchKeyword ? '검색 결과가 없습니다.' : '업체를 검색하세요.'}
+                </div>
+              ) : (
+                companies.map((company) => (
+                  <label
+                    key={company.uuid}
+                    className={`flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
+                      selectedCompanyUuid === company.uuid
+                        ? 'border-purple-500 bg-purple-50'
+                        : 'border-gray-200 hover:border-purple-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="company"
+                      value={company.uuid}
+                      checked={selectedCompanyUuid === company.uuid}
+                      onChange={() => setSelectedCompanyUuid(company.uuid)}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{company.name}</div>
+                      {company.description && (
+                        <div className="text-sm text-gray-600">{company.description}</div>
+                      )}
+                      <div className="text-sm text-gray-500">
+                        {company.primaryPhone} · {company.email}
+                      </div>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowAssignModal(false)
+                  setSearchKeyword('')
+                  setSelectedCompanyUuid(null)
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleAssignCompany}
+                disabled={isSubmitting || selectedCompanyUuid === null}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+              >
+                {isSubmitting ? '배정 중...' : '배정'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
       <Footer />
     </AdminGuard>

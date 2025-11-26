@@ -15,6 +15,7 @@ import {
   type PlannerApplicationStatus,
   type PlannerApplicationResponse,
 } from '@/lib/api/planner'
+import { getAdminUsers, assignPlannerAdmin } from '@/lib/api/admin'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -32,11 +33,16 @@ export default function AdminPlannerApplicationDetailPage() {
   const [showStatusModal, setShowStatusModal] = useState(false)
   const [showResponseModal, setShowResponseModal] = useState(false)
   const [showMemoModal, setShowMemoModal] = useState(false)
+  const [showAssignModal, setShowAssignModal] = useState(false)
 
   // 입력 상태
   const [selectedStatus, setSelectedStatus] = useState<PlannerApplicationStatus>('PENDING')
   const [responseText, setResponseText] = useState('')
   const [memoText, setMemoText] = useState('')
+
+  // 관리자 목록
+  const [adminUsers, setAdminUsers] = useState<Array<{ id: number; uuid: string; email: string; name: string; roles: string[]; status: string }>>([])
+  const [selectedAdminId, setSelectedAdminId] = useState<number | null>(null)
 
   const fetchApplication = async () => {
     setIsLoading(true)
@@ -113,6 +119,30 @@ export default function AdminPlannerApplicationDetailPage() {
     }
   }
 
+  const fetchAdminUsers = async () => {
+    try {
+      const users = await getAdminUsers()
+      setAdminUsers(users)
+    } catch (error) {
+      showErrorToast(error, '관리자 목록을 불러오는데 실패했습니다.')
+    }
+  }
+
+  const handleAssignAdmin = async () => {
+    if (!application || selectedAdminId === null) return
+    setIsUpdating(true)
+    try {
+      await assignPlannerAdmin(uuid, selectedAdminId)
+      showSuccessToast('담당자가 배정되었습니다.')
+      setShowAssignModal(false)
+      fetchApplication()
+    } catch (error) {
+      showErrorToast(error, '담당자 배정에 실패했습니다.')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
   if (isLoading) {
     return (
       <>
@@ -169,6 +199,15 @@ export default function AdminPlannerApplicationDetailPage() {
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           상태 변경
+        </button>
+        <button
+          onClick={() => {
+            fetchAdminUsers()
+            setShowAssignModal(true)
+          }}
+          className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+        >
+          담당자 배정
         </button>
         <button
           onClick={() => setShowResponseModal(true)}
@@ -414,6 +453,58 @@ export default function AdminPlannerApplicationDetailPage() {
                 className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
               >
                 {isUpdating ? '등록 중...' : '등록'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 담당자 배정 모달 */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4">담당자 배정</h3>
+            <p className="text-sm text-gray-500 mb-4">배정할 관리자를 선택하세요.</p>
+            <div className="space-y-2 mb-6 max-h-60 overflow-y-auto">
+              {!adminUsers || adminUsers.length === 0 ? (
+                <div className="text-center text-gray-500 py-4">관리자를 불러오는 중...</div>
+              ) : (
+                adminUsers.map((admin) => (
+                  <label
+                    key={admin.id}
+                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${
+                      selectedAdminId === admin.id ? 'border-purple-500 bg-purple-50' : 'border-gray-200'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="admin"
+                      value={admin.id}
+                      checked={selectedAdminId === admin.id}
+                      onChange={() => setSelectedAdminId(admin.id)}
+                      className="sr-only"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">{admin.name}</div>
+                      <div className="text-sm text-gray-500">{admin.email}</div>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowAssignModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleAssignAdmin}
+                disabled={isUpdating || selectedAdminId === null}
+                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+              >
+                {isUpdating ? '배정 중...' : '배정'}
               </button>
             </div>
           </div>

@@ -326,7 +326,19 @@ export default function ConsultationDetailPage() {
         {consultation.assignedCompanyName && (
           <div className="bg-gray-50 rounded-lg border border-gray-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-2">배정 업체</h2>
-            <p className="text-gray-700">{consultation.assignedCompanyName}</p>
+            {consultation.assignedCompanyUuid ? (
+              <Link
+                href={`/companies/${consultation.assignedCompanyUuid}`}
+                className="text-blue-600 hover:text-blue-800 font-medium hover:underline inline-flex items-center gap-1"
+              >
+                {consultation.assignedCompanyName}
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            ) : (
+              <p className="text-gray-700">{consultation.assignedCompanyName}</p>
+            )}
             {consultation.assignedAt && (
               <p className="text-sm text-gray-500 mt-1">
                 배정일: {new Date(consultation.assignedAt).toLocaleString('ko-KR')}
