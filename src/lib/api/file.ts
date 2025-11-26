@@ -15,6 +15,7 @@ export type EntityType =
   | 'USER_PROFILE'
   | 'PORTFOLIO'
   | 'REVIEW'
+  | 'POPUP_IMAGE'
   | 'OTHER'
 
 export interface PresignedUrlRequest {

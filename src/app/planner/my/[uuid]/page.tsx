@@ -20,7 +20,7 @@ import Footer from '@/components/layout/Footer'
 export default function MyPlannerDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const { user, isLoading: authLoading } = useAuth()
+  const { user } = useAuth()
   const uuid = params.uuid as string
 
   const [application, setApplication] = useState<PlannerApplicationResponse | null>(null)
@@ -29,10 +29,10 @@ export default function MyPlannerDetailPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!user) {
       router.push('/login?redirect=/planner/my')
     }
-  }, [user, authLoading, router])
+  }, [user, router])
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -78,7 +78,7 @@ export default function MyPlannerDetailPage() {
   // 수정/삭제 가능 여부 (PENDING 상태만)
   const canEdit = application?.status === 'PENDING'
 
-  if (authLoading || isLoading) {
+  if (isLoading) {
     return (
       <>
         <Navbar />

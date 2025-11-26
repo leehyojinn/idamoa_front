@@ -27,6 +27,25 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  /* 호버 시 애니메이션 일시정지 */
+  .hover\:pause:hover {
+    animation-play-state: paused !important;
+  }
+
+  /* 스크롤바 숨기기 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 터치 패닝 */
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
 }
 
 @layer components {

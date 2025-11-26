@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import DatePicker from 'react-datepicker'
 import { ko } from 'date-fns/locale'
@@ -20,6 +20,19 @@ import Select from '@/components/ui/Select'
 import { formatPhoneNumber } from '@/lib/utils'
 import FileUpload, { type FileAttachment } from '@/components/ui/FileUpload'
 import { uploadFile } from '@/lib/api/file'
+import { useAuth } from '@/hooks/useAuth'
+
+// 로컬 타임존을 유지하면서 ISO 형식으로 변환
+const formatDateToLocal = (date: Date | null): string | undefined => {
+  if (!date) return undefined
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+}
 
 // 천단위 콤마 추가
 const formatNumber = (value: string): string => {
@@ -34,7 +47,16 @@ const parseNumber = (value: string): string => {
 
 export default function EstimateCreateForm() {
   const router = useRouter()
+  const { user, isAuthenticated } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 로그인 체크
+  useEffect(() => {
+    if (!isAuthenticated) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push(`/login?returnUrl=${encodeURIComponent('/estimates/create')}`)
+    }
+  }, [isAuthenticated, router])
 
   // Form state
   const [title, setTitle] = useState('')
@@ -121,7 +143,7 @@ export default function EstimateCreateForm() {
         budgetMax: budgetMax ? Number(budgetMax) * 10000 : undefined,
         desiredStartDate: desiredStartDate ? desiredStartDate.toISOString().split('T')[0] : undefined,
         desiredCompletionDate: desiredCompletionDate ? desiredCompletionDate.toISOString().split('T')[0] : undefined,
-        expiresAt: expiresAt ? expiresAt.toISOString() : undefined,
+        expiresAt: formatDateToLocal(expiresAt),
         isPublic: true,
         status: 'PUBLISHED',
         contactName: contactName.trim() || undefined,

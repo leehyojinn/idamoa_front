@@ -200,6 +200,33 @@ export const getCompanies = async (
 }
 
 /**
+ * 업체 검색 (키워드, 태그, 정렬)
+ */
+export interface SearchCompaniesParams {
+  keyword?: string
+  tags?: string[]
+  serviceAreas?: string[]
+  minRating?: number
+  filterOptionIds?: number[]
+  sortBy?: 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR'
+  page?: number
+  size?: number
+}
+
+export const searchCompanies = async (
+  params: SearchCompaniesParams = {}
+): Promise<ApiResponse<CompanyListResponse>> => {
+  const { keyword, tags, serviceAreas, minRating, filterOptionIds, sortBy, page = 0, size = 20 } = params
+  const response = await axiosInstance.get('/companies/search', {
+    params: { keyword, tags, serviceAreas, minRating, filterOptionIds, sortBy, page, size },
+    paramsSerializer: {
+      indexes: null, // tags=value&tags=value2 형태로 전송 (tags[]=value가 아님)
+    },
+  })
+  return response.data
+}
+
+/**
  * Slug로 업체 정보 조회
  */
 export const getCompanyBySlug = async (

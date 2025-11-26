@@ -20,17 +20,17 @@ import Footer from '@/components/layout/Footer'
 
 export default function MyPlannerApplicationsPage() {
   const router = useRouter()
-  const { user, isLoading: authLoading } = useAuth()
+  const { user } = useAuth()
   const [applications, setApplications] = useState<PageResponse<PlannerApplicationListResponse> | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<PlannerApplicationStatus | ''>('')
   const [page, setPage] = useState(0)
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!user) {
       router.push('/login?redirect=/planner/my')
     }
-  }, [user, authLoading, router])
+  }, [user, router])
 
   const fetchApplications = async () => {
     if (!user) return
@@ -64,20 +64,6 @@ export default function MyPlannerApplicationsPage() {
   const handleStatusFilterChange = (status: PlannerApplicationStatus | '') => {
     setStatusFilter(status)
     setPage(0)
-  }
-
-  if (authLoading) {
-    return (
-      <>
-        <Navbar />
-        <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        </div>
-        <Footer />
-      </>
-    )
   }
 
   if (!user) {

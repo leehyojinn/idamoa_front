@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
-import { getCompanies, toggleCompanyLike, type CompanyListItem, type CompanyListResponse } from '@/lib/api/company'
+import { getCompanies, searchCompanies, toggleCompanyLike, type CompanyListItem, type CompanyListResponse } from '@/lib/api/company'
 import { useAuthStore } from '@/stores/authStore'
 import {
   IoStar,
@@ -16,21 +16,23 @@ import {
   IoCheckmarkCircle,
   IoLocationOutline,
   IoCallOutline,
+  IoChatbubblesOutline,
+  IoArrowForward,
 } from 'react-icons/io5'
 
 const SORT_OPTIONS = [
-  { value: 'createdAt,DESC', label: '최신순' },
-  { value: 'avgRating,DESC', label: '평점 높은 순' },
-  { value: 'reviewCount,DESC', label: '리뷰 많은 순' },
-  { value: 'likeCount,DESC', label: '좋아요 많은 순' },
-  { value: 'viewCount,DESC', label: '인기순' },
+  { value: 'LATEST', label: '최신순' },
+  { value: 'RATING', label: '평점 높은 순' },
+  { value: 'REVIEW_COUNT', label: '리뷰 많은 순' },
+  { value: 'POPULAR', label: '인기순' },
 ]
 
 interface CompanyListProps {
   initialData?: CompanyListResponse
+  selectedTag?: string // 선택된 태그
 }
 
-export default function CompanyList({ initialData }: CompanyListProps) {
+export default function CompanyList({ initialData, selectedTag }: CompanyListProps) {
   const router = useRouter()
   const accessToken = useAuthStore((state) => state.accessToken)
   const [companies, setCompanies] = useState<CompanyListItem[]>(initialData?.content || [])
@@ -38,17 +40,18 @@ export default function CompanyList({ initialData }: CompanyListProps) {
   const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
   const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [loading, setLoading] = useState(false)
-  const [sortBy, setSortBy] = useState('createdAt,DESC')
+  const [sortBy, setSortBy] = useState<'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR'>('LATEST')
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   const fetchCompanies = useCallback(async () => {
     setLoading(true)
 
     try {
-      const result = await getCompanies({
+      const result = await searchCompanies({
+        tags: selectedTag ? [selectedTag] : undefined,
+        sortBy,
         page,
         size: 12,
-        sort: sortBy,
       })
 
       if (result.success && result.data) {
@@ -61,7 +64,7 @@ export default function CompanyList({ initialData }: CompanyListProps) {
     } finally {
       setLoading(false)
     }
-  }, [page, sortBy])
+  }, [page, sortBy, selectedTag])
 
   useEffect(() => {
     // 초기 로드 시에는 SSR 데이터 사용, 이후 변경 시에만 fetch
@@ -78,7 +81,7 @@ export default function CompanyList({ initialData }: CompanyListProps) {
   }
 
   const handleSortChange = (newSort: string) => {
-    setSortBy(newSort)
+    setSortBy(newSort as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR')
     setPage(0)
   }
 
@@ -128,10 +131,35 @@ export default function CompanyList({ initialData }: CompanyListProps) {
   return (
     <div className="w-full bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 빠른상담 CTA */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200 hover:shadow-lg transition-shadow mb-8">
+          <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+            <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <IoChatbubblesOutline className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                원하는 업체를 찾지 못하셨나요?
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600">
+                전문가가 원장님께 맞는 업체를 무료로 매칭 및 상담해드립니다
+              </p>
+            </div>
+            <div className="shrink-0">
+              <button
+                onClick={() => router.push('/consultations/new')}
+                className="btn bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <span>빠른상담 신청</span>
+                <IoArrowForward className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* 헤더 */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">추천 업체</h2>
             <p className="mt-2 text-sm text-gray-600">
               총 {totalElements.toLocaleString()}개의 업체
             </p>
@@ -163,7 +191,7 @@ export default function CompanyList({ initialData }: CompanyListProps) {
         ) : (
           <>
             {/* 업체 그리드 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {companies.map((company) => (
                 <div
                   key={company.uuid}

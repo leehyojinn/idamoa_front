@@ -29,7 +29,7 @@ import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 export default function PlannerEditPage() {
   const params = useParams()
   const router = useRouter()
-  const { user, isLoading: authLoading } = useAuth()
+  const { user } = useAuth()
   const { openAddressSearch } = useKakaoAddress()
   const uuid = params.uuid as string
 
@@ -66,10 +66,10 @@ export default function PlannerEditPage() {
 
   // 인증 체크
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!user) {
       router.push('/login?redirect=/planner/my')
     }
-  }, [user, authLoading, router])
+  }, [user, router])
 
   // 기존 데이터 로드
   useEffect(() => {
@@ -274,7 +274,7 @@ export default function PlannerEditPage() {
     }
   }
 
-  if (authLoading || isLoadingData) {
+  if (isLoadingData) {
     return (
       <>
         <Navbar />

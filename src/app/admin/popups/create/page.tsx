@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 import {
   createPopup,
   POSITION_LABELS,
@@ -14,10 +16,24 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import ImageUpload, { type ImageData } from '@/components/ui/ImageUpload'
 
+// 로컬 타임존을 유지하면서 ISO 형식으로 변환
+const formatDateToLocal = (date: Date | null): string | undefined => {
+  if (!date) return undefined
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+}
+
 export default function CreatePopupPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imageData, setImageData] = useState<ImageData | undefined>(undefined)
+  const [displayStartDate, setDisplayStartDate] = useState<Date | null>(null)
+  const [displayEndDate, setDisplayEndDate] = useState<Date | null>(null)
 
   const [formData, setFormData] = useState<PopupCreateRequest>({
     title: '',
@@ -27,8 +43,6 @@ export default function CreatePopupPage() {
     position: 'CENTER',
     offsetX: 0,
     offsetY: 0,
-    displayStartDate: '',
-    displayEndDate: '',
     displayOrder: 0,
     isActive: true,
   })
@@ -54,8 +68,8 @@ export default function CreatePopupPage() {
         ...formData,
         imageUuid: imageData?.uuid || undefined,
         linkUrl: processedLinkUrl || undefined,
-        displayStartDate: formData.displayStartDate || undefined,
-        displayEndDate: formData.displayEndDate || undefined,
+        displayStartDate: formatDateToLocal(displayStartDate),
+        displayEndDate: formatDateToLocal(displayEndDate),
       }
 
       const result = await createPopup(submitData)
@@ -119,7 +133,13 @@ export default function CreatePopupPage() {
               </label>
               <ImageUpload
                 value={imageData}
-                onChange={setImageData}
+                onChange={(data) => {
+                  if (Array.isArray(data)) {
+                    setImageData(data[0])
+                  } else {
+                    setImageData(data)
+                  }
+                }}
                 multiple={false}
                 entityType="POPUP_IMAGE"
               />
@@ -244,30 +264,34 @@ export default function CreatePopupPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  htmlFor="displayStartDate"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   노출 시작일시
                 </label>
-                <input
-                  type="datetime-local"
-                  id="displayStartDate"
-                  value={formData.displayStartDate}
-                  onChange={(e) => setFormData({ ...formData, displayStartDate: e.target.value })}
+                <DatePicker
+                  selected={displayStartDate}
+                  onChange={(date) => setDisplayStartDate(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="yyyy-MM-dd HH:mm"
+                  placeholderText="시작일시 선택"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label htmlFor="displayEndDate" className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   노출 종료일시
                 </label>
-                <input
-                  type="datetime-local"
-                  id="displayEndDate"
-                  value={formData.displayEndDate}
-                  onChange={(e) => setFormData({ ...formData, displayEndDate: e.target.value })}
+                <DatePicker
+                  selected={displayEndDate}
+                  onChange={(date) => setDisplayEndDate(date)}
+                  showTimeSelect
+                  timeFormat="HH:mm"
+                  timeIntervals={15}
+                  dateFormat="yyyy-MM-dd HH:mm"
+                  placeholderText="종료일시 선택"
+                  minDate={displayStartDate || undefined}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>

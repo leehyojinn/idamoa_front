@@ -1,9 +1,10 @@
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
-import CompanyList from '@/components/company/CompanyList'
+import CompanySection from '@/components/company/CompanySection'
 import HeroSlide from '@/components/layout/slide/HeroSlide'
 import PopupManager from '@/components/popup/PopupManager'
+import EstimateSlideSection from '@/components/estimate/EstimateSlideSection'
 import { getCompanies } from '@/lib/api/company'
 
 export const metadata = createPageMetadata({
@@ -22,7 +23,8 @@ export default async function Home() {
       <Navbar />
       <main>
         <HeroSlide />
-        <CompanyList initialData={initialData.data} />
+        <CompanySection initialData={initialData.data} />
+        <EstimateSlideSection />
       </main>
       <Footer />
       <PopupManager />

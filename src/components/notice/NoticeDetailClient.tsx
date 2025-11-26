@@ -17,6 +17,7 @@ import { getNoticeEvent, deleteNotice, deleteEvent, type NoticeEvent } from '@/l
 import { getMyInfo } from '@/lib/api/auth'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { Dialog } from '@/components/ui/Dialog'
+import { useAuth } from '@/hooks/useAuth'
 
 interface NoticeDetailClientProps {
   uuid: string
@@ -24,15 +25,22 @@ interface NoticeDetailClientProps {
 
 export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
   const router = useRouter()
+  const { isAuthenticated } = useAuth()
   const [notice, setNotice] = useState<NoticeEvent | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  // 관리자 체크
+  // 로그인된 사용자만 관리자 여부 확인
   useEffect(() => {
     const fetchMyInfo = async () => {
+      // 로그인하지 않은 사용자는 API 호출하지 않음
+      if (!isAuthenticated) {
+        setIsAdmin(false)
+        return
+      }
+
       try {
         const response = await getMyInfo()
         if (response.success && response.data) {
@@ -44,7 +52,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
       }
     }
     fetchMyInfo()
-  }, [])
+  }, [isAuthenticated])
 
   useEffect(() => {
     const fetchNotice = async () => {

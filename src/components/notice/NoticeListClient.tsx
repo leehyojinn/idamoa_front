@@ -12,7 +12,7 @@ import { getMyInfo } from '@/lib/api/auth'
 type TabType = 'notice' | 'event' | 'ended'
 
 export default function NoticeListClient() {
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [activeTab, setActiveTab] = useState<TabType>('notice')
   const [items, setItems] = useState<NoticeEventListItem[]>([])
   const [pinnedItems, setPinnedItems] = useState<NoticeEventListItem[]>([])
@@ -22,9 +22,15 @@ export default function NoticeListClient() {
   const [totalElements, setTotalElements] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
 
-  // /api/auth/me 호출해서 유저 정보 확인 및 관리자 여부 설정
+  // 로그인된 사용자만 관리자 여부 확인
   useEffect(() => {
     const fetchMyInfo = async () => {
+      // 로그인하지 않은 사용자는 API 호출하지 않음
+      if (!isAuthenticated) {
+        setIsAdmin(false)
+        return
+      }
+
       try {
         const response = await getMyInfo()
         if (response.success && response.data) {
@@ -38,7 +44,7 @@ export default function NoticeListClient() {
     }
 
     fetchMyInfo()
-  }, [])
+  }, [isAuthenticated])
 
 
   const fetchData = useCallback(async (page: number) => {

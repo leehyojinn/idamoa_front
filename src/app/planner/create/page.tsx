@@ -26,9 +26,17 @@ import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 
 export default function PlannerCreatePage() {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const { openAddressSearch } = useKakaoAddress()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 로그인 체크
+  useEffect(() => {
+    if (!isAuthenticated) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push(`/login?returnUrl=${encodeURIComponent('/planner/create')}`)
+    }
+  }, [isAuthenticated, router])
 
   const [formData, setFormData] = useState<PlannerApplicationCreateRequest>({
     title: '',

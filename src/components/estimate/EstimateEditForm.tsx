@@ -19,6 +19,18 @@ import { formatPhoneNumber } from '@/lib/utils'
 import FileUpload, { type FileAttachment } from '@/components/ui/FileUpload'
 import { uploadFile } from '@/lib/api/file'
 
+// 로컬 타임존을 유지하면서 ISO 형식으로 변환
+const formatDateToLocal = (date: Date | null): string | undefined => {
+  if (!date) return undefined
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+}
+
 // 천단위 콤마 추가
 const formatNumber = (value: string): string => {
   const number = value.replace(/[^\d]/g, '')
@@ -154,7 +166,7 @@ export default function EstimateEditForm({ estimate }: EstimateEditFormProps) {
         budgetMax: budgetMax ? Number(budgetMax) * 10000 : undefined,
         desiredStartDate: desiredStartDate ? desiredStartDate.toISOString().split('T')[0] : undefined,
         desiredCompletionDate: desiredCompletionDate ? desiredCompletionDate.toISOString().split('T')[0] : undefined,
-        expiresAt: expiresAt ? expiresAt.toISOString() : undefined,
+        expiresAt: formatDateToLocal(expiresAt),
         isPublic,
         contactName: contactName.trim() || undefined,
         contactPhone: contactPhone.trim() || undefined,
