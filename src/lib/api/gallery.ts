@@ -247,3 +247,134 @@ export async function toggleBookmark(galleryUuid: string): Promise<ApiResponse<b
     throw error
   }
 }
+
+// ========== 관리자 API ==========
+
+interface PageResponse<T> {
+  content: T[]
+  pageable: {
+    pageNumber: number
+    pageSize: number
+  }
+  totalElements: number
+  totalPages: number
+  number: number
+  size: number
+}
+
+export interface AdminGalleryBoard {
+  uuid: string
+  title: string
+  content?: string
+  boardType: 'GALLERY'
+  categoryId?: number
+  categoryName?: string
+  images: GalleryImage[]
+  relatedLink?: string
+  copyright?: {
+    owner: string
+    license: string
+    attribution: string
+  }
+  viewCount: number
+  likeCount: number
+  commentCount: number
+  isPinned: boolean
+  isFeatured: boolean
+  isPublished: boolean
+  publishedAt?: string
+  filterOptions: FilterOption[]
+  tags: string[]
+  userId: number
+  userEmail: string
+  userName: string
+  createdAt: string
+  updatedAt: string
+  isBookmarked: boolean
+}
+
+export interface AdminGalleryCreateRequest {
+  title: string
+  content?: string
+  categoryId?: number
+  imageUuids: string[]
+  relatedLink?: string
+  copyright?: {
+    owner?: string
+    license?: string
+    attribution?: string
+  }
+  filterOptionIds?: number[]
+  tags?: string[]
+  isPublished?: boolean
+  isPrivate?: boolean
+}
+
+export interface AdminGalleryUpdateRequest {
+  title?: string
+  content?: string
+  categoryId?: number
+  imageUuids?: string[]
+  relatedLink?: string
+  copyright?: {
+    owner?: string
+    license?: string
+    attribution?: string
+  }
+  filterOptionIds?: number[]
+  tags?: string[]
+}
+
+// 게시글 목록 조회 (관리자)
+export async function getAdminGalleries(params?: {
+  keyword?: string
+  page?: number
+  size?: number
+  sort?: string
+}): Promise<PageResponse<AdminGalleryBoard>> {
+  const response = await axiosInstance.get('/admin/boards/gallery', { params })
+  return response.data.data
+}
+
+// 게시글 상세 조회 (관리자)
+export async function getAdminGallery(galleryUuid: string): Promise<AdminGalleryBoard> {
+  const response = await axiosInstance.get(`/admin/boards/gallery/${galleryUuid}`)
+  return response.data.data
+}
+
+// 게시글 생성 (관리자)
+export async function createAdminGallery(
+  data: AdminGalleryCreateRequest
+): Promise<AdminGalleryBoard> {
+  const response = await axiosInstance.post('/admin/boards/gallery', data)
+  return response.data.data
+}
+
+// 게시글 수정 (관리자)
+export async function updateAdminGallery(
+  galleryUuid: string,
+  data: AdminGalleryUpdateRequest
+): Promise<AdminGalleryBoard> {
+  const response = await axiosInstance.put(`/admin/boards/gallery/${galleryUuid}`, data)
+  return response.data.data
+}
+
+// 게시글 삭제 (관리자)
+export async function deleteAdminGallery(galleryUuid: string): Promise<void> {
+  await axiosInstance.delete(`/admin/boards/gallery/${galleryUuid}`)
+}
+
+// 게시/게시 취소 토글 (관리자)
+export async function toggleAdminPublish(galleryUuid: string): Promise<void> {
+  await axiosInstance.patch(`/admin/boards/gallery/${galleryUuid}/publish`)
+}
+
+// 고정/고정 해제 토글 (관리자)
+export async function toggleAdminPin(galleryUuid: string): Promise<void> {
+  await axiosInstance.patch(`/admin/boards/gallery/${galleryUuid}/pin`)
+}
+
+// 추천/추천 해제 토글 (관리자)
+export async function toggleAdminFeature(galleryUuid: string): Promise<void> {
+  await axiosInstance.patch(`/admin/boards/gallery/${galleryUuid}/feature`)
+}
