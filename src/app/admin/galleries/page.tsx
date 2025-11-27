@@ -164,19 +164,20 @@ export default function AdminGalleriesPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {galleries.map((gallery) => (
                   <tr key={gallery.uuid} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 max-w-sm">
                       <div className="flex items-start gap-2">
                         {gallery.images.length > 0 && (
                           <img
                             src={gallery.images[0].fileUrl}
                             alt={gallery.title}
-                            className="w-16 h-16 object-cover rounded"
+                            className="w-16 h-16 object-cover rounded flex-shrink-0"
                           />
                         )}
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <Link
                             href={`/admin/galleries/${gallery.uuid}`}
-                            className="font-medium text-gray-900 hover:text-blue-600"
+                            className="font-medium text-gray-900 hover:text-blue-600 block truncate"
+                            title={gallery.title}
                           >
                             {gallery.title}
                           </Link>

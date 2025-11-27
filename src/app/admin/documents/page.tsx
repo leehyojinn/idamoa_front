@@ -164,19 +164,20 @@ export default function AdminDocumentsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {documents.map((doc) => (
                   <tr key={doc.uuid} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 max-w-sm">
                       <div className="flex items-start gap-2">
                         {doc.thumbnail && (
                           <img
                             src={doc.thumbnail.fileUrl}
                             alt={doc.title}
-                            className="w-16 h-16 object-cover rounded"
+                            className="w-16 h-16 object-cover rounded flex-shrink-0"
                           />
                         )}
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <Link
                             href={`/admin/documents/${doc.uuid}`}
-                            className="font-medium text-gray-900 hover:text-blue-600"
+                            className="font-medium text-gray-900 hover:text-blue-600 block truncate"
+                            title={doc.title}
                           >
                             {doc.title}
                           </Link>
