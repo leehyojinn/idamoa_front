@@ -571,12 +571,27 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                         </div>
                       )}
 
-                      {/* 유료 표시 */}
-                      {doc.isPaid && (
-                        <div className="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded text-sm font-bold">
-                          {doc.price?.toLocaleString()}원
-                        </div>
-                      )}
+                      {/* 상단 좌측 뱃지들 */}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        {/* 고정 표시 */}
+                        {doc.isPinned && (
+                          <div className="bg-red-500 text-white px-2 py-1 rounded text-sm font-bold flex items-center gap-1">
+                            📌 고정
+                          </div>
+                        )}
+                        {/* 추천 표시 */}
+                        {doc.isFeatured && (
+                          <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded text-sm font-bold flex items-center gap-1">
+                            ⭐ 추천
+                          </div>
+                        )}
+                        {/* 유료 표시 */}
+                        {doc.isPaid && (
+                          <div className="bg-yellow-500 text-white px-2 py-1 rounded text-sm font-bold">
+                            {doc.price?.toLocaleString()}원
+                          </div>
+                        )}
+                      </div>
 
                       {/* 파일 개수 */}
                       {doc.files && doc.files.length > 1 && (
