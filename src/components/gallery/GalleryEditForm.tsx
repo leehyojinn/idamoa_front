@@ -10,6 +10,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { getMyInfo } from '@/lib/api/auth'
 import Checkbox from '@/components/ui/Checkbox'
+import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 
 interface ImageAttachment {
   uuid?: string
@@ -17,21 +18,6 @@ interface ImageAttachment {
   preview: string
   displayOrder: number
   isExisting: boolean
-}
-
-// 태그 카테고리
-const TAG_CATEGORIES = {
-  평수: ['50평이하', '100평이하', '200평이하', '200평이상'],
-  진료과목: [
-    '피부과', '성형외과', '정형외과', '내과', '치과', '안과', '한의원', '한방병원',
-    '산부인과', '비뇨기과', '이비인후과', '가정의학과', '재활의학과', '신경외과',
-    '마취통증학과', '정신과', '외과', '영상의학과', '소아과', '건강검진센터', '종합병원'
-  ],
-  공간별: ['대기실', '상담실', '진료실', '피부관리실', '수술실', '메이크업', '입원/회복실', '복도', '출입구'],
-  스타일: ['모던', '미니멀', '클래식', '내츄럴', '럭셔리', '컬러풀', '오리엔탈', '플란트', '미디어월', '노출'],
-  컬러: ['화이트', '그레이', '베이지', '블랙', '브라운', '레드', '오렌지', '엘로우', '그린', '블루'],
-  자재: ['도장', '도배', '금속', '유리', '벽돌', '타일/대리석', '에폭시', '시멘트', '콩자갈', '조경', '사인', '간판'],
-  유형: ['3D', '실사']
 }
 
 interface GalleryEditFormProps {
@@ -54,6 +40,11 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
   // 태그
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
+
+  // 필터
+  const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
+  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true)
 
   // 업체 권한 체크
   useEffect(() => {
@@ -84,6 +75,21 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
     checkCompanyAuth()
   }, [user, router])
 
+  // 필터 로드
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const filters = await getPublicFilters('GALLERY')
+        setFilterCategories(filters)
+      } catch (error) {
+        showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
+      } finally {
+        setIsLoadingFilters(false)
+      }
+    }
+    loadFilters()
+  }, [])
+
   // 이미지
   const [images, setImages] = useState<ImageAttachment[]>([])
 
@@ -102,6 +108,17 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
         isExisting: true,
       }))
     )
+
+    // 기존 필터 옵션 초기화
+    if (gallery.filterGroups && gallery.filterGroups.length > 0) {
+      const existingFilterOptionIds: number[] = []
+      gallery.filterGroups.forEach(group => {
+        group.options.forEach(option => {
+          existingFilterOptionIds.push(option.id)
+        })
+      })
+      setSelectedFilterOptionIds(existingFilterOptionIds)
+    }
   }, [gallery])
 
   const handleAddTag = () => {
@@ -120,6 +137,43 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
       setTags(tags.filter(t => t !== tag))
     } else {
       setTags([...tags, tag])
+    }
+  }
+
+  const handleFilterOptionChange = (categoryId: number, optionId: number, checked: boolean, filterType: string) => {
+    if (filterType === 'SINGLE_SELECT') {
+      // 단일 선택: 같은 카테고리의 다른 옵션 제거 후 추가
+      const category = filterCategories.find(c => c.id === categoryId)
+      if (!category) return
+
+      const categoryOptionIds = category.options.map(o => o.id)
+      const filtered = selectedFilterOptionIds.filter(id => !categoryOptionIds.includes(id))
+
+      if (checked) {
+        setSelectedFilterOptionIds([...filtered, optionId])
+      } else {
+        setSelectedFilterOptionIds(filtered)
+      }
+    } else {
+      // 다중 선택
+      if (checked) {
+        setSelectedFilterOptionIds([...selectedFilterOptionIds, optionId])
+      } else {
+        setSelectedFilterOptionIds(selectedFilterOptionIds.filter(id => id !== optionId))
+      }
+    }
+  }
+
+  const handleSelectAllOptions = (category: PublicFilterCategory, checked: boolean) => {
+    const categoryOptionIds = category.options.map(o => o.id)
+
+    if (checked) {
+      // 전체 선택: 기존 선택에서 해당 카테고리 옵션 제거 후 전체 추가
+      const filtered = selectedFilterOptionIds.filter(id => !categoryOptionIds.includes(id))
+      setSelectedFilterOptionIds([...filtered, ...categoryOptionIds])
+    } else {
+      // 전체 해제
+      setSelectedFilterOptionIds(selectedFilterOptionIds.filter(id => !categoryOptionIds.includes(id)))
     }
   }
 
@@ -221,7 +275,8 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
         title: title.trim(),
         content: description.trim(),
         relatedLink: formattedLink,
-        tags,
+        tags: tags.length > 0 ? tags : undefined,
+        filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
         imageUuids,  // 항상 포함
         copyright: copyrightInfo.trim() ? {
           owner: copyrightInfo.trim(),
@@ -330,27 +385,58 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
             </div>
           </div>
 
+          {/* 필터 */}
+          {isLoadingFilters ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+              <p className="mt-2 text-gray-600">필터 로딩 중...</p>
+            </div>
+          ) : (
+            filterCategories.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">필터</h2>
+                <div className="space-y-6">
+                  {filterCategories.map((category) => (
+                    <div key={category.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {category.name}
+                          {category.isRequired && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        {category.filterType === 'MULTI_SELECT' && (
+                          <Checkbox
+                            checked={category.options.every(opt =>
+                              selectedFilterOptionIds.includes(opt.id)
+                            )}
+                            onChange={(checked) => handleSelectAllOptions(category, checked)}
+                            label="전체 선택"
+                          />
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                        {category.options.map((option) => (
+                          <Checkbox
+                            key={option.id}
+                            checked={selectedFilterOptionIds.includes(option.id)}
+                            onChange={(checked) =>
+                              handleFilterOptionChange(category.id, option.id, checked, category.filterType)
+                            }
+                            label={option.name}
+                            size="sm"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          )}
+
           {/* 태그 */}
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-4">태그</h2>
             <div className="space-y-6">
-              {/* 카테고리별 태그 체크박스 */}
-              {Object.entries(TAG_CATEGORIES).map(([category, tagList]) => (
-                <div key={category} className="border border-gray-200 rounded-lg p-4">
-                  <h3 className="font-bold text-gray-800 mb-3">{category}</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                    {tagList.map(tag => (
-                      <Checkbox
-                        key={tag}
-                        checked={tags.includes(tag)}
-                        onChange={() => handleToggleTag(tag)}
-                        label={tag}
-                        size="sm"
-                      />
-                    ))}
-                  </div>
-                </div>
-              ))}
 
               {/* 직접 입력 */}
               <div className="border border-gray-200 rounded-lg p-4">

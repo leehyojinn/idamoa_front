@@ -23,6 +23,22 @@ export interface FilterOption {
   icon: string
 }
 
+export interface FilterOption {
+  id: number
+  code: string
+  name: string
+  categoryCode: string
+  categoryName: string
+}
+
+export interface FilterGroup {
+  categoryId: number
+  categoryCode: string
+  categoryName: string
+  categoryDescription?: string
+  options: FilterOption[]
+}
+
 export interface Gallery {
   id?: number
   uuid: string
@@ -30,6 +46,7 @@ export interface Gallery {
   content: string | null  // 백엔드는 content 사용
   relatedLink?: string
   tags: string[]
+  filterGroups?: FilterGroup[]
   images: GalleryImage[]
   viewCount: number
   likeCount: number  // 백엔드는 likeCount 사용
@@ -97,7 +114,8 @@ export interface CreateGalleryRequest {
   title: string
   content: string
   relatedLink?: string
-  tags: string[]
+  tags?: string[]
+  filterOptionIds?: number[]
   imageUuids: string[]
   copyright?: {
     owner: string
@@ -112,6 +130,7 @@ export interface UpdateGalleryRequest {
   relatedLink?: string
   location?: string  // 테스트용 추가
   tags?: string[]
+  filterOptionIds?: number[]
   imageUuids?: string[]
   copyright?: {
     owner: string

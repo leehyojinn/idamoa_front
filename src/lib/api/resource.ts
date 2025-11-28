@@ -22,6 +22,22 @@ export interface FilterOption {
   icon: string
 }
 
+export interface FilterOption {
+  id: number
+  code: string
+  name: string
+  categoryCode: string
+  categoryName: string
+}
+
+export interface FilterGroup {
+  categoryId: number
+  categoryCode: string
+  categoryName: string
+  categoryDescription?: string
+  options: FilterOption[]
+}
+
 export interface Document {
   uuid: string
   title: string
@@ -41,7 +57,7 @@ export interface Document {
   isFeatured: boolean
   isPublished: boolean
   publishedAt: string
-  filterOptions: FilterOption[]
+  filterGroups?: FilterGroup[]
   tags: string[]
   userId: number
   userEmail: string

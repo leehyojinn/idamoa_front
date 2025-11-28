@@ -7,12 +7,14 @@ import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 export const useAuth = () => {
   const router = useRouter()
 
-  // QueryClient는 선택적으로 사용 (Provider 외부에서도 동작하도록)
+  // QueryClient을 안전하게 가져오기 (SSR 시에는 null 반환)
   let queryClient: ReturnType<typeof useQueryClient> | null = null
   try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     queryClient = useQueryClient()
   } catch {
-    // QueryClientProvider 외부에서 호출된 경우 무시
+    // SSR 환경에서는 QueryClient가 없을 수 있음
+    queryClient = null
   }
 
   const { user, isAuthenticated, _hasHydrated, setUser, setAccessToken, clearAuth } = useAuthStore()

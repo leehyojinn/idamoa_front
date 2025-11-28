@@ -9,35 +9,7 @@ import { searchGalleries, deleteGallery, toggleBookmark, type GalleryListItem, t
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
 import { useAuth } from '@/hooks/useAuth'
-
-// 태그 카테고리
-const TAG_CATEGORIES = {
-  평수: ['50평이하', '100평이하', '200평이하', '200평이상'],
-  진료과목: [
-    '피부과', '성형외과', '정형외과', '내과', '치과', '안과', '한의원', '한방병원',
-    '산부인과', '비뇨기과', '이비인후과', '가정의학과', '재활의학과', '신경외과',
-    '마취통증학과', '정신과', '외과', '영상의학과', '소아과', '건강검진센터', '종합병원'
-  ],
-  공간별: ['대기실', '상담실', '진료실', '피부관리실', '수술실', '메이크업', '입원/회복실', '복도', '출입구'],
-  스타일: ['모던', '미니멀', '클래식', '내츄럴', '럭셔리', '컬러풀', '오리엔탈', '플란트', '미디어월', '노출'],
-  컬러: ['화이트', '그레이', '베이지', '블랙', '브라운', '레드', '오렌지', '엘로우', '그린', '블루'],
-  자재: ['도장', '도배', '금속', '유리', '벽돌', '타일/대리석', '에폭시', '시멘트', '콩자갈', '조경', '사인', '간판'],
-  유형: ['3D', '실사']
-}
-
-// 컬러 이름 -> CSS 색상 매핑
-const COLOR_MAP: { [key: string]: string } = {
-  '화이트': '#FFFFFF',
-  '그레이': '#9CA3AF',
-  '베이지': '#F5F5DC',
-  '블랙': '#000000',
-  '브라운': '#8B4513',
-  '레드': '#EF4444',
-  '오렌지': '#F97316',
-  '엘로우': '#EAB308',
-  '그린': '#22C55E',
-  '블루': '#3B82F6'
-}
+import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 
 interface GalleryListClientProps {
   initialData?: GallerySearchResponse
@@ -61,6 +33,10 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
   // 필터 펼침/접힘 상태
   const [showFilters, setShowFilters] = useState(false)
+
+  // 필터 카테고리
+  const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true)
 
   // 이미지 URL 헬퍼 함수
   const getImageUrl = (url: string | undefined) => {
@@ -88,19 +64,45 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   // Search & Filter
   const [keyword, setKeyword] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
   const [sortBy, setSortBy] = useState<'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'>('CREATED_AT')
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
   const [onlyBookmarked, setOnlyBookmarked] = useState(false)
   const [onlyMyPosts, setOnlyMyPosts] = useState(false)
 
-  const handleSelectTag = (category: string, tag: string) => {
-    if (!selectedTags.includes(tag)) {
-      const newTags = [...selectedTags, tag]
+  // 필터 로드
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const filters = await getPublicFilters('GALLERY')
+        setFilterCategories(filters)
+      } catch (error) {
+        showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
+      } finally {
+        setIsLoadingFilters(false)
+      }
+    }
+    loadFilters()
+  }, [])
+
+  const handleSelectTag = (categoryName: string, optionName: string) => {
+    // 선택한 옵션의 ID 찾기
+    const category = filterCategories.find(c => c.name === categoryName)
+    if (!category) return
+
+    const option = category.options.find(o => o.name === optionName)
+    if (!option) return
+
+    if (!selectedFilterOptionIds.includes(option.id)) {
+      const newFilterOptionIds = [...selectedFilterOptionIds, option.id]
+      const newTags = [...selectedTags, optionName]
+      setSelectedFilterOptionIds(newFilterOptionIds)
       setSelectedTags(newTags)
       // 바로 검색 실행
       updateURL({
         page: 0,
         keyword,
+        filterOptionIds: newFilterOptionIds,
         tags: newTags,
         sortBy,
         sortDirection,
@@ -111,12 +113,28 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   }
 
   const handleRemoveTag = (tag: string) => {
+    // 태그에 해당하는 필터 옵션 ID 찾기
+    let optionIdToRemove: number | null = null
+    for (const category of filterCategories) {
+      const option = category.options.find(o => o.name === tag)
+      if (option) {
+        optionIdToRemove = option.id
+        break
+      }
+    }
+
     const newTags = selectedTags.filter(t => t !== tag)
+    const newFilterOptionIds = optionIdToRemove
+      ? selectedFilterOptionIds.filter(id => id !== optionIdToRemove)
+      : selectedFilterOptionIds
+
     setSelectedTags(newTags)
+    setSelectedFilterOptionIds(newFilterOptionIds)
     // 바로 검색 실행
     updateURL({
       page: 0,
       keyword,
+      filterOptionIds: newFilterOptionIds,
       tags: newTags,
       sortBy,
       sortDirection,
@@ -127,10 +145,12 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
   const handleClearAllTags = () => {
     setSelectedTags([])
+    setSelectedFilterOptionIds([])
     // 바로 검색 실행
     updateURL({
       page: 0,
       keyword,
+      filterOptionIds: [],
       tags: [],
       sortBy,
       sortDirection,
@@ -142,6 +162,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const handleResetFilters = () => {
     setKeyword('')
     setSelectedTags([])
+    setSelectedFilterOptionIds([])
     setSortBy('CREATED_AT')
     setSortDirection('DESC')
     setOnlyBookmarked(false)
@@ -153,13 +174,12 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const fetchGalleries = useCallback(async (params: GallerySearchParams = {}) => {
     setIsLoading(true)
     try {
-      // 백엔드 태그 검색 버그로 인해 태그 검색 비활성화
-      // TODO: 백엔드 BoardSpecifications.java의 array_position 타입 문제 해결 후 활성화
-
       const result = await searchGalleries({
         page: params.page || 0,
         size: 12,
         keyword: params.keyword || undefined,
+        filterOptionIds: params.filterOptionIds || undefined,
+        tags: params.tags || undefined,
         sortBy: params.sortBy || sortBy,
         sortDirection: params.sortDirection || sortDirection,
         onlyBookmarked: params.onlyBookmarked,
@@ -190,6 +210,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     const page = parseInt(searchParams.get('page') || '0')
     const keyword = searchParams.get('keyword') || ''
     const tags = searchParams.get('tags')?.split(',').filter(Boolean) || []
+    const filterOptionIdsStr = searchParams.get('filterOptionIds')?.split(',').filter(Boolean) || []
+    const filterOptionIds = filterOptionIdsStr.map(id => parseInt(id))
     const sortBy = (searchParams.get('sortBy') || 'CREATED_AT') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
     const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
     const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
@@ -198,6 +220,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setCurrentPage(page)
     setKeyword(keyword)
     setSelectedTags(tags)
+    setSelectedFilterOptionIds(filterOptionIds)
     setSortBy(sortBy)
     setSortDirection(sortDirection)
     setOnlyBookmarked(onlyBookmarked)
@@ -210,7 +233,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       return
     }
     setIsInitialLoad(false)
-    fetchGalleries({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
+    fetchGalleries({ page, keyword, tags, filterOptionIds, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
   }, [searchParams, fetchGalleries, isInitialLoad, initialData])
 
   const updateURL = (params: GallerySearchParams) => {
@@ -218,6 +241,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     if (params.page !== undefined) query.set('page', params.page.toString())
     if (params.keyword) query.set('keyword', params.keyword)
     if (params.tags && params.tags.length > 0) query.set('tags', params.tags.join(','))
+    if (params.filterOptionIds && params.filterOptionIds.length > 0) query.set('filterOptionIds', params.filterOptionIds.join(','))
     if (params.sortBy) query.set('sortBy', params.sortBy)
     if (params.sortDirection) query.set('sortDirection', params.sortDirection)
     if (params.onlyBookmarked) query.set('onlyBookmarked', 'true')
@@ -231,6 +255,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       page: 0,
       keyword,
       tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -244,6 +269,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       page: newPage,
       keyword,
       tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -257,6 +283,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       page: 0,
       keyword,
       tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
       sortBy: newSortBy as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT',
       sortDirection,
       onlyBookmarked,
@@ -288,7 +315,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       setShowDeleteDialog(false)
       setDeletingGallery(null)
       // 목록 새로고침
-      fetchGalleries({ page: currentPage, keyword, tags: selectedTags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
+      fetchGalleries({ page: currentPage, keyword, tags: selectedTags, filterOptionIds: selectedFilterOptionIds, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
     } catch (error: any) {
       if (error?.response?.status === 403) {
         showErrorToast(error, '삭제 권한이 없습니다')
@@ -442,6 +469,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                       page: 0,
                       keyword,
                       tags: selectedTags,
+                      filterOptionIds: selectedFilterOptionIds,
                       sortBy,
                       sortDirection,
                       onlyBookmarked: newValue,
@@ -465,6 +493,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                       page: 0,
                       keyword,
                       tags: selectedTags,
+                      filterOptionIds: selectedFilterOptionIds,
                       sortBy,
                       sortDirection,
                       onlyBookmarked,
@@ -549,34 +578,43 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           <div className="space-y-4 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <FiTag className="text-blue-600" />
-                카테고리별 태그 선택
+                <FiFilter className="text-blue-600" />
+                필터 선택
               </h3>
             </div>
 
-            {/* 카테고리별 셀렉트 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {Object.entries(TAG_CATEGORIES).map(([category, tagList]) => (
-                <Select
-                  key={category}
-                  label={category}
-                  options={[
-                    { value: '', label: `${category} 선택` },
-                    ...tagList.map(tag => ({
-                      value: tag,
-                      label: tag,
-                      color: category === '컬러' ? COLOR_MAP[tag] : undefined
-                    }))
-                  ]}
-                  value=""
-                  onChange={(value) => {
-                    if (value) {
-                      handleSelectTag(category, value)
-                    }
-                  }}
-                />
-              ))}
-            </div>
+            {isLoadingFilters ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                <p className="mt-2 text-gray-600">필터 로딩 중...</p>
+              </div>
+            ) : filterCategories.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filterCategories.map((category) => (
+                  <Select
+                    key={category.id}
+                    label={category.name}
+                    options={[
+                      { value: '', label: `${category.name} 선택` },
+                      ...category.options.map(option => ({
+                        value: option.name,
+                        label: option.name,
+                      }))
+                    ]}
+                    value=""
+                    onChange={(value) => {
+                      if (value) {
+                        handleSelectTag(category.name, value)
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                사용 가능한 필터가 없습니다
+              </div>
+            )}
           </div>
         )}
       </div>

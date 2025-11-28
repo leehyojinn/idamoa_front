@@ -8,6 +8,8 @@ import { getDocument, updateDocument, type UpdateDocumentRequest, type Document,
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
+import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
+import Checkbox from '@/components/ui/Checkbox'
 
 interface FileAttachment {
   file: File
@@ -59,6 +61,11 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
   const [tags, setTags] = useState<string[]>([])
   const [tagInput, setTagInput] = useState('')
 
+  // 필터
+  const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
+  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true)
+
   // 기존 파일
   const [existingFiles, setExistingFiles] = useState<ExistingFile[]>([])
   const [removedFileUuids, setRemovedFileUuids] = useState<string[]>([])
@@ -101,6 +108,17 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
             fileUrl: doc.thumbnail.fileUrl
           })
         }
+
+        // 기존 필터 옵션 설정
+        if (doc.filterGroups && doc.filterGroups.length > 0) {
+          const existingFilterOptionIds: number[] = []
+          doc.filterGroups.forEach(group => {
+            group.options.forEach(option => {
+              existingFilterOptionIds.push(option.id)
+            })
+          })
+          setSelectedFilterOptionIds(existingFilterOptionIds)
+        }
       }
     } catch (error: any) {
       if (error?.response?.status === 404) {
@@ -123,6 +141,21 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
     fetchDocument()
   }, [user, router, fetchDocument])
 
+  // 필터 로드
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const filters = await getPublicFilters('DOCUMENT')
+        setFilterCategories(filters)
+      } catch (error) {
+        showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
+      } finally {
+        setIsLoadingFilters(false)
+      }
+    }
+    loadFilters()
+  }, [])
+
   // 권한 체크
   useEffect(() => {
     if (document && user && user.email !== document.userEmail) {
@@ -140,6 +173,39 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
 
   const handleRemoveTag = (tag: string) => {
     setTags(tags.filter(t => t !== tag))
+  }
+
+  const handleFilterOptionChange = (categoryId: number, optionId: number, checked: boolean, filterType: string) => {
+    if (filterType === 'SINGLE_SELECT') {
+      const category = filterCategories.find(c => c.id === categoryId)
+      if (!category) return
+
+      const categoryOptionIds = category.options.map(o => o.id)
+      const filtered = selectedFilterOptionIds.filter(id => !categoryOptionIds.includes(id))
+
+      if (checked) {
+        setSelectedFilterOptionIds([...filtered, optionId])
+      } else {
+        setSelectedFilterOptionIds(filtered)
+      }
+    } else {
+      if (checked) {
+        setSelectedFilterOptionIds([...selectedFilterOptionIds, optionId])
+      } else {
+        setSelectedFilterOptionIds(selectedFilterOptionIds.filter(id => id !== optionId))
+      }
+    }
+  }
+
+  const handleSelectAllOptions = (category: PublicFilterCategory, checked: boolean) => {
+    const categoryOptionIds = category.options.map(o => o.id)
+
+    if (checked) {
+      const filtered = selectedFilterOptionIds.filter(id => !categoryOptionIds.includes(id))
+      setSelectedFilterOptionIds([...filtered, ...categoryOptionIds])
+    } else {
+      setSelectedFilterOptionIds(selectedFilterOptionIds.filter(id => !categoryOptionIds.includes(id)))
+    }
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -252,6 +318,7 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
         isPaid,
         price: isPaid ? parseInt(price) : undefined,
         tags: tags.length > 0 ? tags : undefined,
+        filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
       }
 
       // 썸네일 처리
@@ -371,6 +438,54 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
               )}
             </div>
           </div>
+
+          {/* 필터 */}
+          {isLoadingFilters ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+              <p className="mt-2 text-gray-600">필터 로딩 중...</p>
+            </div>
+          ) : (
+            filterCategories.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">필터</h2>
+                <div className="space-y-6">
+                  {filterCategories.map((category) => (
+                    <div key={category.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <label className="block text-sm font-medium text-gray-700">
+                          {category.name}
+                          {category.isRequired && <span className="text-red-500 ml-1">*</span>}
+                        </label>
+                        {category.filterType === 'MULTI_SELECT' && (
+                          <Checkbox
+                            checked={category.options.every(opt =>
+                              selectedFilterOptionIds.includes(opt.id)
+                            )}
+                            onChange={(checked) => handleSelectAllOptions(category, checked)}
+                            label="전체 선택"
+                          />
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                        {category.options.map((option) => (
+                          <Checkbox
+                            key={option.id}
+                            checked={selectedFilterOptionIds.includes(option.id)}
+                            onChange={(checked) =>
+                              handleFilterOptionChange(category.id, option.id, checked, category.filterType)
+                            }
+                            label={option.name}
+                            size="sm"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          )}
 
           {/* 태그 */}
           <div>

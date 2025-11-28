@@ -19,7 +19,7 @@ import {
 } from 'react-icons/io5'
 import { SiKakaotalk, SiNaver } from 'react-icons/si'
 import { getCompanyBySlug, getCompanyByUuid } from '@/lib/api/company'
-import { DAY_MAP, DAY_ORDER, SKILL_LISTS, SPECIALTY_LISTS } from '@/lib/constants'
+import { DAY_MAP, DAY_ORDER } from '@/lib/constants'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CompanyLikeButton from '@/components/company/CompanyLikeButton'
@@ -108,16 +108,6 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       company.images[0]?.imageUrl ||
       '/images/img-placeholder.png'
     )
-  }
-
-  const getTagLabel = (tag: string) => {
-    const skill = SKILL_LISTS.find((s) => s.value === tag)
-    if (skill) return skill.label
-
-    const specialty = SPECIALTY_LISTS.find((s) => s.value === tag)
-    if (specialty) return specialty.label
-
-    return tag
   }
 
   return (
@@ -352,93 +342,61 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           </div>
 
           {/* 전문 분야 및 서비스 - 전체 너비 */}
-          <div className="bg-white rounded-xl shadow-md p-8 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">전문 분야 및 서비스</h2>
-            <div className="space-y-6">
-              {/* 서비스 지역 */}
-              {company.serviceAreas && company.serviceAreas.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                    <IoLocationOutline className="text-blue-600" />
-                    서비스 지역
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {company.serviceAreas.map((area, index) => (
-                      <span
-                        key={index}
-                        className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium hover:bg-blue-100 transition-colors"
-                      >
-                        {area}
-                      </span>
+          {((company.filterGroups && company.filterGroups.length > 0) ||
+            (company.tags && company.tags.length > 0)) && (
+            <div className="bg-white rounded-xl shadow-md p-8 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">전문 분야 및 서비스</h2>
+              <div className="space-y-6">
+                {/* 필터 그룹 표시 */}
+                {company.filterGroups && company.filterGroups.length > 0 && (
+                  <>
+                    {company.filterGroups.map((filterGroup) => (
+                      <div key={filterGroup.categoryId}>
+                        <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                          {filterGroup.categoryCode === 'region' && (
+                            <IoLocationOutline className="text-blue-600" />
+                          )}
+                          {filterGroup.categoryName}
+                        </h3>
+                        {filterGroup.categoryDescription && (
+                          <p className="text-sm text-gray-600 mb-3">{filterGroup.categoryDescription}</p>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          {filterGroup.options.map((option) => (
+                            <span
+                              key={option.id}
+                              className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium hover:bg-blue-100 transition-colors"
+                            >
+                              {option.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     ))}
-                  </div>
-                </div>
-              )}
+                  </>
+                )}
 
-              {/* 전문 서비스 */}
-              {company.tags && company.tags.some(tag => SKILL_LISTS.some(skill => skill.value === tag)) && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3">
-                    전문 서비스
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {company.tags.map((tag) => {
-                      const skill = SKILL_LISTS.find(s => s.value === tag)
-                      return skill ? (
+                {/* 태그 표시 */}
+                {company.tags && company.tags.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-3">
+                      태그
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {company.tags.map((tag, index) => (
                         <span
-                          key={tag}
-                          className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full font-medium hover:bg-indigo-100 transition-colors"
-                        >
-                          {skill.label}
-                        </span>
-                      ) : null
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* 전문분야 */}
-              {company.tags && company.tags.some(tag => SPECIALTY_LISTS.some(specialty => specialty.value === tag)) && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3">
-                    전문분야
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {company.tags.map((tag) => {
-                      const specialty = SPECIALTY_LISTS.find(s => s.value === tag)
-                      return specialty ? (
-                        <span
-                          key={tag}
+                          key={index}
                           className="px-4 py-2 bg-purple-50 text-purple-700 rounded-full font-medium hover:bg-purple-100 transition-colors"
                         >
-                          {specialty.label}
+                          #{tag}
                         </span>
-                      ) : null
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {/* 검색 키워드 */}
-              {company.keywords && company.keywords.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3">
-                    검색 키워드
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {company.keywords.map((keyword, index) => (
-                      <span
-                        key={index}
-                        className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full font-medium hover:bg-emerald-100 transition-colors"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* SNS 링크 - 연락처 카드에 통합 또는 별도 표시 */}
           {(company.kakaoChatUrl ||

@@ -18,6 +18,8 @@ import { showErrorToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 
+export const dynamic = 'force-dynamic'
+
 export default function MyPlannerApplicationsPage() {
   const router = useRouter()
   const { user } = useAuth()

@@ -1,4 +1,4 @@
-export type EntityType = 'COMPANY' | 'HOSPITAL' | 'SERVICE'
+export type EntityType = 'COMPANY' | 'HOSPITAL' | 'SERVICE' | 'GALLERY' | 'DOCUMENT'
 export type FilterType = 'SINGLE_SELECT' | 'MULTI_SELECT' | 'HIERARCHICAL'
 
 export interface FilterCategory {

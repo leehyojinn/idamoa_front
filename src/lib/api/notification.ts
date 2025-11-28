@@ -17,7 +17,7 @@ export async function getNotifications(
   size: number = 20,
   isRead?: boolean
 ): Promise<NotificationListResponse> {
-  const params: Record<string, string | number> = { page, size }
+  const params: Record<string, string | number | boolean> = { page, size }
   if (isRead !== undefined) {
     params.isRead = isRead
   }

@@ -14,7 +14,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { formatPhoneNumber } from '@/lib/utils'
 import { deleteCompany } from '@/lib/api/company'
-import { SKILL_LISTS, SPECIALTY_LISTS, DAY_MAP, DAY_ORDER } from '@/lib/constants'
+import { DAY_MAP, DAY_ORDER } from '@/lib/constants'
 import { useQuery } from '@tanstack/react-query'
 import { useDialogStore } from '@/stores/useDialogStore'
 
@@ -552,74 +552,41 @@ export default function MyPage() {
               </div>
             )}
 
-            {/* 서비스 지역 */}
-            {company.serviceAreas && company.serviceAreas.length > 0 && (
+            {/* 필터 그룹 */}
+            {company.filterGroups && company.filterGroups.length > 0 && (
+              <>
+                {company.filterGroups.map((filterGroup) => (
+                  <div key={filterGroup.categoryId} className="bg-white rounded-lg shadow-sm p-6">
+                    <h2 className="text-xl font-bold text-gray-900 mb-4">{filterGroup.categoryName}</h2>
+                    {filterGroup.categoryDescription && (
+                      <p className="text-sm text-gray-600 mb-3">{filterGroup.categoryDescription}</p>
+                    )}
+                    <div className="flex flex-wrap gap-2">
+                      {filterGroup.options.map((option) => (
+                        <span
+                          key={option.id}
+                          className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                        >
+                          {option.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* 태그 */}
+            {company.tags && company.tags.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">서비스 지역</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">태그</h2>
                 <div className="flex flex-wrap gap-2">
-                  {company.serviceAreas.map((area, index) => (
+                  {company.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                      className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
                     >
-                      {area}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* 전문 서비스 */}
-            {company.tags && company.tags.some(tag => SKILL_LISTS.some(skill => skill.value === tag)) && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">전문 서비스</h2>
-                <div className="flex flex-wrap gap-2">
-                  {company.tags.map((tag) => {
-                    const skill = SKILL_LISTS.find(s => s.value === tag)
-                    return skill ? (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                      >
-                        {skill.label}
-                      </span>
-                    ) : null
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* 전문분야 */}
-            {company.tags && company.tags.some(tag => SPECIALTY_LISTS.some(specialty => specialty.value === tag)) && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">전문분야</h2>
-                <div className="flex flex-wrap gap-2">
-                  {company.tags.map((tag) => {
-                    const specialty = SPECIALTY_LISTS.find(s => s.value === tag)
-                    return specialty ? (
-                      <span
-                        key={tag}
-                        className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm"
-                      >
-                        {specialty.label}
-                      </span>
-                    ) : null
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* 검색 키워드 */}
-            {company.keywords && company.keywords.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">검색 키워드</h2>
-                <div className="flex flex-wrap gap-2">
-                  {company.keywords.map((keyword, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm"
-                    >
-                      {keyword}
+                      #{tag}
                     </span>
                   ))}
                 </div>

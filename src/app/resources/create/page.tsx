@@ -1,6 +1,10 @@
+'use client'
+
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import DocumentCreateForm from '@/components/resource/DocumentCreateForm'
+
+export const dynamic = 'force-dynamic'
 
 export default function DocumentCreatePage() {
   return (

@@ -9,6 +9,7 @@ import { searchDocuments, deleteDocument, toggleDocumentBookmark, type DocumentL
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
 import { useAuth } from '@/hooks/useAuth'
+import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 
 // 파일 확장자별 아이콘/색상
 const FILE_ICONS: { [key: string]: { color: string; label: string } } = {
@@ -57,6 +58,10 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
   // 필터 펼침/접힘 상태
   const [showFilters, setShowFilters] = useState(false)
 
+  // 필터 카테고리
+  const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true)
+
   // 썸네일 URL 가져오기
   const getThumbnailUrl = (doc: DocumentListItem) => {
     if (doc.thumbnail?.fileUrl) return doc.thumbnail.fileUrl
@@ -78,17 +83,73 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
   // Search & Filter
   const [keyword, setKeyword] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
   const [sortBy, setSortBy] = useState<'publishedAt' | 'viewCount' | 'downloadCount'>('publishedAt')
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
   const [onlyBookmarked, setOnlyBookmarked] = useState(false)
   const [onlyMyPosts, setOnlyMyPosts] = useState(false)
 
+  // 필터 로드
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        const filters = await getPublicFilters('DOCUMENT')
+        setFilterCategories(filters)
+      } catch (error) {
+        showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
+      } finally {
+        setIsLoadingFilters(false)
+      }
+    }
+    loadFilters()
+  }, [])
+
+  const handleSelectFilter = (categoryName: string, optionName: string) => {
+    const category = filterCategories.find(c => c.name === categoryName)
+    if (!category) return
+
+    const option = category.options.find(o => o.name === optionName)
+    if (!option) return
+
+    if (!selectedFilterOptionIds.includes(option.id)) {
+      const newFilterOptionIds = [...selectedFilterOptionIds, option.id]
+      const newTags = [...selectedTags, optionName]
+      setSelectedFilterOptionIds(newFilterOptionIds)
+      setSelectedTags(newTags)
+      updateURL({
+        page: 0,
+        keyword,
+        filterOptionIds: newFilterOptionIds,
+        tags: newTags,
+        sortBy,
+        sortDirection,
+        onlyBookmarked,
+        onlyMyPosts,
+      })
+    }
+  }
+
   const handleRemoveTag = (tag: string) => {
+    let optionIdToRemove: number | null = null
+    for (const category of filterCategories) {
+      const option = category.options.find(o => o.name === tag)
+      if (option) {
+        optionIdToRemove = option.id
+        break
+      }
+    }
+
     const newTags = selectedTags.filter(t => t !== tag)
+    const newFilterOptionIds = optionIdToRemove
+      ? selectedFilterOptionIds.filter(id => id !== optionIdToRemove)
+      : selectedFilterOptionIds
+
     setSelectedTags(newTags)
+    setSelectedFilterOptionIds(newFilterOptionIds)
     updateURL({
       page: 0,
       keyword,
+      filterOptionIds: newFilterOptionIds,
       tags: newTags,
       sortBy,
       sortDirection,
@@ -99,9 +160,11 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
 
   const handleClearAllTags = () => {
     setSelectedTags([])
+    setSelectedFilterOptionIds([])
     updateURL({
       page: 0,
       keyword,
+      filterOptionIds: [],
       tags: [],
       sortBy,
       sortDirection,
@@ -113,6 +176,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
   const handleResetFilters = () => {
     setKeyword('')
     setSelectedTags([])
+    setSelectedFilterOptionIds([])
     setSortBy('publishedAt')
     setSortDirection('DESC')
     setOnlyBookmarked(false)
@@ -127,6 +191,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
         page: params.page || 0,
         size: 12,
         keyword: params.keyword || undefined,
+        filterOptionIds: params.filterOptionIds || undefined,
         tags: params.tags,
         sortBy: params.sortBy || sortBy,
         sortDirection: params.sortDirection || sortDirection,
@@ -157,6 +222,8 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
     const page = parseInt(searchParams.get('page') || '0')
     const keyword = searchParams.get('keyword') || ''
     const tags = searchParams.get('tags')?.split(',').filter(Boolean) || []
+    const filterOptionIdsStr = searchParams.get('filterOptionIds')?.split(',').filter(Boolean) || []
+    const filterOptionIds = filterOptionIdsStr.map(id => parseInt(id))
     const sortBy = (searchParams.get('sortBy') || 'publishedAt') as 'publishedAt' | 'viewCount' | 'downloadCount'
     const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
     const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
@@ -165,6 +232,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
     setCurrentPage(page)
     setKeyword(keyword)
     setSelectedTags(tags)
+    setSelectedFilterOptionIds(filterOptionIds)
     setSortBy(sortBy)
     setSortDirection(sortDirection)
     setOnlyBookmarked(onlyBookmarked)
@@ -177,7 +245,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
       return
     }
     setIsInitialLoad(false)
-    fetchDocuments({ page, keyword, tags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
+    fetchDocuments({ page, keyword, tags, filterOptionIds, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
   }, [searchParams, fetchDocuments, isInitialLoad, initialData])
 
   const updateURL = (params: DocumentSearchParams) => {
@@ -185,6 +253,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
     if (params.page !== undefined) query.set('page', params.page.toString())
     if (params.keyword) query.set('keyword', params.keyword)
     if (params.tags && params.tags.length > 0) query.set('tags', params.tags.join(','))
+    if (params.filterOptionIds && params.filterOptionIds.length > 0) query.set('filterOptionIds', params.filterOptionIds.join(','))
     if (params.sortBy) query.set('sortBy', params.sortBy)
     if (params.sortDirection) query.set('sortDirection', params.sortDirection)
     if (params.onlyBookmarked) query.set('onlyBookmarked', 'true')
@@ -198,6 +267,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
       page: 0,
       keyword,
       tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -211,6 +281,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
       page: newPage,
       keyword,
       tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -224,6 +295,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
       page: 0,
       keyword,
       tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
       sortBy: newSortBy as 'publishedAt' | 'viewCount' | 'downloadCount',
       sortDirection,
       onlyBookmarked,
@@ -254,7 +326,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
       showSuccessToast('자료가 삭제되었습니다')
       setShowDeleteDialog(false)
       setDeletingDocument(null)
-      fetchDocuments({ page: currentPage, keyword, tags: selectedTags, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
+      fetchDocuments({ page: currentPage, keyword, tags: selectedTags, filterOptionIds: selectedFilterOptionIds, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
     } catch (error: any) {
       if (error?.response?.status === 403) {
         showErrorToast(error, '삭제 권한이 없습니다')
@@ -372,6 +444,24 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                 <FiRefreshCw />
                 초기화
               </button>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${
+                  showFilters || selectedTags.length > 0
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <FiFilter />
+                상세 필터
+                {selectedTags.length > 0 && (
+                  <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {selectedTags.length}
+                  </span>
+                )}
+                {showFilters ? <FiChevronUp /> : <FiChevronDown />}
+              </button>
             </div>
           </div>
 
@@ -387,6 +477,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                       page: 0,
                       keyword,
                       tags: selectedTags,
+                      filterOptionIds: selectedFilterOptionIds,
                       sortBy,
                       sortDirection,
                       onlyBookmarked: newValue,
@@ -410,6 +501,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                       page: 0,
                       keyword,
                       tags: selectedTags,
+                      filterOptionIds: selectedFilterOptionIds,
                       sortBy,
                       sortDirection,
                       onlyBookmarked,
@@ -428,7 +520,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
               </>
             )}
 
-            {/* 모바일: 초기화 버튼 */}
+            {/* 모바일: 초기화/상세필터 버튼 */}
             <div className="flex sm:hidden items-center gap-2 ml-auto">
               <button
                 onClick={handleResetFilters}
@@ -437,6 +529,23 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
               >
                 <FiRefreshCw />
                 <span className="whitespace-nowrap">초기화</span>
+              </button>
+
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  showFilters || selectedTags.length > 0
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <FiFilter />
+                <span className="whitespace-nowrap">필터</span>
+                {selectedTags.length > 0 && (
+                  <span className="bg-white text-blue-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                    {selectedTags.length}
+                  </span>
+                )}
               </button>
             </div>
           </div>
@@ -469,6 +578,51 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
             >
               모두 지우기
             </button>
+          </div>
+        )}
+
+        {/* 상세 필터 (아코디언) */}
+        {showFilters && (
+          <div className="space-y-4 pt-4 border-t border-gray-200">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+                <FiFilter className="text-blue-600" />
+                필터 선택
+              </h3>
+            </div>
+
+            {isLoadingFilters ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                <p className="mt-2 text-gray-600">필터 로딩 중...</p>
+              </div>
+            ) : filterCategories.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filterCategories.map((category) => (
+                  <Select
+                    key={category.id}
+                    label={category.name}
+                    options={[
+                      { value: '', label: `${category.name} 선택` },
+                      ...category.options.map(option => ({
+                        value: option.name,
+                        label: option.name,
+                      }))
+                    ]}
+                    value=""
+                    onChange={(value) => {
+                      if (value) {
+                        handleSelectFilter(category.name, value)
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                사용 가능한 필터가 없습니다
+              </div>
+            )}
           </div>
         )}
       </div>

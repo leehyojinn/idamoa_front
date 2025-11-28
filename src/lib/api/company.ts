@@ -52,6 +52,14 @@ export interface FilterOption {
   categoryName: string
 }
 
+export interface FilterGroup {
+  categoryId: number
+  categoryCode: string
+  categoryName: string
+  categoryDescription?: string
+  options: FilterOption[]
+}
+
 export interface CompanyResponse {
   id: number
   uuid: string
@@ -96,7 +104,7 @@ export interface CompanyResponse {
   createdAt: string
   updatedAt: string
   images: CompanyImage[]
-  filterOptions: FilterOption[]
+  filterGroups: FilterGroup[]
 }
 
 /**

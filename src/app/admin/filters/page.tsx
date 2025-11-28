@@ -20,6 +20,8 @@ const ENTITY_TYPE_LABELS = {
   COMPANY: '업체',
   HOSPITAL: '병원',
   SERVICE: '서비스',
+  GALLERY: '갤러리',
+  DOCUMENT: '자료실',
 }
 
 const FILTER_TYPE_LABELS = {
@@ -232,6 +234,8 @@ export default function AdminFiltersPage() {
             <option value="COMPANY">업체</option>
             <option value="HOSPITAL">병원</option>
             <option value="SERVICE">서비스</option>
+            <option value="GALLERY">갤러리</option>
+            <option value="DOCUMENT">자료실</option>
           </select>
 
           <select
@@ -418,6 +422,8 @@ export default function AdminFiltersPage() {
                       <option value="COMPANY">업체</option>
                       <option value="HOSPITAL">병원</option>
                       <option value="SERVICE">서비스</option>
+                      <option value="GALLERY">갤러리</option>
+                      <option value="DOCUMENT">자료실</option>
                     </select>
                   </div>
                   <div>
