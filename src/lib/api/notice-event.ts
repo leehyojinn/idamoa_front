@@ -1,12 +1,21 @@
 import axiosInstance from '@/lib/axios'
 
 // Types
+export interface FileInfo {
+  uuid: string
+  fileName: string
+  fileUrl: string
+  fileSize: number
+  mimeType: string
+}
+
 export interface NoticeThumbnail {
   uuid: string
   fileName: string
   fileUrl: string
   fileSize: number
   contentType: string
+  mimeType?: string
 }
 
 export interface NoticeEvent {
@@ -17,6 +26,7 @@ export interface NoticeEvent {
   categoryId?: number
   categoryName?: string
   thumbnail?: NoticeThumbnail
+  attachments?: FileInfo[]
   viewCount: number
   likeCount: number
   commentCount: number
@@ -30,8 +40,10 @@ export interface NoticeEvent {
   userName: string
   createdAt: string
   updatedAt: string
+  isDeleted?: boolean
   eventStartDate?: string | null
   eventEndDate?: string | null
+  eventStatus?: 'ACTIVE' | 'ENDED'
   isEventEnded?: boolean | null
 }
 
@@ -155,6 +167,7 @@ export interface CreateNoticeRequest {
   isPublished?: boolean
   isPinned?: boolean
   thumbnailUuid?: string
+  attachmentUuids?: string[]
 }
 
 export async function createNotice(data: CreateNoticeRequest): Promise<ApiResponse<NoticeEvent>> {
@@ -177,8 +190,9 @@ export interface CreateEventRequest {
   isPublished?: boolean
   isPinned?: boolean
   thumbnailUuid?: string
-  eventStartDate: string
-  eventEndDate: string
+  attachmentUuids?: string[]
+  eventStartDate?: string
+  eventEndDate?: string
 }
 
 export async function createEvent(data: CreateEventRequest): Promise<ApiResponse<NoticeEvent>> {
@@ -194,13 +208,14 @@ export async function createEvent(data: CreateEventRequest): Promise<ApiResponse
  * 공지사항 수정 (관리자 전용)
  */
 export interface UpdateNoticeRequest {
-  title: string
-  content: string
+  title?: string
+  content?: string
   categoryId?: number
   tags?: string[]
   isPublished?: boolean
   isPinned?: boolean
   thumbnailUuid?: string
+  attachmentUuids?: string[]
 }
 
 export async function updateNotice(uuid: string, data: UpdateNoticeRequest): Promise<ApiResponse<NoticeEvent>> {
@@ -216,15 +231,16 @@ export async function updateNotice(uuid: string, data: UpdateNoticeRequest): Pro
  * 이벤트 수정 (관리자 전용)
  */
 export interface UpdateEventRequest {
-  title: string
-  content: string
+  title?: string
+  content?: string
   categoryId?: number
   tags?: string[]
   isPublished?: boolean
   isPinned?: boolean
   thumbnailUuid?: string
-  eventStartDate: string
-  eventEndDate: string
+  attachmentUuids?: string[]
+  eventStartDate?: string
+  eventEndDate?: string
 }
 
 export async function updateEvent(uuid: string, data: UpdateEventRequest): Promise<ApiResponse<NoticeEvent>> {
@@ -278,6 +294,140 @@ export async function deleteEvent(uuid: string): Promise<ApiResponse<null>> {
     }
 
     // response.data가 있으면 그대로 반환
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+/**
+ * 이벤트 종료 (관리자 전용)
+ * 진행 중인 이벤트를 수동으로 종료합니다.
+ */
+export interface EventStatusResponse {
+  uuid: string
+  eventStatus: 'ACTIVE' | 'ENDED'
+  isEventEnded: boolean
+}
+
+export async function endEvent(uuid: string): Promise<ApiResponse<EventStatusResponse>> {
+  try {
+    const response = await axiosInstance.put(`/admin/boards/event/${uuid}/end`)
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+/**
+ * 이벤트 활성화 (관리자 전용)
+ * 종료된 이벤트를 다시 활성화합니다.
+ */
+export async function activateEvent(uuid: string): Promise<ApiResponse<EventStatusResponse>> {
+  try {
+    const response = await axiosInstance.put(`/admin/boards/event/${uuid}/activate`)
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+/**
+ * 공지사항 검색 (관리자 전용)
+ * 발행되지 않은 게시글도 조회 가능
+ */
+export interface AdminNoticeSearchParams {
+  keyword?: string
+  isPinned?: boolean
+  isPublished?: boolean
+  page?: number
+  size?: number
+  sort?: string
+}
+
+export async function searchNoticesAdmin(params: AdminNoticeSearchParams = {}): Promise<ApiResponse<NoticeEventSearchResponse>> {
+  try {
+    const queryParams = new URLSearchParams()
+
+    if (params.keyword) queryParams.append('keyword', params.keyword)
+    if (params.isPinned !== undefined) queryParams.append('isPinned', params.isPinned.toString())
+    if (params.isPublished !== undefined) queryParams.append('isPublished', params.isPublished.toString())
+    if (params.page !== undefined) queryParams.append('page', params.page.toString())
+    if (params.size !== undefined) queryParams.append('size', params.size.toString())
+    if (params.sort) queryParams.append('sort', params.sort)
+
+    const url = `/admin/boards/notice/search?${queryParams.toString()}`
+    const response = await axiosInstance.get(url)
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+/**
+ * 이벤트 검색 (관리자 전용)
+ * 발행되지 않은 게시글도 조회 가능
+ */
+export interface AdminEventSearchParams {
+  keyword?: string
+  eventStatus?: 'ACTIVE' | 'ENDED'
+  isPinned?: boolean
+  isPublished?: boolean
+  page?: number
+  size?: number
+  sort?: string
+}
+
+export async function searchEventsAdmin(params: AdminEventSearchParams = {}): Promise<ApiResponse<NoticeEventSearchResponse>> {
+  try {
+    const queryParams = new URLSearchParams()
+
+    if (params.keyword) queryParams.append('keyword', params.keyword)
+    if (params.eventStatus) queryParams.append('eventStatus', params.eventStatus)
+    if (params.isPinned !== undefined) queryParams.append('isPinned', params.isPinned.toString())
+    if (params.isPublished !== undefined) queryParams.append('isPublished', params.isPublished.toString())
+    if (params.page !== undefined) queryParams.append('page', params.page.toString())
+    if (params.size !== undefined) queryParams.append('size', params.size.toString())
+    if (params.sort) queryParams.append('sort', params.sort)
+
+    const url = `/admin/boards/event/search?${queryParams.toString()}`
+    const response = await axiosInstance.get(url)
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+/**
+ * 공지사항/이벤트 통합 검색 (관리자 전용)
+ * 공지사항과 이벤트를 한번에 검색합니다.
+ */
+export interface AdminNoticeEventSearchParams {
+  keyword?: string
+  boardType?: 'NOTICE' | 'EVENT'
+  eventStatus?: 'ACTIVE' | 'ENDED'
+  isPinned?: boolean
+  isPublished?: boolean
+  page?: number
+  size?: number
+  sort?: string
+}
+
+export async function searchNoticeEventsAdmin(params: AdminNoticeEventSearchParams = {}): Promise<ApiResponse<NoticeEventSearchResponse>> {
+  try {
+    const queryParams = new URLSearchParams()
+
+    if (params.keyword) queryParams.append('keyword', params.keyword)
+    if (params.boardType) queryParams.append('boardType', params.boardType)
+    if (params.eventStatus) queryParams.append('eventStatus', params.eventStatus)
+    if (params.isPinned !== undefined) queryParams.append('isPinned', params.isPinned.toString())
+    if (params.isPublished !== undefined) queryParams.append('isPublished', params.isPublished.toString())
+    if (params.page !== undefined) queryParams.append('page', params.page.toString())
+    if (params.size !== undefined) queryParams.append('size', params.size.toString())
+    if (params.sort) queryParams.append('sort', params.sort)
+
+    const url = `/admin/boards/notice-event/search?${queryParams.toString()}`
+    const response = await axiosInstance.get(url)
     return response.data
   } catch (error: any) {
     throw error
