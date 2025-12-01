@@ -182,6 +182,7 @@ export interface CompanyListItem {
   isPremium: boolean
   premiumTier: string | null
   isLiked: boolean
+  isDeleted?: boolean
   images: CompanyImage[]
   createdAt: string
 }
@@ -266,5 +267,128 @@ export const toggleCompanyLike = async (
   companyUuid: string
 ): Promise<ApiResponse<ToggleLikeResponse>> => {
   const response = await axiosInstance.post(`/companies/${companyUuid}/like`)
+  return response.data
+}
+
+// ========================================
+// 관리자 전용 API
+// ========================================
+
+/**
+ * 업체 목록 조회 (관리자 전용)
+ * 삭제된 업체도 포함됩니다
+ */
+export interface AdminCompanyListParams {
+  page?: number
+  size?: number
+  sort?: string
+}
+
+export const getAdminCompanies = async (
+  params: AdminCompanyListParams = {}
+): Promise<ApiResponse<CompanyListResponse>> => {
+  const response = await axiosInstance.get('/admin/companies', { params })
+  return response.data
+}
+
+/**
+ * 업체 조회 (관리자 전용)
+ */
+export const getAdminCompany = async (
+  companyUuid: string
+): Promise<ApiResponse<CompanyResponse>> => {
+  const response = await axiosInstance.get(`/admin/companies/${companyUuid}`)
+  return response.data
+}
+
+/**
+ * 업체 등록 (관리자 전용)
+ */
+export interface AdminCreateCompanyParams {
+  ownerId?: number
+  data: CompanyRegistrationData
+}
+
+export const createAdminCompany = async (
+  params: AdminCreateCompanyParams
+): Promise<ApiResponse<CompanyResponse>> => {
+  const { ownerId, data } = params
+  const response = await axiosInstance.post('/admin/companies', data, {
+    params: ownerId ? { ownerId } : undefined
+  })
+  return response.data
+}
+
+/**
+ * 업체 수정 (관리자 전용)
+ */
+export interface AdminUpdateCompanyData extends Partial<CompanyRegistrationData> {
+  status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+  featured?: boolean
+  verified?: boolean
+}
+
+export const updateAdminCompany = async (
+  companyUuid: string,
+  data: AdminUpdateCompanyData
+): Promise<ApiResponse<CompanyResponse>> => {
+  const response = await axiosInstance.put(`/admin/companies/${companyUuid}`, data)
+  return response.data
+}
+
+/**
+ * 업체 삭제 (관리자 전용)
+ */
+export const deleteAdminCompany = async (
+  companyUuid: string
+): Promise<ApiResponse<null>> => {
+  const response = await axiosInstance.delete(`/admin/companies/${companyUuid}`)
+
+  if (response.status >= 200 && response.status < 300) {
+    return {
+      success: true,
+      data: null,
+    }
+  }
+
+  return response.data
+}
+
+/**
+ * 업체 상태 변경 (관리자 전용)
+ */
+export interface CompanyStatusResponse {
+  uuid: string
+  name: string
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+  updatedAt: string
+}
+
+export const changeCompanyStatus = async (
+  companyUuid: string,
+  status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+): Promise<ApiResponse<CompanyStatusResponse>> => {
+  const response = await axiosInstance.patch(
+    `/admin/companies/${companyUuid}/status`,
+    null,
+    { params: { status } }
+  )
+  return response.data
+}
+
+/**
+ * 업체 인증 (관리자 전용)
+ */
+export interface CompanyVerifyResponse {
+  uuid: string
+  name: string
+  verified: boolean
+  verifiedAt: string
+}
+
+export const verifyCompany = async (
+  companyUuid: string
+): Promise<ApiResponse<CompanyVerifyResponse>> => {
+  const response = await axiosInstance.post(`/admin/companies/${companyUuid}/verify`)
   return response.data
 }
