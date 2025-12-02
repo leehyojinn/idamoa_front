@@ -65,6 +65,7 @@ const NAV_ITEMS = [
 ]
 
 const ADMIN_PAGES = [
+  { id: 'admin-analytics', label: 'Analytics 대시보드', href: '/admin/analytics' },
   { id: 'admin-users', label: '회원 관리', href: '/admin/users' },
   { id: 'admin-companies', label: '업체 관리', href: '/admin/companies' },
   { id: 'admin-estimates', label: '견적 관리', href: '/admin/estimates' },
