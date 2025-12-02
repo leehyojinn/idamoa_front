@@ -9,6 +9,7 @@ export interface User {
   email: string
   profileCompleted: boolean
   currentRole: string
+  status?: string
   id?: string
   name?: string
   avatar?: string

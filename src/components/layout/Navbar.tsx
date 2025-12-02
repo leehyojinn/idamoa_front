@@ -9,6 +9,7 @@ import { FiSettings } from 'react-icons/fi'
 import { motion, AnimatePresence } from 'framer-motion'
 import Quickmenu from './Quickmenu'
 import DesktopNav from './DesktopNav'
+import AccountStatusGuard from '@/components/auth/AccountStatusGuard'
 import { useScrollPosition } from '@/hooks/useScrollPosition'
 import { useAuth } from '@/hooks/useAuth'
 import { useDialog } from '@/hooks/useDialog'
@@ -104,6 +105,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
 
   return (
     <>
+      <AccountStatusGuard />
       {showQuickmenu && <Quickmenu />}
 
       {/* Admin Settings Icon - Fixed Position */}
