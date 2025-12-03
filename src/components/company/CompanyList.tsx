@@ -6,7 +6,8 @@ import Image from 'next/image'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
-import { getCompanies, searchCompanies, toggleCompanyLike, type CompanyListItem, type CompanyListResponse } from '@/lib/api/company'
+import { searchCompaniesWithFilters, toggleCompanyLike, type CompanyListItem, type CompanyListResponse } from '@/lib/api/company'
+import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 import { useAuthStore } from '@/stores/authStore'
 import {
   IoStar,
@@ -18,10 +19,12 @@ import {
   IoCallOutline,
   IoChatbubblesOutline,
   IoArrowForward,
+  IoSearch,
+  IoRefresh,
 } from 'react-icons/io5'
 
 const SORT_OPTIONS = [
-  { value: 'LATEST', label: '최신순' },
+  { value: 'PREMIUM_TIER', label: '추천순' },
   { value: 'RATING', label: '평점 높은 순' },
   { value: 'REVIEW_COUNT', label: '리뷰 많은 순' },
   { value: 'POPULAR', label: '인기순' },
@@ -40,19 +43,131 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
   const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
   const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [loading, setLoading] = useState(false)
-  const [sortBy, setSortBy] = useState<'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR'>('LATEST')
+  const [sortBy, setSortBy] = useState<'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'>('PREMIUM_TIER')
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+
+  // 새로운 상태들
+  const [keyword, setKeyword] = useState('')
+  const [searchInput, setSearchInput] = useState('')
+  const [filters, setFilters] = useState<Record<number, number[]>>({})
+  const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
+  const [selectedRegion, setSelectedRegion] = useState<number | ''>('')
+  const [filtersLoading, setFiltersLoading] = useState(true)
+
+  // 필터 카테고리 로드
+  useEffect(() => {
+    const loadFilters = async () => {
+      try {
+        setFiltersLoading(true)
+        const categories = await getPublicFilters()
+        setFilterCategories(categories)
+      } finally {
+        setFiltersLoading(false)
+      }
+    }
+    loadFilters()
+  }, [])
+
+  // selectedTag를 filters로 변환 (전문영역 필터)
+  useEffect(() => {
+    if (selectedTag && filterCategories.length > 0) {
+      const specialtyCategory = filterCategories.find(
+        cat => {
+          const name = cat.name?.toLowerCase() || ''
+          const code = cat.code?.toLowerCase() || ''
+          return name.includes('전문') || name.includes('분야') ||
+                 code === 'specialty' || code === 'profession' || code === 'field'
+        }
+      )
+
+      if (specialtyCategory) {
+        const matchingOption = specialtyCategory.options.find(opt => {
+          const optionName = opt.name.replace(/\s+/g, '').toLowerCase()
+          const tagName = selectedTag.replace(/\s+/g, '').toLowerCase()
+
+          if (opt.name === selectedTag) return true
+          if (optionName === tagName) return true
+          if (optionName.includes(tagName)) return true
+          if (tagName.includes(optionName)) return true
+
+          return false
+        })
+
+        if (matchingOption) {
+          setFilters(prev => ({
+            ...prev,
+            [specialtyCategory.id]: [matchingOption.id]
+          }))
+        } else {
+          setFilters(prev => {
+            const newFilters = { ...prev }
+            delete newFilters[specialtyCategory.id]
+            return newFilters
+          })
+        }
+      }
+      setPage(0)
+    } else if (!selectedTag && filterCategories.length > 0) {
+      // 전체 선택 시 전문영역 필터 제거
+      const specialtyCategory = filterCategories.find(
+        cat => {
+          const name = cat.name?.toLowerCase() || ''
+          const code = cat.code?.toLowerCase() || ''
+          return name.includes('전문') || name.includes('분야') ||
+                 code === 'specialty' || code === 'profession' || code === 'field'
+        }
+      )
+      if (specialtyCategory) {
+        setFilters(prev => {
+          const newFilters = { ...prev }
+          delete newFilters[specialtyCategory.id]
+          return newFilters
+        })
+      }
+    }
+  }, [selectedTag, filterCategories])
+
+  // 지역 필터 변경 시
+  useEffect(() => {
+    if (selectedRegion && filterCategories.length > 0) {
+      const regionCategory = filterCategories.find(
+        cat => cat.name === '지역' || cat.code === 'region'
+      )
+
+      if (regionCategory) {
+        setFilters(prev => ({
+          ...prev,
+          [regionCategory.id]: [Number(selectedRegion)]
+        }))
+      }
+    } else if (selectedRegion === '' && filterCategories.length > 0) {
+      // 전체 선택 시 지역 필터 제거
+      const regionCategory = filterCategories.find(
+        cat => cat.name === '지역' || cat.code === 'region'
+      )
+      if (regionCategory) {
+        setFilters(prev => {
+          const newFilters = { ...prev }
+          delete newFilters[regionCategory.id]
+          return newFilters
+        })
+      }
+    }
+  }, [selectedRegion, filterCategories])
 
   const fetchCompanies = useCallback(async () => {
     setLoading(true)
 
     try {
-      const result = await searchCompanies({
-        tags: selectedTag ? [selectedTag] : undefined,
+      const params = {
+        keyword: keyword || undefined,
+        filters: Object.keys(filters).length > 0 ? filters : undefined,
         sortBy,
         page,
         size: 12,
-      })
+      }
+
+      const result = await searchCompaniesWithFilters(params)
 
       if (result.success && result.data) {
         setCompanies(result.data.content)
@@ -64,7 +179,7 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
     } finally {
       setLoading(false)
     }
-  }, [page, sortBy, selectedTag])
+  }, [page, sortBy, keyword, filters])
 
   useEffect(() => {
     // 초기 로드 시에는 SSR 데이터 사용, 이후 변경 시에만 fetch
@@ -81,7 +196,22 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
   }
 
   const handleSortChange = (newSort: string) => {
-    setSortBy(newSort as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR')
+    setSortBy(newSort as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER')
+    setPage(0)
+  }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setKeyword(searchInput)
+    setPage(0)
+  }
+
+  const handleReset = () => {
+    setSearchInput('')
+    setKeyword('')
+    setSelectedRegion('')
+    setFilters({})
+    setSortBy('PREMIUM_TIER')
     setPage(0)
   }
 
@@ -128,6 +258,17 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
     return images.find((img) => img.isPrimary)?.imageUrl || images[0]?.imageUrl || '/images/img-placeholder.png'
   }
 
+  // 지역 카테고리 찾기 (정확한 매칭만)
+  const regionCategory = filterCategories.find(
+    cat => {
+      const name = cat.name?.toLowerCase() || ''
+      const code = cat.code?.toLowerCase() || ''
+      // 지역 관련 키워드만 정확히 매칭
+      return (name === '지역' || name === '서비스 지역' || name === '활동 지역') ||
+             (code === 'region' || code === 'service_region' || code === 'location')
+    }
+  )
+
   return (
     <div className="w-full bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -155,6 +296,65 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
               </button>
             </div>
           </div>
+        </div>
+
+        {/* 검색 및 필터 영역 */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+          <form onSubmit={handleSearchSubmit}>
+            {/* 검색바 */}
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1 relative">
+                <IoSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder="업체명, 태그, 주소로 검색"
+                  className="w-full pl-11 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-6 py-2.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium whitespace-nowrap"
+              >
+                검색
+              </button>
+            </div>
+
+            {/* 필터 옵션 */}
+            <div className="flex flex-wrap gap-3">
+              {/* 지역 필터 */}
+              {filtersLoading ? (
+                <div className="w-full sm:w-auto sm:min-w-[200px]">
+                  <div className="h-10 bg-gray-100 rounded-lg animate-pulse"></div>
+                </div>
+              ) : regionCategory && regionCategory.options && regionCategory.options.length > 0 ? (
+                <div className="w-full sm:w-auto sm:min-w-[200px]">
+                  <Select
+                    options={[
+                      { value: '', label: '🗺️ 전체 지역' },
+                      ...regionCategory.options.map((option) => ({
+                        value: option.id.toString(),
+                        label: option.name,
+                      })),
+                    ]}
+                    value={selectedRegion === '' ? '' : selectedRegion.toString()}
+                    onChange={(value) => setSelectedRegion(value === '' ? '' : Number(value))}
+                  />
+                </div>
+              ) : null}
+
+              {/* 초기화 버튼 */}
+              <button
+                type="button"
+                onClick={handleReset}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 font-medium"
+              >
+                <IoRefresh className="w-4 h-4" />
+                초기화
+              </button>
+            </div>
+          </form>
         </div>
 
         {/* 헤더 */}

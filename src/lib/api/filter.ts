@@ -172,6 +172,7 @@ export interface PublicFilterOption {
   description?: string
   displayOrder: number
   icon?: string
+  color?: string
   usageCount?: number
 }
 

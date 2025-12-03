@@ -217,7 +217,7 @@ export interface SearchCompaniesParams {
   serviceAreas?: string[]
   minRating?: number
   filterOptionIds?: number[]
-  sortBy?: 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR'
+  sortBy?: 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'
   page?: number
   size?: number
 }
@@ -232,6 +232,52 @@ export const searchCompanies = async (
       indexes: null, // tags=value&tags=value2 형태로 전송 (tags[]=value가 아님)
     },
   })
+  return response.data
+}
+
+/**
+ * 업체 검색 (필터 기반 - API 문서 기준)
+ * filters 파라미터는 "카테고리ID:옵션ID1,옵션ID2&카테고리ID:옵션ID3,옵션ID4" 형식
+ */
+export interface SearchCompaniesWithFiltersParams {
+  keyword?: string
+  tags?: string[]
+  minRating?: number
+  filters?: Record<number, number[]>  // { categoryId: [optionIds] }
+  sortBy?: 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'
+  page?: number
+  size?: number
+}
+
+export const searchCompaniesWithFilters = async (
+  params: SearchCompaniesWithFiltersParams = {}
+): Promise<ApiResponse<CompanyListResponse>> => {
+  const { keyword, tags, minRating, filters, sortBy, page = 0, size = 20 } = params
+
+  // filters 객체를 문자열로 변환: { 1: [1,2], 2: [10,11] } => "1:1,2&2:10,11"
+  let filtersStr: string | undefined
+  if (filters && Object.keys(filters).length > 0) {
+    filtersStr = Object.entries(filters)
+      .filter(([_, optionIds]) => optionIds.length > 0)
+      .map(([categoryId, optionIds]) => `${categoryId}:${optionIds.join(',')}`)
+      .join('&')
+  }
+
+  const response = await axiosInstance.get('/companies/search', {
+    params: {
+      keyword,
+      tags,
+      minRating,
+      filters: filtersStr,
+      sortBy,
+      page,
+      size
+    },
+    paramsSerializer: {
+      indexes: null, // tags=value&tags=value2 형태로 전송
+    },
+  })
+
   return response.data
 }
 
