@@ -107,9 +107,9 @@ export default function SkillFilter({ onFilterChange }: SkillFilterProps) {
         )
 
         if (specialtyCategory && specialtyCategory.options) {
-          // API 옵션을 Skill 형식으로 변환 (비활성화된 항목 제외)
+          // API 옵션을 Skill 형식으로 변환 (비활성화되거나 삭제된 항목 제외)
           const apiSkills: Skill[] = specialtyCategory.options
-            .filter(option => option.isActive !== false) // isActive가 false인 항목 제외
+            .filter(option => option.isActive !== false && option.isDeleted !== true) // isActive가 false이거나 isDeleted가 true인 항목 제외
             .map((option, index) => {
               // API에서 icon이 있으면 사용, 없으면 자동 매핑
               const iconComponent = option.icon ? getIconByName(option.icon) : getIconForSkill(option.name)

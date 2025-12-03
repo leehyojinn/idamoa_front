@@ -334,7 +334,7 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                     options={[
                       { value: '', label: '🗺️ 전체 지역' },
                       ...regionCategory.options
-                        .filter(option => option.isActive !== false) // 비활성화된 항목 제외
+                        .filter(option => option.isActive !== false && option.isDeleted !== true) // 비활성화되거나 삭제된 항목 제외
                         .map((option) => ({
                           value: option.id.toString(),
                           label: option.name,

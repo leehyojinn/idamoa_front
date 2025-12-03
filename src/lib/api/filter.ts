@@ -174,6 +174,7 @@ export interface PublicFilterOption {
   icon?: string
   color?: string
   isActive?: boolean
+  isDeleted?: boolean
   usageCount?: number
 }
 
