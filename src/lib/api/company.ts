@@ -254,7 +254,7 @@ export const searchCompaniesWithFilters = async (
 ): Promise<ApiResponse<CompanyListResponse>> => {
   const { keyword, tags, minRating, filters, sortBy, page = 0, size = 20 } = params
 
-  // filters 객체를 문자열로 변환: { 1: [1,2], 2: [10,11] } => "1:1,2&2:10,11"
+  // filters 객체를 문자열로 변환: { 3: [120, 50], 1: [10] } => "3:120,50&1:10"
   let filtersStr: string | undefined
   if (filters && Object.keys(filters).length > 0) {
     filtersStr = Object.entries(filters)
@@ -263,16 +263,18 @@ export const searchCompaniesWithFilters = async (
       .join('&')
   }
 
+  const apiParams = {
+    keyword,
+    tags,
+    minRating,
+    filters: filtersStr,
+    sortBy,
+    page,
+    size
+  }
+
   const response = await axiosInstance.get('/companies/search', {
-    params: {
-      keyword,
-      tags,
-      minRating,
-      filters: filtersStr,
-      sortBy,
-      page,
-      size
-    },
+    params: apiParams,
     paramsSerializer: {
       indexes: null, // tags=value&tags=value2 형태로 전송
     },

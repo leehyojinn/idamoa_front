@@ -333,10 +333,12 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                   <Select
                     options={[
                       { value: '', label: '🗺️ 전체 지역' },
-                      ...regionCategory.options.map((option) => ({
-                        value: option.id.toString(),
-                        label: option.name,
-                      })),
+                      ...regionCategory.options
+                        .filter(option => option.isActive !== false) // 비활성화된 항목 제외
+                        .map((option) => ({
+                          value: option.id.toString(),
+                          label: option.name,
+                        })),
                     ]}
                     value={selectedRegion === '' ? '' : selectedRegion.toString()}
                     onChange={(value) => setSelectedRegion(value === '' ? '' : Number(value))}

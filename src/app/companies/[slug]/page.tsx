@@ -342,13 +342,12 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           </div>
 
           {/* 전문 분야 및 서비스 - 전체 너비 */}
-          {/* {((company.filterGroups && company.filterGroups.length > 0) || */}
-          {((company.tags && company.tags.length > 0)) && (
+          {((company.filterGroups && company.filterGroups.length > 0) || (company.tags && company.tags.length > 0)) && (
             <div className="bg-white rounded-xl shadow-md p-8 mb-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">전문 분야 및 서비스</h2>
               <div className="space-y-6">
                 {/* 필터 그룹 표시 */}
-                {/* {company.filterGroups && company.filterGroups.length > 0 && (
+                {company.filterGroups && company.filterGroups.length > 0 && (
                   <>
                     {company.filterGroups.map((filterGroup) => (
                       <div key={filterGroup.categoryId}>
@@ -374,7 +373,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                       </div>
                     ))}
                   </>
-                )} */}
+                )}
 
                 {/* 태그 표시 */}
                 {company.tags && company.tags.length > 0 && (
