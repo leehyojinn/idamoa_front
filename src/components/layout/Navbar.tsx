@@ -59,7 +59,7 @@ const NAV_ITEMS = [
       { id: 'planner', label: '플래너', href: '/planner' },
     ]
   },
-  { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },
+  // { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },
   { id: 'notices', label: '공지/이벤트', href: '/notices' },
   { id: 'review', label: '고객후기', href: '/review' },
 ]

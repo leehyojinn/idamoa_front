@@ -2,8 +2,16 @@
 import Footer from '@/components/layout/Footer';
 import Navbar from '@/components/layout/Navbar';
 import React, {useEffect} from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
+    const router = useRouter()
+
+    useEffect(() => {
+        // 페이지 접근 시 홈으로 리다이렉트
+        router.push('/')
+    }, [router])
+
     useEffect(() => {
         if (window.innerWidth < 550) {
             let meta = document.querySelector('meta[name="viewport"]')as HTMLMetaElement | null
