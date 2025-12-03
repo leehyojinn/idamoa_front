@@ -109,7 +109,6 @@ export default function SkillFilter({ onFilterChange }: SkillFilterProps) {
         if (specialtyCategory && specialtyCategory.options) {
           // API 옵션을 Skill 형식으로 변환
           const apiSkills: Skill[] = specialtyCategory.options
-            .slice(0, 20) // 최대 20개까지만 표시
             .map((option, index) => {
               // API에서 icon이 있으면 사용, 없으면 자동 매핑
               const iconComponent = option.icon ? getIconByName(option.icon) : getIconForSkill(option.name)
