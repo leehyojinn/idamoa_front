@@ -5,43 +5,43 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { FiMessageSquare, FiEye, FiTrash2 } from 'react-icons/fi'
 import {
-  adminGetPartnershipInquiries,
-  adminDeletePartnershipInquiry,
-  PARTNERSHIP_TYPE_LABELS,
-  PARTNERSHIP_STATUS_LABELS,
-  PARTNERSHIP_STATUS_COLORS,
-  type PartnershipInquiryListItem,
-  type PartnershipStatus,
+  adminGetGeneralInquiries,
+  adminDeleteGeneralInquiry,
+  GENERAL_INQUIRY_TYPE_LABELS,
+  GENERAL_INQUIRY_STATUS_LABELS,
+  GENERAL_INQUIRY_STATUS_COLORS,
+  type GeneralInquiryListItem,
+  type GeneralInquiryStatus,
 } from '@/lib/api/inquiry'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 
-export default function AdminInquiriesPage() {
+export default function AdminGeneralInquiriesPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const [inquiries, setInquiries] = useState<PartnershipInquiryListItem[]>([])
+  const [inquiries, setInquiries] = useState<GeneralInquiryListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
-  const [selectedStatus, setSelectedStatus] = useState<PartnershipStatus | ''>('')
+  const [selectedStatus, setSelectedStatus] = useState<GeneralInquiryStatus | ''>('')
 
   useEffect(() => {
     const page = parseInt(searchParams.get('page') || '0')
-    const status = (searchParams.get('status') as PartnershipStatus) || ''
+    const status = (searchParams.get('status') as GeneralInquiryStatus) || ''
 
     setCurrentPage(page)
     setSelectedStatus(status)
     fetchInquiries(page, status)
   }, [searchParams])
 
-  const fetchInquiries = async (page: number = 0, status: PartnershipStatus | '' = '') => {
+  const fetchInquiries = async (page: number = 0, status: GeneralInquiryStatus | '' = '') => {
     setIsLoading(true)
     try {
-      const result = await adminGetPartnershipInquiries({
+      const result = await adminGetGeneralInquiries({
         status: status || undefined,
         page,
         size: 20,
@@ -59,25 +59,25 @@ export default function AdminInquiriesPage() {
     }
   }
 
-  const handleStatusChange = (status: PartnershipStatus | '') => {
+  const handleStatusChange = (status: GeneralInquiryStatus | '') => {
     const params = new URLSearchParams()
     if (status) params.set('status', status)
     params.set('page', '0')
-    router.push(`/admin/inquiries?${params.toString()}`)
+    router.push(`/admin/general-inquiries?${params.toString()}`)
   }
 
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams()
     params.set('page', page.toString())
     if (selectedStatus) params.set('status', selectedStatus)
-    router.push(`/admin/inquiries?${params.toString()}`)
+    router.push(`/admin/general-inquiries?${params.toString()}`)
   }
 
-  const handleDelete = async (uuid: string, name: string) => {
-    if (!confirm(`정말로 "${name}"의 문의를 삭제하시겠습니까?`)) return
+  const handleDelete = async (uuid: string, title: string) => {
+    if (!confirm(`정말로 "${title}" 문의를 삭제하시겠습니까?`)) return
 
     try {
-      await adminDeletePartnershipInquiry(uuid)
+      await adminDeleteGeneralInquiry(uuid)
       showSuccessToast('문의가 삭제되었습니다')
       fetchInquiries(currentPage, selectedStatus)
     } catch (error) {
@@ -92,7 +92,7 @@ export default function AdminInquiriesPage() {
         {/* 헤더 */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">제휴/광고 문의 관리</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">일반 문의 관리</h1>
             <p className="text-gray-600">
               총 <span className="font-semibold text-blue-600">{totalElements}</span>개의 문의
             </p>
@@ -120,7 +120,7 @@ export default function AdminInquiriesPage() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              접수 대기
+              대기중
             </button>
             <button
               onClick={() => handleStatusChange('IN_PROGRESS')}
@@ -130,27 +130,27 @@ export default function AdminInquiriesPage() {
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              처리 중
+              처리중
             </button>
             <button
-              onClick={() => handleStatusChange('COMPLETED')}
+              onClick={() => handleStatusChange('ANSWERED')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedStatus === 'COMPLETED'
+                selectedStatus === 'ANSWERED'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              처리 완료
+              답변완료
             </button>
             <button
-              onClick={() => handleStatusChange('CANCELLED')}
+              onClick={() => handleStatusChange('CLOSED')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedStatus === 'CANCELLED'
+                selectedStatus === 'CLOSED'
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
-              취소됨
+              종료
             </button>
           </div>
         </div>
@@ -176,13 +176,13 @@ export default function AdminInquiriesPage() {
                       문의 유형
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      작성자
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      이메일
+                      제목
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       상태
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      답변여부
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       작성일
@@ -197,18 +197,20 @@ export default function AdminInquiriesPage() {
                     <tr key={inquiry.uuid} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-sm font-medium text-gray-900">
-                          {PARTNERSHIP_TYPE_LABELS[inquiry.partnershipType]}
+                          {GENERAL_INQUIRY_TYPE_LABELS[inquiry.inquiryType]}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-gray-900 line-clamp-1">{inquiry.title}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${GENERAL_INQUIRY_STATUS_COLORS[inquiry.status]}`}>
+                          {GENERAL_INQUIRY_STATUS_LABELS[inquiry.status]}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{inquiry.name}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{inquiry.email}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${PARTNERSHIP_STATUS_COLORS[inquiry.status]}`}>
-                          {PARTNERSHIP_STATUS_LABELS[inquiry.status]}
+                        <span className={`text-sm ${inquiry.hasAnswer ? 'text-green-600 font-medium' : 'text-gray-500'}`}>
+                          {inquiry.hasAnswer ? '답변완료' : '미답변'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -217,13 +219,13 @@ export default function AdminInquiriesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/admin/inquiries/${inquiry.uuid}`}
+                            href={`/admin/general-inquiries/${inquiry.uuid}`}
                             className="text-blue-600 hover:text-blue-900"
                           >
                             <FiEye className="w-5 h-5" />
                           </Link>
                           <button
-                            onClick={() => handleDelete(inquiry.uuid, inquiry.name)}
+                            onClick={() => handleDelete(inquiry.uuid, inquiry.title)}
                             className="text-red-600 hover:text-red-900"
                           >
                             <FiTrash2 className="w-5 h-5" />

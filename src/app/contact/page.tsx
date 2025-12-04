@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
-import { createInquiry, INQUIRY_TYPE_LABELS, type InquiryType, type CreateInquiryRequest } from '@/lib/api/inquiry'
+import { createPartnershipInquiry, PARTNERSHIP_TYPE_LABELS, type PartnershipType, type CreatePartnershipInquiryRequest } from '@/lib/api/inquiry'
 import { getProfile } from '@/lib/api/profile'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { formatPhoneNumber } from '@/lib/utils'
@@ -16,8 +16,8 @@ export default function InquiryPage() {
   const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [formData, setFormData] = useState<CreateInquiryRequest>({
-    inquiryType: 'PARTNERSHIP',
+  const [formData, setFormData] = useState<CreatePartnershipInquiryRequest>({
+    partnershipType: 'PARTNERSHIP',
     name: '',
     email: '',
     phone: '',
@@ -111,7 +111,7 @@ export default function InquiryPage() {
 
     setIsSubmitting(true)
     try {
-      const result = await createInquiry(formData)
+      const result = await createPartnershipInquiry(formData)
       if (result.success) {
         showSuccessToast('문의가 성공적으로 접수되었습니다.')
         router.push('/')
@@ -137,12 +137,12 @@ export default function InquiryPage() {
             {/* 문의 유형 */}
             <Select
               label="문의 유형 *"
-              options={(Object.keys(INQUIRY_TYPE_LABELS) as InquiryType[]).map((type) => ({
+              options={(Object.keys(PARTNERSHIP_TYPE_LABELS) as PartnershipType[]).map((type) => ({
                 value: type,
-                label: INQUIRY_TYPE_LABELS[type],
+                label: PARTNERSHIP_TYPE_LABELS[type],
               }))}
-              value={formData.inquiryType}
-              onChange={(value) => setFormData(prev => ({ ...prev, inquiryType: value as InquiryType }))}
+              value={formData.partnershipType}
+              onChange={(value) => setFormData(prev => ({ ...prev, partnershipType: value as PartnershipType }))}
               placeholder="문의 유형을 선택해주세요"
             />
 

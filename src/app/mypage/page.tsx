@@ -259,6 +259,12 @@ export default function MyPage() {
                   내 정보 수정
                 </button>
                 <button
+                  onClick={() => router.push('/inquiries/my')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 문의 내역
+                </button>
+                <button
                   onClick={() => router.push('/mypage/password-change')}
                   className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
                 >
@@ -371,6 +377,12 @@ export default function MyPage() {
                   className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   업체 기본 정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/inquiries/my')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 문의 내역
                 </button>
                 <button
                   onClick={() => router.push('/mypage/password-change')}
@@ -830,6 +842,12 @@ export default function MyPage() {
                   className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   업체 상세정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/inquiries/my')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 문의 내역
                 </button>
                 <button
                   onClick={() => router.push('/mypage/password-change')}

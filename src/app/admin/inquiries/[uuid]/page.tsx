@@ -5,14 +5,14 @@ import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiArrowLeft, FiClock, FiUser, FiPhone, FiMail, FiMessageSquare, FiSave } from 'react-icons/fi'
 import {
-  adminGetInquiry,
-  adminChangeInquiryStatus,
-  adminDeleteInquiry,
-  INQUIRY_TYPE_LABELS,
-  INQUIRY_STATUS_LABELS,
-  INQUIRY_STATUS_COLORS,
-  type InquiryResponse,
-  type InquiryStatus,
+  adminGetPartnershipInquiry,
+  adminChangePartnershipInquiryStatus,
+  adminDeletePartnershipInquiry,
+  PARTNERSHIP_TYPE_LABELS,
+  PARTNERSHIP_STATUS_LABELS,
+  PARTNERSHIP_STATUS_COLORS,
+  type PartnershipInquiryResponse,
+  type PartnershipStatus,
 } from '@/lib/api/inquiry'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
@@ -24,15 +24,15 @@ export default function AdminInquiryDetailPage() {
   const router = useRouter()
   const uuid = params.uuid as string
 
-  const [inquiry, setInquiry] = useState<InquiryResponse | null>(null)
+  const [inquiry, setInquiry] = useState<PartnershipInquiryResponse | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [selectedStatus, setSelectedStatus] = useState<InquiryStatus>('PENDING')
+  const [selectedStatus, setSelectedStatus] = useState<PartnershipStatus>('PENDING')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const fetchInquiry = useCallback(async () => {
     setIsLoading(true)
     try {
-      const result = await adminGetInquiry(uuid)
+      const result = await adminGetPartnershipInquiry(uuid)
       if (result.success && result.data) {
         setInquiry(result.data)
         setSelectedStatus(result.data.status)
@@ -53,7 +53,7 @@ export default function AdminInquiryDetailPage() {
 
     setIsSubmitting(true)
     try {
-      await adminChangeInquiryStatus(uuid, selectedStatus)
+      await adminChangePartnershipInquiryStatus(uuid, selectedStatus)
       showSuccessToast('문의 상태가 변경되었습니다')
       fetchInquiry()
     } catch (error) {
@@ -68,7 +68,7 @@ export default function AdminInquiryDetailPage() {
     if (!confirm(`정말로 "${inquiry.name}"의 문의를 삭제하시겠습니까?`)) return
 
     try {
-      await adminDeleteInquiry(uuid)
+      await adminDeletePartnershipInquiry(uuid)
       showSuccessToast('문의가 삭제되었습니다')
       router.push('/admin/inquiries')
     } catch (error) {
@@ -134,10 +134,10 @@ export default function AdminInquiryDetailPage() {
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-lg font-semibold text-gray-900">
-                      {INQUIRY_TYPE_LABELS[inquiry.inquiryType]}
+                      {PARTNERSHIP_TYPE_LABELS[inquiry.partnershipType]}
                     </span>
-                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${INQUIRY_STATUS_COLORS[inquiry.status]}`}>
-                      {INQUIRY_STATUS_LABELS[inquiry.status]}
+                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${PARTNERSHIP_STATUS_COLORS[inquiry.status]}`}>
+                      {PARTNERSHIP_STATUS_LABELS[inquiry.status]}
                     </span>
                   </div>
                 </div>
@@ -191,13 +191,13 @@ export default function AdminInquiryDetailPage() {
                   </label>
                   <select
                     value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value as InquiryStatus)}
+                    onChange={(e) => setSelectedStatus(e.target.value as PartnershipStatus)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="PENDING">접수 대기</option>
-                    <option value="IN_PROGRESS">처리 중</option>
-                    <option value="COMPLETED">처리 완료</option>
-                    <option value="CANCELLED">취소됨</option>
+                    <option value="PENDING">대기중</option>
+                    <option value="IN_PROGRESS">처리중</option>
+                    <option value="COMPLETED">완료</option>
+                    <option value="CANCELLED">취소</option>
                   </select>
                 </div>
                 <button

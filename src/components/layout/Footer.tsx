@@ -27,14 +27,13 @@ export default function Footer() {
               대표자 : 최유미 <br/>
               대표전화 : 02-543-3853 <br/>
               이메일 : damoawa@naver.com <br/>
-              주소 : 서울시 성동구 아차산로 126 더브리세종타워 13층 1305호
+              주소 : 서울시 성동구 아차산로 126 더리브세종타워 13층 1305호
             </p>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4">서비스</h4>
             <ul className="space-y-2 text-gray-400">
-              <li><Link href="/reviews" className="hover:text-white transition-colors">고객후기</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">제휴/광고 문의</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">이용약관</Link></li>
               <li><Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link></li>

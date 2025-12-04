@@ -61,7 +61,7 @@ const NAV_ITEMS = [
   },
   // { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },
   { id: 'notices', label: '공지/이벤트', href: '/notices' },
-  { id: 'review', label: '고객후기', href: '/review' },
+  { id: 'inquiry', label: '일반문의', href: '/inquiries' },
 ]
 
 const ADMIN_PAGES = [
@@ -76,6 +76,7 @@ const ADMIN_PAGES = [
   { id: 'admin-notice-events', label: '공지/이벤트 관리', href: '/admin/notice-events' },
   { id: 'admin-popups', label: '팝업 관리', href: '/admin/popups' },
   { id: 'admin-filters', label: '필터 관리', href: '/admin/filters' },
+  { id: 'admin-general-inquiries', label: '일반 문의', href: '/admin/general-inquiries' },
   { id: 'admin-inquiries', label: '제휴/광고 문의', href: '/admin/inquiries' },
 ]
 
