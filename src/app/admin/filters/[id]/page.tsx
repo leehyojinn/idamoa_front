@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiArrowLeft } from 'react-icons/fi'
@@ -102,6 +102,11 @@ export default function AdminFilterOptionsPage() {
       isDefault: formData.isDefault,
     }
 
+    // parentId는 숫자이므로 별도 처리
+    if (formData.parentId !== undefined && formData.parentId !== null) {
+      createData.parentId = formData.parentId
+    }
+
     // undefined 및 빈 문자열 제거
     Object.keys(createData).forEach(key => {
       const value = createData[key]
@@ -181,8 +186,19 @@ export default function AdminFilterOptionsPage() {
     }
   }
 
-  const openCreateModal = () => {
-    resetForm()
+  const openCreateModal = (parentOption?: FilterOption) => {
+    const parentId = parentOption?.id
+    setFormData({
+      code: '',
+      name: '',
+      shortName: '',
+      description: '',
+      parentId: parentId,
+      displayOrder: 0,
+      icon: '',
+      color: '',
+      isDefault: false,
+    })
     setShowCreateModal(true)
   }
 
@@ -216,11 +232,16 @@ export default function AdminFilterOptionsPage() {
     })
   }
 
-  // 계층 구조로 옵션 정렬
-  const sortedOptions = [...options].sort((a, b) => {
-    if (a.depth !== b.depth) return a.depth - b.depth
-    return a.displayOrder - b.displayOrder
-  })
+  // 계층 구조로 옵션 정렬 (부모-자식 순서 유지)
+  const sortedOptions = useMemo(() => {
+    const buildHierarchy = (parentId: number | null = null): FilterOption[] => {
+      return options
+        .filter(opt => opt.parentId === parentId)
+        .sort((a, b) => a.displayOrder - b.displayOrder)
+        .flatMap(opt => [opt, ...buildHierarchy(opt.id)])
+    }
+    return buildHierarchy()
+  }, [options])
 
   return (
     <AdminGuard>
@@ -246,7 +267,7 @@ export default function AdminFilterOptionsPage() {
             )}
           </div>
           <button
-            onClick={openCreateModal}
+            onClick={() => openCreateModal()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             + 옵션 추가
@@ -345,7 +366,14 @@ export default function AdminFilterOptionsPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {option.displayOrder}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <button
+                        onClick={() => openCreateModal(option)}
+                        className="text-green-600 hover:text-green-900"
+                        title="자식 옵션 추가"
+                      >
+                        + 자식
+                      </button>
                       <button
                         onClick={() => openEditModal(option)}
                         className="text-blue-600 hover:text-blue-900"
@@ -370,9 +398,25 @@ export default function AdminFilterOptionsPage() {
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-              <h3 className="text-lg font-semibold mb-4">필터 옵션 생성</h3>
+              <h3 className="text-lg font-semibold mb-4">
+                필터 옵션 생성
+                {formData.parentId && (
+                  <span className="ml-2 text-sm font-normal text-gray-600">
+                    (부모: {options.find(o => o.id === formData.parentId)?.name})
+                  </span>
+                )}
+              </h3>
 
               <div className="space-y-4">
+                {formData.parentId && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800">
+                      <strong>부모 옵션:</strong> {options.find(o => o.id === formData.parentId)?.name}
+                      <br />
+                      이 옵션의 자식 옵션으로 생성됩니다.
+                    </p>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
