@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import Image from 'next/image'
 import {
   getNoticeEvent,
   updateNotice,
@@ -308,9 +309,11 @@ export default function EditNoticeEventPage() {
             </label>
             {thumbnailPreview && (
               <div className="mt-4 relative inline-block">
-                <img
+                <Image
                   src={thumbnailPreview}
                   alt="Thumbnail preview"
+                  width={192}
+                  height={192}
                   className="w-48 h-48 object-cover rounded-lg"
                 />
                 <button

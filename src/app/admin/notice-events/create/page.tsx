@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { createNotice, createEvent } from '@/lib/api/notice-event'
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
@@ -265,9 +266,11 @@ export default function CreateNoticeEventPage() {
             </label>
             {thumbnailPreview && (
               <div className="mt-4 relative inline-block">
-                <img
+                <Image
                   src={thumbnailPreview}
                   alt="Thumbnail preview"
+                  width={192}
+                  height={192}
                   className="w-48 h-48 object-cover rounded-lg"
                 />
                 <button

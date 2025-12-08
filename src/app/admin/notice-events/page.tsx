@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   searchNoticeEventsAdmin,
   deleteNotice,
@@ -240,9 +241,11 @@ export default function AdminNoticeEventsPage() {
                       <td className="px-6 py-4 max-w-md">
                         <div className="flex items-start gap-2">
                           {item.thumbnail && (
-                            <img
+                            <Image
                               src={item.thumbnail.fileUrl}
                               alt={item.title}
+                              width={64}
+                              height={64}
                               className="w-16 h-16 object-cover rounded flex-shrink-0"
                             />
                           )}

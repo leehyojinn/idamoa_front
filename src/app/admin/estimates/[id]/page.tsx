@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FiArrowLeft } from 'react-icons/fi'
 import {
   getEstimateRequest,
@@ -265,9 +266,11 @@ export default function AdminEstimateDetailPage() {
               <div className="grid grid-cols-3 gap-4">
                 {request.images.map((image) => (
                   <div key={image.uuid}>
-                    <img
+                    <Image
                       src={image.url}
                       alt={image.description || '견적 요청 이미지'}
+                      width={400}
+                      height={192}
                       className="w-full h-48 object-cover rounded-lg"
                     />
                     {image.description && (

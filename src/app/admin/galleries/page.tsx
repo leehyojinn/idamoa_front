@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   getAdminGalleries,
   deleteAdminGallery,
@@ -167,9 +168,11 @@ export default function AdminGalleriesPage() {
                     <td className="px-6 py-4 max-w-sm">
                       <div className="flex items-start gap-2">
                         {gallery.images.length > 0 && (
-                          <img
+                          <Image
                             src={gallery.images[0].fileUrl}
                             alt={gallery.title}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded flex-shrink-0"
                           />
                         )}

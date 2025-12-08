@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   getDocuments,
   deleteDocument,
@@ -167,9 +168,11 @@ export default function AdminDocumentsPage() {
                     <td className="px-6 py-4 max-w-sm">
                       <div className="flex items-start gap-2">
                         {doc.thumbnail && (
-                          <img
+                          <Image
                             src={doc.thumbnail.fileUrl}
                             alt={doc.title}
+                            width={64}
+                            height={64}
                             className="w-16 h-16 object-cover rounded flex-shrink-0"
                           />
                         )}

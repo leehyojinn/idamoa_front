@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FiArrowLeft, FiX } from 'react-icons/fi'
 import {
   getAdminGallery,
@@ -317,9 +318,11 @@ export default function AdminGalleryDetailPage() {
                     key={image.uuid}
                     className="relative group"
                   >
-                    <img
+                    <Image
                       src={image.fileUrl}
                       alt={image.filename}
+                      width={400}
+                      height={128}
                       className="w-full h-32 object-cover rounded-lg"
                     />
                     <button

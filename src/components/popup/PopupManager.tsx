@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaTimes, FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 import {
@@ -182,9 +183,11 @@ export default function PopupManager() {
                     onClick={() => handleClick(currentPopup)}
                     className={currentPopup.linkUrl ? 'cursor-pointer' : ''}
                   >
-                    <img
+                    <Image
                       src={currentPopup.imageUrl}
                       alt={currentPopup.title}
+                      width={currentPopup.width || 600}
+                      height={currentPopup.height || 400}
                       className="w-full h-full object-contain"
                     />
                   </div>
