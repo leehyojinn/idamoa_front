@@ -1,7 +1,7 @@
 {
-  "name": "병원 인테리어 다모아",
+  "name": "인테리어 다모아",
   "short_name": "다모아",
-  "description": "병원 인테리어 전문 견적 비교 플랫폼",
+  "description": "인테리어 전문 견적 비교 플랫폼",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",

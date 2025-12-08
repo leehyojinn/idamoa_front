@@ -34,7 +34,7 @@ interface ConstructionGrade {
   description: string
 }
 
-// STEP1: 병원 공간 타입
+// STEP1: 공간 타입
 const hospitalTypes: HospitalType[] = [
   { label: '성형외과', value: '1', priceMultiplier: 1.2 },
   { label: '피부과', value: '2', priceMultiplier: 1.2 },
@@ -542,7 +542,7 @@ export default function EstimateCalculatorPage() {
         >
           <div className="container mx-auto text-center text-white">
             <h1 className="text-3xl sm:text-4xl font-bold mb-3">
-              병원 인테리어 예상 견적 계산기
+              인테리어 예상 견적 계산기
             </h1>
             <p className="text-base sm:text-lg mb-2">
               간편하게 예상 견적을 확인하세요
@@ -559,7 +559,7 @@ export default function EstimateCalculatorPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* 왼쪽: 입력 영역 */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 병원 공간 타입 선택 */}
+            {/* 공간 타입 선택 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -567,9 +567,9 @@ export default function EstimateCalculatorPage() {
               className="bg-white rounded-xl shadow-lg p-6"
             >
               <h2 className="text-xl font-bold text-primary mb-2">
-                병원 유형 선택
+                공간 유형 선택
               </h2>
-              <p className="text-sm text-gray-600 mb-4">인테리어할 병원 유형을 선택해 주세요</p>
+              <p className="text-sm text-gray-600 mb-4">인테리어할 공간 유형을 선택해 주세요</p>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {hospitalTypes.map((type, index) => (
@@ -934,7 +934,7 @@ export default function EstimateCalculatorPage() {
 
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between text-sm">
-                    <span className="opacity-90">병원 유형</span>
+                    <span className="opacity-90">공간 유형</span>
                     <span className="font-medium">{getHospitalTypeLabel() || '미선택'}</span>
                   </div>
                   <div className="flex justify-between text-sm">

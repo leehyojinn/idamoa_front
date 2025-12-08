@@ -440,7 +440,7 @@ export default function CompanyRegisterPage() {
                       required: '회사명을 입력해주세요',
                     })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="예: 병원인테리어 다모아"
+                    placeholder="예: 인테리어 다모아"
                   />
                   {errors.name && (
                     <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -458,7 +458,7 @@ export default function CompanyRegisterPage() {
                       required: '간단한 소개를 입력해주세요',
                     })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="예: 20년 경력의 병원 인테리어 전문 업체입니다"
+                    placeholder="예: 20년 경력의 인테리어 전문 업체입니다"
                   />
                   {errors.description && (
                     <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
@@ -1046,7 +1046,7 @@ export default function CompanyRegisterPage() {
                   </div>
                 )}
                 <p className="mt-1 text-xs text-gray-500">
-                  예: 병원인테리어, 치과디자인, 고급마감 등
+                  예: 인테리어, 리모델링, 고급마감 등
                 </p>
               </div>
             </div>

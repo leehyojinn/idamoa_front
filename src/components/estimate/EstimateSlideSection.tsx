@@ -83,10 +83,10 @@ export default function EstimateSlideSection() {
         {/* 헤더 */}
         <div className="text-center mb-8">
           <p className="inline-block text-gray-800 text-lg bg-blue-100/80 mx-auto px-6 py-1 rounded-full shadow-md mb-3">
-            병원 전문 인테리어 매칭 플랫폼
+            인테리어 전문 매칭 플랫폼
           </p>
           <h2 className="text-3xl md:text-4xl mb-6 text-gray-800 font-bold">
-            원장님 딱 맞는 인테리어,<br />한 번에 찾으세요!
+            내게 딱 맞는 인테리어,<br />한 번에 찾으세요!
           </h2>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
             <button
@@ -94,7 +94,7 @@ export default function EstimateSlideSection() {
               className="inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full text-lg w-[275px]"
             >
               <span>⚡</span>
-              <span>의뢰하기 (병원측)</span>
+              <span>견적 의뢰하기</span>
             </button>
             <button
               onClick={() => router.push('/estimates')}
@@ -105,7 +105,7 @@ export default function EstimateSlideSection() {
             </button>
           </div>
           <p className="text-gray-800 text-lg max-w-2xl mx-auto">
-            지역별, 과목별, 스타일별로 원하는 업체를 빠르게 찾고<br />
+            지역별, 스타일별로 원하는 업체를 빠르게 찾고<br />
             한 곳에서 쉽고 투명하게 비교해보세요.
           </p>
         </div>

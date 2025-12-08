@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     return {
       title: `${gallery.title} - 사진 갤러리 | 다모아`,
-      description: gallery.content || `${gallery.title} - 병원인테리어 사진 갤러리`,
+      description: gallery.content || `${gallery.title} - 인테리어 사진 갤러리`,
       keywords: gallery.tags?.join(', '),
       openGraph: {
         title: gallery.title,

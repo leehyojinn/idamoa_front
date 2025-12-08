@@ -41,17 +41,17 @@ const pretendard = localFont({
 export const metadata: Metadata = {
   ...defaultMetadata,
   title: '다모아 | 인테리어의 모든 것',
-  description: '병원, 의원, 치과, 한의원 등 의료기관 인테리어 전문 업체들을 한곳에서 확인하세요.',
+  description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
   keywords: [
-    '병원인테리어',
-    '의원인테리어',
-    '치과인테리어',
-    '한의원인테리어',
-    '의료기관인테리어',
-    '병원리모델링',
-    '의료시설인테리어',
     '인테리어',
     '리모델링',
+    '집꾸미기',
+    '인테리어업체',
+    '인테리어견적',
+    '인테리어디자인',
+    '상업시설인테리어',
+    '주거공간인테리어',
+    '인테리어플랫폼',
   ],
   verification: {
     google: 'TJWb6qHYNW4dlSJfSbe0_yIFROOQL6F-yznCNiHAONE',
@@ -62,13 +62,13 @@ export const metadata: Metadata = {
   openGraph: {
     ...defaultMetadata.openGraph,
     title: '다모아 | 인테리어의 모든 것',
-    description: '병원, 의원, 치과, 한의원 등 의료기관 인테리어 전문 업체들을 한곳에서 확인하세요.',
+    description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
     images: ['/images/seo-image-v001.png'],
   },
   twitter: {
     ...defaultMetadata.twitter,
     title: '다모아 | 인테리어의 모든 것',
-    description: '병원, 의원, 치과, 한의원 등 의료기관 인테리어 전문 업체들을 한곳에서 확인하세요.',
+    description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
     images: ['/images/seo-image-v001.png'],
   },
   icons: {

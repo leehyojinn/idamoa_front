@@ -22,7 +22,7 @@ export default function TermsPage() {
 
                         <h3 className="text-lg mb-2 mt-8">제1조 [목적]</h3>
                         <p className="text-sm leading-relaxed mb-3">
-                            이 약관은 주식회사 병원인테리어다모아(이하 &quot;회사&quot;)가 제공하는 콘텐츠 및 서비스의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항
+                            이 약관은 주식회사 인테리어다모아(이하 &quot;회사&quot;)가 제공하는 콘텐츠 및 서비스의 이용과 관련하여 회사와 이용자 간의 권리, 의무 및 책임사항
                             등을 규정함을 목적으로 합니다.
                         </p>
 
@@ -31,7 +31,7 @@ export default function TermsPage() {
                             이 약관에서 사용하는 용어의 정의는 다음과 같습니다.
                         </p>
                         <ol className="list-decimal list-inside mb-4">
-                            <li className="text-sm leading-relaxed">&quot;회사&quot;라 함은 콘텐츠 및 제반서비스를 제공하는 자로서 주식회사 병원인테리어다모아를 말합니다.</li>
+                            <li className="text-sm leading-relaxed">&quot;회사&quot;라 함은 콘텐츠 및 제반서비스를 제공하는 자로서 주식회사 인테리어다모아를 말합니다.</li>
                             <li className="text-sm leading-relaxed">&quot;이용자&quot;라 함은 &quot;회사&quot;의 사이트에 접속하여 이 약관에 따라 &quot;회사&quot;가
                                 제공하는 &quot;콘텐츠&quot; 및 제반서비스를 이용하는 회원 및 비회원을 말합니다.</li>
                             <li className="text-sm leading-relaxed">&quot;회원&quot;이라 함은 &quot;회사&quot;와 이용계약을 체결하고 &quot;이용자&quot;

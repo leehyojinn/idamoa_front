@@ -25,7 +25,7 @@ function HeroSlideFallback() {
                   <h3 className="slide-subtitle">다모아에서 시작하세요</h3>
                   <h2 className="slide-title">전문 플래너</h2>
                   <p className="slide-description whitespace-pre-line">
-                    개원부터 리모델링까지{'\n'}병원 공간의 완벽한 솔루션
+                    개원부터 리모델링까지{'\n'}완벽한 공간 솔루션
                   </p>
                   <Link href="/planner" className="slide-button">
                     무료 상담 신청

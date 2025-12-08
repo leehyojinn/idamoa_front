@@ -41,15 +41,16 @@ const NAV_ITEMS = [
   { id: 'photos', label: '사진', href: '/photos' },
   { id: 'resources', label: '자료실', href: '/resources' },
   { id: 'estimates', label: '견적의뢰', href: '/estimates' },
-  {
-    id: 'ai-manager',
-    label: 'AI사무장',
-    href: '/matching',
-    children: [
-      { id: 'matching', label: '업체 AI 추천', href: '/matching' },
-      { id: 'estimate-calculator', label: '예상견적', href: '/estimate-calculator' },
-    ]
-  },
+  { id: 'estimate-calculator', label: '예상견적', href: '/estimate-calculator' },
+  // {
+  //   id: 'ai-manager',
+  //   label: 'AI사무장',
+  //   href: '/matching',
+  //   children: [
+  //     { id: 'matching', label: '업체 AI 추천', href: '/matching' },
+  //     { id: 'estimate-calculator', label: '예상견적', href: '/estimate-calculator' },
+  //   ]
+  // },
   {
     id: 'consultation-request',
     label: '상담신청',
