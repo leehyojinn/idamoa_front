@@ -11,6 +11,11 @@ import {
   updateFilterOption,
   deleteFilterOption,
   updateFilterOptionActive,
+  getAllFilterOptionsForMigration,
+  previewFilterMigration,
+  executeFilterMigration,
+  type MigrationFilterOption,
+  type MigrationPreviewResponse,
 } from '@/lib/api/filter'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
@@ -32,6 +37,16 @@ export default function AdminFilterOptionsPage() {
   const [showEditModal, setShowEditModal] = useState(false)
   const [selectedOption, setSelectedOption] = useState<FilterOption | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 마이그레이션 상태
+  const [allOptions, setAllOptions] = useState<MigrationFilterOption[]>([])
+  const [sourceOptionId, setSourceOptionId] = useState<number | null>(null)
+  const [targetOptionId, setTargetOptionId] = useState<number | null>(null)
+  const [deactivateSource, setDeactivateSource] = useState(false)
+  const [deleteSource, setDeleteSource] = useState(false)
+  const [previewResult, setPreviewResult] = useState<MigrationPreviewResponse | null>(null)
+  const [isMigrating, setIsMigrating] = useState(false)
+  const [showMigrationSection, setShowMigrationSection] = useState(false)
 
   // 폼 데이터
   const [formData, setFormData] = useState<FilterOptionCreateRequest>({
@@ -232,6 +247,124 @@ export default function AdminFilterOptionsPage() {
     })
   }
 
+  // 마이그레이션용 전체 옵션 로드
+  const fetchAllOptions = async () => {
+    try {
+      const data = await getAllFilterOptionsForMigration()
+      setAllOptions(data)
+    } catch (error) {
+      showErrorToast(error, '옵션 목록을 불러오는데 실패했습니다.')
+    }
+  }
+
+  // 마이그레이션 미리보기
+  const handlePreviewMigration = async () => {
+    if (!sourceOptionId || !targetOptionId) {
+      showErrorToast(null, '소스 옵션과 타겟 옵션을 선택해주세요.')
+      return
+    }
+
+    if (sourceOptionId === targetOptionId) {
+      showErrorToast(null, '소스와 타겟 옵션이 같을 수 없습니다.')
+      return
+    }
+
+    try {
+      const result = await previewFilterMigration({
+        sourceOptionId,
+        targetOptionId,
+        deactivateSource,
+        deleteSource,
+      })
+      setPreviewResult(result)
+      showSuccessToast('미리보기가 완료되었습니다.')
+    } catch (error) {
+      showErrorToast(error, '미리보기에 실패했습니다.')
+    }
+  }
+
+  // 마이그레이션 실행
+  const handleExecuteMigration = async () => {
+    if (!sourceOptionId || !targetOptionId) {
+      showErrorToast(null, '소스 옵션과 타겟 옵션을 선택해주세요.')
+      return
+    }
+
+    if (!previewResult) {
+      showErrorToast(null, '먼저 미리보기를 확인해주세요.')
+      return
+    }
+
+    const totalAffected = previewResult.affectedCompanyCount + previewResult.affectedBoardCount
+    const confirmMessage = [
+      `마이그레이션을 실행하시겠습니까?`,
+      ``,
+      `소스: ${previewResult.sourceOption.name} (${previewResult.sourceOption.code})`,
+      `타겟: ${previewResult.targetOption.name} (${previewResult.targetOption.code})`,
+      ``,
+      `영향받는 업체: ${previewResult.affectedCompanyCount}개`,
+      `영향받는 게시글: ${previewResult.affectedBoardCount}개`,
+      `중복 건너뜀: ${previewResult.duplicateCompanyCount}개 업체, ${previewResult.duplicateBoardCount}개 게시글`,
+      ``,
+      deleteSource
+        ? '⚠️ 소스 옵션이 삭제됩니다.'
+        : deactivateSource
+        ? '⚠️ 소스 옵션이 비활성화됩니다.'
+        : '소스 옵션은 유지됩니다.',
+      ``,
+      `이 작업은 되돌릴 수 없습니다.`,
+    ].join('\n')
+
+    if (!confirm(confirmMessage)) return
+
+    setIsMigrating(true)
+    try {
+      const result = await executeFilterMigration({
+        sourceOptionId,
+        targetOptionId,
+        deactivateSource,
+        deleteSource,
+      })
+
+      const successMessage = [
+        `마이그레이션이 완료되었습니다!`,
+        ``,
+        `업체: ${result.migratedCompanyCount}개 마이그레이션, ${result.skippedCompanyCount}개 건너뜀`,
+        `게시글: ${result.migratedBoardCount}개 마이그레이션, ${result.skippedBoardCount}개 건너뜀`,
+        `처리 시간: ${result.processingTimeMs}ms`,
+        ``,
+        `소스 옵션 비활성화: ${result.sourceDeactivated ? '예' : '아니오'}`,
+        `소스 옵션 삭제: ${result.sourceDeleted ? '예' : '아니오'}`,
+      ].join('\n')
+
+      alert(successMessage)
+
+      // 상태 초기화
+      setSourceOptionId(null)
+      setTargetOptionId(null)
+      setDeactivateSource(false)
+      setDeleteSource(false)
+      setPreviewResult(null)
+      setShowMigrationSection(false)
+
+      // 목록 새로고침
+      fetchOptions()
+    } catch (error) {
+      showErrorToast(error, '마이그레이션에 실패했습니다.')
+    } finally {
+      setIsMigrating(false)
+    }
+  }
+
+  // 마이그레이션 섹션 토글
+  const toggleMigrationSection = () => {
+    if (!showMigrationSection) {
+      fetchAllOptions()
+    }
+    setShowMigrationSection(!showMigrationSection)
+    setPreviewResult(null)
+  }
+
   // 계층 구조로 옵션 정렬 (부모-자식 순서 유지)
   const sortedOptions = useMemo(() => {
     const buildHierarchy = (parentId: number | null = null): FilterOption[] => {
@@ -242,6 +375,12 @@ export default function AdminFilterOptionsPage() {
     }
     return buildHierarchy()
   }, [options])
+
+  // 현재 카테고리의 옵션만 필터링 (타겟 선택용)
+  const targetOptions = useMemo(() => {
+    if (!category) return []
+    return allOptions.filter(opt => opt.categoryId === category.id && opt.id !== sourceOptionId)
+  }, [allOptions, category, sourceOptionId])
 
   return (
     <AdminGuard>
@@ -393,6 +532,187 @@ export default function AdminFilterOptionsPage() {
             </table>
           </div>
         )}
+
+        {/* 마이그레이션 섹션 */}
+        <div className="mt-8 bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">옵션 마이그레이션</h2>
+            <button
+              onClick={toggleMigrationSection}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              {showMigrationSection ? '닫기' : '마이그레이션 열기'}
+            </button>
+          </div>
+
+          {showMigrationSection && (
+            <div className="space-y-6">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-yellow-800 mb-2">⚠️ 주의사항</h3>
+                <ul className="text-sm text-yellow-700 space-y-1">
+                  <li>• 마이그레이션은 되돌릴 수 없습니다.</li>
+                  <li>• 반드시 미리보기를 먼저 확인하세요.</li>
+                  <li>• 같은 카테고리의 옵션으로만 마이그레이션할 수 있습니다.</li>
+                  <li>• 소스 옵션을 사용하는 모든 데이터가 타겟 옵션으로 변경됩니다.</li>
+                </ul>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    소스 옵션 (마이그레이션할 옵션) <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={sourceOptionId || ''}
+                    onChange={(e) => {
+                      setSourceOptionId(e.target.value ? parseInt(e.target.value) : null)
+                      setPreviewResult(null)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="">소스 옵션 선택</option>
+                    {options.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.name} ({opt.code}) - 사용 {opt.usageCount}회
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    타겟 옵션 (변경될 옵션) <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={targetOptionId || ''}
+                    onChange={(e) => {
+                      setTargetOptionId(e.target.value ? parseInt(e.target.value) : null)
+                      setPreviewResult(null)
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    disabled={!sourceOptionId}
+                  >
+                    <option value="">타겟 옵션 선택</option>
+                    {targetOptions.map((opt) => (
+                      <option key={opt.id} value={opt.id}>
+                        {opt.name} ({opt.code}) - 사용 {opt.usageCount}회
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={deactivateSource}
+                    onChange={(e) => setDeactivateSource(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-gray-700">마이그레이션 후 소스 옵션 비활성화</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={deleteSource}
+                    onChange={(e) => setDeleteSource(e.target.checked)}
+                    className="rounded"
+                  />
+                  <span className="text-sm text-gray-700">마이그레이션 후 소스 옵션 삭제 (Soft Delete)</span>
+                </label>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handlePreviewMigration}
+                  disabled={!sourceOptionId || !targetOptionId}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  미리보기
+                </button>
+
+                <button
+                  onClick={handleExecuteMigration}
+                  disabled={!previewResult || isMigrating}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {isMigrating ? '마이그레이션 중...' : '마이그레이션 실행'}
+                </button>
+              </div>
+
+              {/* 미리보기 결과 */}
+              {previewResult && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900">미리보기 결과</h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">소스 옵션</h4>
+                      <p className="text-gray-900 font-semibold">{previewResult.sourceOption.name}</p>
+                      <p className="text-sm text-gray-600">코드: {previewResult.sourceOption.code}</p>
+                      <p className="text-sm text-gray-600">사용: {previewResult.sourceOption.usageCount}회</p>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-lg border border-gray-200">
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">타겟 옵션</h4>
+                      <p className="text-gray-900 font-semibold">{previewResult.targetOption.name}</p>
+                      <p className="text-sm text-gray-600">코드: {previewResult.targetOption.code}</p>
+                      <p className="text-sm text-gray-600">사용: {previewResult.targetOption.usageCount}회</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">영향받는 데이터</h4>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-900">업체: {previewResult.affectedCompanyCount}개</p>
+                        <p className="text-sm text-gray-900">게시글: {previewResult.affectedBoardCount}개</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">중복으로 건너뜀</h4>
+                      <div className="space-y-1">
+                        <p className="text-sm text-gray-600">업체: {previewResult.duplicateCompanyCount}개</p>
+                        <p className="text-sm text-gray-600">게시글: {previewResult.duplicateBoardCount}개</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {previewResult.affectedCompanySamples.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">
+                        영향받는 업체 샘플 (최대 10개)
+                      </h4>
+                      <div className="space-y-1">
+                        {previewResult.affectedCompanySamples.map((company) => (
+                          <div key={company.id} className="text-sm text-gray-900 flex items-center gap-2">
+                            <span>{company.name}</span>
+                            {company.hasDuplicate && (
+                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">
+                                중복
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800">
+                      <strong>예상 결과:</strong>{' '}
+                      {previewResult.affectedCompanyCount - previewResult.duplicateCompanyCount}개 업체,{' '}
+                      {previewResult.affectedBoardCount - previewResult.duplicateBoardCount}개 게시글이 마이그레이션됩니다.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* 생성 모달 */}
         {showCreateModal && (
