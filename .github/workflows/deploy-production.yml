@@ -1,0 +1,134 @@
+name: Deploy Frontend to Production
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy on Production EC2
+    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, prod]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Load environment and build
+        run: |
+          cd source
+
+          # .env 파일에서 환경변수 읽기
+          if [ -f ~/damoa/frontend/.env ]; then
+            set -a
+            source ~/damoa/frontend/.env
+            set +a
+            echo "✅ .env 파일 로드 완료"
+            echo "   NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
+          else
+            echo "❌ .env 파일이 없습니다. ~/damoa/frontend/.env 파일을 생성해주세요."
+            exit 1
+          fi
+
+          # Docker 빌드 시간 측정
+          echo "🔨 Docker 빌드 시작..."
+          BUILD_START=$(date +%s)
+
+          docker build \
+            --build-arg NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+            --build-arg NEXT_PUBLIC_KAKAO_APP_KEY="$NEXT_PUBLIC_KAKAO_APP_KEY" \
+            --build-arg NEXT_PUBLIC_TOSS_CLIENT_KEY="$NEXT_PUBLIC_TOSS_CLIENT_KEY" \
+            -t damoa-frontend-prod:latest .
+
+          BUILD_END=$(date +%s)
+          BUILD_TIME=$((BUILD_END - BUILD_START))
+          echo "✅ Docker 빌드 완료 (${BUILD_TIME}초)"
+
+      - name: Deploy application
+        run: |
+          # 기존 컨테이너 중지 및 제거
+          docker stop damoa-frontend-prod || true
+          docker rm damoa-frontend-prod || true
+
+          # 새 컨테이너 실행 (Nginx 프록시를 위해 내부 네트워크만 사용)
+          docker run -d \
+            --name damoa-frontend-prod \
+            --restart unless-stopped \
+            --network damoa-network \
+            --network nginx-network \
+            damoa-frontend-prod:latest
+
+          # 이전 이미지 정리
+          docker image prune -f
+
+      - name: Health check
+        run: |
+          echo "⏳ 헬스체크 대기..."
+          for i in {1..30}; do
+            if docker exec damoa-frontend-prod wget --no-verbose --tries=1 --spider http://localhost:3000 2>/dev/null; then
+              echo "✅ Application is healthy!"
+              exit 0
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 3
+          done
+          echo "❌ Health check failed"
+          exit 1
+
+      - name: Show deployment status
+        if: always()
+        run: |
+          echo "📊 컨테이너 상태:"
+          docker ps | grep damoa-frontend-prod || true
+          echo ""
+          echo "📊 최근 로그:"
+          docker logs --tail=30 damoa-frontend-prod || true
+
+      - name: Send Slack notification (Success)
+        if: success()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "i-Damoa Frontend PRODUCTION 배포 성공!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PRODUCTION Frontend 배포 성공* :rocket:\n*환경:* Production (운영)\n*브랜치:* master\n*방식:* EC2 로컬 빌드\n*작성자:* ${{ github.actor }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
+
+      - name: Send Slack notification (Failure)
+        if: failure()
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "i-Damoa Frontend PRODUCTION 배포 실패!",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*PRODUCTION Frontend 배포 실패* :x:\n*환경:* Production (운영)\n*브랜치:* master\n*작성자:* ${{ github.actor }}\n*로그:* https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true

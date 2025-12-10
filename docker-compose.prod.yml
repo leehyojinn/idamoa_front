@@ -1,0 +1,37 @@
+# ===========================================
+# i-Damoa Frontend - Production
+# ===========================================
+# Prod 환경: Nginx를 통해 i-damoa.com으로 접근
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+
+services:
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY:-interior-damoa/i-damoa-frontend}:${IMAGE_TAG:-prod}
+    container_name: damoa-frontend-prod
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    expose:
+      - "3000"
+    networks:
+      - damoa-network
+      - nginx-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    logging:
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+networks:
+  damoa-network:
+    external: true
+  nginx-network:
+    external: true
