@@ -162,9 +162,8 @@ export default function CreditPurchasePage() {
                             +{pkg.bonusRate}%
                           </div>
                         )}
-                        <div className="flex items-center justify-between mb-2">
+                        <div className="mb-2">
                           <p className="text-lg font-bold text-gray-900">{pkg.displayName}</p>
-                          {isSelected && <IoCheckmarkCircle className="text-primary text-xl" />}
                         </div>
                         <p className="text-2xl font-bold text-primary mb-1">
                           {pkg.unitAmount.toLocaleString()}원

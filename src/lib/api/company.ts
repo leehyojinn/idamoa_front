@@ -104,7 +104,7 @@ export interface CompanyResponse {
   createdAt: string
   updatedAt: string
   images: CompanyImage[]
-  filterGroups: FilterGroup[]
+  filterGroups?: FilterGroup[]
 }
 
 /**
