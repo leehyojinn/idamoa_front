@@ -6,6 +6,7 @@ const bundleAnalyzer = withBundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone', // Docker 배포를 위한 standalone 빌드
   reactStrictMode: true,
   productionBrowserSourceMaps: false, // 프로덕션에서 소스맵 비활성화
 
