@@ -98,6 +98,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
         {/* Daum Postcode (Kakao Address) */}
         <Script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="lazyOnload" />
+        {/* Toss Payments SDK */}
+        <Script src="https://js.tosspayments.com/v1/payment" strategy="lazyOnload" />
       </head>
       <body className={`${pretendard.variable} antialiased`} style={{ fontFamily: 'var(--font-pretendard)' }}>
         <QueryProvider>

@@ -17,6 +17,8 @@ import { deleteCompany } from '@/lib/api/company'
 import { DAY_MAP, DAY_ORDER } from '@/lib/constants'
 import { useQuery } from '@tanstack/react-query'
 import { useDialogStore } from '@/stores/useDialogStore'
+import { getCreditBalance } from '@/lib/api/credit'
+import { IoCash } from 'react-icons/io5'
 
 // ========================================
 // Component
@@ -49,6 +51,15 @@ export default function MyPage() {
   // 업체 등록 여부에 따라 상세 정보 조회
   const shouldFetchCompany = isCompanyProfile && checkResponse?.data?.hasCompany === true
   const { data: companyResponse, isLoading: companyLoading, error: companyError } = useMyCompany(shouldFetchCompany)
+
+  // 크레딧 잔액 조회
+  const { data: creditBalanceResponse } = useQuery({
+    queryKey: ['credits', 'balance'],
+    queryFn: getCreditBalance,
+    enabled: !isCheckingAuth && !!accessToken,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  })
 
   // 인증 체크 - localStorage hydration 완료 대기
   useEffect(() => {
@@ -200,6 +211,36 @@ export default function MyPage() {
             </div>
           </div>
 
+          {/* 크레딧 정보 */}
+          {creditBalanceResponse?.data && (
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <IoCash className="text-2xl" />
+                    <h2 className="text-lg font-semibold">크레딧 잔액</h2>
+                  </div>
+                  <p className="text-3xl font-bold mb-1">{creditBalanceResponse.data.balance.toLocaleString()} 원</p>
+                  <p className="text-sm opacity-90">다양한 서비스 이용이 가능합니다</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => router.push('/mypage/credits/purchase')}
+                    className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm"
+                  >
+                    충전하기
+                  </button>
+                  <button
+                    onClick={() => router.push('/mypage/credits/transactions')}
+                    className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors text-sm"
+                  >
+                    내역 보기
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* 기본 정보 */}
             <div className="bg-white rounded-lg shadow-sm p-6">
@@ -317,6 +358,36 @@ export default function MyPage() {
               </div>
             </div>
           </div>
+
+          {/* 크레딧 정보 */}
+          {creditBalanceResponse?.data && (
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <IoCash className="text-2xl" />
+                    <h2 className="text-lg font-semibold">크레딧 잔액</h2>
+                  </div>
+                  <p className="text-3xl font-bold mb-1">{creditBalanceResponse.data.balance.toLocaleString()} 원</p>
+                  <p className="text-sm opacity-90">다양한 서비스 이용이 가능합니다</p>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => router.push('/mypage/credits/purchase')}
+                    className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm"
+                  >
+                    충전하기
+                  </button>
+                  <button
+                    onClick={() => router.push('/mypage/credits/transactions')}
+                    className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors text-sm"
+                  >
+                    내역 보기
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* 업체 등록 안내 */}
           <div className="bg-white rounded-lg shadow-sm p-8 text-center">
@@ -457,6 +528,36 @@ export default function MyPage() {
             </div>
           </div>
         </div>
+
+        {/* 크레딧 정보 */}
+        {creditBalanceResponse?.data && (
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <IoCash className="text-2xl" />
+                  <h2 className="text-lg font-semibold">크레딧 잔액</h2>
+                </div>
+                <p className="text-3xl font-bold mb-1">{creditBalanceResponse.data.balance.toLocaleString()} 원</p>
+                <p className="text-sm opacity-90">다양한 서비스 이용이 가능합니다</p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => router.push('/mypage/credits/purchase')}
+                  className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm"
+                >
+                  충전하기
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/credits/transactions')}
+                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors text-sm"
+                >
+                  내역 보기
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 업체 상세 정보 */}
         <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
