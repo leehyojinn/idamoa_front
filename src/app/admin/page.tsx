@@ -14,6 +14,7 @@ import {
   FiTrendingDown,
   FiRefreshCw,
 } from 'react-icons/fi'
+import { IoCash } from 'react-icons/io5'
 import { getDashboardOverview, type DashboardOverview } from '@/lib/api/dashboard'
 import { showErrorToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
@@ -284,6 +285,78 @@ export default function AdminDashboardPage() {
                 >
                   회원 관리
                 </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 크레딧 관리 */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">크레딧 관리</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center">
+                  <IoCash className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-emerald-900">패키지 관리</h3>
+              </div>
+              <p className="text-sm text-emerald-700 mb-4">
+                크레딧 충전 패키지를 생성하고 관리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/credit-packages"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-emerald-50 text-emerald-700 rounded-lg font-medium transition-colors text-sm border border-emerald-200"
+                >
+                  패키지 목록
+                </Link>
+                <Link
+                  href="/admin/credit-packages/new"
+                  className="block w-full py-2 px-4 text-center bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium transition-colors text-sm"
+                >
+                  새 패키지 생성
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <FiFileText className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-blue-900">거래 내역</h3>
+              </div>
+              <p className="text-sm text-blue-700 mb-4">
+                크레딧 충전 및 사용 내역을 조회합니다
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => showErrorToast(null, '준비 중입니다')}
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                >
+                  전체 거래 내역
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                  <FiTrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-purple-900">통계</h3>
+              </div>
+              <p className="text-sm text-purple-700 mb-4">
+                크레딧 충전 및 사용 통계를 확인합니다
+              </p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => showErrorToast(null, '준비 중입니다')}
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-purple-50 text-purple-700 rounded-lg font-medium transition-colors text-sm border border-purple-200"
+                >
+                  통계 보기
+                </button>
               </div>
             </div>
           </div>

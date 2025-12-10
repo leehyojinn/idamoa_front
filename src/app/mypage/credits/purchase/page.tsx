@@ -178,11 +178,11 @@ export default function CreditPurchasePage() {
               {/* 수량 선택 */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">수량 선택</h2>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center justify-center gap-3">
                   <button
                     type="button"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-12 h-12 rounded-lg border-2 border-gray-300 hover:border-primary hover:text-primary font-bold text-xl"
+                    className="w-12 h-12 flex-shrink-0 rounded-lg border-2 border-gray-300 hover:border-primary hover:text-primary font-bold text-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={quantity <= 1}
                   >
                     -
@@ -192,12 +192,12 @@ export default function CreditPurchasePage() {
                     min="1"
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    className="flex-1 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
+                    className="w-20 sm:w-24 text-center text-2xl font-bold border-2 border-gray-300 rounded-lg px-2 py-2 focus:ring-2 focus:ring-primary focus:border-transparent"
                   />
                   <button
                     type="button"
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-12 h-12 rounded-lg border-2 border-gray-300 hover:border-primary hover:text-primary font-bold text-xl"
+                    className="w-12 h-12 flex-shrink-0 rounded-lg border-2 border-gray-300 hover:border-primary hover:text-primary font-bold text-xl"
                   >
                     +
                   </button>
