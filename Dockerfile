@@ -2,12 +2,12 @@
 # i-Damoa Frontend - Multi-stage Docker Build
 # ===========================================
 
-# Stage 1: Dependencies
+# Stage 1: Dependencies (빌드에 필요한 모든 의존성 설치)
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
