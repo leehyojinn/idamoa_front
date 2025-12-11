@@ -6,6 +6,9 @@ import { createCreditPackage, getUnitAmounts } from '@/lib/api/admin-credit-pack
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuthStore } from '@/stores/authStore'
 import { IoArrowBack } from 'react-icons/io5'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
+import AdminGuard from '@/components/auth/AdminGuard'
 
 export default function CreateCreditPackagePage() {
   const router = useRouter()
@@ -103,18 +106,24 @@ export default function CreateCreditPackagePage() {
 
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">로딩 중...</p>
+      <AdminGuard>
+        <Navbar />
+        <div className="min-h-[calc(100vh-64px-200px)] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">로딩 중...</p>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </AdminGuard>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <AdminGuard>
+      <Navbar />
+      <div className="min-h-[calc(100vh-64px-200px)] bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
         {/* 헤더 */}
         <div className="mb-8">
           <button
@@ -268,7 +277,9 @@ export default function CreateCreditPackagePage() {
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </AdminGuard>
   )
 }
