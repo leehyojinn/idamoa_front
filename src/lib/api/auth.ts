@@ -233,3 +233,40 @@ export const getMyInfo = async (): Promise<UserMeResponse> => {
   const response = await axiosInstance.get('/auth/me')
   return response.data
 }
+
+// ========================================
+// OAuth Token Exchange Types
+// ========================================
+
+export interface OAuthTokenRequest {
+  code: string
+}
+
+export interface OAuthCallbackResponse {
+  success: boolean
+  data: {
+    isNewUser: boolean
+    tokenInfo: {
+      grantType: string
+      accessToken: string
+      refreshToken: string | null
+      profileCompleted: boolean
+      currentRole: string
+    }
+    provider: string
+    providerEmail: string
+  }
+  errorCode: string | null
+  message: string | null
+}
+
+/**
+ * OAuth 임시 코드를 토큰으로 교환
+ * 백엔드 콜백에서 받은 임시 코드를 Access Token과 Refresh Token으로 교환합니다.
+ */
+export const exchangeOAuthCode = async (
+  code: string
+): Promise<OAuthCallbackResponse> => {
+  const response = await axiosInstance.post('/oauth/token', { code })
+  return response.data
+}
