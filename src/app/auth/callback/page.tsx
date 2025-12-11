@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuthStore } from '@/stores/authStore'
-import { refreshTokenWithCookie } from '@/lib/api/auth'
+import { exchangeOAuthCode } from '@/lib/api/auth'
 import { showErrorToast, showSuccessToast, logError } from '@/lib/errorHandler'
 
 // ========================================
@@ -21,9 +21,8 @@ function AuthCallbackContent() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // URL 파라미터에서 데이터 추출
-        const success = searchParams.get('success')
-        const requiresProfileSetup = searchParams.get('requiresProfileSetup') === 'true'
+        // URL에서 code 파라미터 추출 (백엔드 OAuth 콜백에서 전달받은 임시 코드)
+        const code = searchParams.get('code')
         const error = searchParams.get('error')
 
         // 에러가 있으면 에러 처리
@@ -31,22 +30,23 @@ function AuthCallbackContent() {
           throw new Error(decodeURIComponent(error))
         }
 
-        if (success !== 'true') {
-          throw new Error('로그인에 실패했습니다.')
+        // 코드가 없으면 에러
+        if (!code) {
+          throw new Error('인증 코드가 없습니다.')
         }
 
-        // Refresh Token(httpOnly 쿠키)으로 Access Token 발급
-        const response = await refreshTokenWithCookie()
+        // 임시 코드를 토큰으로 교환 (POST /api/oauth/token)
+        const response = await exchangeOAuthCode(code)
 
         if (response.success && response.data) {
-          const tokenInfo = response.data
+          const { isNewUser, tokenInfo, providerEmail } = response.data
 
           // Access Token 저장
           setAccessToken(tokenInfo.accessToken)
 
           // 사용자 정보 저장
           setUser({
-            email: '',
+            email: providerEmail,
             profileCompleted: tokenInfo.profileCompleted,
             currentRole: tokenInfo.currentRole,
           })
@@ -54,16 +54,16 @@ function AuthCallbackContent() {
           setStatus('success')
           showSuccessToast('로그인 성공!')
 
-          // 프로필 설정이 필요하면 프로필 설정 페이지로, 아니면 메인 페이지로
+          // 신규 가입자이거나 프로필 미완성인 경우 프로필 설정 페이지로 이동
           setTimeout(() => {
-            if (requiresProfileSetup || !tokenInfo.profileCompleted) {
+            if (isNewUser || !tokenInfo.profileCompleted) {
               router.push('/signup/profile-type')
             } else {
               router.push('/')
             }
           }, 1000)
         } else {
-          throw new Error('토큰 발급에 실패했습니다.')
+          throw new Error(response.message || '토큰 발급에 실패했습니다.')
         }
       } catch (error: any) {
         logError('OAuth 콜백 처리 실패', error)
