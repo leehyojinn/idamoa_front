@@ -87,13 +87,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="ko">
       <head>
         {/* Google Analytics */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-0GWCFDQ9SE" strategy="lazyOnload" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-RTCZFSJL0W" strategy="lazyOnload" />
         <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-0GWCFDQ9SE');
+            gtag('config', 'G-RTCZFSJL0W');
           `}
         </Script>
         {/* Daum Postcode (Kakao Address) */}
