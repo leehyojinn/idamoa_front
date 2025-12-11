@@ -293,7 +293,7 @@ export default function AdminDashboardPage() {
         {/* 크레딧 관리 */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">크레딧 관리</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center">
@@ -323,20 +323,40 @@ export default function AdminDashboardPage() {
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                  <FiFileText className="w-6 h-6 text-white" />
+                  <FiUsers className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-blue-900">거래 내역</h3>
+                <h3 className="text-lg font-semibold text-blue-900">사용자 크레딧</h3>
               </div>
               <p className="text-sm text-blue-700 mb-4">
+                사용자별 크레딧을 조회하고 관리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/credits/users"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                >
+                  사용자 크레딧 관리
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl border border-orange-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                  <FiFileText className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-orange-900">거래 내역</h3>
+              </div>
+              <p className="text-sm text-orange-700 mb-4">
                 크레딧 충전 및 사용 내역을 조회합니다
               </p>
               <div className="space-y-2">
-                <button
-                  onClick={() => showErrorToast(null, '준비 중입니다')}
-                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                <Link
+                  href="/admin/credits/transactions"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-orange-50 text-orange-700 rounded-lg font-medium transition-colors text-sm border border-orange-200"
                 >
                   전체 거래 내역
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -351,12 +371,12 @@ export default function AdminDashboardPage() {
                 크레딧 충전 및 사용 통계를 확인합니다
               </p>
               <div className="space-y-2">
-                <button
-                  onClick={() => showErrorToast(null, '준비 중입니다')}
+                <Link
+                  href="/admin/credit-stats"
                   className="block w-full py-2 px-4 text-center bg-white hover:bg-purple-50 text-purple-700 rounded-lg font-medium transition-colors text-sm border border-purple-200"
                 >
                   통계 보기
-                </button>
+                </Link>
               </div>
             </div>
           </div>
