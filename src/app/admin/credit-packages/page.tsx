@@ -12,6 +12,9 @@ import {
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuthStore } from '@/stores/authStore'
 import { IoAdd, IoCheckmarkCircle, IoCloseCircle, IoCash } from 'react-icons/io5'
+import Navbar from '@/components/layout/Navbar'
+import Footer from '@/components/layout/Footer'
+import AdminGuard from '@/components/auth/AdminGuard'
 
 export default function AdminCreditPackagesPage() {
   const router = useRouter()
@@ -148,19 +151,25 @@ export default function AdminCreditPackagesPage() {
 
   if (isCheckingAuth || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">로딩 중...</p>
+      <AdminGuard>
+        <Navbar />
+        <div className="min-h-[calc(100vh-64px-200px)] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-4 text-gray-600">로딩 중...</p>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </AdminGuard>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* 헤더 */}
+    <AdminGuard>
+      <Navbar />
+      <div className="min-h-[calc(100vh-64px-200px)] bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* 헤더 */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -389,7 +398,9 @@ export default function AdminCreditPackagesPage() {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+      <Footer />
+    </AdminGuard>
   )
 }
