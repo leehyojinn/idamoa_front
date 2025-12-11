@@ -12,6 +12,7 @@ import Footer from '@/components/layout/Footer'
 import { useKakaoAddress } from '@/hooks/useKakaoAddress'
 import { logError, showErrorToast } from '@/lib/errorHandler'
 import { formatPhoneNumber, removePhoneHyphens } from '@/lib/utils'
+import { useAuthStore } from '@/stores/authStore'
 
 // ========================================
 // Validation Schema
@@ -44,12 +45,17 @@ export default function UserProfilePage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const { openAddressSearch } = useKakaoAddress()
+  const { accessToken, isAuthenticated, _hasHydrated } = useAuthStore()
 
   // 로그인 및 프로필 상태 체크
   useEffect(() => {
     const checkAuth = async () => {
-      const accessToken = localStorage.getItem('accessToken')
-      if (!accessToken) {
+      // hydration 완료 대기
+      if (!_hasHydrated) {
+        return
+      }
+
+      if (!accessToken || !isAuthenticated) {
         showErrorToast(null, '로그인이 필요한 페이지입니다')
         router.push('/login')
         return
@@ -72,7 +78,7 @@ export default function UserProfilePage() {
       setIsCheckingAuth(false)
     }
     checkAuth()
-  }, [router])
+  }, [router, accessToken, isAuthenticated, _hasHydrated])
 
   const {
     register,
