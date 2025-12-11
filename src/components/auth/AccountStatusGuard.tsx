@@ -20,6 +20,12 @@ export default function AccountStatusGuard() {
         return
       }
 
+      // 프로필 설정이 완료되지 않은 사용자는 상태 체크 건너뛰기
+      // (소셜 로그인 신규 가입자가 프로필 설정을 할 수 있도록)
+      if (!user.profileCompleted) {
+        return
+      }
+
       try {
         // 사용자 정보를 가져와서 상태 확인
         const response = await getMyInfo()
