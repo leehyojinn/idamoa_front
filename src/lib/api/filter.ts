@@ -25,6 +25,8 @@ interface PageResponse<T> {
 export async function getFilterCategories(params?: {
   entityType?: string
   isActive?: boolean
+  keyword?: string
+  sort?: string  // 예: 'displayOrder,asc' 또는 'createdAt,desc'
   page?: number
   size?: number
 }): Promise<PageResponse<FilterCategory>> {

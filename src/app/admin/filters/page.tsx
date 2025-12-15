@@ -34,7 +34,10 @@ export default function AdminFiltersPage() {
   const router = useRouter()
   const [categories, setCategories] = useState<FilterCategory[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [filter, setFilter] = useState<{ entityType?: string; isActive?: boolean }>({})
+  const [filter, setFilter] = useState<{ entityType?: string; isActive?: boolean; keyword?: string; sort?: string }>({
+    sort: 'displayOrder,asc'  // 기본 정렬: 순서 오름차순
+  })
+  const [searchInput, setSearchInput] = useState('')  // 검색어 입력 상태 (디바운싱용)
 
   // 모달 상태
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -60,7 +63,10 @@ export default function AdminFiltersPage() {
     setIsLoading(true)
     try {
       const data = await getFilterCategories({
-        ...filter,
+        entityType: filter.entityType,
+        isActive: filter.isActive,
+        keyword: filter.keyword || undefined,
+        sort: filter.sort,
         page: 0,
         size: 100,
       })
@@ -72,9 +78,17 @@ export default function AdminFiltersPage() {
     }
   }
 
+  // 검색어 디바운싱 처리
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilter(prev => ({ ...prev, keyword: searchInput || undefined }))
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
   useEffect(() => {
     fetchCategories()
-  }, [filter])
+  }, [filter.entityType, filter.isActive, filter.keyword, filter.sort])
 
   const handleCreate = async () => {
     if (!formData.code || !formData.name) {
@@ -224,7 +238,18 @@ export default function AdminFiltersPage() {
         </div>
 
         {/* 필터 */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-wrap gap-4 mb-6">
+          {/* 검색창 */}
+          <div className="flex-1 min-w-[200px]">
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="코드, 이름, 설명으로 검색..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
           <select
             value={filter.entityType || ''}
             onChange={(e) => setFilter({ ...filter, entityType: e.target.value || undefined })}
@@ -251,6 +276,20 @@ export default function AdminFiltersPage() {
             <option value="">전체 상태</option>
             <option value="true">활성화</option>
             <option value="false">비활성화</option>
+          </select>
+
+          {/* 정렬 */}
+          <select
+            value={filter.sort || 'displayOrder,asc'}
+            onChange={(e) => setFilter({ ...filter, sort: e.target.value })}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="displayOrder,asc">순서 오름차순</option>
+            <option value="displayOrder,desc">순서 내림차순</option>
+            <option value="name,asc">이름 오름차순</option>
+            <option value="name,desc">이름 내림차순</option>
+            <option value="createdAt,desc">최신순</option>
+            <option value="createdAt,asc">오래된순</option>
           </select>
         </div>
 
