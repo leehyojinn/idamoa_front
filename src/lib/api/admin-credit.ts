@@ -10,16 +10,21 @@ import type { ApiResponse } from '@/types/api'
 // ========================================
 
 export interface AdminUserCredit {
-  creditUuid: string
   userUuid: string
   userEmail: string
-  userName: string
+  userName: string | null
+  userPhone: string | null
+  userStatus: 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'INACTIVE'
+  profileCompleted: boolean
+  isDeleted: boolean
   availableCredits: number
   totalEarned: number
   totalSpent: number
   createdAt: string
   updatedAt: string
 }
+
+export type DeletedFilter = 'ALL' | 'ACTIVE' | 'DELETED'
 
 export interface AdminCreditTransaction {
   transactionUuid: string
@@ -87,6 +92,7 @@ export interface AdminCreditPaginatedResponse<T> {
 
 export interface GetUserCreditsParams {
   keyword?: string
+  deletedFilter?: DeletedFilter
   page?: number
   size?: number
   sort?: string
@@ -94,16 +100,20 @@ export interface GetUserCreditsParams {
 
 /**
  * 사용자 크레딧 목록 조회
+ * - keyword: 이메일/이름/전화번호 검색
+ * - deletedFilter: ALL(전체), ACTIVE(탈퇴하지 않은 사용자), DELETED(탈퇴한 사용자)
+ * - sort: created_at,desc (기본값), email
  */
 export const getAdminUserCredits = async (
   params: GetUserCreditsParams = {}
 ): Promise<ApiResponse<AdminCreditPaginatedResponse<AdminUserCredit>>> => {
-  const { keyword, page = 0, size = 20, sort = 'availableCredits,desc' } = params
+  const { keyword, deletedFilter = 'ALL', page = 0, size = 20, sort = 'created_at,desc' } = params
 
   const queryParams: Record<string, string> = {
     page: page.toString(),
     size: size.toString(),
     sort,
+    deletedFilter,
   }
 
   if (keyword) {
