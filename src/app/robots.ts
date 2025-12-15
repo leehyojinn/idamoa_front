@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://damoa.com'
+  const baseUrl = 'https://i-damoa.com'
 
   return {
     rules: [
@@ -13,9 +13,11 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',
           '/api/',
           '/login',
-          '/signup',
+          '/signup/',
           '/password/',
           '/oauth/',
+          '/auth/',
+          '/company-dashboard/',
         ],
       },
     ],

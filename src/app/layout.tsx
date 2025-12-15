@@ -40,37 +40,6 @@ const pretendard = localFont({
 
 export const metadata: Metadata = {
   ...defaultMetadata,
-  title: '다모아 | 인테리어의 모든 것',
-  description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
-  keywords: [
-    '인테리어',
-    '리모델링',
-    '집꾸미기',
-    '인테리어업체',
-    '인테리어견적',
-    '인테리어디자인',
-    '상업시설인테리어',
-    '주거공간인테리어',
-    '인테리어플랫폼',
-  ],
-  verification: {
-    google: 'TJWb6qHYNW4dlSJfSbe0_yIFROOQL6F-yznCNiHAONE',
-    other: {
-      'naver-site-verification': 'af76a3049ba372f72bd2fadff2bfb3d128f0c3ae',
-    },
-  },
-  openGraph: {
-    ...defaultMetadata.openGraph,
-    title: '다모아 | 인테리어의 모든 것',
-    description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
-    images: ['/images/seo-image-v001.png'],
-  },
-  twitter: {
-    ...defaultMetadata.twitter,
-    title: '다모아 | 인테리어의 모든 것',
-    description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
-    images: ['/images/seo-image-v001.png'],
-  },
   icons: {
     icon: [
       { url: '/favicon.ico' },

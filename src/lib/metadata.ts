@@ -1,29 +1,34 @@
 import { Metadata } from 'next'
 
 // 기본 메타데이터 설정
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-const siteName = '다모아'
-const siteDescription = '인테리어의 모든 것을 한 곳에서 - 사진, 업체 찾기, 견적 비교, AI 추천까지'
+const siteUrl = 'https://i-damoa.com'
+const siteName = '인테리어 다모아'
+const siteDescription = '인테리어 전문 업체를 한눈에! 업체 비교, 견적 요청, 포트폴리오 확인까지 인테리어의 모든 것을 다모아에서 만나보세요.'
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: siteName,
+    default: `${siteName} | 인테리어의 모든 것`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
   keywords: [
     '인테리어',
-    '리모델링',
-    '집꾸미기',
     '인테리어 업체',
     '인테리어 견적',
-    '인테리어 AI',
-    '평면도',
-    '플래너',
-    '인테리어 사진',
+    '인테리어 비교',
+    '리모델링',
+    '집꾸미기',
+    '아파트 인테리어',
+    '주거 인테리어',
+    '상업 인테리어',
+    '사무실 인테리어',
+    '인테리어 포트폴리오',
+    '인테리어 시공',
+    '인테리어 디자인',
+    '다모아',
   ],
-  authors: [{ name: siteName }],
+  authors: [{ name: siteName, url: siteUrl }],
   creator: siteName,
   publisher: siteName,
   formatDetection: {
@@ -35,23 +40,23 @@ export const defaultMetadata: Metadata = {
     type: 'website',
     locale: 'ko_KR',
     url: siteUrl,
-    title: siteName,
+    title: `${siteName} | 인테리어의 모든 것`,
     description: siteDescription,
     siteName: siteName,
     images: [
       {
-        url: '/images/og-image.jpg',
+        url: '/images/seo-image-v001.png',
         width: 1200,
         height: 630,
-        alt: siteName,
+        alt: '인테리어 다모아 - 인테리어 전문 업체 비교 플랫폼',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: siteName,
+    title: `${siteName} | 인테리어의 모든 것`,
     description: siteDescription,
-    images: ['/images/og-image.jpg'],
+    images: ['/images/seo-image-v001.png'],
   },
   robots: {
     index: true,
@@ -65,9 +70,10 @@ export const defaultMetadata: Metadata = {
     },
   },
   verification: {
-    google: '', // Google Search Console 인증 코드
-    // yandex: '',
-    // other: {},
+    google: 'TJWb6qHYNW4dlSJfSbe0_yIFROOQL6F-yznCNiHAONE',
+    other: {
+      'naver-site-verification': 'af76a3049ba372f72bd2fadff2bfb3d128f0c3ae',
+    },
   },
 }
 
@@ -87,7 +93,7 @@ export function createPageMetadata({
   path = '',
   keywords = [],
   noIndex = false,
-  image = '/images/og-image.jpg',
+  image = '/images/seo-image-v001.png',
 }: PageMetadataOptions): Metadata {
   const url = `${siteUrl}${path}`
 
