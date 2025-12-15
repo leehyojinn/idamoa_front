@@ -293,7 +293,7 @@ export default function AdminDashboardPage() {
         {/* 크레딧 관리 */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">크레딧 관리</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl border border-emerald-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-emerald-500 rounded-lg flex items-center justify-center">
@@ -356,6 +356,26 @@ export default function AdminDashboardPage() {
                   className="block w-full py-2 px-4 text-center bg-white hover:bg-orange-50 text-orange-700 rounded-lg font-medium transition-colors text-sm border border-orange-200"
                 >
                   전체 거래 내역
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-red-50 to-rose-50 rounded-xl border border-red-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+                  <FiRefreshCw className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-red-900">환불 관리</h3>
+              </div>
+              <p className="text-sm text-red-700 mb-4">
+                환불 요청을 승인/거부 처리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/refunds"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-red-50 text-red-700 rounded-lg font-medium transition-colors text-sm border border-red-200"
+                >
+                  환불 요청 관리
                 </Link>
               </div>
             </div>
