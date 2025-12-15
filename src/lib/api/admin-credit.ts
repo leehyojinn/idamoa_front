@@ -187,7 +187,7 @@ export interface GetTransactionsParams {
 export const getAdminCreditTransactions = async (
   params: GetTransactionsParams = {}
 ): Promise<ApiResponse<AdminCreditPaginatedResponse<AdminCreditTransaction>>> => {
-  const { type, keyword, page = 0, size = 20, sort = 'createdAt,desc' } = params
+  const { type, keyword, page = 0, size = 20, sort = 'created_at,desc' } = params
 
   const queryParams: Record<string, string> = {
     page: page.toString(),
@@ -217,7 +217,7 @@ export const getUserCreditTransactions = async (
   userUuid: string,
   params: { page?: number; size?: number; sort?: string } = {}
 ): Promise<ApiResponse<AdminCreditPaginatedResponse<AdminCreditTransaction>>> => {
-  const { page = 0, size = 20, sort = 'createdAt,desc' } = params
+  const { page = 0, size = 20, sort = 'created_at,desc' } = params
 
   const response = await axiosInstance.get(`/admin/credits/users/${userUuid}/transactions`, {
     params: {
