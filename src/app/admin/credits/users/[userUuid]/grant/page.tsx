@@ -138,7 +138,7 @@ export default function GrantCreditPage() {
             <input
               type="number"
               min="1"
-              step="100"
+              step="1"
               value={formData.amount}
               onChange={(e) => setFormData(prev => ({ ...prev, amount: parseInt(e.target.value) || 0 }))}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"

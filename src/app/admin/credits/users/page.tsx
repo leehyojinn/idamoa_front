@@ -48,7 +48,8 @@ export default function AdminUserCreditsPage() {
       const params: any = {
         page,
         size: 20,
-        sort: 'availableCredits,desc',
+        sort: 'created_at,desc',
+        deletedFilter: 'ACTIVE',
       }
 
       const keywordParam = searchParams.get('keyword')
@@ -197,11 +198,17 @@ export default function AdminUserCreditsPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {credits.map((credit) => (
-                    <tr key={credit.creditUuid} className="hover:bg-gray-50">
+                    <tr key={credit.userUuid} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">{credit.userEmail}</div>
-                          <div className="text-sm text-gray-500">UUID: {credit.userUuid.slice(0, 8)}...</div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {credit.userName || credit.userEmail}
+                            {credit.isDeleted && <span className="ml-2 text-xs text-red-500">(탈퇴)</span>}
+                          </div>
+                          <div className="text-sm text-gray-500">{credit.userEmail}</div>
+                          {credit.userPhone && (
+                            <div className="text-xs text-gray-400">{credit.userPhone}</div>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
