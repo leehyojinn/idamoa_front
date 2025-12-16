@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiChevronDown, FiChevronUp, FiRefreshCw } from 'react-icons/fi'
-import { searchGalleries, deleteGallery, toggleBookmark, type GalleryListItem, type GallerySearchParams, type GallerySearchResponse } from '@/lib/api/gallery'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiChevronDown, FiChevronUp, FiRefreshCw, FiHeart, FiStar } from 'react-icons/fi'
+import { searchGalleries, deleteGallery, toggleBookmark, toggleLike, type GalleryListItem, type GallerySearchParams, type GallerySearchResponse } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
 import { useAuth } from '@/hooks/useAuth'
@@ -352,6 +352,32 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       }
     } catch (error) {
       showErrorToast(error, '북마크 처리에 실패했습니다')
+    }
+  }
+
+  const handleToggleLike = async (galleryUuid: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!user) {
+      showErrorToast(null, '로그인이 필요합니다')
+      return
+    }
+
+    try {
+      const result = await toggleLike(galleryUuid)
+      if (result.success && result.data !== undefined) {
+        const isLiked = result.data
+
+        setGalleries(galleries.map(g =>
+          g.uuid === galleryUuid
+            ? { ...g, isLiked: isLiked, likeCount: isLiked ? g.likeCount + 1 : g.likeCount - 1 }
+            : g
+        ))
+        showSuccessToast(isLiked ? '좋아요를 눌렀습니다' : '좋아요를 취소했습니다')
+      }
+    } catch (error) {
+      showErrorToast(error, '좋아요 처리에 실패했습니다')
     }
   }
 
@@ -755,11 +781,10 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                       {gallery.filterOptions.slice(0, 3).map(filter => (
                         <span
                           key={filter.id}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
-                          style={{ backgroundColor: filter.color + '20', color: filter.color }}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700"
                         >
-                          <span>{filter.icon}</span>
-                          {filter.shortName}
+                          {filter.icon && <span>{filter.icon}</span>}
+                          {filter.shortName || filter.name}
                         </span>
                       ))}
                       {gallery.filterOptions.length > 3 && (
@@ -771,7 +796,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   )}
 
                   {/* 태그 */}
-                  {gallery.tags.length > 0 && (
+                  {gallery.tags && gallery.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {gallery.tags.slice(0, 3).map(tag => (
                         <span
@@ -782,7 +807,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                           {tag}
                         </span>
                       ))}
-                      {gallery.tags.length > 3 && (
+                      {gallery.tags && gallery.tags.length > 3 && (
                         <span className="text-xs text-gray-400">
                           +{gallery.tags.length - 3}
                         </span>
@@ -791,17 +816,35 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   )}
 
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
                       <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                        {(gallery.companyName || gallery.userName)?.charAt(0) || 'U'}
+                        {(gallery.company?.companyName || gallery.userName)?.charAt(0) || 'U'}
                       </div>
-                      <span>{gallery.companyName || gallery.userName || '알 수 없음'}</span>
+                      <span>{gallery.company?.companyName || gallery.userName || '알 수 없음'}</span>
+                      {gallery.company?.averageRating !== undefined && gallery.company.averageRating > 0 && (
+                        <span className="flex items-center gap-1 text-yellow-500">
+                          <FiStar className="fill-current" />
+                          {gallery.company.averageRating.toFixed(1)}
+                          {gallery.company.reviewCount !== undefined && (
+                            <span className="text-gray-400">({gallery.company.reviewCount})</span>
+                          )}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3 text-sm text-gray-500">
                       <span className="flex items-center gap-1">
                         <FiEye />
                         {gallery.viewCount}
                       </span>
+                      <button
+                        onClick={(e) => handleToggleLike(gallery.uuid, e)}
+                        className={`flex items-center gap-1 transition-colors ${
+                          gallery.isLiked ? 'text-red-500' : 'hover:text-red-500'
+                        }`}
+                      >
+                        <FiHeart className={gallery.isLiked ? 'fill-current' : ''} />
+                        {gallery.likeCount}
+                      </button>
                     </div>
                   </div>
                 </div>
