@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
-  IoStar,
   IoEye,
   IoCheckmarkCircle,
   IoLocationOutline,
@@ -17,6 +16,7 @@ import {
   IoLogoTwitter,
   IoArrowBack,
 } from 'react-icons/io5'
+import { FiStar } from 'react-icons/fi'
 import { SiKakaotalk, SiNaver } from 'react-icons/si'
 import { getCompanyBySlug, getCompanyByUuid, type CompanyResponse } from '@/lib/api/company'
 import { DAY_MAP, DAY_ORDER } from '@/lib/constants'
@@ -181,7 +181,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                 {/* 평점 및 통계 */}
                 <div className="flex flex-wrap items-center gap-6 mb-4">
                   <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-lg">
-                    <IoStar className="text-yellow-400 text-2xl" />
+                    <FiStar className="fill-current text-yellow-500 text-2xl" />
                     <span className="font-bold text-2xl text-gray-900">
                       {company.avgRating.toFixed(1)}
                     </span>

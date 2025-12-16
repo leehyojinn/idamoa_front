@@ -18,11 +18,11 @@ export default function Footer() {
               />
             </div>
             <p className="text-gray-400">
-              환자를 위한 공간, 의료진을 위한 공간을 <br/>
-              함께 고민하는 병원 인테리어 전문 플랫폼
+              사람을 위한 공간, 전문가와 함께 만드는 곳, <br/>
+              인테리어 다모아입니다.
             </p>
             <p className="text-gray-400 mt-4 border-t border-gray-800 pt-4 text-sm">
-              회사명 : (주) 병원인테리어 다모아 <br/>
+              회사명 : (주)인테리어 다모아 <br/>
               사업자등록번호 : 456-81-01443 <br/>
               대표자 : 최유미 <br/>
               대표전화 : 02-543-3853 <br/>

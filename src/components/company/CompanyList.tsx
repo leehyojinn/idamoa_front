@@ -10,7 +10,6 @@ import { searchCompaniesWithFilters, toggleCompanyLike, type CompanyListItem, ty
 import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 import { useAuthStore } from '@/stores/authStore'
 import {
-  IoStar,
   IoEye,
   IoHeart,
   IoHeartOutline,
@@ -22,6 +21,7 @@ import {
   IoSearch,
   IoRefresh,
 } from 'react-icons/io5'
+import { FiStar } from 'react-icons/fi'
 
 const SORT_OPTIONS = [
   { value: 'PREMIUM_TIER', label: '추천순' },
@@ -460,7 +460,7 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
 
                     {/* 평점 */}
                     <div className="flex items-center gap-1 mb-3">
-                      <IoStar className="text-yellow-400 text-lg" />
+                      <FiStar className="fill-current text-yellow-500 text-lg" />
                       <span className="font-semibold text-gray-900">
                         {company.avgRating.toFixed(1)}
                       </span>
