@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiInfo, FiExternalLink } from 'react-icons/fi'
-import { getGallery, deleteGallery, toggleBookmark, type Gallery } from '@/lib/api/gallery'
+import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiInfo, FiExternalLink, FiHeart, FiPhone, FiStar, FiFilter } from 'react-icons/fi'
+import { getGallery, deleteGallery, toggleBookmark, toggleLike, type Gallery } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { getProfile } from '@/lib/api/profile'
@@ -34,6 +34,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isBookmarking, setIsBookmarking] = useState(false)
+  const [isLiking, setIsLiking] = useState(false)
 
   // 이미지 뷰어
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -109,6 +110,31 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
     }
   }
 
+  const handleToggleLike = async () => {
+    if (!gallery || !user) {
+      showErrorToast(null, '로그인이 필요합니다')
+      return
+    }
+
+    setIsLiking(true)
+    try {
+      const result = await toggleLike(gallery.uuid)
+      if (result.success && result.data !== undefined) {
+        const isLiked = result.data
+        setGallery({
+          ...gallery,
+          isLiked: isLiked,
+          likeCount: isLiked ? gallery.likeCount + 1 : gallery.likeCount - 1,
+        })
+        showSuccessToast(isLiked ? '좋아요를 눌렀습니다' : '좋아요를 취소했습니다')
+      }
+    } catch (error) {
+      showErrorToast(error, '좋아요 처리에 실패했습니다')
+    } finally {
+      setIsLiking(false)
+    }
+  }
+
   const openImageViewer = (index: number) => {
     setSelectedImageIndex(index)
     setShowImageViewer(true)
@@ -119,7 +145,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
   }
 
   const nextImage = () => {
-    if (gallery && selectedImageIndex < gallery.images.length - 1) {
+    if (gallery && gallery.images && selectedImageIndex < gallery.images.length - 1) {
       setSelectedImageIndex(selectedImageIndex + 1)
     }
   }
@@ -170,20 +196,32 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
           </Link>
 
           <div className="flex items-center gap-2">
-            {user && (
-              <button
-                onClick={handleToggleBookmark}
-                disabled={isBookmarking}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
-                  gallery.isBookmarked
-                    ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <FiBookmark className={gallery.isBookmarked ? 'fill-current' : ''} />
-                북마크
-              </button>
-            )}
+            {/* 좋아요 버튼 - 항상 표시 */}
+            <button
+              onClick={handleToggleLike}
+              disabled={isLiking}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                gallery.isLiked
+                  ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FiHeart className={gallery.isLiked ? 'fill-current' : ''} />
+              {gallery.likeCount}
+            </button>
+            {/* 북마크 버튼 - 항상 표시 */}
+            <button
+              onClick={handleToggleBookmark}
+              disabled={isBookmarking}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+                gallery.isBookmarked
+                  ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <FiBookmark className={gallery.isBookmarked ? 'fill-current' : ''} />
+              북마크
+            </button>
             {isAuthor && (
               <>
                 <Link
@@ -240,18 +278,44 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
             </div>
           </div>
 
+          {/* 필터 옵션 */}
+          {gallery.filterOptions && gallery.filterOptions.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <FiFilter />
+                <span>필터</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {gallery.filterOptions.map(filter => (
+                  <span
+                    key={filter.id}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-purple-100 text-purple-700"
+                  >
+                    {filter.icon && <span>{filter.icon}</span>}
+                    {filter.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* 태그 */}
-          {gallery.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {gallery.tags.map(tag => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
-                >
-                  <FiTag className="text-xs" />
-                  {tag}
-                </span>
-              ))}
+          {gallery.tags && gallery.tags.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                <FiTag />
+                <span>태그</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {gallery.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
 
@@ -272,10 +336,10 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
         {/* 이미지 갤러리 */}
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            사진 ({gallery.images.length})
+            사진 ({gallery.images?.length || 0})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {gallery.images.map((image, index) => (
+            {(gallery.images || []).map((image, index) => (
               <div
                 key={image.uuid}
                 onClick={() => openImageViewer(index)}
@@ -292,6 +356,85 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
             ))}
           </div>
         </div>
+
+        {/* 업체 정보 */}
+        {gallery.company && (
+          <div className="bg-blue-50 rounded-lg shadow-sm p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">시공 업체</h2>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-lg font-semibold text-blue-800">{gallery.company.companyName}</p>
+                <p className="flex items-center gap-2 text-blue-600 mt-1">
+                  <FiPhone />
+                  {gallery.company.phone}
+                </p>
+              </div>
+              <Link
+                href={`/companies/${gallery.company.companyUuid}`}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                업체 상세보기
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* 리뷰 목록 */}
+        {gallery.reviews && gallery.reviews.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">
+              고객 리뷰 ({gallery.reviews.length})
+            </h2>
+            <div className="space-y-4">
+              {gallery.reviews.map((review) => (
+                <div key={review.reviewUuid} className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-gray-900">{review.userName}</span>
+                      <div className="flex items-center text-yellow-500">
+                        {[...Array(5)].map((_, i) => (
+                          <FiStar
+                            key={i}
+                            className={i < Math.round(review.rating) ? 'fill-current' : ''}
+                          />
+                        ))}
+                        <span className="ml-1 text-sm text-gray-600">{review.rating}</span>
+                      </div>
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                    </span>
+                  </div>
+                  <p className="text-gray-700">{review.content}</p>
+
+                  {/* 리뷰 이미지 */}
+                  {review.images && review.images.length > 0 && (
+                    <div className="flex gap-2 mt-3">
+                      {review.images.map((image) => (
+                        <div key={image.uuid} className="relative w-16 h-16 rounded overflow-hidden">
+                          <Image src={image.fileUrl} alt="" fill className="object-cover" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 업체 답변 */}
+                  {review.reply && (
+                    <div className="mt-3 pl-4 border-l-2 border-blue-300 bg-blue-50 p-3 rounded">
+                      <p className="text-sm text-blue-800 font-semibold mb-1">업체 답변</p>
+                      <p className="text-sm text-gray-700">{review.reply}</p>
+                      {review.repliedAt && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(review.repliedAt).toLocaleDateString('ko-KR')}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 삭제 확인 다이얼로그 */}
@@ -357,7 +500,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
             </button>
           )}
 
-          {selectedImageIndex < gallery.images.length - 1 && (
+          {gallery.images && selectedImageIndex < gallery.images.length - 1 && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
@@ -382,7 +525,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
               unoptimized
             />
             <div className="text-center mt-4 text-white">
-              {selectedImageIndex + 1} / {gallery.images.length}
+              {selectedImageIndex + 1} / {gallery.images?.length || 0}
             </div>
           </div>
         </div>

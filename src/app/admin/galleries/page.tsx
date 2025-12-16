@@ -167,7 +167,7 @@ export default function AdminGalleriesPage() {
                   <tr key={gallery.uuid} className="hover:bg-gray-50">
                     <td className="px-6 py-4 max-w-sm">
                       <div className="flex items-start gap-2">
-                        {gallery.images.length > 0 && (
+                        {gallery.images && gallery.images.length > 0 && (
                           <Image
                             src={gallery.images[0].fileUrl}
                             alt={gallery.title}
@@ -190,7 +190,7 @@ export default function AdminGalleriesPage() {
                           {gallery.isFeatured && (
                             <span className="ml-2 text-yellow-600">⭐</span>
                           )}
-                          {gallery.tags.length > 0 && (
+                          {gallery.tags && gallery.tags.length > 0 && (
                             <div className="mt-1 flex gap-1 flex-wrap">
                               {gallery.tags.map((tag) => (
                                 <span

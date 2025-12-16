@@ -9,6 +9,8 @@ export interface GalleryImage {
   mimeType: string
   fileExtension: string
   thumbnailUrl?: string
+  isPaid?: boolean
+  price?: number
 }
 
 export interface FilterOption {
@@ -23,12 +25,25 @@ export interface FilterOption {
   icon: string
 }
 
-export interface FilterOption {
-  id: number
-  code: string
-  name: string
-  categoryCode: string
-  categoryName: string
+// 업체 정보 (새로 추가)
+export interface CompanySummary {
+  companyUuid: string
+  companyName: string
+  phone: string
+  averageRating?: number
+  reviewCount?: number
+}
+
+// 리뷰 정보 (새로 추가)
+export interface ReviewSummary {
+  reviewUuid: string
+  userName: string
+  rating: number
+  content: string
+  createdAt: string
+  reply: string | null
+  repliedAt: string | null
+  images: GalleryImage[]
 }
 
 export interface FilterGroup {
@@ -43,48 +58,74 @@ export interface Gallery {
   id?: number
   uuid: string
   title: string
-  content: string | null  // 백엔드는 content 사용
+  content: string | null
+  boardType?: string
+  categoryId?: number | null
+  categoryName?: string | null
   relatedLink?: string
   tags: string[]
   filterGroups?: FilterGroup[]
+  filterOptions?: FilterOption[]
   images: GalleryImage[]
   viewCount: number
-  likeCount: number  // 백엔드는 likeCount 사용
-  userId: number  // 백엔드는 userId 사용
-  userName: string  // 백엔드는 userName 사용
+  likeCount: number
+  commentCount?: number
+  isPinned?: boolean
+  isFeatured?: boolean
+  isPublished?: boolean
+  publishedAt?: string
+  userId: number
+  userName: string
   userEmail?: string
-  companyName?: string  // 업체명 (백엔드에서 제공 시)
   createdAt: string
   updatedAt: string
-  isBookmarked?: boolean  // 백엔드는 isBookmarked 사용
+  isBookmarked?: boolean
+  isLiked?: boolean
+  isDeleted?: boolean
   copyright?: {
     owner: string
     license: string
     attribution: string
   }
+  // 새로 추가된 필드
+  company?: CompanySummary | null
+  reviews?: ReviewSummary[] | null
 }
 
 export interface GalleryListItem {
   uuid: string
   title: string
-  content: string | null  // 백엔드는 content 사용
+  content: string | null
+  boardType?: string
+  categoryId?: number | null
+  categoryName?: string | null
   relatedLink?: string
   tags: string[]
   images: GalleryImage[]
   viewCount: number
-  likeCount: number  // 백엔드는 likeCount 사용
-  userId: number  // 백엔드는 userId 사용
-  userName: string  // 백엔드는 userName 사용
+  likeCount: number
+  commentCount?: number
+  isPinned?: boolean
+  isFeatured?: boolean
+  isPublished?: boolean
+  publishedAt?: string
+  userId: number
+  userName: string
   userEmail?: string
-  companyName?: string  // 업체명 (백엔드에서 제공 시)
   createdAt: string
-  isBookmarked?: boolean  // 백엔드는 isBookmarked 사용
-  filterOptions?: FilterOption[]  // 필터 옵션
+  updatedAt?: string
+  isBookmarked?: boolean
+  isLiked?: boolean
+  isDeleted?: boolean
+  filterOptions?: FilterOption[]
   copyright?: {
     owner: string
     license: string
     attribution: string
   }
+  // 새로 추가된 필드
+  company?: CompanySummary | null
+  reviews?: ReviewSummary[] | null
 }
 
 export interface GallerySearchParams {
@@ -267,6 +308,20 @@ export async function toggleBookmark(galleryUuid: string): Promise<ApiResponse<b
   }
 }
 
+/**
+ * 좋아요 토글
+ */
+export async function toggleLike(galleryUuid: string): Promise<ApiResponse<boolean>> {
+  try {
+    const response = await axiosInstance.post(`/boards/gallery/${galleryUuid}/like`)
+    // response.data.data는 직접 boolean 값 (true: 추가됨, false: 제거됨)
+    return { success: true, data: response.data.data }
+  } catch (error: any) {
+    console.error('좋아요 토글 실패:', error)
+    throw error
+  }
+}
+
 // ========== 관리자 API ==========
 
 interface PageResponse<T> {
@@ -310,6 +365,10 @@ export interface AdminGalleryBoard {
   createdAt: string
   updatedAt: string
   isBookmarked: boolean
+  isLiked?: boolean
+  isDeleted?: boolean
+  company?: CompanySummary | null
+  reviews?: ReviewSummary[] | null
 }
 
 export interface AdminGalleryCreateRequest {
