@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { IoStar, IoStarOutline, IoStarHalf } from 'react-icons/io5'
+import { FiStar } from 'react-icons/fi'
 import { getCompanyReviews, createReview, updateReview, deleteReview, createReply, updateReply, deleteReply, type ReviewResponse } from '@/lib/api/review'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useDialogStore } from '@/stores/useDialogStore'
@@ -236,21 +236,16 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
   }
 
   const renderStars = (rating: number) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<IoStar key={i} className="text-yellow-400 text-xl" />)
-    }
-    if (hasHalfStar) {
-      stars.push(<IoStarHalf key="half" className="text-yellow-400 text-xl" />)
-    }
-    const emptyStars = 5 - Math.ceil(rating)
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<IoStarOutline key={`empty-${i}`} className="text-gray-300 text-xl" />)
-    }
-    return stars
+    return (
+      <div className="flex gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <FiStar
+            key={star}
+            className={`text-xl ${star <= Math.round(rating) ? 'fill-current text-yellow-500' : 'text-gray-300'}`}
+          />
+        ))}
+      </div>
+    )
   }
 
   return (
@@ -283,13 +278,11 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                   key={star}
                   type="button"
                   onClick={() => setRating(star)}
-                  className="focus:outline-none"
+                  className="focus:outline-none text-3xl transition-colors"
                 >
-                  {star <= rating ? (
-                    <IoStar className="text-yellow-400 text-3xl" />
-                  ) : (
-                    <IoStarOutline className="text-gray-300 text-3xl hover:text-yellow-400" />
-                  )}
+                  <FiStar
+                    className={star <= rating ? 'fill-current text-yellow-500' : 'text-gray-300 hover:text-yellow-400'}
+                  />
                 </button>
               ))}
               <span className="ml-2 text-lg font-semibold text-gray-900">{rating.toFixed(1)}</span>
@@ -396,13 +389,11 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                             key={star}
                             type="button"
                             onClick={() => setEditRating(star)}
-                            className="focus:outline-none"
+                            className="focus:outline-none text-3xl transition-colors"
                           >
-                            {star <= editRating ? (
-                              <IoStar className="text-yellow-400 text-3xl" />
-                            ) : (
-                              <IoStarOutline className="text-gray-300 text-3xl hover:text-yellow-400" />
-                            )}
+                            <FiStar
+                              className={star <= editRating ? 'fill-current text-yellow-500' : 'text-gray-300 hover:text-yellow-400'}
+                            />
                           </button>
                         ))}
                         <span className="ml-2 text-lg font-semibold text-gray-900">{editRating.toFixed(1)}</span>

@@ -11,6 +11,7 @@ import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { getProfile } from '@/lib/api/profile'
 import { Dialog } from '@/components/ui/Dialog'
+import ImageUpload, { type ImageData } from '@/components/ui/ImageUpload'
 
 interface GalleryDetailClientProps {
   uuid: string
@@ -41,6 +42,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewContent, setReviewContent] = useState('')
+  const [reviewImages, setReviewImages] = useState<ImageData[]>([])
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
 
   // 이미지 뷰어
@@ -158,17 +160,24 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
       return
     }
 
+    if (reviewContent.trim().length < 10) {
+      showErrorToast(null, '리뷰 내용은 최소 10자 이상이어야 합니다')
+      return
+    }
+
     setIsSubmittingReview(true)
     try {
       const result = await createReview(gallery.company.companyUuid, {
         rating: reviewRating,
         content: reviewContent.trim(),
+        imageUuids: reviewImages.length > 0 ? reviewImages.map(img => img.uuid) : undefined,
       })
 
       if (result.success) {
         showSuccessToast('리뷰가 등록되었습니다')
         setReviewContent('')
         setReviewRating(5)
+        setReviewImages([])
         setShowReviewForm(false)
         // 갤러리 새로고침하여 리뷰 목록 업데이트
         fetchGallery()
@@ -463,13 +472,26 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                   </div>
                 </div>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">리뷰 내용</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    리뷰 내용 <span className="text-red-500">*</span>
+                  </label>
                   <textarea
                     value={reviewContent}
                     onChange={(e) => setReviewContent(e.target.value)}
-                    placeholder="서비스 이용 후기를 작성해주세요"
+                    placeholder="서비스 이용 후기를 작성해주세요 (최소 10자)"
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">{reviewContent.length} / 5000</p>
+                </div>
+                <div className="mb-4">
+                  <ImageUpload
+                    label="리뷰 이미지 (선택사항)"
+                    value={reviewImages}
+                    onChange={(data) => setReviewImages(Array.isArray(data) ? data : data ? [data] : [])}
+                    multiple={true}
+                    maxFiles={5}
+                    entityType="REVIEW"
                   />
                 </div>
                 <div className="flex gap-2 justify-end">
@@ -478,6 +500,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                       setShowReviewForm(false)
                       setReviewContent('')
                       setReviewRating(5)
+                      setReviewImages([])
                     }}
                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
                   >
