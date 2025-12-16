@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiInfo, FiExternalLink, FiHeart, FiPhone, FiStar, FiFilter } from 'react-icons/fi'
+import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiInfo, FiExternalLink, FiHeart, FiPhone, FiStar, FiFilter, FiSend } from 'react-icons/fi'
 import { getGallery, deleteGallery, toggleBookmark, toggleLike, type Gallery } from '@/lib/api/gallery'
+import { createReview, type CreateReviewRequest } from '@/lib/api/review'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { getProfile } from '@/lib/api/profile'
@@ -35,6 +36,12 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isBookmarking, setIsBookmarking] = useState(false)
   const [isLiking, setIsLiking] = useState(false)
+
+  // 리뷰 작성
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [reviewRating, setReviewRating] = useState(5)
+  const [reviewContent, setReviewContent] = useState('')
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false)
 
   // 이미지 뷰어
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
@@ -132,6 +139,44 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
       showErrorToast(error, '좋아요 처리에 실패했습니다')
     } finally {
       setIsLiking(false)
+    }
+  }
+
+  const handleSubmitReview = async () => {
+    if (!gallery?.company?.companyUuid) {
+      showErrorToast(null, '업체 정보가 없어 리뷰를 작성할 수 없습니다')
+      return
+    }
+
+    if (!user) {
+      showErrorToast(null, '로그인이 필요합니다')
+      return
+    }
+
+    if (!reviewContent.trim()) {
+      showErrorToast(null, '리뷰 내용을 입력해주세요')
+      return
+    }
+
+    setIsSubmittingReview(true)
+    try {
+      const result = await createReview(gallery.company.companyUuid, {
+        rating: reviewRating,
+        content: reviewContent.trim(),
+      })
+
+      if (result.success) {
+        showSuccessToast('리뷰가 등록되었습니다')
+        setReviewContent('')
+        setReviewRating(5)
+        setShowReviewForm(false)
+        // 갤러리 새로고침하여 리뷰 목록 업데이트
+        fetchGallery()
+      }
+    } catch (error) {
+      showErrorToast(error, '리뷰 등록에 실패했습니다')
+    } finally {
+      setIsSubmittingReview(false)
     }
   }
 
@@ -269,9 +314,9 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
             </div>
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
-                {(gallery.companyName || gallery.userName)?.charAt(0) || 'U'}
+                {(gallery.company?.companyName || gallery.userName)?.charAt(0) || 'U'}
               </div>
-              <span>{gallery.companyName || gallery.userName || '알 수 없음'}</span>
+              <span>{gallery.company?.companyName || gallery.userName || '알 수 없음'}</span>
             </div>
             <div className="text-gray-400">
               {new Date(gallery.createdAt).toLocaleDateString('ko-KR')}
@@ -379,60 +424,130 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
           </div>
         )}
 
-        {/* 리뷰 목록 */}
-        {gallery.reviews && gallery.reviews.length > 0 && (
+        {/* 리뷰 섹션 */}
+        {gallery.company && (
           <div className="bg-white rounded-lg shadow-sm p-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">
-              고객 리뷰 ({gallery.reviews.length})
-            </h2>
-            <div className="space-y-4">
-              {gallery.reviews.map((review) => (
-                <div key={review.reviewUuid} className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-gray-900">{review.userName}</span>
-                      <div className="flex items-center text-yellow-500">
-                        {[...Array(5)].map((_, i) => (
-                          <FiStar
-                            key={i}
-                            className={i < Math.round(review.rating) ? 'fill-current' : ''}
-                          />
-                        ))}
-                        <span className="ml-1 text-sm text-gray-600">{review.rating}</span>
-                      </div>
-                    </div>
-                    <span className="text-sm text-gray-500">
-                      {new Date(review.createdAt).toLocaleDateString('ko-KR')}
-                    </span>
-                  </div>
-                  <p className="text-gray-700">{review.content}</p>
-
-                  {/* 리뷰 이미지 */}
-                  {review.images && review.images.length > 0 && (
-                    <div className="flex gap-2 mt-3">
-                      {review.images.map((image) => (
-                        <div key={image.uuid} className="relative w-16 h-16 rounded overflow-hidden">
-                          <Image src={image.fileUrl} alt="" fill className="object-cover" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 업체 답변 */}
-                  {review.reply && (
-                    <div className="mt-3 pl-4 border-l-2 border-blue-300 bg-blue-50 p-3 rounded">
-                      <p className="text-sm text-blue-800 font-semibold mb-1">업체 답변</p>
-                      <p className="text-sm text-gray-700">{review.reply}</p>
-                      {review.repliedAt && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {new Date(review.repliedAt).toLocaleDateString('ko-KR')}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900">
+                고객 리뷰 {gallery.reviews && gallery.reviews.length > 0 && `(${gallery.reviews.length})`}
+              </h2>
+              {user && !showReviewForm && (
+                <button
+                  onClick={() => setShowReviewForm(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  리뷰 작성
+                </button>
+              )}
             </div>
+
+            {/* 리뷰 작성 폼 */}
+            {showReviewForm && (
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">평점</label>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setReviewRating(star)}
+                        className="text-2xl transition-colors"
+                      >
+                        <FiStar
+                          className={star <= reviewRating ? 'fill-current text-yellow-500' : 'text-gray-300'}
+                        />
+                      </button>
+                    ))}
+                    <span className="ml-2 text-sm text-gray-600">{reviewRating}점</span>
+                  </div>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">리뷰 내용</label>
+                  <textarea
+                    value={reviewContent}
+                    onChange={(e) => setReviewContent(e.target.value)}
+                    placeholder="서비스 이용 후기를 작성해주세요"
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button
+                    onClick={() => {
+                      setShowReviewForm(false)
+                      setReviewContent('')
+                      setReviewRating(5)
+                    }}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleSubmitReview}
+                    disabled={isSubmittingReview || !reviewContent.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    <FiSend />
+                    {isSubmittingReview ? '등록 중...' : '리뷰 등록'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 리뷰 목록 */}
+            {gallery.reviews && gallery.reviews.length > 0 ? (
+              <div className="space-y-4">
+                {gallery.reviews.map((review) => (
+                  <div key={review.reviewUuid} className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-gray-900">{review.userName}</span>
+                        <div className="flex items-center text-yellow-500">
+                          {[...Array(5)].map((_, i) => (
+                            <FiStar
+                              key={i}
+                              className={i < Math.round(review.rating) ? 'fill-current' : ''}
+                            />
+                          ))}
+                          <span className="ml-1 text-sm text-gray-600">{review.rating}</span>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">
+                        {new Date(review.createdAt).toLocaleDateString('ko-KR')}
+                      </span>
+                    </div>
+                    <p className="text-gray-700">{review.content}</p>
+
+                    {/* 리뷰 이미지 */}
+                    {review.images && review.images.length > 0 && (
+                      <div className="flex gap-2 mt-3">
+                        {review.images.map((image) => (
+                          <div key={image.uuid} className="relative w-16 h-16 rounded overflow-hidden">
+                            <Image src={image.fileUrl} alt="" fill className="object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 업체 답변 */}
+                    {review.reply && (
+                      <div className="mt-3 pl-4 border-l-2 border-blue-300 bg-blue-50 p-3 rounded">
+                        <p className="text-sm text-blue-800 font-semibold mb-1">업체 답변</p>
+                        <p className="text-sm text-gray-700">{review.reply}</p>
+                        {review.repliedAt && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            {new Date(review.repliedAt).toLocaleDateString('ko-KR')}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">아직 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!</p>
+            )}
           </div>
         )}
       </div>
