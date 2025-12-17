@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { FiPlus, FiX, FiImage, FiTag, FiFilter, FiChevronRight, FiCheck } from 'react-icons/fi'
+import { FiPlus, FiX, FiImage, FiTag, FiFilter, FiChevronRight, FiChevronDown, FiCheck } from 'react-icons/fi'
 import { createGallery, type CreateGalleryRequest } from '@/lib/api/gallery'
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
@@ -41,6 +41,7 @@ export default function GalleryCreateForm() {
   const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
   const [isLoadingFilters, setIsLoadingFilters] = useState(true)
   const [showFilterPanel, setShowFilterPanel] = useState(false)
+  const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
 
   // 이미지
   const [images, setImages] = useState<ImageAttachment[]>([])
@@ -79,7 +80,38 @@ export default function GalleryCreateForm() {
     const loadFilters = async () => {
       try {
         const filters = await getPublicFilters('GALLERY')
-        setFilterCategories(filters)
+
+        // 플랫 배열을 트리 구조로 변환하는 함수
+        const buildOptionTree = (options: typeof filters[0]['options']) => {
+          const optionMap = new Map<number, typeof options[0]>()
+          const roots: typeof options = []
+
+          // 모든 옵션을 맵에 저장하고 children 배열 초기화
+          options.forEach(option => {
+            optionMap.set(option.id, { ...option, children: [] })
+          })
+
+          // 부모-자식 관계 설정
+          options.forEach(option => {
+            const currentOption = optionMap.get(option.id)!
+            if (option.parentId && optionMap.has(option.parentId)) {
+              const parent = optionMap.get(option.parentId)!
+              if (!parent.children) parent.children = []
+              parent.children.push(currentOption)
+            } else {
+              roots.push(currentOption)
+            }
+          })
+
+          return roots
+        }
+
+        // 각 카테고리의 options를 트리 구조로 변환
+        const filtersWithTree = filters.map(category => ({
+          ...category,
+          options: buildOptionTree(category.options)
+        }))
+        setFilterCategories(filtersWithTree)
       } catch (error) {
         showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
       } finally {
@@ -175,6 +207,103 @@ export default function GalleryCreateForm() {
   // 전체 필터 초기화
   const handleClearAllFilters = () => {
     setSelectedFilterOptionIds([])
+  }
+
+  // 아코디언 토글
+  const toggleOptionExpand = (optionId: number) => {
+    setExpandedOptions(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(optionId)) {
+        newSet.delete(optionId)
+      } else {
+        newSet.add(optionId)
+      }
+      return newSet
+    })
+  }
+
+  // 자식 중 선택된 개수 계산 (재귀적으로)
+  const getSelectedChildrenCount = (option: typeof filterCategories[0]['options'][0]): number => {
+    if (!option.children || option.children.length === 0) {
+      return selectedFilterOptionIds.includes(option.id) ? 1 : 0
+    }
+    return option.children.reduce((sum, child) => sum + getSelectedChildrenCount(child), 0)
+  }
+
+  // 모든 리프 옵션 ID 가져오기 (재귀적으로)
+  const getAllLeafOptionIds = (option: typeof filterCategories[0]['options'][0]): number[] => {
+    if (!option.children || option.children.length === 0) {
+      return [option.id]
+    }
+    return option.children.flatMap(child => getAllLeafOptionIds(child))
+  }
+
+  // 필터 옵션 렌더링 (재귀적으로 자식 처리)
+  const renderFilterOption = (
+    option: typeof filterCategories[0]['options'][0],
+    categoryId: number,
+    filterType: string,
+    depth: number = 0
+  ) => {
+    const hasChildren = option.children && option.children.length > 0
+    const isExpanded = expandedOptions.has(option.id)
+    const selectedCount = hasChildren ? getSelectedChildrenCount(option) : 0
+
+    if (hasChildren) {
+      // 자식이 있으면 아코디언 형태로 표시
+      return (
+        <div key={option.id} className={depth > 0 ? 'ml-3' : ''}>
+          <button
+            type="button"
+            onClick={() => toggleOptionExpand(option.id)}
+            className="w-full flex items-center justify-between py-2 px-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              {isExpanded ? (
+                <FiChevronDown className="w-4 h-4 text-gray-400" />
+              ) : (
+                <FiChevronRight className="w-4 h-4 text-gray-400" />
+              )}
+              {option.name}
+            </span>
+            {selectedCount > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                {selectedCount}
+              </span>
+            )}
+          </button>
+          {isExpanded && (
+            <div className="ml-2 mt-1 space-y-1 border-l-2 border-gray-100 pl-2">
+              {option.children!.map((child) => renderFilterOption(child, categoryId, filterType, depth + 1))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // 자식이 없으면 선택 가능한 버튼
+    const isSelected = selectedFilterOptionIds.includes(option.id)
+    return (
+      <button
+        key={option.id}
+        type="button"
+        onClick={() => handleFilterOptionChange(categoryId, option.id, !isSelected, filterType)}
+        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+          isSelected
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+          isSelected
+            ? 'bg-white border-white'
+            : 'border-gray-400'
+        }`}>
+          {isSelected && <FiCheck className="w-3 h-3 text-blue-600" />}
+        </span>
+        <span className="truncate">{option.name}</span>
+      </button>
+    )
   }
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -686,10 +815,16 @@ export default function GalleryCreateForm() {
               ) : (
                 <div className="divide-y divide-gray-100">
                   {filterCategories.map((category) => {
-                    const selectedCount = category.options.filter(opt =>
-                      selectedFilterOptionIds.includes(opt.id)
-                    ).length
-                    const isAllSelected = selectedCount === category.options.length
+                    // 선택된 개수 계산 (재귀적으로 모든 리프 노드 확인)
+                    const countSelected = (options: typeof category.options): number => {
+                      return options.reduce((sum, opt) => {
+                        if (opt.children && opt.children.length > 0) {
+                          return sum + countSelected(opt.children)
+                        }
+                        return sum + (selectedFilterOptionIds.includes(opt.id) ? 1 : 0)
+                      }, 0)
+                    }
+                    const selectedCount = countSelected(category.options)
 
                     return (
                       <div key={category.id} className="p-4">
@@ -707,47 +842,9 @@ export default function GalleryCreateForm() {
                               </span>
                             )}
                           </div>
-                          {category.filterType === 'MULTI_SELECT' && (
-                            <button
-                              type="button"
-                              onClick={() => handleSelectAllOptions(category, !isAllSelected)}
-                              className={`text-xs font-medium px-2 py-1 rounded transition-colors ${
-                                isAllSelected
-                                  ? 'bg-blue-100 text-blue-700'
-                                  : 'text-gray-500 hover:text-blue-600'
-                              }`}
-                            >
-                              {isAllSelected ? '전체 해제' : '전체 선택'}
-                            </button>
-                          )}
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {category.options.map((option) => {
-                            const isSelected = selectedFilterOptionIds.includes(option.id)
-                            return (
-                              <button
-                                key={option.id}
-                                type="button"
-                                onClick={() =>
-                                  handleFilterOptionChange(category.id, option.id, !isSelected, category.filterType)
-                                }
-                                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                                  isSelected
-                                    ? 'bg-blue-600 text-white shadow-md'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                }`}
-                              >
-                                <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
-                                  isSelected
-                                    ? 'bg-white border-white'
-                                    : 'border-gray-400'
-                                }`}>
-                                  {isSelected && <FiCheck className="w-3 h-3 text-blue-600" />}
-                                </span>
-                                <span className="truncate">{option.name}</span>
-                              </button>
-                            )
-                          })}
+                        <div className="space-y-1">
+                          {category.options.map((option) => renderFilterOption(option, category.id, category.filterType, 0))}
                         </div>
                       </div>
                     )
