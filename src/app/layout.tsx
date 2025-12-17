@@ -55,6 +55,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="PaYTWF4RwmZynBzMccFHSJX07TmPlb0UdZk9sZFgBLs" />
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-RTCZFSJL0W" strategy="lazyOnload" />
         <Script id="google-analytics" strategy="lazyOnload">
