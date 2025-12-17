@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar } from 'react-icons/fi'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import { searchGalleries, deleteGallery, toggleBookmark, toggleLike, type GalleryListItem, type GallerySearchParams, type GallerySearchResponse } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
@@ -76,13 +76,45 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
   const [onlyBookmarked, setOnlyBookmarked] = useState(false)
   const [onlyMyPosts, setOnlyMyPosts] = useState(false)
+  const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
 
   // 필터 로드
   useEffect(() => {
     const loadFilters = async () => {
       try {
         const filters = await getPublicFilters('GALLERY')
-        setFilterCategories(filters)
+
+        // 플랫 배열을 트리 구조로 변환하는 함수
+        const buildOptionTree = (options: typeof filters[0]['options']) => {
+          const optionMap = new Map<number, typeof options[0]>()
+          const roots: typeof options = []
+
+          // 모든 옵션을 맵에 저장하고 children 배열 초기화
+          options.forEach(option => {
+            optionMap.set(option.id, { ...option, children: [] })
+          })
+
+          // 부모-자식 관계 설정
+          options.forEach(option => {
+            const currentOption = optionMap.get(option.id)!
+            if (option.parentId && optionMap.has(option.parentId)) {
+              const parent = optionMap.get(option.parentId)!
+              if (!parent.children) parent.children = []
+              parent.children.push(currentOption)
+            } else {
+              roots.push(currentOption)
+            }
+          })
+
+          return roots
+        }
+
+        // 각 카테고리의 options를 트리 구조로 변환
+        const filtersWithTree = filters.map(category => ({
+          ...category,
+          options: buildOptionTree(category.options)
+        }))
+        setFilterCategories(filtersWithTree)
       } catch (error) {
         showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
       } finally {
@@ -230,7 +262,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
         setTotalElements(0)
       }
     } catch (error) {
-      showErrorToast(error, '갤러리 목록을 불러오는데 실패했습니다')
+      showErrorToast(error, '포트폴리오 목록을 불러오는데 실패했습니다')
       setGalleries([])
       setTotalPages(0)
       setTotalElements(0)
@@ -345,7 +377,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setIsDeleting(true)
     try {
       await deleteGallery(deletingGallery.uuid)
-      showSuccessToast('갤러리가 삭제되었습니다')
+      showSuccessToast('포트폴리오가 삭제되었습니다')
       setShowDeleteDialog(false)
       setDeletingGallery(null)
       // 목록 새로고침
@@ -354,7 +386,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       if (error?.response?.status === 403) {
         showErrorToast(error, '삭제 권한이 없습니다')
       } else {
-        showErrorToast(error, '갤러리 삭제에 실패했습니다')
+        showErrorToast(error, '포트폴리오 삭제에 실패했습니다')
       }
     } finally {
       setIsDeleting(false)
@@ -376,7 +408,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
         // result.data는 직접 boolean 값 (true: 추가됨, false: 제거됨)
         const isBookmarked = result.data
 
-        // 갤러리 목록에서 해당 갤러리의 북마크 상태만 업데이트
+        // 포트폴리오 목록에서 해당 포트폴리오의 북마크 상태만 업데이트
         setGalleries(galleries.map(g =>
           g.uuid === galleryUuid
             ? { ...g, isBookmarked: isBookmarked }
@@ -424,6 +456,78 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     }
   }, [openMenuId])
 
+  // 아코디언 토글
+  const toggleOptionExpand = (optionId: number) => {
+    setExpandedOptions(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(optionId)) {
+        newSet.delete(optionId)
+      } else {
+        newSet.add(optionId)
+      }
+      return newSet
+    })
+  }
+
+  // 자식 중 선택된 개수 계산
+  const getSelectedChildrenCount = (option: typeof filterCategories[0]['options'][0]): number => {
+    if (!option.children || option.children.length === 0) {
+      return selectedFilterOptionIds.includes(option.id) ? 1 : 0
+    }
+    return option.children.reduce((sum, child) => sum + getSelectedChildrenCount(child), 0)
+  }
+
+  // 필터 옵션 렌더링 (재귀적으로 자식 처리)
+  const renderFilterOption = (option: typeof filterCategories[0]['options'][0], depth: number = 0) => {
+    const hasChildren = option.children && option.children.length > 0
+    const isExpanded = expandedOptions.has(option.id)
+    const selectedCount = hasChildren ? getSelectedChildrenCount(option) : 0
+
+    if (hasChildren) {
+      // 자식이 있으면 아코디언 형태로 표시
+      return (
+        <div key={option.id} className={depth > 0 ? 'ml-3' : ''}>
+          <button
+            type="button"
+            onClick={() => toggleOptionExpand(option.id)}
+            className="w-full flex items-center justify-between py-1.5 text-left hover:bg-gray-50 rounded transition-colors"
+          >
+            <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              {isExpanded ? (
+                <FiChevronDown className="w-4 h-4 text-gray-400" />
+              ) : (
+                <FiChevronRight className="w-4 h-4 text-gray-400" />
+              )}
+              {option.name}
+            </span>
+            {selectedCount > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                {selectedCount}
+              </span>
+            )}
+          </button>
+          {isExpanded && (
+            <div className="ml-2 mt-1 space-y-1 border-l-2 border-gray-100 pl-2">
+              {option.children!.map((child) => renderFilterOption(child, depth + 1))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    // 자식이 없으면 선택 가능한 체크박스
+    return (
+      <div key={option.id} className={depth > 0 ? '' : ''}>
+        <Checkbox
+          checked={selectedFilterOptionIds.includes(option.id)}
+          onChange={(checked) => handleToggleFilterOption(option.id, option.name, checked)}
+          label={option.name}
+          size="sm"
+        />
+      </div>
+    )
+  }
+
   // 필터 사이드바 컴포넌트 (재사용)
   const FilterSidebar = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={isMobile ? '' : 'space-y-4'}>
@@ -438,15 +542,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             <div key={category.id} className="border-b border-gray-100 pb-4 last:border-b-0">
               <h4 className="font-semibold text-gray-900 mb-2 text-sm">{category.name}</h4>
               <div className="space-y-1">
-                {category.options.map((option) => (
-                  <Checkbox
-                    key={option.id}
-                    checked={selectedFilterOptionIds.includes(option.id)}
-                    onChange={(checked) => handleToggleFilterOption(option.id, option.name, checked)}
-                    label={option.name}
-                    size="sm"
-                  />
-                ))}
+                {category.options.map((option) => renderFilterOption(option, 0))}
               </div>
             </div>
           ))}
@@ -686,22 +782,22 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           )}
         </div>
 
-      {/* 갤러리 그리드 */}
+      {/* 포트폴리오 그리드 */}
       {isLoading ? (
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
-          <p className="mt-4 text-gray-600">갤러리를 불러오는 중...</p>
+          <p className="mt-4 text-gray-600">포트폴리오 불러오는 중...</p>
         </div>
       ) : galleries.length === 0 ? (
         <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <p className="text-gray-500 text-lg">등록된 갤러리가 없습니다.</p>
+          <p className="text-gray-500 text-lg">등록된 포트폴리오가 없습니다.</p>
           {user && (
             <Link
               href="/photos/create"
               className="inline-flex items-center gap-2 mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
               <FiPlus className="text-xl" />
-              첫 갤러리 등록하기
+              첫 포트폴리오 등록하기
             </Link>
           )}
         </div>
@@ -1051,12 +1147,12 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             }}
           />
           <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">갤러리 삭제</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">포트폴리오 삭제</h3>
             <div className="space-y-4">
               <p className="text-gray-600">
-                정말로 이 갤러리를 삭제하시겠습니까?
+                정말로 이 포트폴리오 삭제하시겠습니까?
                 <br />
-                삭제된 갤러리는 복구할 수 없습니다.
+                삭제된 포트폴리오는 복구할 수 없습니다.
               </p>
               {deletingGallery && (
                 <div className="bg-gray-50 p-3 rounded-lg">

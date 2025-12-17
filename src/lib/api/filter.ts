@@ -178,6 +178,8 @@ export interface PublicFilterOption {
   isActive?: boolean
   isDeleted?: boolean
   usageCount?: number
+  parentId?: number | null
+  children?: PublicFilterOption[]
 }
 
 // 모든 활성 필터 카테고리 조회 (인증 불필요)
