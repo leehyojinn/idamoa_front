@@ -314,6 +314,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     if (params.onlyMyPosts) query.set('onlyMyPosts', 'true')
 
     router.push(`${basePath}?${query.toString()}`, { scroll: false })
+
+    // 포트폴리오 섹션으로 스크롤
+    setTimeout(() => {
+      const portfolioSection = document.getElementById('portfolio')
+      if (portfolioSection) {
+        portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
   }
 
   const handleSearch = () => {
