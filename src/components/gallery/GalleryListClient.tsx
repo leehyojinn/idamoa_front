@@ -83,13 +83,6 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     const loadFilters = async () => {
       try {
         const filters = await getPublicFilters('GALLERY')
-        console.log('=== 필터 API 응답 ===', filters)
-        filters.forEach(category => {
-          console.log(`카테고리: ${category.name}`)
-          category.options.forEach(opt => {
-            console.log(`  옵션: ${opt.name}, isDeleted: ${opt.isDeleted}, isActive: ${opt.isActive}`)
-          })
-        })
 
         // 삭제되지 않고 활성화된 옵션만 필터링
         const filterActiveOptions = (options: typeof filters[0]['options']) => {
