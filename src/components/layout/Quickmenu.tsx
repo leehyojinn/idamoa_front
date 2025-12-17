@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
     FaGavel,
     FaCalendarDays,
-    FaImage,
+    FaBuilding,
     FaFolderOpen,
     FaChevronRight,
     FaChevronLeft,
@@ -38,10 +38,10 @@ export default function Quickmenu() {
             icon: FaCalendarDays,
             href: '/planner'
         }, {
-            id: 'photos',
-            label: '사진',
-            icon: FaImage,
-            href: '/photos'
+            id: 'companies',
+            label: '업체찾기',
+            icon: FaBuilding,
+            href: '/companies'
         }, {
             id: 'resources',
             label: '자료실',

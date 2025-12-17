@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiChevronDown, FiChevronUp, FiRefreshCw, FiHeart, FiStar } from 'react-icons/fi'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar } from 'react-icons/fi'
 import { searchGalleries, deleteGallery, toggleBookmark, toggleLike, type GalleryListItem, type GallerySearchParams, type GallerySearchResponse } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
+import Checkbox from '@/components/ui/Checkbox'
 import { useAuth } from '@/hooks/useAuth'
 import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 
@@ -18,7 +19,11 @@ interface GalleryListClientProps {
 export default function GalleryListClient({ initialData }: GalleryListClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const { user } = useAuth()
+
+  // 현재 경로 (메인페이지면 '/', 아니면 현재 경로)
+  const basePath = pathname || '/'
 
   const [galleries, setGalleries] = useState<GalleryListItem[]>(initialData?.content || [])
   const [isLoading, setIsLoading] = useState(!initialData)
@@ -33,6 +38,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
   // 필터 펼침/접힘 상태
   const [showFilters, setShowFilters] = useState(false)
+  // 모바일 필터 팝업
+  const [showMobileFilterPopup, setShowMobileFilterPopup] = useState(false)
 
   // 필터 카테고리
   const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
@@ -159,6 +166,33 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     })
   }
 
+  // 체크박스로 필터 토글
+  const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
+    let newFilterOptionIds: number[]
+    let newTags: string[]
+
+    if (checked) {
+      newFilterOptionIds = [...selectedFilterOptionIds, optionId]
+      newTags = [...selectedTags, optionName]
+    } else {
+      newFilterOptionIds = selectedFilterOptionIds.filter(id => id !== optionId)
+      newTags = selectedTags.filter(t => t !== optionName)
+    }
+
+    setSelectedFilterOptionIds(newFilterOptionIds)
+    setSelectedTags(newTags)
+    updateURL({
+      page: 0,
+      keyword,
+      filterOptionIds: newFilterOptionIds,
+      tags: newTags,
+      sortBy,
+      sortDirection,
+      onlyBookmarked,
+      onlyMyPosts,
+    })
+  }
+
   const handleResetFilters = () => {
     setKeyword('')
     setSelectedTags([])
@@ -168,7 +202,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setOnlyBookmarked(false)
     setOnlyMyPosts(false)
     // URL을 초기 상태로
-    router.push('/photos', { scroll: false })
+    router.push(basePath, { scroll: false })
   }
 
   const fetchGalleries = useCallback(async (params: GallerySearchParams = {}) => {
@@ -247,7 +281,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     if (params.onlyBookmarked) query.set('onlyBookmarked', 'true')
     if (params.onlyMyPosts) query.set('onlyMyPosts', 'true')
 
-    router.push(`/photos?${query.toString()}`, { scroll: false })
+    router.push(`${basePath}?${query.toString()}`, { scroll: false })
   }
 
   const handleSearch = () => {
@@ -390,56 +424,153 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     }
   }, [openMenuId])
 
-  return (
-    <div className="space-y-6">
-      {/* 헤더 */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">사진 갤러리</h1>
-          <p className="text-gray-600 mt-2">
-            {totalElements}개의 갤러리
-          </p>
+  // 필터 사이드바 컴포넌트 (재사용)
+  const FilterSidebar = ({ isMobile = false }: { isMobile?: boolean }) => (
+    <div className={isMobile ? '' : 'space-y-4'}>
+      {isLoadingFilters ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+          <p className="mt-2 text-gray-600">필터 로딩 중...</p>
         </div>
-        {user && (
-          <Link
-            href="/photos/create"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
-          >
-            <FiPlus className="text-xl" />
-            갤러리 등록
-          </Link>
-        )}
-      </div>
+      ) : filterCategories.length > 0 ? (
+        <div className="space-y-4">
+          {filterCategories.map((category) => (
+            <div key={category.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+              <h4 className="font-semibold text-gray-900 mb-2 text-sm">{category.name}</h4>
+              <div className="space-y-1">
+                {category.options.map((option) => (
+                  <Checkbox
+                    key={option.id}
+                    checked={selectedFilterOptionIds.includes(option.id)}
+                    onChange={(checked) => handleToggleFilterOption(option.id, option.name, checked)}
+                    label={option.name}
+                    size="sm"
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500 text-sm">
+          사용 가능한 필터가 없습니다
+        </div>
+      )}
+    </div>
+  )
 
-      {/* 검색 및 필터 */}
-      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">
-        {/* 검색바 */}
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-          <div className="flex-1">
+  return (
+    <div className="flex gap-6">
+      {/* PC: 왼쪽 고정 필터 사이드바 */}
+      <aside className="hidden lg:block w-64 flex-shrink-0">
+        <div className="sticky top-[9rem] bg-white rounded-lg shadow-sm p-4 max-h-[calc(100vh-120px)] overflow-y-auto space-y-4">
+          {/* 검색 */}
+          <div>
             <div className="relative">
               <input
                 type="text"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="제목, 설명, 태그 등 검색..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="검색어 입력..."
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
+            <button
+              onClick={handleSearch}
+              className="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              검색
+            </button>
           </div>
-          <button
-            onClick={handleSearch}
-            className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
-          >
-            검색
-          </button>
+
+          <div className="border-t border-gray-100 pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-gray-900 flex items-center gap-2 text-sm">
+                <FiFilter className="text-blue-600" />
+                필터
+              </h3>
+              {(selectedFilterOptionIds.length > 0 || keyword) && (
+                <button
+                  onClick={handleResetFilters}
+                  className="text-xs text-red-600 hover:text-red-700 font-medium"
+                >
+                  전체 초기화
+                </button>
+              )}
+            </div>
+            {selectedFilterOptionIds.length > 0 && (
+              <div className="mb-4 pb-4 border-b border-gray-100">
+                <p className="text-xs text-gray-500 mb-2">선택된 필터 ({selectedFilterOptionIds.length})</p>
+                <div className="flex flex-wrap gap-1">
+                  {selectedTags.map(tag => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
+                    >
+                      {tag}
+                      <button onClick={() => handleRemoveTag(tag)}>
+                        <FiX className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <FilterSidebar />
+          </div>
+        </div>
+      </aside>
+
+      {/* 메인 컨텐츠 */}
+      <div className="flex-1 min-w-0 space-y-6">
+        {/* 헤더 */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">포트폴리오</h1>
+            <p className="text-gray-600 mt-2">
+              {totalElements}개의 포트폴리오
+            </p>
+          </div>
+          {user && (
+            <Link
+              href="/photos/create"
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            >
+              <FiPlus className="text-xl" />
+              포트폴리오 등록
+            </Link>
+          )}
         </div>
 
-        {/* 빠른 필터 및 정렬 */}
-        <div className="space-y-3">
-          {/* 첫 번째 줄: 정렬 */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+        {/* 검색 및 필터 */}
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">
+          {/* 모바일 검색바 */}
+          <div className="lg:hidden flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <div className="flex-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="제목, 설명, 태그 등 검색..."
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+              </div>
+            </div>
+            <button
+              onClick={handleSearch}
+              className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+            >
+              검색
+            </button>
+          </div>
+
+          {/* 정렬 및 필터 버튼 */}
+          <div className="flex flex-wrap items-center gap-2">
             <div className="w-full sm:w-auto sm:min-w-[140px]">
               <Select
                 label=""
@@ -452,39 +583,6 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               />
             </div>
 
-            {/* 데스크톱: 초기화/상세필터 버튼 */}
-            <div className="hidden sm:flex items-center gap-3 ml-auto">
-              <button
-                onClick={handleResetFilters}
-                disabled={!keyword && selectedTags.length === 0 && sortBy === 'CREATED_AT' && !onlyBookmarked && !onlyMyPosts}
-                className="flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                <FiRefreshCw />
-                초기화
-              </button>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                  showFilters || selectedTags.length > 0
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <FiFilter />
-                상세 필터
-                {selectedTags.length > 0 && (
-                  <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
-                    {selectedTags.length}
-                  </span>
-                )}
-                {showFilters ? <FiChevronUp /> : <FiChevronDown />}
-              </button>
-            </div>
-          </div>
-
-          {/* 두 번째 줄: 빠른 필터 (로그인 시) + 모바일 버튼 */}
-          <div className="flex flex-wrap items-center gap-2">
             {user && (
               <>
                 <button
@@ -538,112 +636,55 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               </>
             )}
 
-            {/* 모바일: 초기화/상세필터 버튼 */}
-            <div className="flex sm:hidden items-center gap-2 ml-auto">
-              <button
-                onClick={handleResetFilters}
-                disabled={!keyword && selectedTags.length === 0 && sortBy === 'CREATED_AT' && !onlyBookmarked && !onlyMyPosts}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200 border-2 border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <FiRefreshCw />
-                <span className="whitespace-nowrap">초기화</span>
-              </button>
-
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  showFilters || selectedTags.length > 0
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                <FiFilter />
-                <span className="whitespace-nowrap">필터</span>
-                {selectedTags.length > 0 && (
-                  <span className="bg-white text-blue-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
-                    {selectedTags.length}
-                  </span>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 선택된 태그 미리보기 */}
-        {selectedTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-            <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
-              <FiTag />
-              선택된 태그:
-            </span>
-            {selectedTags.map(tag => (
-              <span
-                key={tag}
-                className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-blue-200"
-              >
-                {tag}
-                <button
-                  onClick={() => handleRemoveTag(tag)}
-                  className="ml-1 hover:text-blue-900 transition-colors"
-                >
-                  <FiX className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
+            {/* 모바일: 필터 버튼 */}
             <button
-              onClick={handleClearAllTags}
-              className="ml-auto text-sm text-red-600 hover:text-red-700 font-medium"
+              onClick={() => setShowMobileFilterPopup(true)}
+              className={`lg:hidden flex items-center gap-2 px-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ml-auto ${
+                selectedFilterOptionIds.length > 0
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
             >
-              모두 지우기
+              <FiFilter />
+              <span className="whitespace-nowrap">모든 필터</span>
+              {selectedFilterOptionIds.length > 0 && (
+                <span className="bg-white text-blue-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                  {selectedFilterOptionIds.length}
+                </span>
+              )}
             </button>
           </div>
-        )}
 
-        {/* 상세 필터 (아코디언) */}
-        {showFilters && (
-          <div className="space-y-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <FiFilter className="text-blue-600" />
-                필터 선택
-              </h3>
+          {/* 선택된 필터 미리보기 (모바일) */}
+          {selectedTags.length > 0 && (
+            <div className="lg:hidden flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+              <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
+                <FiTag />
+                선택된 필터:
+              </span>
+              {selectedTags.map(tag => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                >
+                  {tag}
+                  <button
+                    onClick={() => handleRemoveTag(tag)}
+                    className="ml-1 hover:text-blue-900 transition-colors"
+                  >
+                    <FiX className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              <button
+                onClick={handleClearAllTags}
+                className="ml-auto text-sm text-red-600 hover:text-red-700 font-medium"
+              >
+                모두 지우기
+              </button>
             </div>
-
-            {isLoadingFilters ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
-                <p className="mt-2 text-gray-600">필터 로딩 중...</p>
-              </div>
-            ) : filterCategories.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {filterCategories.map((category) => (
-                  <Select
-                    key={category.id}
-                    label={category.name}
-                    options={[
-                      { value: '', label: `${category.name} 선택` },
-                      ...category.options.map(option => ({
-                        value: option.name,
-                        label: option.name,
-                      }))
-                    ]}
-                    value=""
-                    onChange={(value) => {
-                      if (value) {
-                        handleSelectTag(category.name, value)
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                사용 가능한 필터가 없습니다
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
       {/* 갤러리 그리드 */}
       {isLoading ? (
@@ -904,6 +945,99 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             </div>
           )}
         </>
+      )}
+      </div>
+
+      {/* 모바일 필터 팝업 */}
+      {showMobileFilterPopup && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowMobileFilterPopup(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-hidden flex flex-col animate-slide-up">
+            {/* 헤더 */}
+            <div className="sticky top-0 bg-white p-4 border-b z-10">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <FiFilter className="text-blue-600" />
+                  검색 및 필터
+                  {selectedFilterOptionIds.length > 0 && (
+                    <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-sm">
+                      {selectedFilterOptionIds.length}
+                    </span>
+                  )}
+                </h3>
+                <div className="flex items-center gap-3">
+                  {(selectedFilterOptionIds.length > 0 || keyword) && (
+                    <button
+                      onClick={handleResetFilters}
+                      className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      초기화
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowMobileFilterPopup(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <FiX className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              {/* 검색 입력 */}
+              <div className="relative">
+                <input
+                  type="text"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="검색어 입력..."
+                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
+
+            {/* 선택된 필터 표시 */}
+            {selectedTags.length > 0 && (
+              <div className="px-4 py-3 bg-blue-50 border-b border-blue-100">
+                <p className="text-xs text-gray-600 mb-2">선택된 필터</p>
+                <div className="flex flex-wrap gap-1">
+                  {selectedTags.map(tag => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                    >
+                      {tag}
+                      <button onClick={() => handleRemoveTag(tag)}>
+                        <FiX className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 필터 목록 */}
+            <div className="flex-1 overflow-y-auto p-4">
+              <FilterSidebar isMobile />
+            </div>
+
+            {/* 하단 버튼 */}
+            <div className="sticky bottom-0 bg-white border-t p-4">
+              <button
+                onClick={() => {
+                  handleSearch()
+                  setShowMobileFilterPopup(false)
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                검색하기
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* 삭제 확인 다이얼로그 */}

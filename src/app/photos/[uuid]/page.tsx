@@ -17,15 +17,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const result = await getGallery(uuid)
 
     if (!result.success || !result.data) {
-      return { title: '갤러리를 찾을 수 없습니다' }
+      return { title: '포트폴리오를 찾을 수 없습니다' }
     }
 
     const gallery = result.data
     const primaryImage = gallery.images?.[0]?.fileUrl || '/images/img-placeholder.png'
 
     return {
-      title: `${gallery.title} - 사진 갤러리 | 다모아`,
-      description: gallery.content || `${gallery.title} - 인테리어 사진 갤러리`,
+      title: `${gallery.title} - 포트폴리오 | 다모아`,
+      description: gallery.content || `${gallery.title} - 인테리어 포트폴리오`,
       keywords: gallery.tags?.join(', '),
       openGraph: {
         title: gallery.title,
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     }
   } catch {
-    return { title: '갤러리를 찾을 수 없습니다' }
+    return { title: '포트폴리오를 찾을 수 없습니다' }
   }
 }
 
