@@ -81,18 +81,32 @@ export default function GalleryCreateForm() {
       try {
         const filters = await getPublicFilters('GALLERY')
 
+        // 삭제되지 않고 활성화된 옵션만 필터링
+        const filterActiveOptions = (options: typeof filters[0]['options']) => {
+          return options.filter(option => {
+            // isDeleted가 true면 제외
+            if (option.isDeleted === true) return false
+            // isActive가 false면 제외 (undefined나 true면 포함)
+            if (option.isActive === false) return false
+            return true
+          })
+        }
+
         // 플랫 배열을 트리 구조로 변환하는 함수
         const buildOptionTree = (options: typeof filters[0]['options']) => {
+          // 먼저 삭제/비활성 옵션 제외
+          const activeOptions = filterActiveOptions(options)
+
           const optionMap = new Map<number, typeof options[0]>()
           const roots: typeof options = []
 
           // 모든 옵션을 맵에 저장하고 children 배열 초기화
-          options.forEach(option => {
+          activeOptions.forEach(option => {
             optionMap.set(option.id, { ...option, children: [] })
           })
 
           // 부모-자식 관계 설정
-          options.forEach(option => {
+          activeOptions.forEach(option => {
             const currentOption = optionMap.get(option.id)!
             if (option.parentId && optionMap.has(option.parentId)) {
               const parent = optionMap.get(option.parentId)!

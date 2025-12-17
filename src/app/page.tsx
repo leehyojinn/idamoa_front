@@ -44,7 +44,7 @@ export default async function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              <span className="text-sm text-blue-100">지금 바로 무료로 시작하세요</span>
+              <span className="text-sm text-blue-100">지금 바로 시작하세요</span>
             </div>
 
             {/* 메인 타이틀 */}
@@ -63,7 +63,7 @@ export default async function Home() {
             </p>
 
             {/* CTA 버튼 */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
                 href="#portfolio"
                 className="group inline-flex items-center justify-center gap-2 bg-white text-blue-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-white/25 hover:shadow-white/40 hover:scale-105 transition-all duration-300"
@@ -82,7 +82,7 @@ export default async function Home() {
             </div>
 
             {/* 통계 */}
-            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {/* <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
               <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
                 <div className="text-2xl md:text-3xl font-bold text-white mb-1">1,000+</div>
                 <div className="text-sm text-blue-200">등록 업체</div>
@@ -95,16 +95,16 @@ export default async function Home() {
                 <div className="text-2xl md:text-3xl font-bold text-white mb-1">98%</div>
                 <div className="text-sm text-blue-200">고객 만족도</div>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
 
         {/* 하단 웨이브 */}
-        <div className="absolute bottom-0 left-0 right-0">
+        {/* <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
             <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F9FAFB"/>
           </svg>
-        </div>
+        </div> */}
       </section>
 
       <main id="portfolio" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
