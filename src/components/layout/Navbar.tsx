@@ -38,7 +38,7 @@ const NotificationDropdown = dynamic(() => import('@/components/notification/Not
 })
 
 const NAV_ITEMS = [
-  { id: 'photos', label: '사진', href: '/photos' },
+  { id: 'companies', label: '업체찾기', href: '/companies' },
   { id: 'resources', label: '자료실', href: '/resources' },
   { id: 'estimates', label: '견적의뢰', href: '/estimates' },
   { id: 'estimate-calculator', label: '예상견적', href: '/estimate-calculator' },
