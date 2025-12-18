@@ -40,7 +40,8 @@
       "Bash(tasklist:*)",
       "Bash(curl:*)",
       "Bash(timeout:*)",
-      "Bash(move \"[uuid]\" \"[id]\")"
+      "Bash(move \"[uuid]\" \"[id]\")",
+      "Skill(frontend-design)"
     ],
     "deny": [],
     "ask": []

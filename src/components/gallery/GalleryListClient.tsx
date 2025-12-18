@@ -733,7 +733,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       </aside>
 
       {/* 메인 컨텐츠 */}
-      <div className="flex-1 min-w-0 space-y-6">
+      <div className="flex-1 min-w-0 space-y-6 overflow-x-hidden">
         {/* 헤더 */}
         <div className="flex justify-between items-center">
           <div>
@@ -1129,33 +1129,42 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
           {/* 페이지네이션 */}
           {totalPages >= 1 && (
-            <div className="flex justify-center items-center gap-2 mt-8">
+            <div className="flex justify-center items-center gap-1 sm:gap-2 mt-8 overflow-x-auto pb-2">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 0}
-                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                className="flex-shrink-0 px-3 py-2 text-sm sm:px-4 sm:text-base border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
                 이전
               </button>
 
-              <div className="flex gap-2">
-                {Array.from({ length: Math.min(10, totalPages) }, (_, i) => {
-                  let pageNum
-                  if (totalPages <= 10) {
-                    pageNum = i
-                  } else if (currentPage < 5) {
-                    pageNum = i
-                  } else if (currentPage > totalPages - 6) {
-                    pageNum = totalPages - 10 + i
+              <div className="flex gap-1 sm:gap-2">
+                {(() => {
+                  // 최대 5개 버튼만 표시
+                  const maxButtons = 5
+                  const pages: number[] = []
+
+                  if (totalPages <= maxButtons) {
+                    for (let i = 0; i < totalPages; i++) pages.push(i)
                   } else {
-                    pageNum = currentPage - 5 + i
+                    const half = Math.floor(maxButtons / 2)
+                    let start = Math.max(0, currentPage - half)
+                    let end = Math.min(totalPages - 1, currentPage + half)
+
+                    if (currentPage < half) {
+                      end = maxButtons - 1
+                    } else if (currentPage > totalPages - 1 - half) {
+                      start = totalPages - maxButtons
+                    }
+
+                    for (let i = start; i <= end; i++) pages.push(i)
                   }
 
-                  return (
+                  return pages.map(pageNum => (
                     <button
                       key={pageNum}
                       onClick={() => handlePageChange(pageNum)}
-                      className={`px-4 py-2 rounded-lg ${
+                      className={`flex-shrink-0 min-w-[36px] px-2 py-2 text-sm sm:min-w-[40px] sm:px-3 sm:text-base rounded-lg ${
                         currentPage === pageNum
                           ? 'bg-blue-600 text-white'
                           : 'border border-gray-300 hover:bg-gray-50'
@@ -1163,14 +1172,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                     >
                       {pageNum + 1}
                     </button>
-                  )
-                })}
+                  ))
+                })()}
               </div>
 
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages - 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                className="flex-shrink-0 px-3 py-2 text-sm sm:px-4 sm:text-base border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
                 다음
               </button>
