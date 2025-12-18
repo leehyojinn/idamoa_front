@@ -425,7 +425,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
         }
       }
 
-      // 갤러리 수정
+      // 포트폴리오 수정
       const data: UpdateGalleryRequest = {
         title: title.trim(),
         content: description.trim(),
@@ -443,7 +443,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
       const result = await updateGallery(gallery.uuid, data)
 
       if (result.success && result.data) {
-        showSuccessToast('갤러리가 수정되었습니다')
+        showSuccessToast('포트폴리오가 수정되었습니다')
         router.push(`/photos/${result.data.uuid}`)
       }
     } catch (error: any) {
@@ -452,7 +452,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
       } else if (error?.response?.status === 403) {
         showErrorToast(error, '수정 권한이 없습니다')
       } else {
-        showErrorToast(error, '갤러리 수정에 실패했습니다')
+        showErrorToast(error, '포트폴리오 수정에 실패했습니다')
       }
     } finally {
       setIsSubmitting(false)
@@ -476,7 +476,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl shadow-md p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">갤러리 수정</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">포트폴리오 수정</h1>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* 기본 정보 */}
@@ -493,7 +493,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={200}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="갤러리 제목을 입력하세요"
+                  placeholder="포트폴리오 제목을 입력하세요"
                 />
                 <p className="text-sm text-gray-500 mt-1">{title.length}/200자</p>
               </div>
@@ -507,7 +507,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="갤러리에 대한 설명을 입력하세요"
+                  placeholder="포트폴리오에 대한 설명을 입력하세요"
                 />
               </div>
 

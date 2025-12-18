@@ -58,10 +58,10 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
       }
     } catch (error: any) {
       if (error?.response?.status === 404) {
-        showErrorToast(error, '갤러리를 찾을 수 없습니다')
+        showErrorToast(error, '포트폴리오를 찾을 수 없습니다')
         router.push('/')
       } else {
-        showErrorToast(error, '갤러리를 불러오는데 실패했습니다')
+        showErrorToast(error, '포트폴리오를 불러오는데 실패했습니다')
       }
     } finally {
       setIsLoading(false)
@@ -80,13 +80,13 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
     setIsDeleting(true)
     try {
       await deleteGallery(gallery.uuid)
-      showSuccessToast('갤러리가 삭제되었습니다')
+      showSuccessToast('포트폴리오가 삭제되었습니다')
       router.push('/')
     } catch (error: any) {
       if (error?.response?.status === 403) {
         showErrorToast(error, '삭제 권한이 없습니다')
       } else {
-        showErrorToast(error, '갤러리 삭제에 실패했습니다')
+        showErrorToast(error, '포트폴리오 삭제에 실패했습니다')
       }
     } finally {
       setIsDeleting(false)
@@ -179,7 +179,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
         setReviewRating(5)
         setReviewImages([])
         setShowReviewForm(false)
-        // 갤러리 새로고침하여 리뷰 목록 업데이트
+        // 포트폴리오 새로고침하여 리뷰 목록 업데이트
         fetchGallery()
       }
     } catch (error) {
@@ -214,7 +214,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
     return (
       <div className="text-center py-12">
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
-        <p className="mt-4 text-gray-600">갤러리를 불러오는 중...</p>
+        <p className="mt-4 text-gray-600">포트폴리오를 불러오는 중...</p>
       </div>
     )
   }
@@ -222,7 +222,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
   if (!gallery) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-        <p className="text-gray-500 text-lg">갤러리를 찾을 수 없습니다.</p>
+        <p className="text-gray-500 text-lg">포트폴리오를 찾을 수 없습니다.</p>
         <Link
           href="/"
           className="inline-flex items-center gap-2 mt-6 text-blue-600 hover:text-blue-700"
@@ -297,7 +297,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
           </div>
         </div>
 
-        {/* 갤러리 정보 */}
+        {/* 포트폴리오 정보 */}
         <div className="bg-white rounded-lg shadow-sm p-8 space-y-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{gallery.title}</h1>
@@ -387,7 +387,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
           )}
         </div>
 
-        {/* 이미지 갤러리 */}
+        {/* 이미지 포트폴리오 */}
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">
             사진 ({gallery.images?.length || 0})
@@ -592,12 +592,12 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
           className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6"
           onClick={(e) => e.stopPropagation()}
         >
-          <h3 className="text-xl font-bold text-gray-900 mb-4">갤러리 삭제</h3>
+          <h3 className="text-xl font-bold text-gray-900 mb-4">포트폴리오 삭제</h3>
           <div className="space-y-4">
             <p className="text-gray-600">
-              정말로 이 갤러리를 삭제하시겠습니까?
+              정말로 이 포트폴리오를 삭제하시겠습니까?
               <br />
-              삭제된 갤러리는 복구할 수 없습니다.
+              삭제된 포트폴리오는 복구할 수 없습니다.
             </p>
             <div className="flex gap-2">
               <button
