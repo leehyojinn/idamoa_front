@@ -135,7 +135,7 @@ export interface GallerySearchParams {
   keyword?: string
   filterOptionIds?: number[]  // 필터 옵션 ID 배열
   tags?: string[]  // 기존 호환성 유지
-  companyUuid?: string  // 특정 회사의 갤러리만 조회 (포트폴리오)
+  companyUuid?: string  // 특정 회사의 포트폴리오만 조회 (포트폴리오)
   sortBy?: 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
   sortDirection?: 'ASC' | 'DESC'
   onlyBookmarked?: boolean  // 북마크한 것만
@@ -190,7 +190,7 @@ export interface ApiResponse<T> {
 // API Functions
 
 /**
- * 갤러리 게시글 생성
+ * 포트폴리오 게시글 생성
  */
 export async function createGallery(data: CreateGalleryRequest): Promise<ApiResponse<Gallery>> {
   try {
@@ -198,26 +198,26 @@ export async function createGallery(data: CreateGalleryRequest): Promise<ApiResp
     // Backend wraps response in { success: true, data: {...} }
     return { success: true, data: response.data.data }
   } catch (error: any) {
-    console.error('갤러리 생성 실패:', error)
+    console.error('포트폴리오 생성 실패:', error)
     throw error
   }
 }
 
 /**
- * 갤러리 게시글 상세 조회
+ * 포트폴리오 게시글 상세 조회
  */
 export async function getGallery(uuid: string): Promise<ApiResponse<Gallery>> {
   try {
     const response = await axiosInstance.get(`/boards/gallery/${uuid}`)
     return { success: true, data: response.data.data }
   } catch (error: any) {
-    console.error('갤러리 조회 실패:', error)
+    console.error('포트폴리오 조회 실패:', error)
     throw error
   }
 }
 
 /**
- * 갤러리 게시글 검색
+ * 포트폴리오 게시글 검색
  */
 export async function searchGalleries(params: GallerySearchParams = {}): Promise<ApiResponse<GallerySearchResponse>> {
   try {
@@ -232,7 +232,7 @@ export async function searchGalleries(params: GallerySearchParams = {}): Promise
       params.filterOptionIds.forEach(id => queryParams.append('filterOptionIds', id.toString()))
     }
 
-    // companyUuid - 특정 회사의 갤러리만 조회
+    // companyUuid - 특정 회사의 포트폴리오만 조회
     if (params.companyUuid) queryParams.append('companyUuid', params.companyUuid)
 
     // sort 파라미터 조합 (API 문서: "publishedAt,DESC" 형식)
@@ -258,27 +258,27 @@ export async function searchGalleries(params: GallerySearchParams = {}): Promise
 }
 
 /**
- * 갤러리 게시글 수정
+ * 포트폴리오 게시글 수정
  */
 export async function updateGallery(uuid: string, data: UpdateGalleryRequest): Promise<ApiResponse<Gallery>> {
   try {
     const response = await axiosInstance.put(`/boards/gallery/${uuid}`, data)
     return { success: true, data: response.data.data }
   } catch (error: any) {
-    console.error('갤러리 수정 실패:', error)
+    console.error('포트폴리오 수정 실패:', error)
     throw error
   }
 }
 
 /**
- * 갤러리 게시글 삭제
+ * 포트폴리오 게시글 삭제
  */
 export async function deleteGallery(uuid: string): Promise<ApiResponse<void>> {
   try {
     await axiosInstance.delete(`/boards/gallery/${uuid}`)
     return { success: true }
   } catch (error: any) {
-    console.error('갤러리 삭제 실패:', error)
+    console.error('포트폴리오 삭제 실패:', error)
     throw error
   }
 }

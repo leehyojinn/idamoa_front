@@ -405,7 +405,7 @@ export default function GalleryCreateForm() {
         }
       }
 
-      // 갤러리 생성
+      // 포트폴리오 생성
       const data: CreateGalleryRequest = {
         title: title.trim(),
         content: description.trim(),
@@ -423,14 +423,14 @@ export default function GalleryCreateForm() {
       const result = await createGallery(data)
 
       if (result.success && result.data) {
-        showSuccessToast('갤러리가 등록되었습니다')
+        showSuccessToast('포트폴리오가 등록되었습니다')
         router.push(`/photos/${result.data.uuid}`)
       }
     } catch (error: any) {
       if (error?.response?.status === 400) {
         showErrorToast(error, '입력 정보를 확인해주세요')
       } else {
-        showErrorToast(error, '갤러리 등록에 실패했습니다')
+        showErrorToast(error, '포트폴리오 등록에 실패했습니다')
       }
     } finally {
       setIsSubmitting(false)
@@ -454,7 +454,7 @@ export default function GalleryCreateForm() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="bg-white rounded-xl shadow-md p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">갤러리 등록</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">포트폴리오 등록</h1>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* 기본 정보 */}
@@ -471,7 +471,7 @@ export default function GalleryCreateForm() {
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={200}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="갤러리 제목을 입력하세요"
+                  placeholder="포트폴리오 제목을 입력하세요"
                 />
                 <p className="text-sm text-gray-500 mt-1">{title.length}/200자</p>
               </div>
@@ -485,7 +485,7 @@ export default function GalleryCreateForm() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="갤러리에 대한 설명을 입력하세요"
+                  placeholder="포트폴리오에 대한 설명을 입력하세요"
                 />
               </div>
 
@@ -739,7 +739,7 @@ export default function GalleryCreateForm() {
               className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiPlus className="text-2xl" />
-              {isSubmitting ? '등록 중...' : '갤러리 등록'}
+              {isSubmitting ? '등록 중...' : '포트폴리오 등록'}
             </button>
             <button
               type="button"
