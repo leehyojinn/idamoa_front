@@ -76,6 +76,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
   const [onlyBookmarked, setOnlyBookmarked] = useState(false)
   const [onlyMyPosts, setOnlyMyPosts] = useState(false)
+  const [companyUuid, setCompanyUuid] = useState<string | null>(null)
+  const [companyName, setCompanyName] = useState<string | null>(null)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
 
   // 필터 로드
@@ -247,6 +249,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setSortDirection('DESC')
     setOnlyBookmarked(false)
     setOnlyMyPosts(false)
+    setCompanyUuid(null)
+    setCompanyName(null)
     // URL을 초기 상태로
     router.push(basePath, { scroll: false })
   }
@@ -260,6 +264,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
         keyword: params.keyword || undefined,
         filterOptionIds: params.filterOptionIds || undefined,
         tags: params.tags || undefined,
+        companyUuid: params.companyUuid || undefined,
         sortBy: params.sortBy || sortBy,
         sortDirection: params.sortDirection || sortDirection,
         onlyBookmarked: params.onlyBookmarked,
@@ -296,6 +301,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
     const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
     const onlyMyPosts = searchParams.get('onlyMyPosts') === 'true'
+    const companyUuid = searchParams.get('companyUuid') || null
+    const companyName = searchParams.get('companyName') || null
 
     setCurrentPage(page)
     setKeyword(keyword)
@@ -305,6 +312,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setSortDirection(sortDirection)
     setOnlyBookmarked(onlyBookmarked)
     setOnlyMyPosts(onlyMyPosts)
+    setCompanyUuid(companyUuid)
+    setCompanyName(companyName)
 
     // 초기 로드 시 SSR 데이터 사용, URL 파라미터 변경 시에만 fetch
     const hasUrlParams = searchParams.toString() !== ''
@@ -313,10 +322,10 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       return
     }
     setIsInitialLoad(false)
-    fetchGalleries({ page, keyword, tags, filterOptionIds, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
+    fetchGalleries({ page, keyword, tags, filterOptionIds, companyUuid: companyUuid || undefined, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
   }, [searchParams, fetchGalleries, isInitialLoad, initialData])
 
-  const updateURL = (params: GallerySearchParams) => {
+  const updateURL = (params: GallerySearchParams & { companyName?: string }) => {
     const query = new URLSearchParams()
     if (params.page !== undefined) query.set('page', params.page.toString())
     if (params.keyword) query.set('keyword', params.keyword)
@@ -326,6 +335,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     if (params.sortDirection) query.set('sortDirection', params.sortDirection)
     if (params.onlyBookmarked) query.set('onlyBookmarked', 'true')
     if (params.onlyMyPosts) query.set('onlyMyPosts', 'true')
+    if (params.companyUuid) query.set('companyUuid', params.companyUuid)
+    if (params.companyName) query.set('companyName', params.companyName)
 
     router.push(`${basePath}?${query.toString()}`, { scroll: false })
 
@@ -336,6 +347,22 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
         portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }, 100)
+  }
+
+  // 업체 필터 해제
+  const handleClearCompanyFilter = () => {
+    setCompanyUuid(null)
+    setCompanyName(null)
+    updateURL({
+      page: 0,
+      keyword,
+      tags: selectedTags,
+      filterOptionIds: selectedFilterOptionIds,
+      sortBy,
+      sortDirection,
+      onlyBookmarked,
+      onlyMyPosts,
+    })
   }
 
   const handleSearch = () => {
@@ -661,6 +688,25 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             </Link>
           )}
         </div>
+
+        {/* 업체 필터 표시 */}
+        {companyUuid && companyName && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FiFilter className="text-blue-600" />
+              <span className="text-blue-800 font-medium">
+                <span className="font-bold">{companyName}</span> 업체의 포트폴리오만 보기
+              </span>
+            </div>
+            <button
+              onClick={handleClearCompanyFilter}
+              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm"
+            >
+              <FiX />
+              필터 해제
+            </button>
+          </div>
+        )}
 
         {/* 검색 및 필터 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">

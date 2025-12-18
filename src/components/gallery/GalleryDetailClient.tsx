@@ -425,6 +425,12 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
               </div>
               <div className="flex gap-2">
                 <Link
+                  href={`/?companyUuid=${gallery.company.companyUuid}&companyName=${encodeURIComponent(gallery.company.companyName)}`}
+                  className="px-4 py-2 bg-white border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                >
+                  포트폴리오 모두보기
+                </Link>
+                <Link
                   href={`/companies/${gallery.company.companyUuid}`}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
