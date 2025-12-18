@@ -79,6 +79,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const [companyUuid, setCompanyUuid] = useState<string | null>(null)
   const [companyName, setCompanyName] = useState<string | null>(null)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
 
   // 필터 로드
   useEffect(() => {
@@ -567,6 +568,35 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     )
   }
 
+  // 카테고리 접기/펼치기 토글
+  const toggleCategoryCollapse = (categoryId: number) => {
+    setCollapsedCategories(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId)
+      } else {
+        newSet.add(categoryId)
+      }
+      return newSet
+    })
+  }
+
+  // 카테고리 내 선택된 필터 개수 계산
+  const getSelectedCountInCategory = (category: typeof filterCategories[0]): number => {
+    const countInOptions = (options: typeof category.options): number => {
+      return options.reduce((sum, opt) => {
+        if (selectedFilterOptionIds.includes(opt.id)) {
+          return sum + 1
+        }
+        if (opt.children && opt.children.length > 0) {
+          return sum + countInOptions(opt.children)
+        }
+        return sum
+      }, 0)
+    }
+    return countInOptions(category.options)
+  }
+
   // 필터 사이드바 컴포넌트 (재사용)
   const FilterSidebar = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={isMobile ? '' : 'space-y-4'}>
@@ -576,15 +606,40 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           <p className="mt-2 text-gray-600">필터 로딩 중...</p>
         </div>
       ) : filterCategories.length > 0 ? (
-        <div className="space-y-4">
-          {filterCategories.map((category) => (
-            <div key={category.id} className="border-b border-gray-100 pb-4 last:border-b-0">
-              <h4 className="font-semibold text-gray-900 mb-2 text-sm">{category.name}</h4>
-              <div className="space-y-1">
-                {category.options.map((option) => renderFilterOption(option, 0))}
+        <div className="space-y-3">
+          {filterCategories.map((category) => {
+            const isCollapsed = collapsedCategories.has(category.id)
+            const selectedCount = getSelectedCountInCategory(category)
+
+            return (
+              <div key={category.id} className="border-b border-gray-100 pb-3 last:border-b-0">
+                <button
+                  type="button"
+                  onClick={() => toggleCategoryCollapse(category.id)}
+                  className="w-full flex items-center justify-between py-1 text-left hover:bg-gray-50 rounded transition-colors"
+                >
+                  <span className="font-semibold text-gray-900 text-sm flex items-center gap-2">
+                    {isCollapsed ? (
+                      <FiChevronRight className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <FiChevronDown className="w-4 h-4 text-gray-400" />
+                    )}
+                    {category.name}
+                  </span>
+                  {selectedCount > 0 && (
+                    <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                      {selectedCount}
+                    </span>
+                  )}
+                </button>
+                {!isCollapsed && (
+                  <div className="space-y-1 mt-2 ml-2">
+                    {category.options.map((option) => renderFilterOption(option, 0))}
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       ) : (
         <div className="text-center py-8 text-gray-500 text-sm">
