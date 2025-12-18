@@ -75,6 +75,7 @@ export interface Gallery {
   isPublished?: boolean
   publishedAt?: string
   userId: number
+  userUuid?: string
   userName: string
   userEmail?: string
   createdAt: string
@@ -134,7 +135,6 @@ export interface GallerySearchParams {
   keyword?: string
   filterOptionIds?: number[]  // 필터 옵션 ID 배열
   tags?: string[]  // 기존 호환성 유지
-  authorUuid?: string
   sortBy?: 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
   sortDirection?: 'ASC' | 'DESC'
   onlyBookmarked?: boolean  // 북마크한 것만
@@ -230,8 +230,6 @@ export async function searchGalleries(params: GallerySearchParams = {}): Promise
     if (params.filterOptionIds && params.filterOptionIds.length > 0) {
       params.filterOptionIds.forEach(id => queryParams.append('filterOptionIds', id.toString()))
     }
-
-    if (params.authorUuid) queryParams.append('authorUuid', params.authorUuid)
 
     // sort 파라미터 조합 (API 문서: "publishedAt,DESC" 형식)
     if (params.sortBy && params.sortDirection) {
