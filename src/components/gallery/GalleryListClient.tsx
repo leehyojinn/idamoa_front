@@ -153,12 +153,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       const newTags = [...selectedTags, optionName]
       setSelectedFilterOptionIds(newFilterOptionIds)
       setSelectedTags(newTags)
-      // 바로 검색 실행
-      updateURL({
+      setCurrentPage(0)
+      // URL 변경 없이 바로 API 호출
+      fetchGalleries({
         page: 0,
         keyword,
         filterOptionIds: newFilterOptionIds,
         tags: newTags,
+        companyUuid: companyUuid || undefined,
         sortBy,
         sortDirection,
         onlyBookmarked,
@@ -185,12 +187,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
     setSelectedTags(newTags)
     setSelectedFilterOptionIds(newFilterOptionIds)
-    // 바로 검색 실행
-    updateURL({
+    setCurrentPage(0)
+    // URL 변경 없이 바로 API 호출
+    fetchGalleries({
       page: 0,
       keyword,
       filterOptionIds: newFilterOptionIds,
       tags: newTags,
+      companyUuid: companyUuid || undefined,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -201,12 +205,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const handleClearAllTags = () => {
     setSelectedTags([])
     setSelectedFilterOptionIds([])
-    // 바로 검색 실행
-    updateURL({
+    setCurrentPage(0)
+    // URL 변경 없이 바로 API 호출
+    fetchGalleries({
       page: 0,
       keyword,
       filterOptionIds: [],
       tags: [],
+      companyUuid: companyUuid || undefined,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -214,7 +220,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     })
   }
 
-  // 체크박스로 필터 토글
+  // 체크박스로 필터 토글 (URL 변경 없이 비동기 처리)
   const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
     let newFilterOptionIds: number[]
     let newTags: string[]
@@ -229,11 +235,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
     setSelectedFilterOptionIds(newFilterOptionIds)
     setSelectedTags(newTags)
-    updateURL({
+    setCurrentPage(0)
+    // URL 변경 없이 바로 API 호출
+    fetchGalleries({
       page: 0,
       keyword,
       filterOptionIds: newFilterOptionIds,
       tags: newTags,
+      companyUuid: companyUuid || undefined,
       sortBy,
       sortDirection,
       onlyBookmarked,
@@ -251,8 +260,13 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setOnlyMyPosts(false)
     setCompanyUuid(null)
     setCompanyName(null)
-    // URL을 초기 상태로
-    router.push(basePath, { scroll: false })
+    setCurrentPage(0)
+    // URL 변경 없이 바로 API 호출
+    fetchGalleries({
+      page: 0,
+      sortBy: 'CREATED_AT',
+      sortDirection: 'DESC',
+    })
   }
 
   const fetchGalleries = useCallback(async (params: GallerySearchParams = {}) => {
@@ -291,69 +305,40 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   }, [sortBy, sortDirection])
 
   useEffect(() => {
-    // URL 파라미터에서 검색 조건 복원
-    const page = parseInt(searchParams.get('page') || '0')
-    const keyword = searchParams.get('keyword') || ''
-    const tags = searchParams.get('tags')?.split(',').filter(Boolean) || []
-    const filterOptionIdsStr = searchParams.get('filterOptionIds')?.split(',').filter(Boolean) || []
-    const filterOptionIds = filterOptionIdsStr.map(id => parseInt(id))
-    const sortBy = (searchParams.get('sortBy') || 'CREATED_AT') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
-    const sortDirection = (searchParams.get('sortDirection') || 'DESC') as 'ASC' | 'DESC'
-    const onlyBookmarked = searchParams.get('onlyBookmarked') === 'true'
-    const onlyMyPosts = searchParams.get('onlyMyPosts') === 'true'
+    // URL 파라미터에서 업체 필터만 복원 (companyUuid)
     const companyUuid = searchParams.get('companyUuid') || null
     const companyName = searchParams.get('companyName') || null
 
-    setCurrentPage(page)
-    setKeyword(keyword)
-    setSelectedTags(tags)
-    setSelectedFilterOptionIds(filterOptionIds)
-    setSortBy(sortBy)
-    setSortDirection(sortDirection)
-    setOnlyBookmarked(onlyBookmarked)
-    setOnlyMyPosts(onlyMyPosts)
-    setCompanyUuid(companyUuid)
-    setCompanyName(companyName)
-
-    // 초기 로드 시 SSR 데이터 사용, URL 파라미터 변경 시에만 fetch
-    const hasUrlParams = searchParams.toString() !== ''
-    if (isInitialLoad && initialData && !hasUrlParams) {
+    // 초기 로드 시 SSR 데이터 사용
+    if (isInitialLoad && initialData && !companyUuid) {
       setIsInitialLoad(false)
       return
     }
+
+    // companyUuid가 있으면 해당 업체의 포트폴리오만 로드
+    if (companyUuid) {
+      setCompanyUuid(companyUuid)
+      setCompanyName(companyName)
+      setCurrentPage(0)
+      fetchGalleries({
+        page: 0,
+        companyUuid,
+        sortBy: 'CREATED_AT',
+        sortDirection: 'DESC',
+      })
+    }
+
     setIsInitialLoad(false)
-    fetchGalleries({ page, keyword, tags, filterOptionIds, companyUuid: companyUuid || undefined, sortBy, sortDirection, onlyBookmarked, onlyMyPosts })
   }, [searchParams, fetchGalleries, isInitialLoad, initialData])
-
-  const updateURL = (params: GallerySearchParams & { companyName?: string }) => {
-    const query = new URLSearchParams()
-    if (params.page !== undefined) query.set('page', params.page.toString())
-    if (params.keyword) query.set('keyword', params.keyword)
-    if (params.tags && params.tags.length > 0) query.set('tags', params.tags.join(','))
-    if (params.filterOptionIds && params.filterOptionIds.length > 0) query.set('filterOptionIds', params.filterOptionIds.join(','))
-    if (params.sortBy) query.set('sortBy', params.sortBy)
-    if (params.sortDirection) query.set('sortDirection', params.sortDirection)
-    if (params.onlyBookmarked) query.set('onlyBookmarked', 'true')
-    if (params.onlyMyPosts) query.set('onlyMyPosts', 'true')
-    if (params.companyUuid) query.set('companyUuid', params.companyUuid)
-    if (params.companyName) query.set('companyName', params.companyName)
-
-    router.push(`${basePath}?${query.toString()}`, { scroll: false })
-
-    // 포트폴리오 섹션으로 스크롤
-    setTimeout(() => {
-      const portfolioSection = document.getElementById('portfolio')
-      if (portfolioSection) {
-        portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 100)
-  }
 
   // 업체 필터 해제
   const handleClearCompanyFilter = () => {
     setCompanyUuid(null)
     setCompanyName(null)
-    updateURL({
+    setCurrentPage(0)
+    // URL에서 companyUuid 제거
+    router.push(basePath, { scroll: false })
+    fetchGalleries({
       page: 0,
       keyword,
       tags: selectedTags,
@@ -366,45 +351,50 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   }
 
   const handleSearch = () => {
-    const params = {
+    setCurrentPage(0)
+    fetchGalleries({
       page: 0,
       keyword,
       tags: selectedTags,
       filterOptionIds: selectedFilterOptionIds,
+      companyUuid: companyUuid || undefined,
       sortBy,
       sortDirection,
       onlyBookmarked,
       onlyMyPosts,
-    }
-    updateURL(params)
+    })
   }
 
   const handlePageChange = (newPage: number) => {
-    const params = {
+    setCurrentPage(newPage)
+    fetchGalleries({
       page: newPage,
       keyword,
       tags: selectedTags,
       filterOptionIds: selectedFilterOptionIds,
+      companyUuid: companyUuid || undefined,
       sortBy,
       sortDirection,
       onlyBookmarked,
       onlyMyPosts,
-    }
-    updateURL(params)
+    })
   }
 
   const handleSortChange = (newSortBy: string) => {
-    const params = {
+    const newSort = newSortBy as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
+    setSortBy(newSort)
+    setCurrentPage(0)
+    fetchGalleries({
       page: 0,
       keyword,
       tags: selectedTags,
       filterOptionIds: selectedFilterOptionIds,
-      sortBy: newSortBy as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT',
+      companyUuid: companyUuid || undefined,
+      sortBy: newSort,
       sortDirection,
       onlyBookmarked,
       onlyMyPosts,
-    }
-    updateURL(params)
+    })
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -753,11 +743,13 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   onClick={() => {
                     const newValue = !onlyBookmarked
                     setOnlyBookmarked(newValue)
-                    updateURL({
+                    setCurrentPage(0)
+                    fetchGalleries({
                       page: 0,
                       keyword,
                       tags: selectedTags,
                       filterOptionIds: selectedFilterOptionIds,
+                      companyUuid: companyUuid || undefined,
                       sortBy,
                       sortDirection,
                       onlyBookmarked: newValue,
@@ -777,11 +769,13 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   onClick={() => {
                     const newValue = !onlyMyPosts
                     setOnlyMyPosts(newValue)
-                    updateURL({
+                    setCurrentPage(0)
+                    fetchGalleries({
                       page: 0,
                       keyword,
                       tags: selectedTags,
                       filterOptionIds: selectedFilterOptionIds,
+                      companyUuid: companyUuid || undefined,
                       sortBy,
                       sortDirection,
                       onlyBookmarked,
