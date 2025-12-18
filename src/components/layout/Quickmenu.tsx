@@ -136,14 +136,14 @@ export default function Quickmenu() {
 
             {/* 모바일 하단 1열 메뉴 */}
             <div
-                className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-4 bg-[#d7e5fdcc] px-4 py-3 shadow-lg backdrop-blur-sm select-none lg:hidden w-full justify-around">
+                className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-1 bg-[#d7e5fdcc] px-2 py-2 shadow-lg backdrop-blur-sm select-none lg:hidden w-full justify-around">
                 <Link
                     href="/"
                     className="flex flex-col items-center text-blue-600 hover:text-blue-800 select-none"
                     aria-label="홈으로 이동"
                     title="홈으로 이동">
-                    <FaHouse className="w-8 h-8"/>
-                    <span className="text-xs mt-1">홈</span>
+                    <FaHouse className="w-5 h-5"/>
+                    <span className="text-[10px] mt-0.5 whitespace-nowrap">홈</span>
                 </Link>
 
                 {
@@ -154,8 +154,8 @@ export default function Quickmenu() {
                             className="flex flex-col items-center text-blue-600 hover:text-blue-800 select-none"
                             aria-label={item.label}
                             title={item.label}>
-                            <item.icon className="w-6 h-6"/>
-                            <span className="text-xs mt-1">{item.label}</span>
+                            <item.icon className="w-5 h-5"/>
+                            <span className="text-[10px] mt-0.5 whitespace-nowrap">{item.label}</span>
                         </Link>
                     ))
                 }

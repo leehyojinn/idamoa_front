@@ -297,14 +297,15 @@ export default function NoticeListClient() {
                     href={`/notices/${item.uuid}`}
                     className="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-blue-300 transition-all"
                   >
-                    <div className="flex gap-4">
+                    {/* 모바일: 세로 배치, PC: 가로 배치 */}
+                    <div className="flex flex-col sm:flex-row gap-4">
                       {/* 썸네일 */}
-                      <div className="relative flex-shrink-0 w-32 h-32 bg-gray-200 rounded-lg overflow-hidden">
+                      <div className="relative flex-shrink-0 w-full sm:w-32 h-48 sm:h-32 bg-gray-200 rounded-lg overflow-hidden">
                         <Image
                           src={item.thumbnail?.fileUrl || '/images/img-placeholder.png'}
                           alt={item.title}
                           fill
-                          sizes="128px"
+                          sizes="(max-width: 640px) 100vw, 128px"
                           className="object-cover"
                         />
                       </div>
@@ -317,7 +318,7 @@ export default function NoticeListClient() {
 
                         {/* 이벤트 기간 */}
                         {item.boardType === 'EVENT' && item.eventStartDate && item.eventEndDate && (
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
                             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${
                               item.isEventEnded
                                 ? 'bg-gray-100 text-gray-600'
