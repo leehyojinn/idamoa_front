@@ -50,16 +50,12 @@ export default async function Home() {
             {/* 메인 타이틀 */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
               인테리어,<br className="md:hidden" />
-              <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent"> 어디서부터 </span>
-              <br className="hidden md:block" />
-              시작해야 할지 모르겠다면?
+              <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent"> 다 모아보다 </span>
             </h1>
 
             {/* 서브 타이틀 */}
             <p className="text-xl md:text-2xl text-blue-100/90 max-w-3xl mx-auto mb-10 leading-relaxed">
-              <span className="font-semibold text-white">다모아</span>에서
-              전국 인테리어 업체들의 실제 시공 사례를 비교하고,<br className="hidden md:block" />
-              나에게 딱 맞는 업체를 찾아보세요
+              <span className="font-semibold text-white">모든 인테리어를</span>한 곳에서, 다 모아놓은 원스톱 플랫폼
             </p>
 
             {/* CTA 버튼 */}
@@ -73,12 +69,6 @@ export default async function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </a>
-              <Link
-                href="/estimates"
-                className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur-sm border border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/20 transition-all duration-300"
-              >
-                견적 받기
-              </Link>
             </div>
 
             {/* 통계 */}
