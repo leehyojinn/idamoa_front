@@ -55,6 +55,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
+        {/* Naver Site Verification */}
+        <meta name="naver-site-verification" content="1a3058e104b3b1d40abc672d6172fb52cfdbaef8" />
         {/* Google Site Verification */}
         <meta name="google-site-verification" content="PaYTWF4RwmZynBzMccFHSJX07TmPlb0UdZk9sZFgBLs" />
         {/* Google Analytics */}

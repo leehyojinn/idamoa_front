@@ -21,16 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
-    // 업체 목록
+    // 업체찾기
     {
       url: `${baseUrl}/companies`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    // 사진
-    {
-      url: `${baseUrl}/photos`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
