@@ -40,6 +40,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const [showFilters, setShowFilters] = useState(false)
   // 모바일 필터 팝업
   const [showMobileFilterPopup, setShowMobileFilterPopup] = useState(false)
+  // PC 필터 팝업
+  const [showPCFilterPopup, setShowPCFilterPopup] = useState(false)
 
   // 필터 카테고리
   const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
@@ -673,6 +675,23 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             >
               검색
             </button>
+            {/* 모든 필터보기 버튼 */}
+            <button
+              onClick={() => setShowPCFilterPopup(true)}
+              className={`w-full mt-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                selectedFilterOptionIds.length > 0
+                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+              }`}
+            >
+              <FiFilter />
+              모든 필터보기
+              {selectedFilterOptionIds.length > 0 && (
+                <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded-full text-xs font-bold">
+                  {selectedFilterOptionIds.length}
+                </span>
+              )}
+            </button>
           </div>
 
           <div className="border-t border-gray-100 pt-4">
@@ -1247,6 +1266,143 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 검색하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PC 필터 팝업 */}
+      {showPCFilterPopup && (
+        <div className="fixed inset-0 z-50 hidden lg:flex items-center justify-center">
+          {/* 배경 오버레이 */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowPCFilterPopup(false)}
+          />
+
+          {/* 팝업 컨텐츠 */}
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] mx-4 overflow-hidden flex flex-col">
+            {/* 헤더 */}
+            <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+              <div>
+                <h3 className="text-xl font-bold">모든 필터</h3>
+                <p className="text-sm text-blue-100">
+                  {selectedFilterOptionIds.length > 0
+                    ? `${selectedFilterOptionIds.length}개 필터 선택됨`
+                    : '원하는 필터를 선택하세요'
+                  }
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                {(selectedFilterOptionIds.length > 0 || keyword) && (
+                  <button
+                    onClick={handleResetFilters}
+                    className="text-sm text-white/80 hover:text-white font-medium px-3 py-1 rounded hover:bg-white/20 transition-colors"
+                  >
+                    전체 초기화
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowPCFilterPopup(false)}
+                  className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                >
+                  <FiX className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            {/* 선택된 필터 표시 */}
+            {selectedTags.length > 0 && (
+              <div className="px-5 py-3 bg-blue-50 border-b border-blue-100">
+                <p className="text-xs text-gray-600 mb-2 font-medium">선택된 필터</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedTags.map(tag => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                    >
+                      {tag}
+                      <button onClick={() => handleRemoveTag(tag)} className="hover:text-red-600 transition-colors">
+                        <FiX className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 필터 목록 - 그리드 형태 */}
+            <div className="flex-1 overflow-y-auto p-5">
+              {isLoadingFilters ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-blue-600"></div>
+                    <p className="mt-3 text-gray-600">필터 로딩 중...</p>
+                  </div>
+                </div>
+              ) : filterCategories.length > 0 ? (
+                <div className="grid grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filterCategories.map((category) => {
+                    const selectedCount = getSelectedCountInCategory(category)
+                    const isCollapsed = collapsedCategories.has(category.id)
+
+                    return (
+                      <div key={category.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                        <button
+                          type="button"
+                          onClick={() => toggleCategoryCollapse(category.id)}
+                          className="w-full flex items-center justify-between mb-3"
+                        >
+                          <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                            {isCollapsed ? (
+                              <FiChevronRight className="w-4 h-4 text-gray-400" />
+                            ) : (
+                              <FiChevronDown className="w-4 h-4 text-gray-400" />
+                            )}
+                            {category.name}
+                          </h4>
+                          {selectedCount > 0 && (
+                            <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                              {selectedCount}
+                            </span>
+                          )}
+                        </button>
+                        {!isCollapsed && (
+                          <div className="space-y-1 max-h-64 overflow-y-auto">
+                            {category.options.map((option) => renderFilterOption(option, 0))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  사용 가능한 필터가 없습니다
+                </div>
+              )}
+            </div>
+
+            {/* 하단 버튼 */}
+            <div className="sticky bottom-0 bg-white border-t p-4 flex gap-3">
+              <button
+                onClick={() => setShowPCFilterPopup(false)}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+              >
+                닫기
+              </button>
+              <button
+                onClick={() => {
+                  handleSearch()
+                  setShowPCFilterPopup(false)
+                }}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                {selectedFilterOptionIds.length > 0
+                  ? `${selectedFilterOptionIds.length}개 필터 적용하기`
+                  : '검색하기'
+                }
               </button>
             </div>
           </div>
