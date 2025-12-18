@@ -24,14 +24,14 @@ export default function Quickmenu() {
     const quickMenuItems: QuickMenuItem[] = [
         {
             id: 'estimates',
-            label: '제안하기',
+            label: '견적의뢰',
             icon: FaGavel,
             href: '/estimates'
         }, {
-            id: 'estimates_write',
-            label: '의뢰하기',
+            id: 'notices',
+            label: '공지/이벤트',
             icon: FaLightbulb,
-            href: '/estimates-write'
+            href: '/notices'
         }, {
             id: 'planner',
             label: '플래너신청',

@@ -59,7 +59,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
     } catch (error: any) {
       if (error?.response?.status === 404) {
         showErrorToast(error, '갤러리를 찾을 수 없습니다')
-        router.push('/photos')
+        router.push('/')
       } else {
         showErrorToast(error, '갤러리를 불러오는데 실패했습니다')
       }
@@ -81,7 +81,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
     try {
       await deleteGallery(gallery.uuid)
       showSuccessToast('갤러리가 삭제되었습니다')
-      router.push('/photos')
+      router.push('/')
     } catch (error: any) {
       if (error?.response?.status === 403) {
         showErrorToast(error, '삭제 권한이 없습니다')
@@ -224,7 +224,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
       <div className="bg-white rounded-lg shadow-sm p-12 text-center">
         <p className="text-gray-500 text-lg">갤러리를 찾을 수 없습니다.</p>
         <Link
-          href="/photos"
+          href="/"
           className="inline-flex items-center gap-2 mt-6 text-blue-600 hover:text-blue-700"
         >
           <FiArrowLeft />
@@ -242,7 +242,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
         {/* 헤더 */}
         <div className="flex items-center justify-between">
           <Link
-            href="/photos"
+            href="/"
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <FiArrowLeft />
@@ -423,12 +423,14 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                   {gallery.company.phone}
                 </p>
               </div>
-              <Link
-                href={`/companies/${gallery.company.companyUuid}`}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                업체 상세보기
-              </Link>
+              <div className="flex gap-2">
+                <Link
+                  href={`/companies/${gallery.company.companyUuid}`}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  업체 상세보기
+                </Link>
+              </div>
             </div>
           </div>
         )}
