@@ -42,6 +42,7 @@ export default function GalleryCreateForm() {
   const [isLoadingFilters, setIsLoadingFilters] = useState(true)
   const [showFilterPanel, setShowFilterPanel] = useState(false)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
 
   // 이미지
   const [images, setImages] = useState<ImageAttachment[]>([])
@@ -126,6 +127,8 @@ export default function GalleryCreateForm() {
           options: buildOptionTree(category.options)
         }))
         setFilterCategories(filtersWithTree)
+        // 모든 카테고리를 기본 접힌 상태로 설정
+        setCollapsedCategories(new Set(filtersWithTree.map(c => c.id)))
       } catch (error) {
         showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
       } finally {
@@ -231,6 +234,19 @@ export default function GalleryCreateForm() {
         newSet.delete(optionId)
       } else {
         newSet.add(optionId)
+      }
+      return newSet
+    })
+  }
+
+  // 카테고리 접기/펼치기 토글
+  const toggleCategoryCollapse = (categoryId: number) => {
+    setCollapsedCategories(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId)
+      } else {
+        newSet.add(categoryId)
       }
       return newSet
     })
@@ -839,27 +855,39 @@ export default function GalleryCreateForm() {
                       }, 0)
                     }
                     const selectedCount = countSelected(category.options)
+                    const isCollapsed = collapsedCategories.has(category.id)
 
                     return (
                       <div key={category.id} className="p-4">
-                        <div className="flex items-center justify-between mb-3">
+                        <button
+                          type="button"
+                          onClick={() => toggleCategoryCollapse(category.id)}
+                          className="w-full flex items-center justify-between mb-3 hover:bg-gray-50 -mx-2 px-2 py-1 rounded transition-colors"
+                        >
                           <div className="flex items-center gap-2">
+                            {isCollapsed ? (
+                              <FiChevronRight className="w-5 h-5 text-gray-400" />
+                            ) : (
+                              <FiChevronDown className="w-5 h-5 text-gray-400" />
+                            )}
                             <h4 className="font-semibold text-gray-900">
                               {category.name}
                             </h4>
                             {category.isRequired && (
                               <span className="text-red-500 text-sm">*</span>
                             )}
-                            {selectedCount > 0 && (
-                              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
-                                {selectedCount}
-                              </span>
-                            )}
                           </div>
-                        </div>
-                        <div className="space-y-1">
-                          {category.options.map((option) => renderFilterOption(option, category.id, category.filterType, 0))}
-                        </div>
+                          {selectedCount > 0 && (
+                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                              {selectedCount}
+                            </span>
+                          )}
+                        </button>
+                        {!isCollapsed && (
+                          <div className="space-y-1">
+                            {category.options.map((option) => renderFilterOption(option, category.id, category.filterType, 0))}
+                          </div>
+                        )}
                       </div>
                     )
                   })}

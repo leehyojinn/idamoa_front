@@ -134,6 +134,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           options: buildOptionTree(category.options)
         }))
         setFilterCategories(filtersWithTree)
+        // 모든 카테고리를 기본 접힌 상태로 설정
+        setCollapsedCategories(new Set(filtersWithTree.map(c => c.id)))
       } catch (error) {
         showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
       } finally {

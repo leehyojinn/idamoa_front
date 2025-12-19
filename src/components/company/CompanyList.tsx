@@ -398,7 +398,7 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                 <div
                   key={company.uuid}
                   onClick={() => handleCompanyClick(company.slug)}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer group"
+                  className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer group border border-[rgba(0,0,0,0.2)]"
                 >
                   {/* 이미지 */}
                   <div className="relative h-48 bg-gray-200 overflow-hidden">
