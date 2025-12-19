@@ -50,7 +50,7 @@ export default async function Home() {
             {/* 메인 타이틀 */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
               인테리어,<br className="md:hidden" />
-              <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent"> 다 모아보다 </span>
+              <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent"> 다 모아 </span>
             </h1>
 
             {/* 서브 타이틀 */}
