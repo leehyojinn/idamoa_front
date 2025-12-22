@@ -91,6 +91,8 @@ export interface Gallery {
   // 새로 추가된 필드
   company?: CompanySummary | null
   reviews?: ReviewSummary[] | null
+  // 우대등록 정보
+  promotion?: GalleryPromotion | null
 }
 
 export interface GalleryListItem {
@@ -164,6 +166,9 @@ export interface CreateGalleryRequest {
     license: string
     attribution: string
   }
+  // 우대등록 옵션
+  promotionType?: 'STANDARD' | 'PREMIUM'
+  autoRenew?: boolean
 }
 
 export interface UpdateGalleryRequest {
@@ -179,6 +184,23 @@ export interface UpdateGalleryRequest {
     license: string
     attribution: string
   }
+  // 우대등록 관리
+  promotionType?: 'STANDARD' | 'PREMIUM'
+  autoRenew?: boolean
+  cancelPromotion?: boolean
+}
+
+// 우대등록 정보
+export interface GalleryPromotion {
+  promotionUuid: string
+  promotionType: 'STANDARD' | 'PREMIUM'
+  weight: number
+  monthlyPrice: number
+  startDate: string
+  endDate: string
+  autoRenew: boolean
+  status: 'ACTIVE' | 'EXPIRED' | 'CANCELLED'
+  remainingDays: number
 }
 
 export interface ApiResponse<T> {

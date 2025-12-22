@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { FaStar, FaHeart, FaEye, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaCrown, FaUser, FaGlobe, FaInstagram, FaFacebook, FaYoutube } from 'react-icons/fa'
+import { FaStar, FaHeart, FaEye, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaCrown, FaUser, FaGlobe, FaInstagram, FaFacebook, FaYoutube, FaAward } from 'react-icons/fa'
 import { SiKakaotalk, SiNaver } from 'react-icons/si'
 import DOMPurify from 'isomorphic-dompurify'
 import Navbar from '@/components/layout/Navbar'
@@ -448,6 +448,13 @@ export default function MyPage() {
                   className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   업체 기본 정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/promoted-galleries')}
+                  className="w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <FaAward />
+                  내 우대 갤러리
                 </button>
                 <button
                   onClick={() => router.push('/inquiries/my')}
@@ -943,6 +950,13 @@ export default function MyPage() {
                   className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   업체 상세정보 수정
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/promoted-galleries')}
+                  className="w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <FaAward />
+                  내 우대 갤러리
                 </button>
                 <button
                   onClick={() => router.push('/inquiries/my')}
