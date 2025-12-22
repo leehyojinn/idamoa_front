@@ -36,7 +36,6 @@ import {
   type Portfolio,
 } from '@/lib/api/portfolio'
 import { useAuth } from '@/hooks/useAuth'
-import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 
 interface Props {
@@ -46,8 +45,7 @@ interface Props {
 export default function PortfolioDetailPage({ params }: Props) {
   const resolvedParams = use(params)
   const router = useRouter()
-  const { isAuthenticated } = useAuth()
-  const { user } = useAuthStore()
+  const { user } = useAuth()
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -79,7 +77,7 @@ export default function PortfolioDetailPage({ params }: Props) {
   }, [resolvedParams.uuid, router])
 
   const handleLike = async () => {
-    if (!isAuthenticated) {
+    if (!user) {
       showErrorToast(null, '로그인이 필요합니다')
       router.push('/login')
       return
@@ -88,8 +86,10 @@ export default function PortfolioDetailPage({ params }: Props) {
     try {
       const response = await toggleLike(resolvedParams.uuid)
       if (response.success) {
-        setIsLiked(response.data || false)
-        setLikeCount(prev => response.data ? prev + 1 : prev - 1)
+        const newIsLiked = response.data || false
+        setIsLiked(newIsLiked)
+        setLikeCount(prev => newIsLiked ? prev + 1 : prev - 1)
+        showSuccessToast(newIsLiked ? '좋아요를 눌렀습니다' : '좋아요를 취소했습니다')
       }
     } catch (error) {
       showErrorToast(error, '좋아요 처리에 실패했습니다')
@@ -97,7 +97,7 @@ export default function PortfolioDetailPage({ params }: Props) {
   }
 
   const handleBookmark = async () => {
-    if (!isAuthenticated) {
+    if (!user) {
       showErrorToast(null, '로그인이 필요합니다')
       router.push('/login')
       return
