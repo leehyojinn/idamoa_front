@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight } from 'react-icons/fi'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight, FiVideo } from 'react-icons/fi'
 import { searchPortfolios, deletePortfolio, toggleBookmark, toggleLike, type PortfolioListItem, type PortfolioSearchParams, type PortfolioSearchResponse } from '@/lib/api/portfolio'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Select from '@/components/ui/Select'
@@ -914,11 +914,21 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                             <FiImage className="w-16 h-16" />
                           </div>
                         )}
-                        {portfolio.images && portfolio.images.length > 1 && (
-                          <div className="absolute top-2 left-2 bg-black bg-opacity-60 text-white px-2 py-1 rounded text-sm">
-                            +{portfolio.images.length}
-                          </div>
-                        )}
+                        {/* 이미지/영상 개수 배지 */}
+                        <div className="absolute top-2 left-2 flex gap-1">
+                          {portfolio.images && portfolio.images.length > 1 && (
+                            <div className="bg-black bg-opacity-60 text-white px-2 py-1 rounded text-sm flex items-center gap-1">
+                              <FiImage className="w-3 h-3" />
+                              {portfolio.images.length}
+                            </div>
+                          )}
+                          {portfolio.videos && portfolio.videos.length > 0 && (
+                            <div className="bg-blue-600 bg-opacity-90 text-white px-2 py-1 rounded text-sm flex items-center gap-1">
+                              <FiVideo className="w-3 h-3" />
+                              {portfolio.videos.length}
+                            </div>
+                          )}
+                        </div>
                         {/* 북마크 버튼 */}
                         {user && (
                           <button
@@ -988,15 +998,11 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                               {portfolio.company?.companyName?.charAt(0) || 'U'}
                             </div>
                             <span>{portfolio.company?.companyName || '알 수 없음'}</span>
-                            {portfolio.company?.averageRating !== undefined && portfolio.company.averageRating > 0 && (
-                              <span className="flex items-center gap-1 text-yellow-500">
-                                <FiStar className="fill-current" />
-                                {portfolio.company.averageRating.toFixed(1)}
-                                {portfolio.company.reviewCount !== undefined && (
-                                  <span className="text-gray-400">({portfolio.company.reviewCount})</span>
-                                )}
-                              </span>
-                            )}
+                            <span className="flex items-center gap-1 text-yellow-500">
+                              <FiStar className="fill-current" />
+                              {(portfolio.company?.averageRating ?? 0).toFixed(1)}
+                              <span className="text-gray-400">({portfolio.company?.reviewCount ?? 0})</span>
+                            </span>
                           </div>
                           <div className="flex items-center gap-3 text-sm text-gray-500">
                             <span className="flex items-center gap-1">
