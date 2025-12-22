@@ -20,6 +20,10 @@ import {
   FiChevronRight,
   FiX,
   FiStar,
+  FiVideo,
+  FiClock,
+  FiDollarSign,
+  FiHome,
 } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -376,7 +380,118 @@ export default function PortfolioDetailPage({ params }: Props) {
                     <p className="whitespace-pre-wrap">{portfolio.description}</p>
                   </div>
                 )}
+
+                {/* 상세 내용 */}
+                {portfolio.content && (
+                  <div className="mt-6 pt-6 border-t border-gray-100">
+                    <h3 className="font-bold text-gray-900 mb-3">상세 내용</h3>
+                    <div className="prose max-w-none text-gray-700">
+                      <p className="whitespace-pre-wrap">{portfolio.content}</p>
+                    </div>
+                  </div>
+                )}
               </div>
+
+              {/* 영상 섹션 */}
+              {portfolio.videos && portfolio.videos.length > 0 && (
+                <div className="bg-white rounded-2xl p-6 mt-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FiVideo className="w-5 h-5" />
+                    영상 ({portfolio.videos.length})
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {portfolio.videos.map((video, index) => (
+                      <div key={video.uuid} className="aspect-video bg-gray-900 rounded-xl overflow-hidden">
+                        <video
+                          src={video.fileUrl}
+                          controls
+                          className="w-full h-full object-contain"
+                          poster={portfolio.thumbnailUrl}
+                        >
+                          <source src={video.fileUrl} type={video.mimeType} />
+                          브라우저가 비디오를 지원하지 않습니다.
+                        </video>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 프로젝트 정보 */}
+              {(portfolio.projectType || portfolio.projectScale || portfolio.projectDuration || portfolio.projectDate || portfolio.budgetRange || portfolio.actualCost) && (
+                <div className="bg-white rounded-2xl p-6 mt-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">프로젝트 정보</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {portfolio.projectType && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                          <FiHome className="w-4 h-4" />
+                          프로젝트 유형
+                        </div>
+                        <p className="font-semibold text-gray-900">{portfolio.projectType}</p>
+                      </div>
+                    )}
+                    {portfolio.projectScale && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                          <FiHome className="w-4 h-4" />
+                          프로젝트 규모
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          {portfolio.projectScale === 'SMALL' && '소형 (10평 미만)'}
+                          {portfolio.projectScale === 'MEDIUM' && '중형 (10~30평)'}
+                          {portfolio.projectScale === 'LARGE' && '대형 (30~50평)'}
+                          {portfolio.projectScale === 'XLARGE' && '초대형 (50평 이상)'}
+                        </p>
+                      </div>
+                    )}
+                    {portfolio.projectDuration && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                          <FiClock className="w-4 h-4" />
+                          시공 기간
+                        </div>
+                        <p className="font-semibold text-gray-900">{portfolio.projectDuration}일</p>
+                      </div>
+                    )}
+                    {portfolio.projectDate && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                          <FiCalendar className="w-4 h-4" />
+                          시공 완료일
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          {new Date(portfolio.projectDate).toLocaleDateString('ko-KR')}
+                        </p>
+                      </div>
+                    )}
+                    {portfolio.budgetRange && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                          <FiDollarSign className="w-4 h-4" />
+                          예산 범위
+                        </div>
+                        <p className="font-semibold text-gray-900">
+                          {portfolio.budgetRange === 'UNDER_1000' && '1,000만원 미만'}
+                          {portfolio.budgetRange === '1000_3000' && '1,000~3,000만원'}
+                          {portfolio.budgetRange === '3000_5000' && '3,000~5,000만원'}
+                          {portfolio.budgetRange === '5000_10000' && '5,000만원~1억원'}
+                          {portfolio.budgetRange === 'OVER_10000' && '1억원 이상'}
+                        </p>
+                      </div>
+                    )}
+                    {portfolio.actualCost && (
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-1">
+                          <FiDollarSign className="w-4 h-4" />
+                          실제 비용
+                        </div>
+                        <p className="font-semibold text-gray-900">{portfolio.actualCost.toLocaleString()}만원</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* 리뷰 섹션 */}
               {portfolio.company && (portfolio.company.uuid || portfolio.company.companyUuid) && (

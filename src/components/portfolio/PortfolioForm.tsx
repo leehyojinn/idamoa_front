@@ -14,6 +14,10 @@ import {
   FiChevronRight,
   FiChevronDown,
   FiCheck,
+  FiVideo,
+  FiCalendar,
+  FiDollarSign,
+  FiInfo,
 } from 'react-icons/fi'
 import {
   createPortfolio,
@@ -42,20 +46,62 @@ interface ImageFile {
   fileSize?: number
 }
 
+interface VideoFile {
+  uuid?: string
+  file?: File
+  preview: string
+  fileUrl?: string
+  fileName?: string
+  fileSize?: number
+}
+
+// 프로젝트 규모 옵션
+const PROJECT_SCALE_OPTIONS = [
+  { value: '', label: '선택하세요' },
+  { value: 'SMALL', label: '소형 (10평 미만)' },
+  { value: 'MEDIUM', label: '중형 (10~30평)' },
+  { value: 'LARGE', label: '대형 (30~50평)' },
+  { value: 'XLARGE', label: '초대형 (50평 이상)' },
+]
+
+// 예산 범위 옵션
+const BUDGET_RANGE_OPTIONS = [
+  { value: '', label: '선택하세요' },
+  { value: 'UNDER_1000', label: '1,000만원 미만' },
+  { value: '1000_3000', label: '1,000~3,000만원' },
+  { value: '3000_5000', label: '3,000~5,000만원' },
+  { value: '5000_10000', label: '5,000만원~1억원' },
+  { value: 'OVER_10000', label: '1억원 이상' },
+]
+
 export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const videoInputRef = useRef<HTMLInputElement>(null)
 
   const [title, setTitle] = useState(portfolio?.title || '')
   const [description, setDescription] = useState(portfolio?.description || '')
+  const [content, setContent] = useState(portfolio?.content || '')
   const [tags, setTags] = useState<string[]>(portfolio?.tags || [])
   const [tagInput, setTagInput] = useState('')
   const [images, setImages] = useState<ImageFile[]>([])
+  const [videos, setVideos] = useState<VideoFile[]>([])
+  const [selectedThumbnailIndex, setSelectedThumbnailIndex] = useState(0)
   const [selectedFilters, setSelectedFilters] = useState<number[]>([])
   const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
   const [showFilterPanel, setShowFilterPanel] = useState(false)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
+
+  // 프로젝트 정보
+  const [projectType, setProjectType] = useState(portfolio?.projectType || '')
+  const [projectScale, setProjectScale] = useState(portfolio?.projectScale || '')
+  const [projectDuration, setProjectDuration] = useState<number | ''>(portfolio?.projectDuration || '')
+  const [projectDate, setProjectDate] = useState(portfolio?.projectDate || '')
+
+  // 예산 정보
+  const [budgetRange, setBudgetRange] = useState(portfolio?.budgetRange || '')
+  const [actualCost, setActualCost] = useState<number | ''>(portfolio?.actualCost || '')
 
   // 우대등록 관련
   const [promotionPrices, setPromotionPrices] = useState<PromotionPrice[]>([])
@@ -68,7 +114,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingFilters, setIsLoadingFilters] = useState(true)
 
-  // 기존 이미지 로드
+  // 기존 이미지 및 비디오 로드
   useEffect(() => {
     if (portfolio?.images) {
       setImages(
@@ -78,6 +124,17 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           fileUrl: img.fileUrl,
           fileName: img.originalFilename,
           fileSize: img.fileSize,
+        }))
+      )
+    }
+    if (portfolio?.videos) {
+      setVideos(
+        portfolio.videos.map(vid => ({
+          uuid: vid.uuid,
+          preview: vid.fileUrl,
+          fileUrl: vid.fileUrl,
+          fileName: vid.originalFilename,
+          fileSize: vid.fileSize,
         }))
       )
     }
@@ -184,8 +241,55 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
         URL.revokeObjectURL(newImages[index].preview)
       }
       newImages.splice(index, 1)
+      // 썸네일 인덱스 조정
+      if (selectedThumbnailIndex >= newImages.length) {
+        setSelectedThumbnailIndex(Math.max(0, newImages.length - 1))
+      } else if (index < selectedThumbnailIndex) {
+        setSelectedThumbnailIndex(selectedThumbnailIndex - 1)
+      }
       return newImages
     })
+  }
+
+  // 비디오 선택 핸들러
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const newVideos: VideoFile[] = []
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      if (file.type.startsWith('video/')) {
+        newVideos.push({
+          file,
+          preview: URL.createObjectURL(file),
+          fileName: file.name,
+          fileSize: file.size,
+        })
+      }
+    }
+
+    setVideos(prev => [...prev, ...newVideos])
+    if (videoInputRef.current) {
+      videoInputRef.current.value = ''
+    }
+  }
+
+  // 비디오 삭제 핸들러
+  const handleRemoveVideo = (index: number) => {
+    setVideos(prev => {
+      const newVideos = [...prev]
+      if (newVideos[index].preview && !newVideos[index].fileUrl) {
+        URL.revokeObjectURL(newVideos[index].preview)
+      }
+      newVideos.splice(index, 1)
+      return newVideos
+    })
+  }
+
+  // 썸네일 선택 핸들러
+  const handleSelectThumbnail = (index: number) => {
+    setSelectedThumbnailIndex(index)
   }
 
   const handleAddTag = () => {
@@ -388,21 +492,59 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
         uploadedImageUuids.push(result.uuid)
       }
 
-      // 기존 이미지 + 새 이미지 병합
-      const existingImageUuids = images
-        .filter(img => img.uuid)
-        .map(img => img.uuid!)
+      // 기존 이미지 UUID들의 순서 유지하면서 새 이미지 UUID 매핑
+      const allImageUuids: string[] = []
+      let newImageIndex = 0
+      for (const img of images) {
+        if (img.uuid) {
+          allImageUuids.push(img.uuid)
+        } else {
+          allImageUuids.push(uploadedImageUuids[newImageIndex])
+          newImageIndex++
+        }
+      }
 
-      const allImageUuids = [...existingImageUuids, ...uploadedImageUuids]
+      // 새 비디오 업로드
+      const newVideoFiles = videos.filter(vid => vid.file).map(vid => vid.file!)
+      const uploadedVideoUuids: string[] = []
+
+      for (const file of newVideoFiles) {
+        const result = await uploadFile(file, 'PORTFOLIO')
+        uploadedVideoUuids.push(result.uuid)
+      }
+
+      // 기존 비디오 + 새 비디오 병합
+      const allVideoUuids: string[] = []
+      let newVideoIndex = 0
+      for (const vid of videos) {
+        if (vid.uuid) {
+          allVideoUuids.push(vid.uuid)
+        } else {
+          allVideoUuids.push(uploadedVideoUuids[newVideoIndex])
+          newVideoIndex++
+        }
+      }
+
+      // 썸네일 UUID 결정 (선택된 이미지의 UUID)
+      const thumbnailUuid = allImageUuids[selectedThumbnailIndex] || allImageUuids[0]
 
       if (isEdit && portfolio) {
         // 수정
         const updateData: PortfolioUpdateRequest = {
           title: title.trim(),
           description: description.trim(),
+          content: content.trim() || undefined,
           tags,
           imageUuids: allImageUuids,
+          videoUuids: allVideoUuids.length > 0 ? allVideoUuids : undefined,
+          thumbnailUuid: thumbnailUuid,
           filterOptionIds: selectedFilters,
+          projectType: projectType || undefined,
+          projectScale: projectScale || undefined,
+          projectDuration: projectDuration || undefined,
+          projectDate: projectDate || undefined,
+          budgetRange: budgetRange || undefined,
+          actualCost: actualCost || undefined,
         }
 
         await updatePortfolio(portfolio.uuid, updateData)
@@ -413,9 +555,18 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
         const createData: PortfolioCreateRequest = {
           title: title.trim(),
           description: description.trim(),
+          content: content.trim() || undefined,
           tags,
           imageUuids: allImageUuids,
+          videoUuids: allVideoUuids.length > 0 ? allVideoUuids : undefined,
+          thumbnailUuid: thumbnailUuid,
           filterOptionIds: selectedFilters,
+          projectType: projectType || undefined,
+          projectScale: projectScale || undefined,
+          projectDuration: projectDuration || undefined,
+          projectDate: projectDate || undefined,
+          budgetRange: budgetRange || undefined,
+          actualCost: actualCost || undefined,
           promotionType: selectedPromotion || undefined,
           promotionMonths: selectedPromotion ? promotionMonths : undefined,
           autoRenew: selectedPromotion ? autoRenew : undefined,
@@ -464,7 +615,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             <FiImage className="w-5 h-5" />
             이미지
             <span className="text-sm font-normal text-gray-500">
-              (최대 20장)
+              (최대 20장, 클릭하여 대표 이미지 선택)
             </span>
           </h2>
 
@@ -472,7 +623,12 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             {images.map((image, index) => (
               <div
                 key={index}
-                className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group"
+                onClick={() => handleSelectThumbnail(index)}
+                className={`relative aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-pointer transition-all ${
+                  selectedThumbnailIndex === index
+                    ? 'ring-4 ring-blue-500 ring-offset-2'
+                    : 'hover:ring-2 hover:ring-gray-300'
+                }`}
               >
                 <Image
                   src={image.preview}
@@ -482,13 +638,17 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 />
                 <button
                   type="button"
-                  onClick={() => handleRemoveImage(index)}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleRemoveImage(index)
+                  }}
                   className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <FiX className="w-4 h-4" />
                 </button>
-                {index === 0 && (
-                  <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded">
+                {selectedThumbnailIndex === index && (
+                  <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded flex items-center gap-1">
+                    <FiCheck className="w-3 h-3" />
                     대표
                   </span>
                 )}
@@ -517,6 +677,67 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           />
         </div>
 
+        {/* 영상 업로드 */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FiVideo className="w-5 h-5" />
+            영상
+            <span className="text-sm font-normal text-gray-500">
+              (선택사항, 최대 5개)
+            </span>
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {videos.map((video, index) => (
+              <div
+                key={index}
+                className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden group"
+              >
+                <video
+                  src={video.preview}
+                  className="w-full h-full object-cover"
+                  muted
+                />
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                  <FiVideo className="w-10 h-10 text-white/70" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveVideo(index)}
+                  className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <FiX className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-2 left-2 right-2">
+                  <p className="text-white text-xs truncate bg-black/50 px-2 py-1 rounded">
+                    {video.fileName}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {videos.length < 5 && (
+              <button
+                type="button"
+                onClick={() => videoInputRef.current?.click()}
+                className="aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors"
+              >
+                <FiUpload className="w-8 h-8 mb-2" />
+                <span className="text-sm">영상 추가</span>
+              </button>
+            )}
+          </div>
+
+          <input
+            ref={videoInputRef}
+            type="file"
+            accept="video/*"
+            multiple
+            onChange={handleVideoSelect}
+            className="hidden"
+          />
+        </div>
+
         {/* 기본 정보 */}
         <div className="bg-white rounded-xl border border-gray-200 p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4">기본 정보</h2>
@@ -538,15 +759,29 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                설명
+                간략 설명
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="포트폴리오에 대한 설명을 입력하세요"
-                rows={5}
+                placeholder="포트폴리오에 대한 간략한 설명을 입력하세요"
+                rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                maxLength={2000}
+                maxLength={500}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                상세 내용
+              </label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="시공 과정, 사용 자재, 디자인 컨셉 등 상세 내용을 입력하세요"
+                rows={6}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                maxLength={5000}
               />
             </div>
 
@@ -593,6 +828,118 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                   <FiPlus className="w-5 h-5" />
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 프로젝트 정보 */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FiInfo className="w-5 h-5" />
+            프로젝트 정보
+            <span className="text-sm font-normal text-gray-500">(선택사항)</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                프로젝트 유형
+              </label>
+              <input
+                type="text"
+                value={projectType}
+                onChange={(e) => setProjectType(e.target.value)}
+                placeholder="예: 주거 인테리어, 상업 공간, 리모델링"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                maxLength={50}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                프로젝트 규모
+              </label>
+              <select
+                value={projectScale}
+                onChange={(e) => setProjectScale(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                {PROJECT_SCALE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                시공 기간 (일)
+              </label>
+              <input
+                type="number"
+                value={projectDuration}
+                onChange={(e) => setProjectDuration(e.target.value ? parseInt(e.target.value) : '')}
+                placeholder="예: 30"
+                min={1}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
+                <FiCalendar className="w-4 h-4" />
+                시공 완료일
+              </label>
+              <input
+                type="date"
+                value={projectDate}
+                onChange={(e) => setProjectDate(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 예산 정보 */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <FiDollarSign className="w-5 h-5" />
+            예산 정보
+            <span className="text-sm font-normal text-gray-500">(선택사항)</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                예산 범위
+              </label>
+              <select
+                value={budgetRange}
+                onChange={(e) => setBudgetRange(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                {BUDGET_RANGE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                실제 비용 (만원)
+              </label>
+              <input
+                type="number"
+                value={actualCost}
+                onChange={(e) => setActualCost(e.target.value ? parseInt(e.target.value) : '')}
+                placeholder="예: 3000 (3천만원)"
+                min={0}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {actualCost && (
+                <p className="text-sm text-gray-500 mt-1">
+                  = {(actualCost as number).toLocaleString()}만원
+                </p>
+              )}
             </div>
           </div>
         </div>
