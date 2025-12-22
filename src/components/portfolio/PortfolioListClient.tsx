@@ -223,9 +223,6 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
       })
 
       if (result.success && result.data) {
-        console.log('=== 포트폴리오 리스트 응답 ===')
-        console.log('총 개수:', result.data.totalElements)
-        console.log('리스트:', result.data.content)
         setPortfolios(result.data.content || [])
         setTotalPages(result.data.totalPages || 0)
         setTotalElements(result.data.totalElements || 0)
@@ -273,6 +270,22 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
     setIsInitialLoad(false)
   }, [searchParams, fetchPortfolios, isInitialLoad, initialData])
+
+  // 로그인 상태 변경 시 좋아요/북마크 상태 갱신을 위해 데이터 다시 로드
+  useEffect(() => {
+    // user 상태가 변경되면 (로그인/로그아웃) 데이터를 다시 가져옴
+    if (user && initialData) {
+      fetchPortfolios({
+        page: currentPage,
+        keyword: keyword || undefined,
+        filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
+        companyUuid: companyUuid || undefined,
+        sort: sortBy,
+        onlyBookmarked,
+        onlyMyPosts,
+      })
+    }
+  }, [user?.email]) // user.email이 변경될 때만 실행 (로그인/로그아웃 시)
 
   const handleClearCompanyFilter = () => {
     setCompanyUuid(null)

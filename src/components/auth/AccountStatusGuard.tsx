@@ -31,14 +31,25 @@ export default function AccountStatusGuard() {
         const response = await getMyInfo()
 
         if (response.success && response.data) {
-          const { status } = response.data
+          const { status, isAdmin, isCompany } = response.data
 
-          // 사용자 정보 업데이트 (status 포함)
+          // currentRole 결정
+          let newCurrentRole = user.currentRole
+          if (isAdmin) {
+            newCurrentRole = 'ADMIN'
+          } else if (isCompany) {
+            newCurrentRole = 'COMPANY'
+          } else {
+            newCurrentRole = 'USER'
+          }
+
+          // 사용자 정보 업데이트 (status, currentRole 포함)
           setUser({
             ...user,
             status: status,
             name: response.data.name,
-            id: response.data.id.toString(),
+            currentRole: newCurrentRole,
+            id: response.data.id?.toString() || user.id,
           })
 
           // 상태에 따라 다이얼로그 표시
