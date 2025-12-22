@@ -31,6 +31,7 @@ import {
 import { getPublicFilters, type PublicFilterCategory, type PublicFilterOption } from '@/lib/api/filter'
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import Select from '@/components/ui/Select'
 
 interface Props {
   portfolio?: Portfolio | null
@@ -64,15 +65,6 @@ const PROJECT_SCALE_OPTIONS = [
   { value: 'XLARGE', label: '초대형 (50평 이상)' },
 ]
 
-// 예산 범위 옵션
-const BUDGET_RANGE_OPTIONS = [
-  { value: '', label: '선택하세요' },
-  { value: 'UNDER_1000', label: '1,000만원 미만' },
-  { value: '1000_3000', label: '1,000~3,000만원' },
-  { value: '3000_5000', label: '3,000~5,000만원' },
-  { value: '5000_10000', label: '5,000만원~1억원' },
-  { value: 'OVER_10000', label: '1억원 이상' },
-]
 
 export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   const router = useRouter()
@@ -99,8 +91,13 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   const [projectDuration, setProjectDuration] = useState<number | ''>(portfolio?.projectDuration || '')
   const [projectDate, setProjectDate] = useState(portfolio?.projectDate || '')
 
-  // 예산 정보
-  const [budgetRange, setBudgetRange] = useState(portfolio?.budgetRange || '')
+  // 예산 정보 (최소~최대)
+  const [budgetMin, setBudgetMin] = useState<number | ''>(
+    portfolio?.budgetRange ? parseInt(portfolio.budgetRange.split('~')[0]) || '' : ''
+  )
+  const [budgetMax, setBudgetMax] = useState<number | ''>(
+    portfolio?.budgetRange ? parseInt(portfolio.budgetRange.split('~')[1]) || '' : ''
+  )
   const [actualCost, setActualCost] = useState<number | ''>(portfolio?.actualCost || '')
 
   // 우대등록 관련
@@ -530,6 +527,11 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
       if (isEdit && portfolio) {
         // 수정
+        // 예산 범위 조합
+        const budgetRangeValue = budgetMin || budgetMax
+          ? `${budgetMin || 0}~${budgetMax || ''}`
+          : undefined
+
         const updateData: PortfolioUpdateRequest = {
           title: title.trim(),
           description: description.trim(),
@@ -543,7 +545,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           projectScale: projectScale || undefined,
           projectDuration: projectDuration || undefined,
           projectDate: projectDate || undefined,
-          budgetRange: budgetRange || undefined,
+          budgetRange: budgetRangeValue,
           actualCost: actualCost || undefined,
         }
 
@@ -552,6 +554,11 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
         router.push(`/portfolios/${portfolio.uuid}`)
       } else {
         // 생성
+        // 예산 범위 조합
+        const budgetRangeValue = budgetMin || budgetMax
+          ? `${budgetMin || 0}~${budgetMax || ''}`
+          : undefined
+
         const createData: PortfolioCreateRequest = {
           title: title.trim(),
           description: description.trim(),
@@ -565,7 +572,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           projectScale: projectScale || undefined,
           projectDuration: projectDuration || undefined,
           projectDate: projectDate || undefined,
-          budgetRange: budgetRange || undefined,
+          budgetRange: budgetRangeValue,
           actualCost: actualCost || undefined,
           promotionType: selectedPromotion || undefined,
           promotionMonths: selectedPromotion ? promotionMonths : undefined,
@@ -856,18 +863,13 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                프로젝트 규모
-              </label>
-              <select
+              <Select
+                label="프로젝트 규모"
+                options={PROJECT_SCALE_OPTIONS}
                 value={projectScale}
-                onChange={(e) => setProjectScale(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                {PROJECT_SCALE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                onChange={setProjectScale}
+                placeholder="선택하세요"
+              />
             </div>
 
             <div>
@@ -907,20 +909,39 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             <span className="text-sm font-normal text-gray-500">(선택사항)</span>
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                예산 범위
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                예산 범위 (만원)
               </label>
-              <select
-                value={budgetRange}
-                onChange={(e) => setBudgetRange(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-              >
-                {BUDGET_RANGE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    value={budgetMin}
+                    onChange={(e) => setBudgetMin(e.target.value ? parseInt(e.target.value) : '')}
+                    placeholder="최소"
+                    min={0}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <span className="text-gray-400 font-medium">~</span>
+                <div className="flex-1">
+                  <input
+                    type="number"
+                    value={budgetMax}
+                    onChange={(e) => setBudgetMax(e.target.value ? parseInt(e.target.value) : '')}
+                    placeholder="최대"
+                    min={0}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              {(budgetMin || budgetMax) && (
+                <p className="text-sm text-gray-500 mt-2">
+                  = {budgetMin ? (budgetMin as number).toLocaleString() : '0'}만원 ~ {budgetMax ? (budgetMax as number).toLocaleString() : ''}만원
+                </p>
+              )}
             </div>
 
             <div>

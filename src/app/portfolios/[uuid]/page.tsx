@@ -472,11 +472,15 @@ export default function PortfolioDetailPage({ params }: Props) {
                           예산 범위
                         </div>
                         <p className="font-semibold text-gray-900">
-                          {portfolio.budgetRange === 'UNDER_1000' && '1,000만원 미만'}
-                          {portfolio.budgetRange === '1000_3000' && '1,000~3,000만원'}
-                          {portfolio.budgetRange === '3000_5000' && '3,000~5,000만원'}
-                          {portfolio.budgetRange === '5000_10000' && '5,000만원~1억원'}
-                          {portfolio.budgetRange === 'OVER_10000' && '1억원 이상'}
+                          {(() => {
+                            const [min, max] = portfolio.budgetRange.split('~')
+                            const minVal = parseInt(min) || 0
+                            const maxVal = parseInt(max) || null
+                            if (maxVal) {
+                              return `${minVal.toLocaleString()}만원 ~ ${maxVal.toLocaleString()}만원`
+                            }
+                            return `${minVal.toLocaleString()}만원 이상`
+                          })()}
                         </p>
                       </div>
                     )}
