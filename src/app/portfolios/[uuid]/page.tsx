@@ -61,9 +61,9 @@ export default function PortfolioDetailPage({ params }: Props) {
         const response = await getPortfolio(resolvedParams.uuid)
         if (response.success && response.data) {
           setPortfolio(response.data)
-          setIsLiked(response.data.isLiked || false)
-          setIsBookmarked(response.data.isBookmarked || false)
-          setLikeCount(response.data.likeCount || 0)
+          setIsLiked(response.data.isLiked ?? false)
+          setIsBookmarked(response.data.isBookmarked ?? false)
+          setLikeCount(response.data.likeCount ?? 0)
         }
       } catch (error) {
         showErrorToast(error, '포트폴리오를 불러오는데 실패했습니다')
@@ -208,22 +208,22 @@ export default function PortfolioDetailPage({ params }: Props) {
                   onClick={handleLike}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg transition-colors ${
                     isLiked
-                      ? 'bg-red-50 text-red-600'
+                      ? 'bg-red-50 text-red-500'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <FiHeart className={`w-5 h-5 ${isLiked ? 'fill-red-500' : ''}`} />
+                  <FiHeart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
                   <span className="text-sm font-medium">{likeCount}</span>
                 </button>
                 <button
                   onClick={handleBookmark}
                   className={`p-2 rounded-lg transition-colors ${
                     isBookmarked
-                      ? 'bg-blue-50 text-blue-600'
+                      ? 'bg-yellow-50 text-yellow-600'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  <FiBookmark className={`w-5 h-5 ${isBookmarked ? 'fill-blue-500' : ''}`} />
+                  <FiBookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
                 </button>
                 <button
                   onClick={handleShare}
