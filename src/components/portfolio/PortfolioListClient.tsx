@@ -248,6 +248,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     const companyUuidParam = searchParams.get('companyUuid') || null
     const companyNameParam = searchParams.get('companyName') || null
 
+    // 이미 initialData가 있고 필터 파라미터가 없으면 스킵
     if (isInitialLoad && initialData && !companyUuidParam) {
       setIsInitialLoad(false)
       return
@@ -260,6 +261,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
       fetchPortfolios({
         page: 0,
         companyUuid: companyUuidParam,
+        sort: 'createdAt,DESC',
+      })
+    } else if (isInitialLoad && !initialData) {
+      // initialData가 없으면 데이터 로드
+      fetchPortfolios({
+        page: 0,
         sort: 'createdAt,DESC',
       })
     }
