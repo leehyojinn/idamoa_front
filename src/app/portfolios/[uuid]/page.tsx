@@ -23,6 +23,7 @@ import {
 } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import CompanyReviewsWrapper from '@/components/company/CompanyReviewsWrapper'
 import {
   getPortfolio,
   deletePortfolio,
@@ -376,6 +377,17 @@ export default function PortfolioDetailPage({ params }: Props) {
                   </div>
                 )}
               </div>
+
+              {/* 리뷰 섹션 */}
+              {portfolio.company && (portfolio.company.uuid || portfolio.company.companyUuid) && (
+                <div className="bg-white rounded-2xl p-6 mt-6">
+                  <CompanyReviewsWrapper
+                    companyUuid={portfolio.company.uuid || portfolio.company.companyUuid || ''}
+                    companyName={portfolio.company.companyName}
+                    companyOwnerEmail={portfolio.company.contactEmail || ''}
+                  />
+                </div>
+              )}
             </div>
 
             {/* 오른쪽: 업체 정보 */}
@@ -446,19 +458,14 @@ export default function PortfolioDetailPage({ params }: Props) {
                       )}
                     </div>
 
-                    <Link
-                      href={`/companies/${portfolio.company.slug}`}
-                      className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
-                    >
-                      업체 상세보기
-                    </Link>
-
-                    <Link
-                      href="/estimate-request"
-                      className="block w-full py-3 text-center bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-xl transition-colors mt-3"
-                    >
-                      견적 요청하기
-                    </Link>
+                    {(portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid) && (
+                      <Link
+                        href={`/companies/${portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid}`}
+                        className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+                      >
+                        업체 상세보기
+                      </Link>
+                    )}
                   </>
                 ) : (
                   <p className="text-gray-500 text-center py-8">업체 정보가 없습니다</p>
