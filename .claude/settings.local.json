@@ -41,7 +41,8 @@
       "Bash(curl:*)",
       "Bash(timeout:*)",
       "Bash(move \"[uuid]\" \"[id]\")",
-      "Skill(frontend-design)"
+      "Skill(frontend-design)",
+      "Bash(cmd /c:*)"
     ],
     "deny": [],
     "ask": []

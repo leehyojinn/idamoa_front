@@ -450,11 +450,11 @@ export default function MyPage() {
                   업체 기본 정보 수정
                 </button>
                 <button
-                  onClick={() => router.push('/mypage/promoted-galleries')}
+                  onClick={() => router.push('/mypage/promoted-portfolios')}
                   className="w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
                 >
                   <FaAward />
-                  내 우대 갤러리
+                  내 우대 포트폴리오
                 </button>
                 <button
                   onClick={() => router.push('/inquiries/my')}
@@ -952,11 +952,11 @@ export default function MyPage() {
                   업체 상세정보 수정
                 </button>
                 <button
-                  onClick={() => router.push('/mypage/promoted-galleries')}
+                  onClick={() => router.push('/mypage/promoted-portfolios')}
                   className="w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
                 >
                   <FaAward />
-                  내 우대 갤러리
+                  내 우대 포트폴리오
                 </button>
                 <button
                   onClick={() => router.push('/inquiries/my')}

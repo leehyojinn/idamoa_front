@@ -30,10 +30,12 @@ export async function getFilterCategories(params?: {
   page?: number
   size?: number
 }): Promise<PageResponse<FilterCategory>> {
+  console.log('[getFilterCategories] params:', params)
   const response = await axiosInstance.get<ApiResponse<PageResponse<FilterCategory>>>(
     '/admin/filters/categories',
     { params }
   )
+  console.log('[getFilterCategories] response:', response.data)
   return response.data.data
 }
 

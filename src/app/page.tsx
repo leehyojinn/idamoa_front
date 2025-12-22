@@ -4,9 +4,9 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
 import PopupManager from '@/components/popup/PopupManager'
-import GalleryListClient from '@/components/gallery/GalleryListClient'
-import FeaturedGalleries from '@/components/gallery/FeaturedGalleries'
-import { searchGalleries } from '@/lib/api/gallery'
+import PortfolioListClient from '@/components/portfolio/PortfolioListClient'
+import FeaturedPortfolios from '@/components/portfolio/FeaturedPortfolios'
+import { searchPortfolios } from '@/lib/api/portfolio'
 
 export const metadata = createPageMetadata({
   title: '인테리어 다모아 - 인테리어 전문 플랫폼',
@@ -17,12 +17,17 @@ export const metadata = createPageMetadata({
 
 export default async function Home() {
   // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
-  const initialData = await searchGalleries({
-    page: 0,
-    size: 12,
-    sortBy: 'CREATED_AT',
-    sortDirection: 'DESC',
-  })
+  let initialData = null
+  try {
+    const result = await searchPortfolios({
+      page: 0,
+      size: 12,
+      sort: 'createdAt,DESC',
+    })
+    initialData = result.data
+  } catch (error) {
+    console.error('포트폴리오 초기 로드 실패:', error)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -71,35 +76,12 @@ export default async function Home() {
                 </svg>
               </a>
             </div>
-
-            {/* 통계 */}
-            {/* <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-                <div className="text-2xl md:text-3xl font-bold text-white mb-1">1,000+</div>
-                <div className="text-sm text-blue-200">등록 업체</div>
-              </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-                <div className="text-2xl md:text-3xl font-bold text-white mb-1">5,000+</div>
-                <div className="text-sm text-blue-200">견적 건수</div>
-              </div>
-              <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
-                <div className="text-2xl md:text-3xl font-bold text-white mb-1">98%</div>
-                <div className="text-sm text-blue-200">고객 만족도</div>
-              </div>
-            </div> */}
           </div>
         </div>
-
-        {/* 하단 웨이브 */}
-        {/* <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-auto">
-            <path d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" fill="#F9FAFB"/>
-          </svg>
-        </div> */}
       </section>
 
       {/* 추천 포트폴리오 슬라이드 */}
-      <FeaturedGalleries count={8} />
+      <FeaturedPortfolios count={8} />
 
       <main id="portfolio" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Suspense fallback={
@@ -107,7 +89,7 @@ export default async function Home() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
           </div>
         }>
-          <GalleryListClient initialData={initialData.data} />
+          <PortfolioListClient initialData={initialData || undefined} />
         </Suspense>
       </main>
       <Footer />

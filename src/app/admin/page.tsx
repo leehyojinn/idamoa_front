@@ -404,10 +404,30 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* 우대등록 관리 */}
+        {/* 포트폴리오 관리 */}
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">우대등록 관리</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">포트폴리오 관리</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <FiFileText className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-blue-900">포트폴리오 목록</h3>
+              </div>
+              <p className="text-sm text-blue-700 mb-4">
+                등록된 전체 포트폴리오를 조회하고 관리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/portfolios"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                >
+                  포트폴리오 관리
+                </Link>
+              </div>
+            </div>
+
             <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
@@ -420,7 +440,7 @@ export default function AdminDashboardPage() {
               </p>
               <div className="space-y-2">
                 <Link
-                  href="/admin/gallery-promotions/settings"
+                  href="/admin/portfolio-promotions/settings"
                   className="block w-full py-2 px-4 text-center bg-white hover:bg-yellow-50 text-yellow-700 rounded-lg font-medium transition-colors text-sm border border-yellow-200"
                 >
                   타입 설정 관리
@@ -433,14 +453,14 @@ export default function AdminDashboardPage() {
                 <div className="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center">
                   <FiAward className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-amber-900">활성 우대 갤러리</h3>
+                <h3 className="text-lg font-semibold text-amber-900">활성 우대 포트폴리오</h3>
               </div>
               <p className="text-sm text-amber-700 mb-4">
-                현재 우대등록 중인 갤러리 목록을 확인합니다
+                현재 우대등록 중인 포트폴리오 목록을 확인합니다
               </p>
               <div className="space-y-2">
                 <Link
-                  href="/admin/gallery-promotions"
+                  href="/admin/portfolio-promotions"
                   className="block w-full py-2 px-4 text-center bg-white hover:bg-amber-50 text-amber-700 rounded-lg font-medium transition-colors text-sm border border-amber-200"
                 >
                   활성 목록 보기
