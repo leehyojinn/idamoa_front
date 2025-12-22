@@ -16,11 +16,12 @@ import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 import type { FilterCategory, FilterCategoryCreateRequest, FilterCategoryUpdateRequest, EntityType, FilterType } from '@/types/filter'
 
-const ENTITY_TYPE_LABELS = {
+const ENTITY_TYPE_LABELS: Record<string, string> = {
   COMPANY: '업체',
   HOSPITAL: '병원',
   SERVICE: '서비스',
   GALLERY: '갤러리',
+  PORTFOLIO: '포트폴리오',
   DOCUMENT: '자료실',
 }
 
@@ -62,14 +63,30 @@ export default function AdminFiltersPage() {
   const fetchCategories = async () => {
     setIsLoading(true)
     try {
-      const data = await getFilterCategories({
-        entityType: filter.entityType,
-        isActive: filter.isActive,
-        keyword: filter.keyword || undefined,
+      const params: {
+        entityType?: string
+        isActive?: boolean
+        keyword?: string
+        sort?: string
+        page?: number
+        size?: number
+      } = {
         sort: filter.sort,
         page: 0,
         size: 100,
-      })
+      }
+
+      if (filter.entityType) {
+        params.entityType = filter.entityType
+      }
+      if (filter.isActive !== undefined) {
+        params.isActive = filter.isActive
+      }
+      if (filter.keyword) {
+        params.keyword = filter.keyword
+      }
+
+      const data = await getFilterCategories(params)
       setCategories(data.content)
     } catch (error) {
       showErrorToast(error, '필터 카테고리 목록을 불러오는데 실패했습니다.')
@@ -260,6 +277,7 @@ export default function AdminFiltersPage() {
             <option value="HOSPITAL">병원</option>
             <option value="SERVICE">서비스</option>
             <option value="GALLERY">갤러리</option>
+            <option value="PORTFOLIO">포트폴리오</option>
             <option value="DOCUMENT">자료실</option>
           </select>
 
@@ -462,6 +480,7 @@ export default function AdminFiltersPage() {
                       <option value="HOSPITAL">병원</option>
                       <option value="SERVICE">서비스</option>
                       <option value="GALLERY">갤러리</option>
+                      <option value="PORTFOLIO">포트폴리오</option>
                       <option value="DOCUMENT">자료실</option>
                     </select>
                   </div>
