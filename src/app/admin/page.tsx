@@ -13,6 +13,8 @@ import {
   FiTrendingUp,
   FiTrendingDown,
   FiRefreshCw,
+  FiStar,
+  FiAward,
 } from 'react-icons/fi'
 import { IoCash } from 'react-icons/io5'
 import { getDashboardOverview, type DashboardOverview } from '@/lib/api/dashboard'
@@ -396,6 +398,73 @@ export default function AdminDashboardPage() {
                   className="block w-full py-2 px-4 text-center bg-white hover:bg-purple-50 text-purple-700 rounded-lg font-medium transition-colors text-sm border border-purple-200"
                 >
                   통계 보기
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 우대등록 관리 */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">우대등록 관리</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                  <FiStar className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-yellow-900">우대 타입 설정</h3>
+              </div>
+              <p className="text-sm text-yellow-700 mb-4">
+                우대등록 타입(일반우대, 강력우대 등)의 가격, 가중치를 관리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/gallery-promotions/settings"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-yellow-50 text-yellow-700 rounded-lg font-medium transition-colors text-sm border border-yellow-200"
+                >
+                  타입 설정 관리
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center">
+                  <FiAward className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-amber-900">활성 우대 갤러리</h3>
+              </div>
+              <p className="text-sm text-amber-700 mb-4">
+                현재 우대등록 중인 갤러리 목록을 확인합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/gallery-promotions"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-amber-50 text-amber-700 rounded-lg font-medium transition-colors text-sm border border-amber-200"
+                >
+                  활성 목록 보기
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                  <FiTrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-orange-900">미리보기</h3>
+              </div>
+              <p className="text-sm text-orange-700 mb-4">
+                메인 페이지에 표시되는 추천 포트폴리오를 미리 확인합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/"
+                  target="_blank"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-orange-50 text-orange-700 rounded-lg font-medium transition-colors text-sm border border-orange-200"
+                >
+                  메인 페이지 보기
                 </Link>
               </div>
             </div>

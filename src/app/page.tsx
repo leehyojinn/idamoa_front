@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
 import PopupManager from '@/components/popup/PopupManager'
 import GalleryListClient from '@/components/gallery/GalleryListClient'
+import FeaturedGalleries from '@/components/gallery/FeaturedGalleries'
 import { searchGalleries } from '@/lib/api/gallery'
 
 export const metadata = createPageMetadata({
@@ -96,6 +97,9 @@ export default async function Home() {
           </svg>
         </div> */}
       </section>
+
+      {/* 추천 포트폴리오 슬라이드 */}
+      <FeaturedGalleries count={8} />
 
       <main id="portfolio" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Suspense fallback={

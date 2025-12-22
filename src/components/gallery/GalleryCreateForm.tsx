@@ -11,6 +11,9 @@ import { useAuth } from '@/hooks/useAuth'
 import { getMyInfo } from '@/lib/api/auth'
 import Checkbox from '@/components/ui/Checkbox'
 import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
+import { getPromotionPrices, type PromotionTypeSetting } from '@/lib/api/gallery-promotion'
+import { getCreditBalance } from '@/lib/api/credit'
+import { FiStar, FiInfo, FiCreditCard } from 'react-icons/fi'
 
 interface ImageAttachment {
   file: File
@@ -25,6 +28,7 @@ export default function GalleryCreateForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isCompany, setIsCompany] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [creditBalance, setCreditBalance] = useState(0)
 
   // 기본 정보
   const [title, setTitle] = useState('')
@@ -47,6 +51,12 @@ export default function GalleryCreateForm() {
   // 이미지
   const [images, setImages] = useState<ImageAttachment[]>([])
 
+  // 우대등록
+  const [promotionSettings, setPromotionSettings] = useState<PromotionTypeSetting[]>([])
+  const [selectedPromotionType, setSelectedPromotionType] = useState<string | null>(null)
+  const [autoRenew, setAutoRenew] = useState(false)
+  const [isLoadingPromotions, setIsLoadingPromotions] = useState(true)
+
   // 업체 권한 체크
   useEffect(() => {
     const checkCompanyAuth = async () => {
@@ -60,6 +70,15 @@ export default function GalleryCreateForm() {
         if (response.success && response.data) {
           if (response.data.isCompany || response.data.isAdmin) {
             setIsCompany(true)
+            // 크레딧 잔액 조회
+            try {
+              const creditRes = await getCreditBalance()
+              if (creditRes.success && creditRes.data) {
+                setCreditBalance(creditRes.data.balance)
+              }
+            } catch (e) {
+              console.error('크레딧 잔액 조회 실패:', e)
+            }
           } else {
             showErrorToast(null, '사진 게시판은 업체 회원 또는 관리자만 등록할 수 있습니다')
             router.push('/photos')
@@ -136,6 +155,27 @@ export default function GalleryCreateForm() {
       }
     }
     loadFilters()
+  }, [])
+
+  // 우대등록 가격 설정 로드
+  useEffect(() => {
+    const loadPromotionPrices = async () => {
+      try {
+        const response = await getPromotionPrices()
+        if (response.success && response.data) {
+          // 활성화된 설정만, displayOrder로 정렬
+          const activeSettings = response.data
+            .filter(s => s.isActive)
+            .sort((a, b) => a.displayOrder - b.displayOrder)
+          setPromotionSettings(activeSettings)
+        }
+      } catch (error) {
+        console.error('우대등록 가격 정보를 불러오는데 실패했습니다:', error)
+      } finally {
+        setIsLoadingPromotions(false)
+      }
+    }
+    loadPromotionPrices()
   }, [])
 
   const handleAddTag = () => {
@@ -266,6 +306,19 @@ export default function GalleryCreateForm() {
       return [option.id]
     }
     return option.children.flatMap(child => getAllLeafOptionIds(child))
+  }
+
+  // 선택된 우대등록 정보 가져오기
+  const getSelectedPromotion = () => {
+    if (!selectedPromotionType) return null
+    return promotionSettings.find(s => s.promotionType === selectedPromotionType)
+  }
+
+  // 크레딧 부족 여부 확인
+  const hasInsufficientCredits = () => {
+    const selectedPromo = getSelectedPromotion()
+    if (!selectedPromo) return false
+    return creditBalance < selectedPromo.price
   }
 
   // 필터 옵션 렌더링 (재귀적으로 자식 처리)
@@ -434,6 +487,9 @@ export default function GalleryCreateForm() {
           license: 'All Rights Reserved',
           attribution: '선택'
         } : undefined,
+        // 우대등록 옵션
+        promotionType: selectedPromotionType as 'STANDARD' | 'PREMIUM' | undefined,
+        autoRenew: selectedPromotionType ? autoRenew : undefined,
       }
 
       const result = await createGallery(data)
@@ -659,6 +715,177 @@ export default function GalleryCreateForm() {
               )}
             </div>
           </div>
+
+          {/* 우대등록 옵션 */}
+          {promotionSettings.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <FiStar className="text-yellow-500" />
+                우대등록
+              </h2>
+              <div className="space-y-4">
+                {/* 크레딧 잔액 표시 */}
+                <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                  <FiCreditCard className="text-gray-500" />
+                  <span className="text-sm text-gray-600">내 크레딧:</span>
+                  <span className="font-bold text-blue-600">
+                    {creditBalance.toLocaleString()}원
+                  </span>
+                </div>
+
+                {/* 우대 타입 선택 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* 일반 등록 (우대 없음) */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPromotionType(null)
+                      setAutoRenew(false)
+                    }}
+                    className={`relative p-4 border-2 rounded-xl text-left transition-all ${
+                      selectedPromotionType === null
+                        ? 'border-gray-600 bg-gray-50 shadow-md'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-gray-900">일반 등록</span>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedPromotionType === null
+                          ? 'border-gray-600 bg-gray-600'
+                          : 'border-gray-300'
+                      }`}>
+                        {selectedPromotionType === null && (
+                          <FiCheck className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-500">우대 없이 일반 등록</p>
+                    <p className="text-lg font-bold text-gray-900 mt-2">무료</p>
+                  </button>
+
+                  {/* 우대 옵션들 */}
+                  {promotionSettings.map((setting) => {
+                    const isSelected = selectedPromotionType === setting.promotionType
+                    const isPremium = setting.promotionType === 'PREMIUM'
+                    const insufficientCredits = creditBalance < setting.price
+
+                    return (
+                      <button
+                        key={setting.uuid}
+                        type="button"
+                        onClick={() => {
+                          if (!insufficientCredits) {
+                            setSelectedPromotionType(setting.promotionType)
+                          }
+                        }}
+                        disabled={insufficientCredits}
+                        className={`relative p-4 border-2 rounded-xl text-left transition-all ${
+                          isSelected
+                            ? isPremium
+                              ? 'border-yellow-500 bg-yellow-50 shadow-md'
+                              : 'border-blue-500 bg-blue-50 shadow-md'
+                            : insufficientCredits
+                              ? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
+                              : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        {isPremium && (
+                          <div className="absolute -top-2 -right-2 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                            추천
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`font-bold ${isPremium ? 'text-yellow-700' : 'text-blue-700'}`}>
+                            {setting.displayName}
+                          </span>
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            isSelected
+                              ? isPremium
+                                ? 'border-yellow-500 bg-yellow-500'
+                                : 'border-blue-500 bg-blue-500'
+                              : 'border-gray-300'
+                          }`}>
+                            {isSelected && <FiCheck className="w-3 h-3 text-white" />}
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-600">{setting.description}</p>
+                        <div className="mt-2 flex items-center justify-between">
+                          <p className={`text-lg font-bold ${isPremium ? 'text-yellow-700' : 'text-blue-700'}`}>
+                            {setting.price.toLocaleString()}원/월
+                          </p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            isPremium
+                              ? 'bg-yellow-100 text-yellow-700'
+                              : 'bg-blue-100 text-blue-700'
+                          }`}>
+                            가중치 {setting.weight}x
+                          </span>
+                        </div>
+                        {insufficientCredits && (
+                          <p className="text-xs text-red-500 mt-2">크레딧이 부족합니다</p>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* 자동 갱신 옵션 */}
+                {selectedPromotionType && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={autoRenew}
+                        onChange={(e) => setAutoRenew(e.target.checked)}
+                        className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">자동 갱신</span>
+                        <p className="text-sm text-gray-600 mt-0.5">
+                          매월 자동으로 우대등록이 갱신됩니다. 크레딧이 부족하면 갱신되지 않습니다.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {/* 안내 메시지 */}
+                <div className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+                  <FiInfo className="text-gray-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-gray-600">
+                    우대등록 시 메인페이지 추천 영역에 노출되어 더 많은 관심을 받을 수 있습니다.
+                    가중치가 높을수록 노출 확률이 높아집니다.
+                  </p>
+                </div>
+
+                {/* 선택된 우대 요약 */}
+                {selectedPromotionType && (
+                  <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-blue-100">선택된 우대</p>
+                        <p className="font-bold text-lg">
+                          {getSelectedPromotion()?.displayName}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-blue-100">결제 금액</p>
+                        <p className="font-bold text-lg">
+                          {getSelectedPromotion()?.price.toLocaleString()}원
+                        </p>
+                      </div>
+                    </div>
+                    {hasInsufficientCredits() && (
+                      <div className="mt-3 p-2 bg-red-500/20 rounded text-sm">
+                        ⚠️ 크레딧이 부족합니다. 충전 후 이용해주세요.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* 이미지 업로드 */}
           <div>
