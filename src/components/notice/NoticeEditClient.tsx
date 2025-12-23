@@ -27,7 +27,6 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
   const [isPinned, setIsPinned] = useState(false)
   const [thumbnailUuid, setThumbnailUuid] = useState('')
   const [thumbnailUrl, setThumbnailUrl] = useState('')
-  const [originalThumbnailUuid, setOriginalThumbnailUuid] = useState('') // 원본 썸네일 UUID 저장
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false)
   const [eventStartDate, setEventStartDate] = useState('')
   const [eventEndDate, setEventEndDate] = useState('')
@@ -50,7 +49,6 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
           if (data.thumbnail) {
             setThumbnailUuid(data.thumbnail.uuid)
             setThumbnailUrl(data.thumbnail.fileUrl)
-            setOriginalThumbnailUuid(data.thumbnail.uuid) // 원본 저장
           }
 
           if (data.boardType === 'EVENT' && data.eventStartDate && data.eventEndDate) {
@@ -148,17 +146,6 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
     setIsSubmitting(true)
 
     try {
-      // 썸네일 UUID 결정: 새 썸네일이 있으면 그것 사용, 없으면서 원본이 있었다면 null(삭제), 둘 다 없으면 undefined(변경없음)
-      const getThumbnailUuid = (): string | null | undefined => {
-        if (thumbnailUuid.trim()) {
-          return thumbnailUuid.trim() // 새 썸네일 또는 기존 썸네일 유지
-        }
-        if (originalThumbnailUuid) {
-          return null // 원본이 있었는데 지금 없으면 삭제
-        }
-        return undefined // 원래도 없었고 지금도 없음
-      }
-
       if (boardType === 'NOTICE') {
         const data = {
           title: title.trim(),
@@ -166,7 +153,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
           tags: tags,
           isPinned,
           isPublished: true,
-          thumbnailUuid: getThumbnailUuid(),
+          thumbnailUuid: thumbnailUuid.trim() || undefined,
         }
 
         const response = await updateNotice(uuid, data)
@@ -184,7 +171,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
           tags: tags,
           isPinned,
           isPublished: true,
-          thumbnailUuid: getThumbnailUuid(),
+          thumbnailUuid: thumbnailUuid.trim() || undefined,
           eventStartDate: new Date(eventStartDate).toISOString(),
           eventEndDate: new Date(eventEndDate).toISOString(),
         }
