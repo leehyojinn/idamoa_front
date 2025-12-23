@@ -125,7 +125,7 @@ export default function FileUpload({ attachments, onChange, maxFiles = 10 }: Fil
           </p>
         </div>
         <p className="text-xs text-gray-400 mt-2">
-          최대 {maxFiles}개 파일 ({attachments.length}/{maxFiles})
+          최대 {maxFiles}개 파일 ({attachments.length}/{maxFiles}) · 파일당 최대 10MB
         </p>
       </label>
 

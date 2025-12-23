@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
@@ -207,6 +208,13 @@ const spaceInfoMap: { [key: string]: string } = {
 const screenPricePerUnit = { min: 10, max: 20 }
 
 export default function EstimateCalculatorPage() {
+  const router = useRouter()
+
+  // 페이지 비활성화 - 메인으로 리다이렉트
+  useEffect(() => {
+    router.replace('/')
+  }, [router])
+
   // States
   const [selectedHospitalType, setSelectedHospitalType] = useState<string>('')
   const [area, setArea] = useState<number>(50)

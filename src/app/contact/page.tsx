@@ -42,7 +42,7 @@ export default function InquiryPage() {
           }))
         }
       } catch (error) {
-        console.error('프로필 정보 로드 실패:', error)
+        showErrorToast(error, '프로필 정보를 불러오는데 실패했습니다')
       }
     }
 

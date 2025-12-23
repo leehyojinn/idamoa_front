@@ -864,12 +864,13 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {portfolios.map((portfolio) => {
-                const isAuthor = user?.email === (portfolio.company?.companyName ? undefined : user?.email)
+                // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
+                const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
 
                 return (
                   <div key={portfolio.uuid} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow relative">
-                    {/* 메뉴 버튼 (작성자만) */}
-                    {isAuthor && (
+                    {/* 메뉴 버튼 (업체 정보가 있거나 관리자/업체인 경우) */}
+                    {(portfolio.company?.companyUuid || portfolio.company?.uuid || canManage) && (
                       <div className="absolute top-2 right-2 z-10">
                         <button
                           onClick={(e) => {
@@ -883,29 +884,46 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                         </button>
 
                         {openMenuId === portfolio.uuid && (
-                          <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-                            <Link
-                              href={`/portfolios/${portfolio.uuid}/edit`}
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setOpenMenuId(null)
-                              }}
-                              className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 text-gray-700 transition-colors"
-                            >
-                              <FiEdit className="w-4 h-4" />
-                              <span className="text-sm font-medium">수정</span>
-                            </Link>
-                            <button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                e.stopPropagation()
-                                handleDeleteClick(portfolio)
-                              }}
-                              className="w-full flex items-center gap-2 px-4 py-3 hover:bg-red-50 text-red-600 transition-colors"
-                            >
-                              <FiTrash2 className="w-4 h-4" />
-                              <span className="text-sm font-medium">삭제</span>
-                            </button>
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+                            {(portfolio.company?.companyUuid || portfolio.company?.uuid) && (
+                              <Link
+                                href={`/?tab=portfolio&companyUuid=${portfolio.company.companyUuid || portfolio.company.uuid}&companyName=${encodeURIComponent(portfolio.company.companyName || '')}`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setOpenMenuId(null)
+                                }}
+                                className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 text-gray-700 transition-colors"
+                              >
+                                <FiExternalLink className="w-4 h-4" />
+                                <span className="text-sm font-medium">이 업체만 보기</span>
+                              </Link>
+                            )}
+                            {canManage && (
+                              <>
+                                <Link
+                                  href={`/portfolios/${portfolio.uuid}/edit`}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    setOpenMenuId(null)
+                                  }}
+                                  className="flex items-center gap-2 px-4 py-3 hover:bg-gray-50 text-gray-700 transition-colors"
+                                >
+                                  <FiEdit className="w-4 h-4" />
+                                  <span className="text-sm font-medium">수정</span>
+                                </Link>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    handleDeleteClick(portfolio)
+                                  }}
+                                  className="w-full flex items-center gap-2 px-4 py-3 hover:bg-red-50 text-red-600 transition-colors"
+                                >
+                                  <FiTrash2 className="w-4 h-4" />
+                                  <span className="text-sm font-medium">삭제</span>
+                                </button>
+                              </>
+                            )}
                           </div>
                         )}
                       </div>

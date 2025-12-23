@@ -127,10 +127,15 @@ export const getErrorMessage = (error: unknown): string => {
 
 /**
  * 에러를 토스트로 표시
+ * error 객체가 있으면 서버 에러 메시지를 우선 사용, 없으면 fallbackMessage 사용
  */
 export const showErrorToast = (error: unknown, fallbackMessage?: string): void => {
-  const message = error ? getErrorMessage(error) : fallbackMessage || ERROR_MESSAGES.UNKNOWN_ERROR
-  toast.error(fallbackMessage || message)
+  const parsedMessage = error ? getErrorMessage(error) : null
+  // 서버 에러 메시지가 있으면 우선 사용, 없으면 fallbackMessage 사용
+  const message = parsedMessage && parsedMessage !== ERROR_MESSAGES.UNKNOWN_ERROR
+    ? parsedMessage
+    : (fallbackMessage || parsedMessage || ERROR_MESSAGES.UNKNOWN_ERROR)
+  toast.error(message)
 }
 
 /**
