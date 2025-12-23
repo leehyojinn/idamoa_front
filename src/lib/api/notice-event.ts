@@ -214,7 +214,7 @@ export interface UpdateNoticeRequest {
   tags?: string[]
   isPublished?: boolean
   isPinned?: boolean
-  thumbnailUuid?: string
+  thumbnailUuid?: string | null
   attachmentUuids?: string[]
 }
 
@@ -237,7 +237,7 @@ export interface UpdateEventRequest {
   tags?: string[]
   isPublished?: boolean
   isPinned?: boolean
-  thumbnailUuid?: string
+  thumbnailUuid?: string | null
   attachmentUuids?: string[]
   eventStartDate?: string
   eventEndDate?: string
