@@ -237,15 +237,17 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
         </div>
 
         {/* 썸네일 */}
-        <div className="relative w-full aspect-video bg-gray-100">
-          <Image
-            src={notice.thumbnail?.fileUrl || '/images/img-placeholder.png'}
-            alt={notice.title}
-            fill
-            className="object-cover"
-            priority
-          />
-        </div>
+        {notice.thumbnail?.fileUrl && (
+          <div className="relative w-full aspect-video bg-gray-100">
+            <Image
+              src={notice.thumbnail.fileUrl}
+              alt={notice.title}
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+        )}
 
         {/* 본문 내용 */}
         <div className="p-6 md:p-8">
