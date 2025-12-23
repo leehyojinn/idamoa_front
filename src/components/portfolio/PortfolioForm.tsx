@@ -208,14 +208,22 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
     fetchPromotionPrices()
   }, [])
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newImages: ImageFile[] = []
+    const oversizedFiles: string[] = []
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
       if (file.type.startsWith('image/')) {
+        if (file.size > MAX_FILE_SIZE) {
+          oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
+          continue
+        }
         newImages.push({
           file,
           preview: URL.createObjectURL(file),
@@ -225,7 +233,14 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
       }
     }
 
-    setImages(prev => [...prev, ...newImages])
+    if (oversizedFiles.length > 0) {
+      showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+    }
+
+    if (newImages.length > 0) {
+      setImages(prev => [...prev, ...newImages])
+    }
+
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -481,12 +496,18 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
     try {
       // 새 이미지 업로드
-      const newImageFiles = images.filter(img => img.file).map(img => img.file!)
+      const newImageFiles = images.filter(img => img.file)
       const uploadedImageUuids: string[] = []
 
-      for (const file of newImageFiles) {
-        const result = await uploadFile(file, 'PORTFOLIO')
-        uploadedImageUuids.push(result.uuid)
+      for (const img of newImageFiles) {
+        const file = img.file!
+        try {
+          const result = await uploadFile(file, 'PORTFOLIO')
+          uploadedImageUuids.push(result.uuid)
+        } catch (uploadError: any) {
+          const errorMsg = uploadError?.response?.data?.message || uploadError?.message || '알 수 없는 오류'
+          throw new Error(`이미지 업로드 실패: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)\n${errorMsg}`)
+        }
       }
 
       // 기존 이미지 UUID들의 순서 유지하면서 새 이미지 UUID 매핑
@@ -622,7 +643,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             <FiImage className="w-5 h-5" />
             이미지
             <span className="text-sm font-normal text-gray-500">
-              (최대 20장, 클릭하여 대표 이미지 선택)
+              (최대 20장, 파일당 최대 10MB, 클릭하여 대표 이미지 선택)
             </span>
           </h2>
 
@@ -680,67 +701,6 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             accept="image/*"
             multiple
             onChange={handleImageSelect}
-            className="hidden"
-          />
-        </div>
-
-        {/* 영상 업로드 */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <FiVideo className="w-5 h-5" />
-            영상
-            <span className="text-sm font-normal text-gray-500">
-              (선택사항, 최대 5개)
-            </span>
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {videos.map((video, index) => (
-              <div
-                key={index}
-                className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden group"
-              >
-                <video
-                  src={video.preview}
-                  className="w-full h-full object-cover"
-                  muted
-                />
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                  <FiVideo className="w-10 h-10 text-white/70" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveVideo(index)}
-                  className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <FiX className="w-4 h-4" />
-                </button>
-                <div className="absolute bottom-2 left-2 right-2">
-                  <p className="text-white text-xs truncate bg-black/50 px-2 py-1 rounded">
-                    {video.fileName}
-                  </p>
-                </div>
-              </div>
-            ))}
-
-            {videos.length < 5 && (
-              <button
-                type="button"
-                onClick={() => videoInputRef.current?.click()}
-                className="aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors"
-              >
-                <FiUpload className="w-8 h-8 mb-2" />
-                <span className="text-sm">영상 추가</span>
-              </button>
-            )}
-          </div>
-
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept="video/*"
-            multiple
-            onChange={handleVideoSelect}
             className="hidden"
           />
         </div>

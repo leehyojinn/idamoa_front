@@ -83,8 +83,10 @@ export function useCreditPurchase() {
         }
       }
 
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '알 수 없는 오류'
+    } catch (err: any) {
+      // 서버 에러 메시지 추출
+      const serverMessage = err?.response?.data?.message
+      const errorMessage = serverMessage || (err instanceof Error ? err.message : '알 수 없는 오류')
       setError(errorMessage)
       console.error('=== 충전 실패 ===')
       console.error('오류:', err)

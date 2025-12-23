@@ -85,6 +85,7 @@ export default function FloatingConsultationButton() {
           }))
         }
       } catch (error) {
+        // 프로필 로드 실패는 사용자에게 알릴 필요 없음 (폼 자동채우기 실패일 뿐)
         console.error('프로필 정보 로드 실패:', error)
       } finally {
         setIsLoadingProfile(false)

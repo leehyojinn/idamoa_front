@@ -147,9 +147,9 @@ export default function ProposalEditForm({ proposal }: ProposalEditFormProps) {
                 fileDescription: att.fileDescription,
                 displayOrder: att.displayOrder,
               })
-            } catch (error) {
-              console.error('파일 업로드 실패:', error)
-              throw new Error(`파일 업로드 실패: ${att.originalFilename}`)
+            } catch (error: any) {
+              const errorMsg = error?.response?.data?.message || error?.message || '알 수 없는 오류'
+              throw new Error(`파일 업로드 실패 (${att.originalFilename}): ${errorMsg}`)
             }
           }
           // 기존 파일은 무시 (새 파일만 업로드)

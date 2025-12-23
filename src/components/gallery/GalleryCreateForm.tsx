@@ -9,6 +9,7 @@ import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { getMyInfo } from '@/lib/api/auth'
+import { getMyCompany } from '@/lib/api/company'
 import Checkbox from '@/components/ui/Checkbox'
 import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 import { getPromotionPrices, type PromotionTypeSetting } from '@/lib/api/gallery-promotion'
@@ -29,6 +30,8 @@ export default function GalleryCreateForm() {
   const [isCompany, setIsCompany] = useState(false)
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [creditBalance, setCreditBalance] = useState(0)
+  const [showCompanyRequiredDialog, setShowCompanyRequiredDialog] = useState(false)
+  const [showCompanyDetailsRequiredDialog, setShowCompanyDetailsRequiredDialog] = useState(false)
 
   // 기본 정보
   const [title, setTitle] = useState('')
@@ -68,7 +71,8 @@ export default function GalleryCreateForm() {
       try {
         const response = await getMyInfo()
         if (response.success && response.data) {
-          if (response.data.isCompany || response.data.isAdmin) {
+          if (response.data.isAdmin) {
+            // 관리자는 상세정보 체크 불필요
             setIsCompany(true)
             // 크레딧 잔액 조회
             try {
@@ -79,9 +83,30 @@ export default function GalleryCreateForm() {
             } catch (e) {
               console.error('크레딧 잔액 조회 실패:', e)
             }
+          } else if (response.data.isCompany) {
+            // 업체인 경우 상세정보 확인
+            try {
+              const companyRes = await getMyCompany()
+              if (companyRes.success && companyRes.data) {
+                setIsCompany(true)
+                // 크레딧 잔액 조회
+                try {
+                  const creditRes = await getCreditBalance()
+                  if (creditRes.success && creditRes.data) {
+                    setCreditBalance(creditRes.data.balance)
+                  }
+                } catch (e) {
+                  console.error('크레딧 잔액 조회 실패:', e)
+                }
+              } else {
+                setShowCompanyDetailsRequiredDialog(true)
+              }
+            } catch (error) {
+              // 404 등 에러 = 상세정보 없음
+              setShowCompanyDetailsRequiredDialog(true)
+            }
           } else {
-            showErrorToast(null, '사진 게시판은 업체 회원 또는 관리자만 등록할 수 있습니다')
-            router.push('/photos')
+            setShowCompanyRequiredDialog(true)
           }
         }
       } catch (error) {
@@ -389,28 +414,52 @@ export default function GalleryCreateForm() {
     )
   }
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newImages: ImageAttachment[] = []
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const preview = e.target?.result as string
-          newImages.push({
-            file,
-            preview,
-            displayOrder: images.length + newImages.length,
-          })
+    const oversizedFiles: string[] = []
+    let processedCount = 0
+    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'))
 
-          if (newImages.length === files.length) {
+    validFiles.forEach((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
+        processedCount++
+        if (processedCount === validFiles.length) {
+          if (oversizedFiles.length > 0) {
+            showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+          }
+          if (newImages.length > 0) {
             setImages([...images, ...newImages])
           }
         }
-        reader.readAsDataURL(file)
+        return
       }
+
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const preview = e.target?.result as string
+        newImages.push({
+          file,
+          preview,
+          displayOrder: images.length + newImages.length,
+        })
+
+        processedCount++
+        if (processedCount === validFiles.length) {
+          if (oversizedFiles.length > 0) {
+            showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+          }
+          if (newImages.length > 0) {
+            setImages([...images, ...newImages])
+          }
+        }
+      }
+      reader.readAsDataURL(file)
     })
   }
 
@@ -517,6 +566,124 @@ export default function GalleryCreateForm() {
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
             <p className="mt-4 text-gray-600">권한 확인 중...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 업체 등록 필요 다이얼로그
+  if (showCompanyRequiredDialog) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6">
+                <svg
+                  className="h-8 w-8 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                업체 등록이 필요합니다
+              </h3>
+              <p className="text-gray-600 mb-8 leading-relaxed">
+                사진을 등록하려면 먼저 업체 정보를 등록해야 합니다.
+                <br />
+                업체 등록 페이지로 이동하시겠습니까?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCompanyRequiredDialog(false)
+                    router.back()
+                  }}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                >
+                  돌아가기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCompanyRequiredDialog(false)
+                    router.push('/mypage/company-register')
+                  }}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                >
+                  업체 등록하기
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 업체 상세정보 등록 필요 다이얼로그
+  if (showCompanyDetailsRequiredDialog) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-100 mb-6">
+                <svg
+                  className="h-8 w-8 text-yellow-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                업체 상세정보 등록이 필요합니다
+              </h3>
+              <p className="text-gray-600 mb-8 leading-relaxed">
+                사진을 등록하려면 먼저 업체 상세정보를 입력해야 합니다.
+                <br />
+                업체 정보 수정 페이지로 이동하시겠습니까?
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCompanyDetailsRequiredDialog(false)
+                    router.back()
+                  }}
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+                >
+                  돌아가기
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCompanyDetailsRequiredDialog(false)
+                    router.push('/mypage/company-profile-edit')
+                  }}
+                  className="flex-1 px-4 py-3 bg-yellow-500 text-white rounded-xl font-medium hover:bg-yellow-600 transition-colors"
+                >
+                  상세정보 등록하기
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -911,7 +1078,7 @@ export default function GalleryCreateForm() {
                     onChange={handleImageSelect}
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    여러 이미지를 선택할 수 있습니다
+                    여러 이미지를 선택할 수 있습니다 (파일당 최대 10MB)
                   </p>
                 </div>
               </label>

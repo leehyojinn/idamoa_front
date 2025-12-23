@@ -93,7 +93,7 @@ export default function AdminRefundsPage() {
         setStats(result.data)
       }
     } catch (error) {
-      console.error('통계 로드 실패:', error)
+      showErrorToast(error, '통계 데이터를 불러오는데 실패했습니다')
     }
   }
 

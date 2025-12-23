@@ -112,9 +112,9 @@ export default function EstimateCreateForm() {
                 fileDescription: att.fileDescription,
                 displayOrder: att.displayOrder,
               })
-            } catch (error) {
-              console.error('파일 업로드 실패:', error)
-              throw new Error(`파일 업로드 실패: ${att.originalFilename}`)
+            } catch (error: any) {
+              const errorMsg = error?.response?.data?.message || error?.message || '알 수 없는 오류'
+              throw new Error(`파일 업로드 실패 (${att.originalFilename}): ${errorMsg}`)
             }
           } else if (att.fileUuid) {
             // 이미 fileUuid가 있는 경우 (수정 시)

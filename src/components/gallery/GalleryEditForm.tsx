@@ -398,29 +398,53 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
     return false
   }
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
     const newImages: ImageAttachment[] = []
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const preview = e.target?.result as string
-          newImages.push({
-            file,
-            preview,
-            displayOrder: images.length + newImages.length,
-            isExisting: false,
-          })
+    const oversizedFiles: string[] = []
+    let processedCount = 0
+    const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'))
 
-          if (newImages.length === files.length) {
+    validFiles.forEach((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
+        processedCount++
+        if (processedCount === validFiles.length) {
+          if (oversizedFiles.length > 0) {
+            showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+          }
+          if (newImages.length > 0) {
             setImages([...images, ...newImages])
           }
         }
-        reader.readAsDataURL(file)
+        return
       }
+
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const preview = e.target?.result as string
+        newImages.push({
+          file,
+          preview,
+          displayOrder: images.length + newImages.length,
+          isExisting: false,
+        })
+
+        processedCount++
+        if (processedCount === validFiles.length) {
+          if (oversizedFiles.length > 0) {
+            showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+          }
+          if (newImages.length > 0) {
+            setImages([...images, ...newImages])
+          }
+        }
+      }
+      reader.readAsDataURL(file)
     })
   }
 
@@ -999,7 +1023,7 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
                     onChange={handleImageSelect}
                   />
                   <p className="text-sm text-gray-500 mt-1">
-                    여러 이미지를 선택할 수 있습니다
+                    여러 이미지를 선택할 수 있습니다 (파일당 최대 10MB)
                   </p>
                 </div>
               </label>

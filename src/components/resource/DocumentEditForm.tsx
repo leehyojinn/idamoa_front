@@ -287,9 +287,9 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
         try {
           const result = await uploadFile(fileAttachment.file, 'OTHER')
           newFileUuids.push(result.uuid)
-        } catch (error) {
-          console.error('파일 업로드 실패:', error)
-          throw new Error(`파일 업로드 실패: ${fileAttachment.file.name}`)
+        } catch (error: any) {
+          const errorMsg = error?.response?.data?.message || error?.message || '알 수 없는 오류'
+          throw new Error(`파일 업로드 실패 (${fileAttachment.file.name}): ${errorMsg}`)
         }
       }
 
@@ -299,9 +299,9 @@ export default function DocumentEditForm({ uuid }: DocumentEditFormProps) {
         try {
           const result = await uploadFile(thumbnail.file, 'OTHER')
           thumbnailUuid = result.uuid
-        } catch (error) {
-          console.error('썸네일 업로드 실패:', error)
-          throw new Error('썸네일 업로드에 실패했습니다')
+        } catch (error: any) {
+          const errorMsg = error?.response?.data?.message || error?.message || '알 수 없는 오류'
+          throw new Error(`썸네일 업로드 실패: ${errorMsg}`)
         }
       }
 

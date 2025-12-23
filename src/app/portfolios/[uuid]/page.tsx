@@ -24,6 +24,7 @@ import {
   FiClock,
   FiDollarSign,
   FiHome,
+  FiExternalLink,
 } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -231,6 +232,15 @@ export default function PortfolioDetailPage({ params }: Props) {
                 >
                   <FiShare2 className="w-5 h-5" />
                 </button>
+                {(portfolio.company?.companyUuid || portfolio.company?.uuid) && (
+                  <Link
+                    href={`/?tab=portfolio&companyUuid=${portfolio.company.companyUuid || portfolio.company.uuid}&companyName=${encodeURIComponent(portfolio.company.companyName || '')}`}
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    <FiExternalLink className="w-4 h-4" />
+                    <span className="text-sm font-medium">이 업체만 보기</span>
+                  </Link>
+                )}
                 {isOwner && (
                   <>
                     <Link

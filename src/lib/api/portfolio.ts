@@ -109,6 +109,7 @@ export interface PortfolioListItem {
   bookmarkCount?: number
   isBookmarked: boolean
   isLiked: boolean
+  isOwner?: boolean
   createdAt: string
   updatedAt?: string
   filterOptions?: FilterOptionInfo[]
