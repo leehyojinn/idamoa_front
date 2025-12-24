@@ -283,7 +283,7 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                 원하는 업체를 찾지 못하셨나요?
               </h3>
               <p className="text-sm sm:text-base text-gray-600">
-                전문가가 원장님께 맞는 업체를 무료로 매칭 및 상담해드립니다
+                업체를 무료로 매칭 및 상담해드립니다
               </p>
             </div>
             <div className="shrink-0">
