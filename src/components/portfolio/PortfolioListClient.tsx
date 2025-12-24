@@ -245,12 +245,6 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     const companyUuidParam = searchParams.get('companyUuid') || null
     const companyNameParam = searchParams.get('companyName') || null
 
-    // 이미 initialData가 있고 필터 파라미터가 없으면 스킵
-    if (isInitialLoad && initialData && !companyUuidParam) {
-      setIsInitialLoad(false)
-      return
-    }
-
     if (companyUuidParam) {
       setCompanyUuid(companyUuidParam)
       setCompanyName(companyNameParam)
@@ -260,8 +254,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         companyUuid: companyUuidParam,
         sort: 'createdAt,DESC',
       })
-    } else if (isInitialLoad && !initialData) {
-      // initialData가 없으면 데이터 로드
+    } else if (isInitialLoad) {
+      // 초기 로드 시 항상 최신 데이터 fetch (캐시 문제 방지)
       fetchPortfolios({
         page: 0,
         sort: 'createdAt,DESC',
@@ -269,7 +263,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     }
 
     setIsInitialLoad(false)
-  }, [searchParams, fetchPortfolios, isInitialLoad, initialData])
+  }, [searchParams, fetchPortfolios, isInitialLoad])
 
   // 로그인 상태 변경 시 좋아요/북마크 상태 갱신을 위해 데이터 다시 로드
   useEffect(() => {
