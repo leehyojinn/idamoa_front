@@ -277,8 +277,10 @@ export default function PortfolioDetailPage({ params }: Props) {
                       src={portfolio.images[currentImageIndex]?.fileUrl}
                       alt={portfolio.title}
                       fill
+                      sizes="(max-width: 1024px) 100vw, 66vw"
                       className="object-cover"
-                      priority
+                      priority={currentImageIndex === 0}
+                      loading={currentImageIndex === 0 ? 'eager' : 'lazy'}
                     />
                     {/* 이미지 네비게이션 */}
                     {portfolio.images.length > 1 && (
@@ -338,10 +340,12 @@ export default function PortfolioDetailPage({ params }: Props) {
                       }`}
                     >
                       <Image
-                        src={image.fileUrl}
+                        src={image.thumbnailUrl || image.fileUrl}
                         alt={`${portfolio.title} ${index + 1}`}
                         fill
+                        sizes="80px"
                         className="object-cover"
+                        loading="lazy"
                       />
                     </button>
                   ))}
@@ -624,7 +628,9 @@ export default function PortfolioDetailPage({ params }: Props) {
               src={portfolio.images[currentImageIndex]?.fileUrl}
               alt={portfolio.title}
               fill
+              sizes="100vw"
               className="object-contain"
+              priority
             />
           </div>
 
@@ -658,10 +664,12 @@ export default function PortfolioDetailPage({ params }: Props) {
                 }`}
               >
                 <Image
-                  src={image.fileUrl}
+                  src={image.thumbnailUrl || image.fileUrl}
                   alt={`${portfolio.title} ${index + 1}`}
                   fill
+                  sizes="64px"
                   className="object-cover"
+                  loading="lazy"
                 />
               </button>
             ))}

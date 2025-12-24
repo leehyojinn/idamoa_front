@@ -31,6 +31,7 @@ import {
 import { getPublicFilters, type PublicFilterCategory, type PublicFilterOption } from '@/lib/api/filter'
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { compressImage } from '@/lib/imageCompression'
 import Select from '@/components/ui/Select'
 
 interface Props {
@@ -209,40 +210,53 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   }, [])
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+  const [isCompressing, setIsCompressing] = useState(false)
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
-    const newImages: ImageFile[] = []
-    const oversizedFiles: string[] = []
+    setIsCompressing(true)
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      if (file.type.startsWith('image/')) {
-        if (file.size > MAX_FILE_SIZE) {
-          oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
-          continue
+    try {
+      const newImages: ImageFile[] = []
+      const oversizedFiles: string[] = []
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        if (file.type.startsWith('image/')) {
+          // 이미지 압축 적용
+          const compressedFile = await compressImage(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1920,
+          })
+
+          if (compressedFile.size > MAX_FILE_SIZE) {
+            oversizedFiles.push(`${file.name} (${(compressedFile.size / 1024 / 1024).toFixed(1)}MB)`)
+            continue
+          }
+
+          newImages.push({
+            file: compressedFile,
+            preview: URL.createObjectURL(compressedFile),
+            fileName: file.name,
+            fileSize: compressedFile.size,
+          })
         }
-        newImages.push({
-          file,
-          preview: URL.createObjectURL(file),
-          fileName: file.name,
-          fileSize: file.size,
-        })
       }
-    }
 
-    if (oversizedFiles.length > 0) {
-      showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
-    }
+      if (oversizedFiles.length > 0) {
+        showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+      }
 
-    if (newImages.length > 0) {
-      setImages(prev => [...prev, ...newImages])
-    }
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      if (newImages.length > 0) {
+        setImages(prev => [...prev, ...newImages])
+      }
+    } finally {
+      setIsCompressing(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
@@ -687,10 +701,20 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors"
+                disabled={isCompressing}
+                className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <FiUpload className="w-8 h-8 mb-2" />
-                <span className="text-sm">이미지 추가</span>
+                {isCompressing ? (
+                  <>
+                    <div className="w-8 h-8 mb-2 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm">압축 중...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiUpload className="w-8 h-8 mb-2" />
+                    <span className="text-sm">이미지 추가</span>
+                  </>
+                )}
               </button>
             )}
           </div>

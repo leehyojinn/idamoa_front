@@ -13,6 +13,7 @@ import Checkbox from '@/components/ui/Checkbox'
 import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
 import { getPromotionPrices, type PromotionTypeSetting } from '@/lib/api/gallery-promotion'
 import { getCreditBalance } from '@/lib/api/credit'
+import { compressImage } from '@/lib/imageCompression'
 
 interface ImageAttachment {
   uuid?: string
@@ -159,6 +160,9 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
   const [autoRenew, setAutoRenew] = useState(false)
   const [cancelPromotion, setCancelPromotion] = useState(false)
   const [isLoadingPromotions, setIsLoadingPromotions] = useState(true)
+
+  // 이미지 압축 중 상태
+  const [isCompressing, setIsCompressing] = useState(false)
 
   // 기존 데이터로 초기화
   useEffect(() => {
@@ -400,52 +404,59 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files) return
 
-    const newImages: ImageAttachment[] = []
-    const oversizedFiles: string[] = []
-    let processedCount = 0
     const validFiles = Array.from(files).filter(file => file.type.startsWith('image/'))
+    if (validFiles.length === 0) return
 
-    validFiles.forEach((file) => {
-      if (file.size > MAX_FILE_SIZE) {
-        oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`)
-        processedCount++
-        if (processedCount === validFiles.length) {
-          if (oversizedFiles.length > 0) {
-            showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
-          }
-          if (newImages.length > 0) {
-            setImages([...images, ...newImages])
-          }
+    setIsCompressing(true)
+
+    try {
+      const newImages: ImageAttachment[] = []
+      const oversizedFiles: string[] = []
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i]
+
+        // 이미지 압축
+        const compressedFile = await compressImage(file, {
+          maxSizeMB: 1,
+          maxWidthOrHeight: 1920,
+        })
+
+        // 압축 후에도 10MB 초과하면 제외
+        if (compressedFile.size > MAX_FILE_SIZE) {
+          oversizedFiles.push(`${file.name} (${(compressedFile.size / 1024 / 1024).toFixed(1)}MB)`)
+          continue
         }
-        return
-      }
 
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const preview = e.target?.result as string
+        // 프리뷰 생성
+        const preview = await new Promise<string>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (e) => resolve(e.target?.result as string)
+          reader.readAsDataURL(compressedFile)
+        })
+
         newImages.push({
-          file,
+          file: compressedFile,
           preview,
           displayOrder: images.length + newImages.length,
           isExisting: false,
         })
-
-        processedCount++
-        if (processedCount === validFiles.length) {
-          if (oversizedFiles.length > 0) {
-            showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
-          }
-          if (newImages.length > 0) {
-            setImages([...images, ...newImages])
-          }
-        }
       }
-      reader.readAsDataURL(file)
-    })
+
+      if (oversizedFiles.length > 0) {
+        showErrorToast(null, `파일 크기 초과 (최대 10MB):\n${oversizedFiles.join('\n')}`)
+      }
+
+      if (newImages.length > 0) {
+        setImages([...images, ...newImages])
+      }
+    } finally {
+      setIsCompressing(false)
+    }
   }
 
   const handleRemoveImage = (index: number) => {
@@ -1005,28 +1016,38 @@ export default function GalleryEditForm({ gallery }: GalleryEditFormProps) {
               이미지 <span className="text-red-500">*</span>
             </h2>
             <div className="space-y-4">
-              <label
-                htmlFor="image-upload"
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer block"
-              >
-                <FiImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <div className="flex flex-col items-center justify-center">
-                  <span className="text-blue-600 font-medium hover:text-blue-700">
-                    이미지 추가
-                  </span>
-                  <input
-                    id="image-upload"
-                    type="file"
-                    className="hidden"
-                    multiple
-                    accept="image/*"
-                    onChange={handleImageSelect}
-                  />
+              {isCompressing ? (
+                <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
+                  <p className="text-blue-600 font-medium">이미지 압축 중...</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    여러 이미지를 선택할 수 있습니다 (파일당 최대 10MB)
+                    잠시만 기다려주세요
                   </p>
                 </div>
-              </label>
+              ) : (
+                <label
+                  htmlFor="image-upload"
+                  className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer block"
+                >
+                  <FiImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-blue-600 font-medium hover:text-blue-700">
+                      이미지 추가
+                    </span>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      className="hidden"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageSelect}
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      여러 이미지를 선택할 수 있습니다 (파일당 최대 10MB, 자동 압축)
+                    </p>
+                  </div>
+                </label>
+              )}
 
               {images.length > 0 && (
                 <div className="space-y-3">
