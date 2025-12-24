@@ -74,7 +74,6 @@ const ADMIN_PAGES = [
   { id: 'admin-consultations', label: '빠른상담 관리', href: '/admin/consultations' },
   { id: 'admin-planner', label: '플래너 신청서', href: '/admin/planner-applications' },
   { id: 'admin-documents', label: '자료실 관리', href: '/admin/documents' },
-  { id: 'admin-galleries', label: '사진 관리', href: '/admin/galleries' },
   { id: 'admin-notice-events', label: '공지/이벤트 관리', href: '/admin/notice-events' },
   { id: 'admin-popups', label: '팝업 관리', href: '/admin/popups' },
   { id: 'admin-filters', label: '필터 관리', href: '/admin/filters' },
