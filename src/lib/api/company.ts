@@ -161,6 +161,7 @@ export interface GetCompaniesParams {
   page?: number
   size?: number
   sort?: string
+  parentOnly?: boolean
 }
 
 export interface CompanyListItem {
@@ -201,9 +202,9 @@ export interface CompanyListResponse {
 export const getCompanies = async (
   params: GetCompaniesParams = {}
 ): Promise<ApiResponse<CompanyListResponse>> => {
-  const { page = 0, size = 20, sort = 'createdAt,DESC' } = params
+  const { page = 0, size = 20, sort = 'createdAt,DESC', parentOnly } = params
   const response = await axiosInstance.get('/companies', {
-    params: { page, size, sort },
+    params: { page, size, sort, parentOnly },
   })
   return response.data
 }
@@ -247,12 +248,13 @@ export interface SearchCompaniesWithFiltersParams {
   sortBy?: 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'
   page?: number
   size?: number
+  parentOnly?: boolean  // 부모 업체만 조회
 }
 
 export const searchCompaniesWithFilters = async (
   params: SearchCompaniesWithFiltersParams = {}
 ): Promise<ApiResponse<CompanyListResponse>> => {
-  const { keyword, tags, minRating, filters, sortBy, page = 0, size = 20 } = params
+  const { keyword, tags, minRating, filters, sortBy, page = 0, size = 20, parentOnly } = params
 
   // filters 객체를 문자열로 변환: { 3: [120, 50], 1: [10] } => "3:120,50&1:10"
   let filtersStr: string | undefined
@@ -270,7 +272,8 @@ export const searchCompaniesWithFilters = async (
     filters: filtersStr,
     sortBy,
     page,
-    size
+    size,
+    parentOnly,
   }
 
   const response = await axiosInstance.get('/companies/search', {
