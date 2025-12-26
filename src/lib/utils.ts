@@ -34,7 +34,8 @@ export function formatNumber(num: number): string {
  * @param {string} value - 입력된 전화번호 (숫자만 또는 하이픈 포함)
  * @returns {string} 하이픈이 추가된 전화번호
  */
-export function formatPhoneNumber(value: string): string {
+export function formatPhoneNumber(value: string | null | undefined): string {
+  if (!value) return ''
   // 숫자만 추출
   const numbers = value.replace(/[^\d]/g, '')
 
@@ -84,7 +85,8 @@ export function formatPhoneNumber(value: string): string {
  * @param {string} value - 하이픈이 포함된 전화번호
  * @returns {string} 숫자만 포함된 전화번호
  */
-export function removePhoneHyphens(value: string): string {
+export function removePhoneHyphens(value: string | null | undefined): string {
+  if (!value) return ''
   return value.replace(/[^\d]/g, '')
 }
 
@@ -93,7 +95,8 @@ export function removePhoneHyphens(value: string): string {
  * @param {string} value - 입력된 값
  * @returns {string} 형식화된 사업자 등록번호 (XXX-XX-XXXXX)
  */
-export function formatBusinessNumber(value: string): string {
+export function formatBusinessNumber(value: string | null | undefined): string {
+  if (!value) return ''
   const numbers = value.replace(/[^\d]/g, '')
   if (!numbers) return ''
 
