@@ -1,26 +1,42 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { FiPlus, FiEdit2, FiTrash2, FiXCircle, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { FiPlus, FiEdit2, FiTrash2, FiXCircle, FiChevronLeft, FiChevronRight, FiSave, FiX } from 'react-icons/fi'
 import {
   useAdminCompanyPartnerships,
   useAdminCancelCompanyPartnership,
   useAdminDeleteCompanyPartnership,
+  useAdminReorderCompanyPartnerships,
 } from '@/hooks/usePartnership'
 import { COMPANY_PARTNERSHIP_STATUS_LABELS, type CompanyPartnershipStatus } from '@/types/partnership'
 import AdminGuard from '@/components/auth/AdminGuard'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import toast from 'react-hot-toast'
 
 export default function AdminCompanyPartnershipsPage() {
   const [status, setStatus] = useState<CompanyPartnershipStatus | undefined>()
   const [page, setPage] = useState(0)
+  const [isReorderMode, setIsReorderMode] = useState(false)
+  const [orderMap, setOrderMap] = useState<Record<string, number>>({})
 
   const { data, isLoading, error } = useAdminCompanyPartnerships({ status, page, size: 20 })
   const cancelMutation = useAdminCancelCompanyPartnership()
   const deleteMutation = useAdminDeleteCompanyPartnership()
+  const reorderMutation = useAdminReorderCompanyPartnerships()
+
+  // 데이터가 로드되면 순서 맵 초기화
+  useEffect(() => {
+    if (data?.content) {
+      const initialOrderMap: Record<string, number> = {}
+      data.content.forEach((p) => {
+        initialOrderMap[p.uuid] = p.displayOrder
+      })
+      setOrderMap(initialOrderMap)
+    }
+  }, [data])
 
   const handleCancel = (uuid: string, companyName: string) => {
     if (confirm(`"${companyName}" 제휴를 취소하시겠습니까?`)) {
@@ -32,6 +48,45 @@ export default function AdminCompanyPartnershipsPage() {
     if (confirm(`"${companyName}" 제휴를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.`)) {
       deleteMutation.mutate(uuid)
     }
+  }
+
+  const handleOrderChange = (uuid: string, value: string) => {
+    const numValue = parseInt(value, 10)
+    if (!isNaN(numValue) && numValue >= 0) {
+      setOrderMap((prev) => ({ ...prev, [uuid]: numValue }))
+    }
+  }
+
+  const handleSaveOrder = () => {
+    const orders = Object.entries(orderMap).map(([partnershipUuid, displayOrder]) => ({
+      partnershipUuid,
+      displayOrder,
+    }))
+
+    reorderMutation.mutate(
+      { orders },
+      {
+        onSuccess: () => {
+          toast.success('순서가 저장되었습니다.')
+          setIsReorderMode(false)
+        },
+        onError: () => {
+          toast.error('순서 저장에 실패했습니다.')
+        },
+      }
+    )
+  }
+
+  const handleCancelReorder = () => {
+    // 원래 순서로 복원
+    if (data?.content) {
+      const initialOrderMap: Record<string, number> = {}
+      data.content.forEach((p) => {
+        initialOrderMap[p.uuid] = p.displayOrder
+      })
+      setOrderMap(initialOrderMap)
+    }
+    setIsReorderMode(false)
   }
 
   const getStatusBadgeClass = (status: CompanyPartnershipStatus) => {
@@ -58,14 +113,56 @@ export default function AdminCompanyPartnershipsPage() {
               <h1 className="text-2xl font-bold text-gray-900">제휴업체 관리</h1>
               <p className="text-sm text-gray-600 mt-1">제휴업체 목록을 관리합니다.</p>
             </div>
-            <Link
-              href="/admin/company-partnerships/create"
-              className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              <FiPlus className="w-5 h-5" />
-              제휴업체 등록
-            </Link>
+            <div className="flex items-center gap-3">
+              {isReorderMode ? (
+                <>
+                  <button
+                    onClick={handleCancelReorder}
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <FiX className="w-5 h-5" />
+                    취소
+                  </button>
+                  <button
+                    onClick={handleSaveOrder}
+                    disabled={reorderMutation.isPending}
+                    className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+                  >
+                    <FiSave className="w-5 h-5" />
+                    {reorderMutation.isPending ? '저장 중...' : '순서 저장'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  {data && data.content.length > 0 && (
+                    <button
+                      onClick={() => setIsReorderMode(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <FiEdit2 className="w-5 h-5" />
+                      순서 변경
+                    </button>
+                  )}
+                  <Link
+                    href="/admin/company-partnerships/create"
+                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <FiPlus className="w-5 h-5" />
+                    제휴업체 등록
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
+
+          {/* 순서 변경 모드 안내 */}
+          {isReorderMode && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-yellow-800 text-sm">
+                순서를 변경하려면 순서 값을 직접 입력하세요. 숫자가 작을수록 먼저 노출됩니다.
+              </p>
+            </div>
+          )}
 
           {/* 필터 */}
           <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
@@ -77,7 +174,8 @@ export default function AdminCompanyPartnershipsPage() {
                   setStatus((e.target.value as CompanyPartnershipStatus) || undefined)
                   setPage(0)
                 }}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isReorderMode}
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
               >
                 <option value="">전체</option>
                 {(Object.keys(COMPANY_PARTNERSHIP_STATUS_LABELS) as CompanyPartnershipStatus[]).map((s) => (
@@ -128,16 +226,28 @@ export default function AdminCompanyPartnershipsPage() {
                         <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           등록자
                         </th>
-                        <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          관리
-                        </th>
+                        {!isReorderMode && (
+                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            관리
+                          </th>
+                        )}
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       {data.content.map((partnership) => (
                         <tr key={partnership.uuid} className="hover:bg-gray-50">
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {partnership.displayOrder}
+                            {isReorderMode ? (
+                              <input
+                                type="number"
+                                min="0"
+                                value={orderMap[partnership.uuid] ?? partnership.displayOrder}
+                                onChange={(e) => handleOrderChange(partnership.uuid, e.target.value)}
+                                className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              />
+                            ) : (
+                              partnership.displayOrder
+                            )}
                           </td>
                           <td className="px-4 py-4 whitespace-nowrap">
                             <Link
@@ -165,35 +275,37 @@ export default function AdminCompanyPartnershipsPage() {
                           <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
                             {partnership.registeredByEmail || '-'}
                           </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            <div className="flex items-center gap-2">
-                              <Link
-                                href={`/admin/company-partnerships/${partnership.uuid}/edit`}
-                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="수정"
-                              >
-                                <FiEdit2 className="w-4 h-4" />
-                              </Link>
-                              {partnership.status === 'ACTIVE' && (
-                                <button
-                                  onClick={() => handleCancel(partnership.uuid, partnership.companyName)}
-                                  className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                                  disabled={cancelMutation.isPending}
-                                  title="취소"
+                          {!isReorderMode && (
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              <div className="flex items-center gap-2">
+                                <Link
+                                  href={`/admin/company-partnerships/${partnership.uuid}/edit`}
+                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  title="수정"
                                 >
-                                  <FiXCircle className="w-4 h-4" />
+                                  <FiEdit2 className="w-4 h-4" />
+                                </Link>
+                                {partnership.status === 'ACTIVE' && (
+                                  <button
+                                    onClick={() => handleCancel(partnership.uuid, partnership.companyName)}
+                                    className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                                    disabled={cancelMutation.isPending}
+                                    title="취소"
+                                  >
+                                    <FiXCircle className="w-4 h-4" />
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleDelete(partnership.uuid, partnership.companyName)}
+                                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  disabled={deleteMutation.isPending}
+                                  title="삭제"
+                                >
+                                  <FiTrash2 className="w-4 h-4" />
                                 </button>
-                              )}
-                              <button
-                                onClick={() => handleDelete(partnership.uuid, partnership.companyName)}
-                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                disabled={deleteMutation.isPending}
-                                title="삭제"
-                              >
-                                <FiTrash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
+                              </div>
+                            </td>
+                          )}
                         </tr>
                       ))}
                     </tbody>
@@ -202,7 +314,7 @@ export default function AdminCompanyPartnershipsPage() {
               </div>
 
               {/* 페이지네이션 */}
-              {data.totalPages > 1 && (
+              {!isReorderMode && data.totalPages > 1 && (
                 <div className="flex justify-center items-center gap-4 mt-6">
                   <button
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
