@@ -15,6 +15,8 @@ import {
   FiRefreshCw,
   FiStar,
   FiAward,
+  FiLink,
+  FiMail,
 } from 'react-icons/fi'
 import { IoCash } from 'react-icons/io5'
 import { getDashboardOverview, type DashboardOverview } from '@/lib/api/dashboard'
@@ -407,7 +409,7 @@ export default function AdminDashboardPage() {
         {/* 포트폴리오 관리 */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">포트폴리오 관리</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -467,24 +469,55 @@ export default function AdminDashboardPage() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl border border-orange-200 p-6">
+        {/* 제휴 관리 */}
+        <div className="mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">제휴 관리</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl border border-cyan-200 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
-                  <FiTrendingUp className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-cyan-500 rounded-lg flex items-center justify-center">
+                  <FiLink className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-orange-900">미리보기</h3>
+                <h3 className="text-lg font-semibold text-cyan-900">제휴업체 관리</h3>
               </div>
-              <p className="text-sm text-orange-700 mb-4">
-                메인 페이지에 표시되는 추천 포트폴리오를 미리 확인합니다
+              <p className="text-sm text-cyan-700 mb-4">
+                제휴업체 등록, 수정, 삭제 및 노출 순서를 관리합니다
               </p>
               <div className="space-y-2">
                 <Link
-                  href="/"
-                  target="_blank"
-                  className="block w-full py-2 px-4 text-center bg-white hover:bg-orange-50 text-orange-700 rounded-lg font-medium transition-colors text-sm border border-orange-200"
+                  href="/admin/company-partnerships"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-cyan-50 text-cyan-700 rounded-lg font-medium transition-colors text-sm border border-cyan-200"
                 >
-                  메인 페이지 보기
+                  제휴업체 목록
+                </Link>
+                <Link
+                  href="/admin/company-partnerships/create"
+                  className="block w-full py-2 px-4 text-center bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium transition-colors text-sm"
+                >
+                  새 제휴업체 등록
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-violet-500 rounded-lg flex items-center justify-center">
+                  <FiMail className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-violet-900">제휴/광고 문의</h3>
+              </div>
+              <p className="text-sm text-violet-700 mb-4">
+                접수된 제휴 및 광고 문의를 확인하고 처리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/partnership-inquiries"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-violet-50 text-violet-700 rounded-lg font-medium transition-colors text-sm border border-violet-200"
+                >
+                  문의 목록
                 </Link>
               </div>
             </div>
