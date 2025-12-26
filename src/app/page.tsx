@@ -6,6 +6,7 @@ import { createPageMetadata } from '@/lib/metadata'
 import PopupManager from '@/components/popup/PopupManager'
 import PortfolioListClient from '@/components/portfolio/PortfolioListClient'
 import FeaturedPortfolios from '@/components/portfolio/FeaturedPortfolios'
+import FeaturedPartnerships from '@/components/partnership/FeaturedPartnerships'
 import { searchPortfolios } from '@/lib/api/portfolio'
 
 export const metadata = createPageMetadata({
@@ -79,6 +80,9 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      {/* 제휴 업체 슬라이드 */}
+      <FeaturedPartnerships count={8} />
 
       {/* 추천 포트폴리오 슬라이드 */}
       <FeaturedPortfolios count={8} />
