@@ -38,6 +38,7 @@ import {
 } from '@/lib/api/portfolio'
 import { useAuth } from '@/hooks/useAuth'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { getCdnUrl } from '@/lib/utils'
 
 interface Props {
   params: Promise<{ uuid: string }>
@@ -274,7 +275,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                 {portfolio.images && portfolio.images.length > 0 ? (
                   <>
                     <Image
-                      src={portfolio.images[currentImageIndex]?.fileUrl}
+                      src={getCdnUrl(portfolio.images[currentImageIndex]?.fileUrl) || '/images/img-placeholder.png'}
                       alt={portfolio.title}
                       fill
                       sizes="(max-width: 1024px) 100vw, 66vw"
@@ -340,7 +341,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                       }`}
                     >
                       <Image
-                        src={image.thumbnailUrl || image.fileUrl}
+                        src={getCdnUrl(image.thumbnailUrl || image.fileUrl) || '/images/img-placeholder.png'}
                         alt={`${portfolio.title} ${index + 1}`}
                         fill
                         sizes="80px"
@@ -417,12 +418,12 @@ export default function PortfolioDetailPage({ params }: Props) {
                     {portfolio.videos.map((video, index) => (
                       <div key={video.uuid} className="aspect-video bg-gray-900 rounded-xl overflow-hidden">
                         <video
-                          src={video.fileUrl}
+                          src={getCdnUrl(video.fileUrl)}
                           controls
                           className="w-full h-full object-contain"
-                          poster={portfolio.thumbnailUrl}
+                          poster={getCdnUrl(portfolio.thumbnailUrl) || undefined}
                         >
-                          <source src={video.fileUrl} type={video.mimeType} />
+                          <source src={getCdnUrl(video.fileUrl)} type={video.mimeType} />
                           브라우저가 비디오를 지원하지 않습니다.
                         </video>
                       </div>
@@ -532,7 +533,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                       <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
                         {portfolio.company.logoUrl ? (
                           <Image
-                            src={portfolio.company.logoUrl}
+                            src={getCdnUrl(portfolio.company.logoUrl) || '/images/img-placeholder.png'}
                             alt={portfolio.company.companyName}
                             width={64}
                             height={64}
@@ -625,7 +626,7 @@ export default function PortfolioDetailPage({ params }: Props) {
 
           <div className="h-full flex items-center justify-center p-4">
             <Image
-              src={portfolio.images[currentImageIndex]?.fileUrl}
+              src={getCdnUrl(portfolio.images[currentImageIndex]?.fileUrl) || '/images/img-placeholder.png'}
               alt={portfolio.title}
               fill
               sizes="100vw"
@@ -664,7 +665,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                 }`}
               >
                 <Image
-                  src={image.thumbnailUrl || image.fileUrl}
+                  src={getCdnUrl(image.thumbnailUrl || image.fileUrl) || '/images/img-placeholder.png'}
                   alt={`${portfolio.title} ${index + 1}`}
                   fill
                   sizes="64px"
