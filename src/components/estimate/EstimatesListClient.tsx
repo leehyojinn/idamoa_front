@@ -18,19 +18,37 @@ import { showErrorToast } from '@/lib/errorHandler'
 import { useAuthStore } from '@/stores/authStore'
 
 interface EstimatesListClientProps {
-  initialData: EstimateRequestListResponse
+  initialData?: EstimateRequestListResponse
 }
 
 export default function EstimatesListClient({ initialData }: EstimatesListClientProps) {
   const router = useRouter()
   const { user } = useAuthStore()
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState<EstimateRequestListResponse | null>(initialData || null)
   const [currentPage, setCurrentPage] = useState(0)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(!initialData)
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL')
   const [viewMode, setViewMode] = useState<'ALL' | 'MY' | 'MY_PROPOSALS'>('ALL')
   const [myEstimatesCount, setMyEstimatesCount] = useState<number>(0)
   const [myProposalsCount, setMyProposalsCount] = useState<number>(0)
+
+  // 초기 데이터가 없을 때 클라이언트에서 fetch
+  useEffect(() => {
+    if (!initialData) {
+      getEstimateRequests(0, 20, 'createdAt,desc')
+        .then(result => {
+          if (result.success && result.data) {
+            setData(result.data)
+          }
+        })
+        .catch(error => {
+          showErrorToast(error, '견적 목록을 불러오는데 실패했습니다')
+        })
+        .finally(() => {
+          setIsLoading(false)
+        })
+    }
+  }, [initialData])
 
   // 사용자가 로그인했을 때 내 견적 개수 가져오기
   useEffect(() => {
@@ -253,7 +271,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
   }
 
   // 필터링된 데이터
-  const filteredData = data.content.filter((estimate) => {
+  const filteredData = (data?.content || []).filter((estimate) => {
     if (selectedStatus === 'ALL') return true
     if (selectedStatus === 'EXPIRED') {
       return estimate.status === 'PUBLISHED' && estimate.expiresAt && new Date(estimate.expiresAt) < new Date()
@@ -269,17 +287,18 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
 
   // 필터별 카운트
   const getStatusCount = (status: string) => {
-    if (status === 'ALL') return data.content.length
+    const content = data?.content || []
+    if (status === 'ALL') return content.length
     if (status === 'EXPIRED') {
-      return data.content.filter(e => e.status === 'PUBLISHED' && e.expiresAt && new Date(e.expiresAt) < new Date()).length
+      return content.filter(e => e.status === 'PUBLISHED' && e.expiresAt && new Date(e.expiresAt) < new Date()).length
     }
     if (status === 'ACTIVE') {
-      return data.content.filter(e => e.status === 'PUBLISHED' && (!e.expiresAt || new Date(e.expiresAt) >= new Date())).length
+      return content.filter(e => e.status === 'PUBLISHED' && (!e.expiresAt || new Date(e.expiresAt) >= new Date())).length
     }
     if (status === 'MATCHED') {
-      return data.content.filter(e => e.status === 'MATCHED' || e.status === 'COMPLETED').length
+      return content.filter(e => e.status === 'MATCHED' || e.status === 'COMPLETED').length
     }
-    return data.content.filter(e => e.status === status).length
+    return content.filter(e => e.status === status).length
   }
 
   const handleViewModeChange = async (mode: 'ALL' | 'MY' | 'MY_PROPOSALS') => {
@@ -299,7 +318,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {viewMode === 'MY' ? '내 견적 요청' : viewMode === 'MY_PROPOSALS' ? '내가 제안한 견적' : '전체 견적 요청'} <span className="text-blue-600">{data.totalElements}</span>건
+            {viewMode === 'MY' ? '내 견적 요청' : viewMode === 'MY_PROPOSALS' ? '내가 제안한 견적' : '전체 견적 요청'} <span className="text-blue-600">{data?.totalElements || 0}</span>건
           </h2>
           <p className="text-gray-600">
             {viewMode === 'MY_PROPOSALS'
@@ -526,7 +545,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
       )}
 
       {/* Pagination */}
-      {data.totalPages > 0 && (
+      {data && data.totalPages > 0 && (
         <div className="mt-8 flex justify-center">
           <div className="flex gap-2">
             <button
