@@ -53,7 +53,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     // 이미 http로 시작하는 절대 경로면 그대로 반환
     if (url.startsWith('http')) return url
     // 상대 경로면 백엔드 서버 URL 붙이기
-    return `http://43.203.237.51:8080${url}`
+    return `http://54.180.23.234:8080${url}`
   }
 
   // 썸네일 URL 가져오기 (첫 번째 이미지)

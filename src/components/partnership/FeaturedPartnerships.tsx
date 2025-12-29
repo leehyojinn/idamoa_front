@@ -150,8 +150,12 @@ export default function FeaturedPartnerships({ count = 8 }: Props) {
               transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
             }}
           >
-            {partnerships.map((company) => {
+            {partnerships.map((company, index) => {
               const profileImage = company.images?.find(img => img.imageType === 'PROFILE') || company.images?.[0]
+              // 현재 보이는 이미지 + 다음에 보일 이미지들을 priority 로딩
+              const isVisible = index >= currentIndex && index < currentIndex + itemsPerView
+              const isNextUp = index >= currentIndex + itemsPerView && index < currentIndex + itemsPerView + 2
+              const isPriority = isVisible || isNextUp
 
               return (
                 <div
@@ -171,7 +175,8 @@ export default function FeaturedPartnerships({ count = 8 }: Props) {
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
+                        priority={isPriority}
+                        loading={isPriority ? undefined : "lazy"}
                       />
 
                       {/* 오버레이 */}

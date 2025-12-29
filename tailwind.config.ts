@@ -24,10 +24,15 @@ const config: Config = {
           '0%': { transform: 'translateY(0)' },
           '100%': { transform: 'translateY(-50%)' },
         },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.2s ease-in-out forwards',
         'scroll-vertical': 'scroll-vertical 10s linear infinite',
+        shimmer: 'shimmer 1.5s ease-in-out infinite',
       },
     },
   },
