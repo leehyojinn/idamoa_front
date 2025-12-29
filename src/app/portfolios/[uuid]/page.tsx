@@ -59,10 +59,7 @@ export default function PortfolioDetailPage({ params }: Props) {
   // 썸네일 스크롤 관련
   const thumbnailContainerRef = useRef<HTMLDivElement>(null)
   const modalThumbnailContainerRef = useRef<HTMLDivElement>(null)
-  const [isMouseDown, setIsMouseDown] = useState(false)
-  const [hasDragged, setHasDragged] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
+  const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, hasDragged: false })
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -166,56 +163,69 @@ export default function PortfolioDetailPage({ params }: Props) {
   useEffect(() => {
     const scrollToThumbnail = (container: HTMLDivElement | null) => {
       if (!container) return
-      const thumbnails = container.children
-      if (thumbnails[currentImageIndex]) {
-        const thumbnail = thumbnails[currentImageIndex] as HTMLElement
-        const containerWidth = container.offsetWidth
-        const thumbnailLeft = thumbnail.offsetLeft
-        const thumbnailWidth = thumbnail.offsetWidth
-        const scrollPosition = thumbnailLeft - (containerWidth / 2) + (thumbnailWidth / 2)
-        container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
-      }
+      const thumbnail = container.children[currentImageIndex] as HTMLElement
+      if (!thumbnail) return
+
+      // 썸네일 중앙이 컨테이너 중앙에 오도록 스크롤
+      const containerRect = container.getBoundingClientRect()
+      const thumbnailRect = thumbnail.getBoundingClientRect()
+
+      // 현재 스크롤 위치 기준으로 썸네일의 상대 위치 계산
+      const thumbnailCenter = thumbnailRect.left - containerRect.left + container.scrollLeft + (thumbnailRect.width / 2)
+      const containerCenter = containerRect.width / 2
+      const scrollTo = thumbnailCenter - containerCenter
+
+      container.scrollTo({ left: Math.max(0, scrollTo), behavior: 'smooth' })
     }
-    scrollToThumbnail(thumbnailContainerRef.current)
-    scrollToThumbnail(modalThumbnailContainerRef.current)
+
+    const timer = setTimeout(() => {
+      scrollToThumbnail(thumbnailContainerRef.current)
+      scrollToThumbnail(modalThumbnailContainerRef.current)
+    }, 50)
+    return () => clearTimeout(timer)
   }, [currentImageIndex])
 
   // 드래그 스크롤 핸들러
-  const handleMouseDown = useCallback((e: React.MouseEvent, container: HTMLDivElement | null) => {
+  const handleMouseDown = (e: React.MouseEvent, container: HTMLDivElement | null) => {
     if (!container) return
-    setIsMouseDown(true)
-    setHasDragged(false)
-    setStartX(e.pageX - container.offsetLeft)
-    setScrollLeft(container.scrollLeft)
-  }, [])
+    dragState.current = {
+      isDown: true,
+      startX: e.pageX - container.offsetLeft,
+      scrollLeft: container.scrollLeft,
+      hasDragged: false
+    }
+  }
 
-  const handleMouseMove = useCallback((e: React.MouseEvent, container: HTMLDivElement | null) => {
-    if (!isMouseDown || !container) return
+  const handleMouseMove = (e: React.MouseEvent, container: HTMLDivElement | null) => {
+    if (!dragState.current.isDown || !container) return
     const x = e.pageX - container.offsetLeft
-    const walk = x - startX
+    const walk = x - dragState.current.startX
     // 5px 이상 움직였을 때만 드래그로 인식
     if (Math.abs(walk) > 5) {
-      setHasDragged(true)
+      dragState.current.hasDragged = true
       container.style.cursor = 'grabbing'
-    }
-    if (hasDragged) {
       e.preventDefault()
-      container.scrollLeft = scrollLeft - walk * 1.5
+      container.scrollLeft = dragState.current.scrollLeft - walk
     }
-  }, [isMouseDown, startX, scrollLeft, hasDragged])
+  }
 
-  const handleMouseUp = useCallback((container: HTMLDivElement | null) => {
-    setIsMouseDown(false)
+  const handleMouseUp = (container: HTMLDivElement | null) => {
+    dragState.current.isDown = false
     if (container) container.style.cursor = 'grab'
-    // hasDragged는 클릭 핸들러에서 확인 후 리셋
-    setTimeout(() => setHasDragged(false), 0)
-  }, [])
+  }
 
-  const handleMouseLeave = useCallback((container: HTMLDivElement | null) => {
-    setIsMouseDown(false)
-    setHasDragged(false)
+  const handleMouseLeave = (container: HTMLDivElement | null) => {
+    dragState.current.isDown = false
+    dragState.current.hasDragged = false
     if (container) container.style.cursor = 'grab'
-  }, [])
+  }
+
+  const handleThumbnailClick = (index: number) => {
+    if (!dragState.current.hasDragged) {
+      setCurrentImageIndex(index)
+    }
+    dragState.current.hasDragged = false
+  }
 
   // TODO: 서버에서 isOwner 반환하면 해당 값 사용
   // 현재는 관리자이거나 COMPANY 역할이면 수정/삭제 버튼 표시 (서버에서 권한 체크됨)
@@ -403,7 +413,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                   {portfolio.images.map((image, index) => (
                     <button
                       key={image.uuid}
-                      onClick={() => !hasDragged && setCurrentImageIndex(index)}
+                      onClick={() => handleThumbnailClick(index)}
                       className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                         index === currentImageIndex
                           ? 'ring-2 ring-blue-600 scale-105'
@@ -735,7 +745,7 @@ export default function PortfolioDetailPage({ params }: Props) {
             {portfolio.images.map((image, index) => (
               <button
                 key={image.uuid}
-                onClick={() => !hasDragged && setCurrentImageIndex(index)}
+                onClick={() => handleThumbnailClick(index)}
                 className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                   index === currentImageIndex
                     ? 'ring-2 ring-white scale-110'
