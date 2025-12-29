@@ -22,6 +22,7 @@ import {
   IoRefresh,
 } from 'react-icons/io5'
 import { FiStar } from 'react-icons/fi'
+import { getCdnUrl } from '@/lib/utils'
 
 const SORT_OPTIONS = [
   { value: 'PREMIUM_TIER', label: '추천순' },
@@ -255,7 +256,8 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
   }
 
   const getPrimaryImage = (images: any[]) => {
-    return images.find((img) => img.isPrimary)?.imageUrl || images[0]?.imageUrl || '/images/img-placeholder.png'
+    const url = images.find((img) => img.isPrimary)?.imageUrl || images[0]?.imageUrl || '/images/img-placeholder.png'
+    return getCdnUrl(url)
   }
 
   // 지역 카테고리 찾기 (정확한 매칭만)
@@ -394,7 +396,10 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
           <>
             {/* 업체 그리드 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {companies.map((company) => (
+              {companies.map((company, index) => {
+                // 첫 8개 이미지는 priority 로딩 (LCP 최적화)
+                const isPriority = index < 8
+                return (
                 <div
                   key={company.uuid}
                   onClick={() => handleCompanyClick(company.slug)}
@@ -402,13 +407,24 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                 >
                   {/* 이미지 */}
                   <div className="relative h-48 bg-gray-200 overflow-hidden">
+                    {/* Shimmer 로딩 효과 */}
+                    <div
+                      className="absolute inset-0 animate-shimmer z-0"
+                      style={{
+                        background: 'linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%)',
+                        backgroundSize: '200% 100%',
+                      }}
+                    />
                     <Image
                       src={getPrimaryImage(company.images)}
                       alt={company.name}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      loading="lazy"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 350px"
+                      className="object-cover group-hover:scale-110 transition-transform duration-300 relative z-10"
+                      priority={isPriority}
+                      loading={isPriority ? undefined : "lazy"}
+                      placeholder="blur"
+                      blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2UyZThlZiIvPjwvc3ZnPg=="
                     />
 
                     {/* 프리미엄 배지 */}
@@ -507,7 +523,8 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
+
             </div>
 
             {/* 페이지네이션 */}

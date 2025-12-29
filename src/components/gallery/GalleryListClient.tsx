@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight } from 'react-icons/fi'
 import { searchGalleries, deleteGallery, toggleBookmark, toggleLike, type GalleryListItem, type GallerySearchParams, type GallerySearchResponse } from '@/lib/api/gallery'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { getCdnUrl } from '@/lib/utils'
 import Select from '@/components/ui/Select'
 import Checkbox from '@/components/ui/Checkbox'
 import { useAuth } from '@/hooks/useAuth'
@@ -59,7 +60,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   // 썸네일 URL 가져오기 (첫 번째 이미지)
   const getThumbnailUrl = (gallery: GalleryListItem) => {
     if (gallery.images && gallery.images.length > 0) {
-      return gallery.images[0].fileUrl
+      return getCdnUrl(gallery.images[0].fileUrl)
     }
     return ''
   }
@@ -942,8 +943,10 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {galleries.map((gallery) => {
+            {galleries.map((gallery, index) => {
               const isAuthor = user?.email === gallery.userEmail
+              // 첫 6개 이미지는 priority 로딩 (LCP 최적화)
+              const isPriority = index < 6
 
               return (
                 <div key={gallery.uuid} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow relative">
@@ -994,13 +997,25 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   <Link href={`/photos/${gallery.uuid}`}>
                     {/* 썸네일 */}
                     <div className="aspect-video bg-gray-200 relative overflow-hidden">
+                      {/* Shimmer 로딩 효과 */}
+                      <div
+                        className="absolute inset-0 animate-shimmer z-0"
+                        style={{
+                          background: 'linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%)',
+                          backgroundSize: '200% 100%',
+                        }}
+                      />
                       {getThumbnailUrl(gallery) ? (
                         <Image
                           src={getThumbnailUrl(gallery)}
                           alt={gallery.title}
                           fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 450px"
+                          className="object-cover relative z-10"
+                          priority={isPriority}
+                          loading={isPriority ? undefined : "lazy"}
+                          placeholder="blur"
+                          blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2UyZThlZiIvPjwvc3ZnPg=="
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400">
