@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -55,6 +55,13 @@ export default function PortfolioDetailPage({ params }: Props) {
   const [isLiked, setIsLiked] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
+
+  // 썸네일 스크롤 관련
+  const thumbnailContainerRef = useRef<HTMLDivElement>(null)
+  const modalThumbnailContainerRef = useRef<HTMLDivElement>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -153,6 +160,51 @@ export default function PortfolioDetailPage({ params }: Props) {
       prev === portfolio.images.length - 1 ? 0 : prev + 1
     )
   }
+
+  // 현재 이미지로 썸네일 스크롤
+  useEffect(() => {
+    const scrollToThumbnail = (container: HTMLDivElement | null) => {
+      if (!container) return
+      const thumbnails = container.children
+      if (thumbnails[currentImageIndex]) {
+        const thumbnail = thumbnails[currentImageIndex] as HTMLElement
+        const containerWidth = container.offsetWidth
+        const thumbnailLeft = thumbnail.offsetLeft
+        const thumbnailWidth = thumbnail.offsetWidth
+        const scrollPosition = thumbnailLeft - (containerWidth / 2) + (thumbnailWidth / 2)
+        container.scrollTo({ left: scrollPosition, behavior: 'smooth' })
+      }
+    }
+    scrollToThumbnail(thumbnailContainerRef.current)
+    scrollToThumbnail(modalThumbnailContainerRef.current)
+  }, [currentImageIndex])
+
+  // 드래그 스크롤 핸들러
+  const handleMouseDown = useCallback((e: React.MouseEvent, container: HTMLDivElement | null) => {
+    if (!container) return
+    setIsDragging(true)
+    setStartX(e.pageX - container.offsetLeft)
+    setScrollLeft(container.scrollLeft)
+    container.style.cursor = 'grabbing'
+  }, [])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent, container: HTMLDivElement | null) => {
+    if (!isDragging || !container) return
+    e.preventDefault()
+    const x = e.pageX - container.offsetLeft
+    const walk = (x - startX) * 1.5
+    container.scrollLeft = scrollLeft - walk
+  }, [isDragging, startX, scrollLeft])
+
+  const handleMouseUp = useCallback((container: HTMLDivElement | null) => {
+    setIsDragging(false)
+    if (container) container.style.cursor = 'grab'
+  }, [])
+
+  const handleMouseLeave = useCallback((container: HTMLDivElement | null) => {
+    setIsDragging(false)
+    if (container) container.style.cursor = 'grab'
+  }, [])
 
   // TODO: 서버에서 isOwner 반환하면 해당 값 사용
   // 현재는 관리자이거나 COMPANY 역할이면 수정/삭제 버튼 표시 (서버에서 권한 체크됨)
@@ -329,14 +381,21 @@ export default function PortfolioDetailPage({ params }: Props) {
 
               {/* 썸네일 리스트 */}
               {portfolio.images && portfolio.images.length > 1 && (
-                <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                <div
+                  ref={thumbnailContainerRef}
+                  className="flex gap-2 mt-4 overflow-x-auto pb-2 cursor-grab select-none scrollbar-hide"
+                  onMouseDown={(e) => handleMouseDown(e, thumbnailContainerRef.current)}
+                  onMouseMove={(e) => handleMouseMove(e, thumbnailContainerRef.current)}
+                  onMouseUp={() => handleMouseUp(thumbnailContainerRef.current)}
+                  onMouseLeave={() => handleMouseLeave(thumbnailContainerRef.current)}
+                >
                   {portfolio.images.map((image, index) => (
                     <button
                       key={image.uuid}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden ${
+                      onClick={() => !isDragging && setCurrentImageIndex(index)}
+                      className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                         index === currentImageIndex
-                          ? 'ring-2 ring-blue-600'
+                          ? 'ring-2 ring-blue-600 scale-105'
                           : 'opacity-70 hover:opacity-100'
                       }`}
                     >
@@ -345,8 +404,9 @@ export default function PortfolioDetailPage({ params }: Props) {
                         alt={`${portfolio.title} ${index + 1}`}
                         fill
                         sizes="80px"
-                        className="object-cover"
+                        className="object-cover pointer-events-none"
                         loading="lazy"
+                        draggable={false}
                       />
                     </button>
                   ))}
@@ -653,14 +713,21 @@ export default function PortfolioDetailPage({ params }: Props) {
           )}
 
           {/* 하단 썸네일 */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-full overflow-x-auto px-4">
+          <div
+            ref={modalThumbnailContainerRef}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto px-4 cursor-grab select-none scrollbar-hide"
+            onMouseDown={(e) => handleMouseDown(e, modalThumbnailContainerRef.current)}
+            onMouseMove={(e) => handleMouseMove(e, modalThumbnailContainerRef.current)}
+            onMouseUp={() => handleMouseUp(modalThumbnailContainerRef.current)}
+            onMouseLeave={() => handleMouseLeave(modalThumbnailContainerRef.current)}
+          >
             {portfolio.images.map((image, index) => (
               <button
                 key={image.uuid}
-                onClick={() => setCurrentImageIndex(index)}
-                className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden ${
+                onClick={() => !isDragging && setCurrentImageIndex(index)}
+                className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                   index === currentImageIndex
-                    ? 'ring-2 ring-white'
+                    ? 'ring-2 ring-white scale-110'
                     : 'opacity-50 hover:opacity-100'
                 }`}
               >
@@ -669,8 +736,9 @@ export default function PortfolioDetailPage({ params }: Props) {
                   alt={`${portfolio.title} ${index + 1}`}
                   fill
                   sizes="64px"
-                  className="object-cover"
+                  className="object-cover pointer-events-none"
                   loading="lazy"
+                  draggable={false}
                 />
               </button>
             ))}
