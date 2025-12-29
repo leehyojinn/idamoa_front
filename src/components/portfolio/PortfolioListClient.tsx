@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight, FiVideo } from 'react-icons/fi'
 import { searchPortfolios, deletePortfolio, toggleBookmark, toggleLike, type PortfolioListItem, type PortfolioSearchParams, type PortfolioSearchResponse } from '@/lib/api/portfolio'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
+import { getCdnUrl } from '@/lib/utils'
 import Select from '@/components/ui/Select'
 import Checkbox from '@/components/ui/Checkbox'
 import { useAuth } from '@/hooks/useAuth'
@@ -48,11 +49,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   } | null>(null)
 
   const getThumbnailUrl = (portfolio: PortfolioListItem) => {
-    if (portfolio.thumbnailUrl) return portfolio.thumbnailUrl
-    if (portfolio.images && portfolio.images.length > 0) {
-      return portfolio.images[0].thumbnailUrl || portfolio.images[0].fileUrl
+    let url = ''
+    if (portfolio.thumbnailUrl) url = portfolio.thumbnailUrl
+    else if (portfolio.images && portfolio.images.length > 0) {
+      url = portfolio.images[0].thumbnailUrl || portfolio.images[0].fileUrl
     }
-    return ''
+    return getCdnUrl(url)
   }
 
   const [currentPage, setCurrentPage] = useState(0)
@@ -1012,10 +1014,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                             src={getThumbnailUrl(portfolio)}
                             alt={portfolio.title}
                             fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
                             className="object-cover relative z-10"
                             priority={isPriority}
                             loading={isPriority ? undefined : "lazy"}
+                            placeholder="blur"
+                            blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2UyZThlZiIvPjwvc3ZnPg=="
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400 relative z-10">

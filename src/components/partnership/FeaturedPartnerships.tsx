@@ -7,6 +7,7 @@ import { FiChevronLeft, FiChevronRight, FiStar, FiPhone, FiMapPin, FiCheckCircle
 import { getActivePartnerships } from '@/lib/api/partnership'
 import type { CompanyPartnershipListItem } from '@/types/partnership'
 import { showErrorToast } from '@/lib/errorHandler'
+import { getCdnUrl } from '@/lib/utils'
 
 interface Props {
   count?: number
@@ -168,15 +169,25 @@ export default function FeaturedPartnerships({ count = 8 }: Props) {
                     className="block group"
                   >
                     <div className="relative aspect-[4/3] rounded-xl overflow-hidden shadow-lg bg-gray-200">
+                      {/* Shimmer 로딩 효과 */}
+                      <div
+                        className="absolute inset-0 animate-shimmer z-0"
+                        style={{
+                          background: 'linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%)',
+                          backgroundSize: '200% 100%',
+                        }}
+                      />
                       {/* 이미지 */}
                       <Image
-                        src={profileImage?.imageUrl || '/images/img-placeholder.png'}
+                        src={getCdnUrl(profileImage?.imageUrl) || '/images/img-placeholder.png'}
                         alt={company.companyName}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 350px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300 relative z-10"
                         priority={isPriority}
                         loading={isPriority ? undefined : "lazy"}
+                        placeholder="blur"
+                        blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2UyZThlZiIvPjwvc3ZnPg=="
                       />
 
                       {/* 오버레이 */}

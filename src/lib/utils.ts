@@ -129,3 +129,49 @@ export function formatUrl(value: string): string {
   // 그 외의 경우 https:// 추가
   return `https://${trimmed}`
 }
+
+/**
+ * 이미지 blur placeholder용 base64 데이터
+ * 1x1 투명 회색 픽셀
+ */
+export const BLUR_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN88P/BfwYABQgB/QHH6/AAAAAASUVORK5CYII='
+
+/**
+ * shimmer 효과를 위한 CSS 그라데이션
+ */
+export const shimmerStyle = {
+  backgroundImage: 'linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.5s ease-in-out infinite',
+}
+
+/**
+ * S3 URL을 CloudFront CDN URL로 변환하는 함수
+ * NEXT_PUBLIC_CDN_URL이 설정되어 있으면 S3 URL을 CloudFront URL로 변환
+ * @param {string} url - 원본 이미지 URL (S3 또는 기타)
+ * @returns {string} CDN URL 또는 원본 URL
+ */
+export function getCdnUrl(url: string | null | undefined): string {
+  if (!url) return ''
+
+  const cdnUrl = process.env.NEXT_PUBLIC_CDN_URL
+
+  // CDN URL이 설정되지 않았으면 원본 반환
+  if (!cdnUrl) return url
+
+  // S3 URL 패턴 확인 (여러 리전 지원)
+  // 예: https://bucket-name.s3.ap-northeast-2.amazonaws.com/path/to/image.jpg
+  // 예: https://bucket-name.s3.amazonaws.com/path/to/image.jpg
+  const s3Pattern = /^https?:\/\/([^.]+)\.s3[.-]([^.]+)?\.?amazonaws\.com\/(.*)/
+  const match = url.match(s3Pattern)
+
+  if (match) {
+    const path = match[3] // S3 경로 추출
+    // CDN URL 끝에 슬래시가 있으면 제거
+    const baseUrl = cdnUrl.endsWith('/') ? cdnUrl.slice(0, -1) : cdnUrl
+    return `${baseUrl}/${path}`
+  }
+
+  // S3 URL이 아니면 원본 반환
+  return url
+}
