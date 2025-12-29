@@ -13,13 +13,19 @@ export const metadata = createPageMetadata({
 
 export default async function CompanySearchPage() {
   // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
-  const initialData = await getCompanies({ page: 0, size: 12, sort: 'createdAt,DESC' })
+  let initialData = null
+  try {
+    const result = await getCompanies({ page: 0, size: 12, sort: 'createdAt,DESC' })
+    initialData = result.data
+  } catch (error) {
+    console.error('업체 초기 로드 실패:', error)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       <main className="flex-1">
-        <CompanySection initialData={initialData.data} />
+        <CompanySection initialData={initialData || undefined} />
       </main>
       <Footer />
     </div>
