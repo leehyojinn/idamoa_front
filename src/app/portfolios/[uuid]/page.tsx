@@ -59,7 +59,8 @@ export default function PortfolioDetailPage({ params }: Props) {
   // 썸네일 스크롤 관련
   const thumbnailContainerRef = useRef<HTMLDivElement>(null)
   const modalThumbnailContainerRef = useRef<HTMLDivElement>(null)
-  const [isDragging, setIsDragging] = useState(false)
+  const [isMouseDown, setIsMouseDown] = useState(false)
+  const [hasDragged, setHasDragged] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
 
@@ -182,27 +183,37 @@ export default function PortfolioDetailPage({ params }: Props) {
   // 드래그 스크롤 핸들러
   const handleMouseDown = useCallback((e: React.MouseEvent, container: HTMLDivElement | null) => {
     if (!container) return
-    setIsDragging(true)
+    setIsMouseDown(true)
+    setHasDragged(false)
     setStartX(e.pageX - container.offsetLeft)
     setScrollLeft(container.scrollLeft)
-    container.style.cursor = 'grabbing'
   }, [])
 
   const handleMouseMove = useCallback((e: React.MouseEvent, container: HTMLDivElement | null) => {
-    if (!isDragging || !container) return
-    e.preventDefault()
+    if (!isMouseDown || !container) return
     const x = e.pageX - container.offsetLeft
-    const walk = (x - startX) * 1.5
-    container.scrollLeft = scrollLeft - walk
-  }, [isDragging, startX, scrollLeft])
+    const walk = x - startX
+    // 5px 이상 움직였을 때만 드래그로 인식
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true)
+      container.style.cursor = 'grabbing'
+    }
+    if (hasDragged) {
+      e.preventDefault()
+      container.scrollLeft = scrollLeft - walk * 1.5
+    }
+  }, [isMouseDown, startX, scrollLeft, hasDragged])
 
   const handleMouseUp = useCallback((container: HTMLDivElement | null) => {
-    setIsDragging(false)
+    setIsMouseDown(false)
     if (container) container.style.cursor = 'grab'
+    // hasDragged는 클릭 핸들러에서 확인 후 리셋
+    setTimeout(() => setHasDragged(false), 0)
   }, [])
 
   const handleMouseLeave = useCallback((container: HTMLDivElement | null) => {
-    setIsDragging(false)
+    setIsMouseDown(false)
+    setHasDragged(false)
     if (container) container.style.cursor = 'grab'
   }, [])
 
@@ -392,7 +403,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                   {portfolio.images.map((image, index) => (
                     <button
                       key={image.uuid}
-                      onClick={() => !isDragging && setCurrentImageIndex(index)}
+                      onClick={() => !hasDragged && setCurrentImageIndex(index)}
                       className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                         index === currentImageIndex
                           ? 'ring-2 ring-blue-600 scale-105'
@@ -724,7 +735,7 @@ export default function PortfolioDetailPage({ params }: Props) {
             {portfolio.images.map((image, index) => (
               <button
                 key={image.uuid}
-                onClick={() => !isDragging && setCurrentImageIndex(index)}
+                onClick={() => !hasDragged && setCurrentImageIndex(index)}
                 className={`relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                   index === currentImageIndex
                     ? 'ring-2 ring-white scale-110'
