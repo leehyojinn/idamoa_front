@@ -1027,7 +1027,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                           </div>
                         )}
                         {/* 이미지/영상 개수 배지 */}
-                        <div className="absolute top-2 left-2 flex gap-1">
+                        <div className="absolute top-2 left-2 flex gap-1 z-20">
                           {portfolio.images && portfolio.images.length > 1 && (
                             <div className="bg-black bg-opacity-60 text-white px-2 py-1 rounded text-sm flex items-center gap-1">
                               <FiImage className="w-3 h-3" />
