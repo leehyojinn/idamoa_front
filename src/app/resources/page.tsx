@@ -6,12 +6,18 @@ import { searchDocuments } from '@/lib/api/resource'
 
 export default async function DocumentsPage() {
   // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
-  const initialData = await searchDocuments({
-    page: 0,
-    size: 12,
-    sortBy: 'publishedAt',
-    sortDirection: 'DESC',
-  })
+  let initialData = null
+  try {
+    const result = await searchDocuments({
+      page: 0,
+      size: 12,
+      sortBy: 'publishedAt',
+      sortDirection: 'DESC',
+    })
+    initialData = result.data
+  } catch (error) {
+    console.error('자료실 초기 로드 실패:', error)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -22,7 +28,7 @@ export default async function DocumentsPage() {
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
           </div>
         }>
-          <DocumentListClient initialData={initialData.data} />
+          <DocumentListClient initialData={initialData || undefined} />
         </Suspense>
       </main>
       <Footer />

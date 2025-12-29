@@ -89,11 +89,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CompanyDetailPage({ params }: PageProps) {
   const { slug } = await params
-  const result = isUuid(slug)
-    ? await getCompanyByUuid(slug)
-    : await getCompanyBySlug(slug)
 
-  if (!result.success || !result.data) {
+  let result
+  try {
+    result = isUuid(slug)
+      ? await getCompanyByUuid(slug)
+      : await getCompanyBySlug(slug)
+  } catch (error) {
+    console.error('업체 상세 로드 실패:', error)
+    notFound()
+  }
+
+  if (!result?.success || !result?.data) {
     notFound()
   }
 

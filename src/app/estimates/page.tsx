@@ -10,8 +10,14 @@ export const metadata: Metadata = {
 }
 
 export default async function EstimatesPage() {
-  // 초기 데이터 로드
-  const initialData = await getEstimateRequests(0, 20, 'createdAt,desc')
+  // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
+  let initialData = null
+  try {
+    const result = await getEstimateRequests(0, 20, 'createdAt,desc')
+    initialData = result.data
+  } catch (error) {
+    console.error('견적 초기 로드 실패:', error)
+  }
 
   return (
     <>
@@ -29,7 +35,7 @@ export default async function EstimatesPage() {
 
         {/* Main Content */}
         <div className="max-w-6xl mx-auto px-4 py-8">
-          <EstimatesListClient initialData={initialData.data} />
+          <EstimatesListClient initialData={initialData || undefined} />
         </div>
       </main>
       <Footer />

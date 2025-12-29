@@ -49,9 +49,15 @@ export default async function DocumentDetailPage({ params }: PageProps) {
   const { uuid } = await params
 
   // SSR: 서버에서 초기 데이터 로드
-  const result = await getDocument(uuid)
+  let result
+  try {
+    result = await getDocument(uuid)
+  } catch (error) {
+    console.error('자료 상세 로드 실패:', error)
+    notFound()
+  }
 
-  if (!result.success || !result.data) {
+  if (!result?.success || !result?.data) {
     notFound()
   }
 
