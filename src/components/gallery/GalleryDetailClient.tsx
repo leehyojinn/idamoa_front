@@ -30,7 +30,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
     // 이미 http로 시작하는 절대 경로면 그대로 반환
     if (url.startsWith('http')) return url
     // 상대 경로면 백엔드 서버 URL 붙이기
-    return `http://43.203.237.51:8080${url}`
+    return `http://54.180.23.234:8080${url}`
   }
   const [isLoading, setIsLoading] = useState(!initialData)
   const [isDeleting, setIsDeleting] = useState(false)

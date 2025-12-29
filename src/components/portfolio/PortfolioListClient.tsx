@@ -39,6 +39,14 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
   const [isLoadingFilters, setIsLoadingFilters] = useState(true)
 
+  // 다음 페이지 데이터 캐시
+  const [nextPageCache, setNextPageCache] = useState<{
+    page: number
+    data: PortfolioListItem[]
+    totalPages: number
+    totalElements: number
+  } | null>(null)
+
   const getThumbnailUrl = (portfolio: PortfolioListItem) => {
     if (portfolio.thumbnailUrl) return portfolio.thumbnailUrl
     if (portfolio.images && portfolio.images.length > 0) {
@@ -241,6 +249,58 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     }
   }, [sortBy])
 
+  // 다음 페이지 데이터 + 이미지 프리페치
+  const prefetchNextPage = useCallback(async () => {
+    if (currentPage >= totalPages - 1) return
+    if (nextPageCache?.page === currentPage + 1) return
+
+    try {
+      const result = await searchPortfolios({
+        page: currentPage + 1,
+        size: 12,
+        keyword: keyword || undefined,
+        filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
+        companyUuid: companyUuid || undefined,
+        sort: sortBy,
+        onlyBookmarked,
+        onlyMyPosts,
+      })
+
+      if (result.success && result.data?.content) {
+        setNextPageCache({
+          page: currentPage + 1,
+          data: result.data.content,
+          totalPages: result.data.totalPages,
+          totalElements: result.data.totalElements,
+        })
+
+        // 이미지 프리로드
+        result.data.content.forEach(portfolio => {
+          const url = portfolio.thumbnailUrl ||
+            portfolio.images?.[0]?.thumbnailUrl ||
+            portfolio.images?.[0]?.fileUrl
+          if (url) {
+            const img = new window.Image()
+            img.src = url
+          }
+        })
+      }
+    } catch {
+      // 프리페치 실패는 무시
+    }
+  }, [currentPage, totalPages, keyword, selectedFilterOptionIds, companyUuid, sortBy, onlyBookmarked, onlyMyPosts, nextPageCache?.page])
+
+  // 현재 페이지 로드 후 다음 페이지 프리페치
+  useEffect(() => {
+    if (isLoading || portfolios.length === 0) return
+
+    const timer = setTimeout(() => {
+      prefetchNextPage()
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [isLoading, portfolios.length, prefetchNextPage])
+
   useEffect(() => {
     const companyUuidParam = searchParams.get('companyUuid') || null
     const companyNameParam = searchParams.get('companyName') || null
@@ -310,6 +370,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   }
 
   const handlePageChange = (newPage: number) => {
+    // 캐시된 다음 페이지 데이터가 있으면 즉시 사용
+    if (nextPageCache && nextPageCache.page === newPage) {
+      setCurrentPage(newPage)
+      setPortfolios(nextPageCache.data)
+      setTotalPages(nextPageCache.totalPages)
+      setTotalElements(nextPageCache.totalElements)
+      setNextPageCache(null)
+      return
+    }
+
     setCurrentPage(newPage)
     fetchPortfolios({
       page: newPage,
@@ -325,6 +395,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const handleSortChange = (newSort: string) => {
     setSortBy(newSort)
     setCurrentPage(0)
+    setNextPageCache(null)
     fetchPortfolios({
       page: 0,
       keyword,
@@ -857,9 +928,11 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {portfolios.map((portfolio) => {
+              {portfolios.map((portfolio, index) => {
                 // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
                 const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
+                // 첫 페이지(12개) 이미지는 priority로 빠르게 로드
+                const isPriority = index < 12
 
                 return (
                   <div key={portfolio.uuid} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow relative">
@@ -926,17 +999,26 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     <Link href={`/portfolios/${portfolio.uuid}`}>
                       {/* 썸네일 */}
                       <div className="aspect-video bg-gray-200 relative overflow-hidden">
+                        {/* Shimmer 효과 */}
+                        <div
+                          className="absolute inset-0 animate-shimmer"
+                          style={{
+                            background: 'linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%)',
+                            backgroundSize: '200% 100%',
+                          }}
+                        />
                         {getThumbnailUrl(portfolio) ? (
                           <Image
                             src={getThumbnailUrl(portfolio)}
                             alt={portfolio.title}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover"
-                            loading="lazy"
+                            className="object-cover relative z-10"
+                            priority={isPriority}
+                            loading={isPriority ? undefined : "lazy"}
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <div className="w-full h-full flex items-center justify-center text-gray-400 relative z-10">
                             <FiImage className="w-16 h-16" />
                           </div>
                         )}
