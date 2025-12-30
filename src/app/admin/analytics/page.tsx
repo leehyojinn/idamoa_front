@@ -465,7 +465,7 @@ export default function AdminAnalyticsPage() {
                       <td className="px-6 py-4 whitespace-nowrap font-mono text-sm">{page.pagePath}</td>
                       <td className="px-6 py-4 text-sm">{page.pageTitle}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm">{formatNumber(page.screenPageViews)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">{formatDuration(page.averageTimeOnPage)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">{formatDuration(page.avgSessionDuration)}</td>
                     </tr>
                   ))
                 ) : (
@@ -537,7 +537,7 @@ export default function AdminAnalyticsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{location.country}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">{location.city}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm">{formatNumber(location.sessions)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">{formatNumber(location.activeUsers)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm">{formatNumber(location.users)}</td>
                     </tr>
                   ))
                 ) : (
