@@ -208,7 +208,7 @@ export default function FeaturedPortfolios({ count = 8 }: Props) {
                     </div>
 
                     {/* 하단 정보 (호버 시) */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform">
+                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform bg-[rgba(0,0,0,0.8)] z-20">
                       <h3 className="text-white font-bold text-lg line-clamp-1 drop-shadow-lg">
                         {portfolio.title}
                       </h3>
