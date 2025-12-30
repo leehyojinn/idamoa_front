@@ -14,19 +14,21 @@ export interface DailyTrafficData {
   activeUsers: number
   sessions: number
   screenPageViews: number
+  avgSessionDuration: number
 }
 
 export interface PageViewData {
   pagePath: string
-  pageTitle: string
+  pageTitle?: string
   screenPageViews: number
-  averageTimeOnPage: number
+  activeUsers: number
+  avgSessionDuration: number
 }
 
 export interface DeviceStatsData {
   deviceCategory: string
   sessions: number
-  activeUsers: number
+  users: number
   bounceRate: number
 }
 
@@ -34,7 +36,7 @@ export interface LocationStatsData {
   country: string
   city: string
   sessions: number
-  activeUsers: number
+  users: number
 }
 
 export interface AcquisitionChannelData {
