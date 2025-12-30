@@ -165,6 +165,7 @@ export interface PublicFilterCategory {
   description?: string
   displayOrder: number
   isRequired: boolean
+  isExpanded?: boolean  // 카테고리 기본 펼침 상태
   options: PublicFilterOption[]
 }
 
@@ -179,6 +180,7 @@ export interface PublicFilterOption {
   color?: string
   isActive?: boolean
   isDeleted?: boolean
+  isExpanded?: boolean  // 계층 구조에서 자식 옵션 기본 펼침 상태
   usageCount?: number
   parentId?: number | null
   children?: PublicFilterOption[]

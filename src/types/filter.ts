@@ -14,6 +14,7 @@ export interface FilterCategory {
   icon?: string
   isActive: boolean
   isRequired: boolean
+  isExpanded?: boolean  // 카테고리 기본 펼침 상태
   metadata?: Record<string, any>
   options?: FilterOption[]
   createdAt: string
@@ -37,6 +38,7 @@ export interface FilterOption {
   color?: string
   isActive: boolean
   isDefault: boolean
+  isExpanded?: boolean  // 계층 구조에서 자식 옵션 기본 펼침 상태
   usageCount: number
   metadata?: Record<string, any>
   children?: FilterOption[]
@@ -55,6 +57,7 @@ export interface FilterCategoryCreateRequest {
   displayOrder?: number
   icon?: string
   isRequired?: boolean
+  isExpanded?: boolean
   metadata?: Record<string, any>
 }
 
@@ -64,6 +67,7 @@ export interface FilterCategoryUpdateRequest {
   displayOrder?: number
   icon?: string
   isRequired?: boolean
+  isExpanded?: boolean
   metadata?: Record<string, any>
 }
 
@@ -77,6 +81,7 @@ export interface FilterOptionCreateRequest {
   icon?: string
   color?: string
   isDefault?: boolean
+  isExpanded?: boolean
   metadata?: Record<string, any>
 }
 
@@ -87,5 +92,6 @@ export interface FilterOptionUpdateRequest {
   displayOrder?: number
   icon?: string
   color?: string
+  isExpanded?: boolean
   metadata?: Record<string, any>
 }

@@ -59,6 +59,7 @@ export default function AdminFilterOptionsPage() {
     icon: '',
     color: '',
     isDefault: false,
+    isExpanded: false,
   })
 
   const fetchCategory = async () => {
@@ -115,6 +116,7 @@ export default function AdminFilterOptionsPage() {
       icon: formData.icon || undefined,
       color: formData.color || undefined,
       isDefault: formData.isDefault,
+      isExpanded: formData.isExpanded,
     }
 
     // parentId는 숫자이므로 별도 처리
@@ -154,6 +156,7 @@ export default function AdminFilterOptionsPage() {
       displayOrder: formData.displayOrder,
       icon: formData.icon || undefined,
       color: formData.color || undefined,
+      isExpanded: formData.isExpanded,
     }
 
     // undefined 및 빈 문자열 제거
@@ -213,6 +216,7 @@ export default function AdminFilterOptionsPage() {
       icon: '',
       color: '',
       isDefault: false,
+      isExpanded: false,
     })
     setShowCreateModal(true)
   }
@@ -229,6 +233,7 @@ export default function AdminFilterOptionsPage() {
       icon: option.icon || '',
       color: option.color || '',
       isDefault: option.isDefault,
+      isExpanded: option.isExpanded || false,
     })
     setShowEditModal(true)
   }
@@ -244,6 +249,7 @@ export default function AdminFilterOptionsPage() {
       icon: '',
       color: '',
       isDefault: false,
+      isExpanded: false,
     })
   }
 
@@ -841,7 +847,7 @@ export default function AdminFilterOptionsPage() {
                   </div>
                 </div>
 
-                <div>
+                <div className="flex flex-wrap gap-6">
                   <label className="flex items-center gap-2">
                     <input
                       type="checkbox"
@@ -850,6 +856,18 @@ export default function AdminFilterOptionsPage() {
                       className="rounded"
                     />
                     <span className="text-sm font-medium text-gray-700">기본값으로 설정</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isExpanded}
+                      onChange={(e) => setFormData({ ...formData, isExpanded: e.target.checked })}
+                      className="rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">자식 펼침 (계층)</span>
+                    <span className="text-xs text-gray-500">
+                      체크하면 이 옵션의 자식이 기본으로 펼쳐져 표시됩니다
+                    </span>
                   </label>
                 </div>
               </div>
@@ -980,6 +998,21 @@ export default function AdminFilterOptionsPage() {
                       react-icons의 Ionicons5 아이콘 이름 입력 (예: IoBrush, IoHome, IoStar)
                     </p>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isExpanded}
+                      onChange={(e) => setFormData({ ...formData, isExpanded: e.target.checked })}
+                      className="rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">자식 펼침 (계층)</span>
+                  </label>
+                  <span className="text-xs text-gray-500">
+                    체크하면 이 옵션의 자식이 기본으로 펼쳐져 표시됩니다
+                  </span>
                 </div>
               </div>
 
