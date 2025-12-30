@@ -71,6 +71,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const videoInputRef = useRef<HTMLInputElement>(null)
+  const filterButtonRef = useRef<HTMLButtonElement>(null)
 
   const [title, setTitle] = useState(portfolio?.title || '')
   const [description, setDescription] = useState(portfolio?.description || '')
@@ -503,6 +504,14 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
     if (images.length === 0) {
       showErrorToast(null, '최소 1개 이상의 이미지를 등록해주세요')
+      return
+    }
+
+    // 필터 필수값 검증
+    if (selectedFilters.length === 0) {
+      showErrorToast(null, '카테고리를 최소 한 개 선택해주세요')
+      filterButtonRef.current?.focus()
+      filterButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       return
     }
 
@@ -956,9 +965,10 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
             {/* 필터 선택 버튼 */}
             <button
+              ref={filterButtonRef}
               type="button"
               onClick={() => setShowFilterPanel(true)}
-              className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group"
+              className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">

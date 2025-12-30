@@ -58,6 +58,7 @@ export default function AdminFiltersPage() {
     displayOrder: 0,
     icon: '',
     isRequired: false,
+    isExpanded: false,
   })
 
   const fetchCategories = async () => {
@@ -124,6 +125,7 @@ export default function AdminFiltersPage() {
       displayOrder: formData.displayOrder,
       icon: formData.icon || undefined,
       isRequired: formData.isRequired,
+      isExpanded: formData.isExpanded,
     }
 
     // undefined 및 빈 문자열 제거
@@ -157,6 +159,7 @@ export default function AdminFiltersPage() {
       displayOrder: formData.displayOrder,
       icon: formData.icon || undefined,
       isRequired: formData.isRequired,
+      isExpanded: formData.isExpanded,
     }
 
     // undefined 값 제거
@@ -221,6 +224,7 @@ export default function AdminFiltersPage() {
       displayOrder: category.displayOrder,
       icon: category.icon || '',
       isRequired: category.isRequired,
+      isExpanded: category.isExpanded || false,
     })
     setShowEditModal(true)
   }
@@ -237,6 +241,7 @@ export default function AdminFiltersPage() {
       displayOrder: 0,
       icon: '',
       isRequired: false,
+      isExpanded: false,
     })
   }
 
@@ -532,6 +537,21 @@ export default function AdminFiltersPage() {
                     </label>
                   </div>
                 </div>
+
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isExpanded}
+                      onChange={(e) => setFormData({ ...formData, isExpanded: e.target.checked })}
+                      className="rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">기본 펼침 상태</span>
+                  </label>
+                  <span className="text-xs text-gray-500">
+                    체크하면 필터 목록에서 이 카테고리가 기본으로 펼쳐져 표시됩니다
+                  </span>
+                </div>
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -627,6 +647,21 @@ export default function AdminFiltersPage() {
                       <span className="text-sm font-medium text-gray-700">필수 항목</span>
                     </label>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.isExpanded}
+                      onChange={(e) => setFormData({ ...formData, isExpanded: e.target.checked })}
+                      className="rounded"
+                    />
+                    <span className="text-sm font-medium text-gray-700">기본 펼침 상태</span>
+                  </label>
+                  <span className="text-xs text-gray-500">
+                    체크하면 필터 목록에서 이 카테고리가 기본으로 펼쳐져 표시됩니다
+                  </span>
                 </div>
               </div>
 

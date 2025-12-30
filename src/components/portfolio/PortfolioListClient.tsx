@@ -115,7 +115,28 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           options: buildOptionTree(category.options)
         }))
         setFilterCategories(filtersWithTree)
-        setCollapsedCategories(new Set(filtersWithTree.map(c => c.id)))
+
+        // isExpanded가 false인 카테고리만 접힌 상태로 설정
+        const collapsedIds = filtersWithTree
+          .filter(c => c.isExpanded !== true)
+          .map(c => c.id)
+        setCollapsedCategories(new Set(collapsedIds))
+
+        // isExpanded가 true인 옵션들을 펼친 상태로 설정
+        const collectExpandedOptions = (options: typeof filtersWithTree[0]['options']): number[] => {
+          const ids: number[] = []
+          options.forEach(opt => {
+            if (opt.isExpanded === true && opt.children && opt.children.length > 0) {
+              ids.push(opt.id)
+            }
+            if (opt.children) {
+              ids.push(...collectExpandedOptions(opt.children))
+            }
+          })
+          return ids
+        }
+        const expandedIds = filtersWithTree.flatMap(c => collectExpandedOptions(c.options))
+        setExpandedOptions(new Set(expandedIds))
       } catch (error) {
         showErrorToast(error, '필터 정보를 불러오는데 실패했습니다')
       } finally {
