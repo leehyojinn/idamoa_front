@@ -547,30 +547,53 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     const hasChildren = option.children && option.children.length > 0
     const isExpanded = expandedOptions.has(option.id)
     const selectedCount = hasChildren ? getSelectedChildrenCount(option) : 0
+    const isSelected = selectedFilterOptionIds.includes(option.id)
 
     if (hasChildren) {
-      // 자식이 있으면 아코디언 형태로 표시
+      // 자식이 있어도 부모 옵션 자체도 선택 가능
       return (
         <div key={option.id} className={depth > 0 ? 'ml-3' : ''}>
-          <button
-            type="button"
-            onClick={() => toggleOptionExpand(option.id)}
-            className="w-full flex items-center justify-between py-1.5 text-left hover:bg-gray-50 rounded transition-colors"
-          >
-            <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          <div className="flex items-center">
+            {/* 펼침/접힘 버튼 (화살표만) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleOptionExpand(option.id)
+              }}
+              className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors"
+            >
               {isExpanded ? (
-                <FiChevronDown className="w-4 h-4 text-gray-400" />
+                <FiChevronDown className="w-4 h-4 text-gray-500" />
               ) : (
-                <FiChevronRight className="w-4 h-4 text-gray-400" />
+                <FiChevronRight className="w-4 h-4 text-gray-500" />
               )}
-              {option.name}
-            </span>
-            {selectedCount > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
-                {selectedCount}
-              </span>
-            )}
-          </button>
+            </button>
+            {/* 부모 옵션 선택 (체크박스 + 이름) */}
+            <button
+              type="button"
+              onClick={() => handleToggleFilterOption(option.id, option.name, !isSelected)}
+              className="flex-1 flex items-center gap-2 py-1.5 px-1 text-left hover:bg-gray-50 rounded transition-colors"
+            >
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                isSelected
+                  ? 'bg-blue-600 border-blue-600'
+                  : 'border-gray-300'
+              }`}>
+                {isSelected && (
+                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
+              <span className="text-sm font-medium text-gray-700 flex-1">{option.name}</span>
+              {selectedCount > 0 && (
+                <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                  {selectedCount}
+                </span>
+              )}
+            </button>
+          </div>
           {isExpanded && (
             <div className="ml-2 mt-1 space-y-1 border-l-2 border-gray-100 pl-2">
               {option.children!.map((child) => renderFilterOption(child, depth + 1))}
@@ -584,7 +607,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     return (
       <div key={option.id} className={depth > 0 ? '' : ''}>
         <Checkbox
-          checked={selectedFilterOptionIds.includes(option.id)}
+          checked={isSelected}
           onChange={(checked) => handleToggleFilterOption(option.id, option.name, checked)}
           label={option.name}
           size="sm"
