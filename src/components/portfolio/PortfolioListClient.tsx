@@ -146,16 +146,53 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     loadFilters()
   }, [])
 
+  // 옵션과 모든 하위 옵션의 ID, 이름 가져오기
+  const getOptionWithDescendants = (optionId: number): { ids: number[], names: string[] } => {
+    const ids: number[] = []
+    const names: string[] = []
+
+    const findAndCollect = (options: typeof filterCategories[0]['options']): boolean => {
+      for (const opt of options) {
+        if (opt.id === optionId) {
+          // 찾은 옵션과 모든 하위 옵션 수집
+          const collectAll = (o: typeof opt) => {
+            ids.push(o.id)
+            names.push(o.name)
+            if (o.children) {
+              o.children.forEach(collectAll)
+            }
+          }
+          collectAll(opt)
+          return true
+        }
+        if (opt.children && findAndCollect(opt.children)) {
+          return true
+        }
+      }
+      return false
+    }
+
+    for (const category of filterCategories) {
+      if (findAndCollect(category.options)) break
+    }
+
+    return { ids, names }
+  }
+
   const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
+    // 해당 옵션과 하위 옵션들 가져오기
+    const { ids: targetIds, names: targetNames } = getOptionWithDescendants(optionId)
+
     let newFilterOptionIds: number[]
     let newTags: string[]
 
     if (checked) {
-      newFilterOptionIds = [...selectedFilterOptionIds, optionId]
-      newTags = [...selectedTags, optionName]
+      // 중복 제거하면서 추가
+      newFilterOptionIds = [...new Set([...selectedFilterOptionIds, ...targetIds])]
+      newTags = [...new Set([...selectedTags, ...targetNames])]
     } else {
-      newFilterOptionIds = selectedFilterOptionIds.filter(id => id !== optionId)
-      newTags = selectedTags.filter(t => t !== optionName)
+      newFilterOptionIds = selectedFilterOptionIds.filter(id => !targetIds.includes(id))
+      newTags = selectedTags.filter(t => !targetNames.includes(t))
     }
 
     setSelectedFilterOptionIds(newFilterOptionIds)
@@ -550,10 +587,14 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     if (hasChildren) {
       return (
         <div key={option.id} className={depth > 0 ? 'ml-3' : ''}>
-          <div className="flex items-center">
+          {/* 전체 영역 클릭 시 선택 */}
+          <button
+            type="button"
+            onClick={() => handleToggleFilterOption(option.id, option.name, !isSelected)}
+            className="w-full flex items-center py-1.5 px-1 text-left hover:bg-gray-50 rounded transition-colors"
+          >
             {/* 펼침/접힘 버튼 (화살표만) */}
-            <button
-              type="button"
+            <div
               onClick={(e) => {
                 e.stopPropagation()
                 toggleOptionExpand(option.id)
@@ -565,32 +606,27 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
               ) : (
                 <FiChevronRight className="w-4 h-4 text-gray-500" />
               )}
-            </button>
-            {/* 부모 옵션 선택 (체크박스 + 이름) */}
-            <button
-              type="button"
-              onClick={() => handleToggleFilterOption(option.id, option.name, !isSelected)}
-              className="flex-1 flex items-center gap-2 py-1.5 px-1 text-left hover:bg-gray-50 rounded transition-colors"
-            >
-              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                isSelected
-                  ? 'bg-blue-600 border-blue-600'
-                  : 'border-gray-300'
-              }`}>
-                {isSelected && (
-                  <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-              <span className="text-sm font-medium text-gray-700 flex-1">{option.name}</span>
-              {selectedCount > 0 && (
-                <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
-                  {selectedCount}
-                </span>
+            </div>
+            {/* 체크박스 */}
+            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+              isSelected
+                ? 'bg-blue-600 border-blue-600'
+                : 'border-gray-300'
+            }`}>
+              {isSelected && (
+                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
               )}
-            </button>
-          </div>
+            </div>
+            {/* 옵션 이름 */}
+            <span className="text-sm font-medium text-gray-700 flex-1 ml-2">{option.name}</span>
+            {selectedCount > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                {selectedCount}
+              </span>
+            )}
+          </button>
           {isExpanded && (
             <div className="ml-2 mt-1 space-y-1 border-l-2 border-gray-100 pl-2">
               {option.children!.map((child) => renderFilterOption(child, depth + 1))}
@@ -708,11 +744,18 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
             return (
               <div key={category.id} className="border-b border-gray-100 pb-3 last:border-b-0">
-                <div className="flex items-center">
+                {/* 전체 영역 클릭 시 카테고리 선택 */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleCategory(category)}
+                  className="w-full flex items-center py-1 px-1 text-left hover:bg-gray-50 rounded transition-colors"
+                >
                   {/* 펼침/접힘 버튼 */}
-                  <button
-                    type="button"
-                    onClick={() => toggleCategoryCollapse(category.id)}
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      toggleCategoryCollapse(category.id)
+                    }}
                     className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors"
                   >
                     {isCollapsed ? (
@@ -720,37 +763,32 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     ) : (
                       <FiChevronDown className="w-4 h-4 text-gray-500" />
                     )}
-                  </button>
-                  {/* 카테고리 선택 (체크박스 + 이름) */}
-                  <button
-                    type="button"
-                    onClick={() => handleToggleCategory(category)}
-                    className="flex-1 flex items-center gap-2 py-1 px-1 text-left hover:bg-gray-50 rounded transition-colors"
-                  >
-                    <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                      allSelected
-                        ? 'bg-blue-600 border-blue-600'
-                        : someSelected
-                        ? 'bg-blue-200 border-blue-400'
-                        : 'border-gray-300'
-                    }`}>
-                      {allSelected && (
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                      {someSelected && !allSelected && (
-                        <div className="w-2 h-0.5 bg-blue-600 rounded"></div>
-                      )}
-                    </div>
-                    <span className="font-semibold text-gray-900 text-sm flex-1">{category.name}</span>
-                    {selectedCount > 0 && (
-                      <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
-                        {selectedCount}
-                      </span>
+                  </div>
+                  {/* 체크박스 */}
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                    allSelected
+                      ? 'bg-blue-600 border-blue-600'
+                      : someSelected
+                      ? 'bg-blue-200 border-blue-400'
+                      : 'border-gray-300'
+                  }`}>
+                    {allSelected && (
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
                     )}
-                  </button>
-                </div>
+                    {someSelected && !allSelected && (
+                      <div className="w-2 h-0.5 bg-blue-600 rounded"></div>
+                    )}
+                  </div>
+                  {/* 카테고리 이름 */}
+                  <span className="font-semibold text-gray-900 text-sm flex-1 ml-2">{category.name}</span>
+                  {selectedCount > 0 && (
+                    <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                      {selectedCount}
+                    </span>
+                  )}
+                </button>
                 {!isCollapsed && (
                   <div className="space-y-1 mt-2 ml-6">
                     {category.options.map((option) => renderFilterOption(option, 0))}
