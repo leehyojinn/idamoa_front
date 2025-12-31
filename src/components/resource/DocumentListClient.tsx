@@ -758,7 +758,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                       {user && (
                         <button
                           onClick={(e) => handleToggleBookmark(doc.uuid, e)}
-                          className={`absolute bottom-2 right-2 p-2 rounded-full shadow-md transition-all ${
+                          className={`absolute bottom-2 right-2 z-10 p-2 rounded-full shadow-md transition-all ${
                             doc.isBookmarked
                               ? 'bg-yellow-100 bg-opacity-90 hover:bg-opacity-100'
                               : 'bg-white bg-opacity-90 hover:bg-opacity-100'
