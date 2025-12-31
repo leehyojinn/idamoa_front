@@ -69,12 +69,6 @@ export const defaultMetadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'TJWb6qHYNW4dlSJfSbe0_yIFROOQL6F-yznCNiHAONE',
-    other: {
-      'naver-site-verification': 'af76a3049ba372f72bd2fadff2bfb3d128f0c3ae',
-    },
-  },
 }
 
 // 페이지별 메타데이터 생성 헬퍼

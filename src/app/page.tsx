@@ -1,5 +1,4 @@
 import { Suspense } from 'react'
-import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
@@ -8,6 +7,7 @@ import PortfolioListClient from '@/components/portfolio/PortfolioListClient'
 import FeaturedPortfolios from '@/components/portfolio/FeaturedPortfolios'
 import FeaturedPartnerships from '@/components/partnership/FeaturedPartnerships'
 import { searchPortfolios } from '@/lib/api/portfolio'
+import { OrganizationSchema, WebSiteSchema } from '@/components/seo/JsonLd'
 
 export const metadata = createPageMetadata({
   title: '인테리어 다모아 - 인테리어 전문 플랫폼',
@@ -32,6 +32,8 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <OrganizationSchema />
+      <WebSiteSchema />
       <Navbar />
 
       {/* 히어로 섹션 */}

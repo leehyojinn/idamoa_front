@@ -64,6 +64,7 @@ export interface CompanyResponse {
   id: number
   uuid: string
   ownerId: number
+  ownerUuid?: string
   ownerEmail: string
   name: string
   slug: string

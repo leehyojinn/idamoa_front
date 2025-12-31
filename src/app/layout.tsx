@@ -7,6 +7,7 @@ import GlobalDialog from '@/components/ui/Dialog'
 import PasswordResetModal from '@/components/ui/PasswordResetModal'
 import ProfileGuard from '@/components/auth/ProfileGuard'
 import FloatingConsultationButton from '@/components/consultation/FloatingConsultationButton'
+import FloatingChatButton from '@/components/chat/FloatingChatButton'
 import localFont from 'next/font/local'
 import type { Metadata } from 'next'
 
@@ -83,6 +84,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <GlobalDialog />
         <PasswordResetModal />
         <FloatingConsultationButton />
+        <FloatingChatButton />
       </body>
     </html>
   )
