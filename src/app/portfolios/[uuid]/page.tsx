@@ -25,6 +25,7 @@ import {
   FiDollarSign,
   FiHome,
   FiExternalLink,
+  FiMessageSquare,
 } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -39,6 +40,7 @@ import {
 import { useAuth } from '@/hooks/useAuth'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { getCdnUrl } from '@/lib/utils'
+import StartChatButton from '@/components/chat/StartChatButton'
 
 interface Props {
   params: Promise<{ uuid: string }>
@@ -673,14 +675,23 @@ export default function PortfolioDetailPage({ params }: Props) {
                       )}
                     </div>
 
-                    {(portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid) && (
-                      <Link
-                        href={`/companies/${portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid}`}
-                        className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
-                      >
-                        업체 상세보기
-                      </Link>
-                    )}
+                    <div className="space-y-2">
+                      {portfolio.company.ownerUuid && (
+                        <StartChatButton
+                          targetUserUuid={portfolio.company.ownerUuid}
+                          targetUserName={portfolio.company.companyName}
+                          className="w-full justify-center"
+                        />
+                      )}
+                      {(portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid) && (
+                        <Link
+                          href={`/companies/${portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid}`}
+                          className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+                        >
+                          업체 상세보기
+                        </Link>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <p className="text-gray-500 text-center py-8">업체 정보가 없습니다</p>

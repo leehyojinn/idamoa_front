@@ -24,6 +24,8 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CompanyLikeButton from '@/components/company/CompanyLikeButton'
 import CompanyReviewsWrapper from '@/components/company/CompanyReviewsWrapper'
+import CompanyChatButton from '@/components/company/CompanyChatButton'
+import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
 
 interface PageProps {
   params: Promise<{
@@ -117,8 +119,28 @@ export default async function CompanyDetailPage({ params }: PageProps) {
     )
   }
 
+  const companyUrl = `https://i-damoa.com/companies/${company.slug || company.uuid}`
+
   return (
     <>
+      <LocalBusinessSchema
+        name={company.name}
+        description={company.description}
+        url={companyUrl}
+        image={getPrimaryImage()}
+        address={company.address}
+        telephone={company.primaryPhone}
+        email={company.email}
+        rating={company.avgRating}
+        reviewCount={company.reviewCount}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: '홈', url: 'https://i-damoa.com' },
+          { name: '업체찾기', url: 'https://i-damoa.com/companies' },
+          { name: company.name, url: companyUrl },
+        ]}
+      />
       <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* 커버 이미지 섹션 */}
@@ -277,6 +299,17 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                     </div>
                   )}
                 </div>
+
+                {/* 채팅 버튼 */}
+                {company.ownerUuid && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <CompanyChatButton
+                      ownerUuid={company.ownerUuid}
+                      companyName={company.name}
+                      className="w-full justify-center"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* 영업 시간 카드 */}

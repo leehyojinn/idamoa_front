@@ -31,6 +31,7 @@ export interface CompanySummary {
   contactEmail?: string
   averageRating?: number
   reviewCount?: number
+  ownerUuid?: string
 }
 
 export interface PromotionInfo {

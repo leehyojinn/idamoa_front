@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import DocumentDetailClient from '@/components/resource/DocumentDetailClient'
 import { getDocument } from '@/lib/api/resource'
+import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
 
 interface PageProps {
   params: Promise<{ uuid: string }>
@@ -61,8 +62,26 @@ export default async function DocumentDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  const document = result.data
+  const resourceUrl = `https://i-damoa.com/resources/${uuid}`
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <ArticleSchema
+        title={document.title}
+        description={document.content}
+        url={resourceUrl}
+        image={document.thumbnail?.fileUrl}
+        datePublished={document.createdAt}
+        dateModified={document.updatedAt}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: '홈', url: 'https://i-damoa.com' },
+          { name: '자료실', url: 'https://i-damoa.com/resources' },
+          { name: document.title, url: resourceUrl },
+        ]}
+      />
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Suspense fallback={
