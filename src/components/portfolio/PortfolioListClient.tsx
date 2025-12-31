@@ -1167,7 +1167,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                         {user && (
                           <button
                             onClick={(e) => handleToggleBookmark(portfolio.uuid, e)}
-                            className={`absolute bottom-2 left-2 p-2 rounded-full shadow-md transition-all ${
+                            className={`absolute bottom-2 left-2 z-10 p-2 rounded-full shadow-md transition-all ${
                               portfolio.isBookmarked
                                 ? 'bg-yellow-100 bg-opacity-90 hover:bg-opacity-100'
                                 : 'bg-white bg-opacity-90 hover:bg-opacity-100'
