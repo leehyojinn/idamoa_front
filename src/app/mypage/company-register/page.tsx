@@ -11,6 +11,7 @@ import { useProfile } from '@/hooks/useProfile'
 import type { CompanyRegistrationData } from '@/lib/api/company'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuthStore } from '@/stores/authStore'
+import { getProfileStatus } from '@/lib/api/profile'
 import ImageUpload, { type ImageData } from '@/components/ui/ImageUpload'
 import Select from '@/components/ui/Select'
 import { formatPhoneNumber, formatBusinessNumber, formatUrl } from '@/lib/utils'
@@ -71,7 +72,7 @@ export default function CompanyRegisterPage() {
   const { data: companyResponse, isLoading: companyLoading } = useMyCompany(true)
 
   // 인증 상태 가져오기
-  const { accessToken, _hasHydrated } = useAuthStore()
+  const { accessToken, _hasHydrated, updateUserRole } = useAuthStore()
 
   // 이미지 데이터 상태 관리 (UUID + URL)
   const [logoImage, setLogoImage] = useState<ImageData | undefined>(undefined)
@@ -420,7 +421,16 @@ export default function CompanyRegisterPage() {
       } else {
         // 등록 모드
         createCompanyMutation.mutate(registrationData, {
-          onSuccess: () => {
+          onSuccess: async () => {
+            // 프로필 상태를 다시 가져와서 역할 업데이트
+            try {
+              const statusResponse = await getProfileStatus()
+              if (statusResponse.success && statusResponse.data) {
+                updateUserRole(statusResponse.data.currentRole)
+              }
+            } catch (error) {
+              console.error('프로필 상태 업데이트 실패:', error)
+            }
             showSuccessToast('회사 정보가 등록되었습니다!')
             router.push('/mypage')
           },
