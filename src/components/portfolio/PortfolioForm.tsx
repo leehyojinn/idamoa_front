@@ -32,7 +32,6 @@ import { getPublicFilters, type PublicFilterCategory, type PublicFilterOption } 
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { compressImage } from '@/lib/imageCompression'
-import Select from '@/components/ui/Select'
 
 interface Props {
   portfolio?: Portfolio | null
@@ -57,14 +56,6 @@ interface VideoFile {
   fileSize?: number
 }
 
-// 프로젝트 규모 옵션
-const PROJECT_SCALE_OPTIONS = [
-  { value: '', label: '선택하세요' },
-  { value: 'SMALL', label: '소형 (10평 미만)' },
-  { value: 'MEDIUM', label: '중형 (10~30평)' },
-  { value: 'LARGE', label: '대형 (30~50평)' },
-  { value: 'XLARGE', label: '초대형 (50평 이상)' },
-]
 
 
 export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
@@ -89,7 +80,6 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
   // 프로젝트 정보
   const [projectType, setProjectType] = useState(portfolio?.projectType || '')
-  const [projectScale, setProjectScale] = useState(portfolio?.projectScale || '')
   const [projectDuration, setProjectDuration] = useState<number | ''>(portfolio?.projectDuration || '')
   const [projectDate, setProjectDate] = useState(portfolio?.projectDate || '')
 
@@ -113,7 +103,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingFilters, setIsLoadingFilters] = useState(true)
 
-  // 기존 이미지 및 비디오 로드
+  // 기존 이미지, 비디오, 필터 로드
   useEffect(() => {
     if (portfolio?.images) {
       setImages(
@@ -136,6 +126,10 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           fileSize: vid.fileSize,
         }))
       )
+    }
+    // 기존 필터 옵션 로드
+    if (portfolio?.filterOptions && portfolio.filterOptions.length > 0) {
+      setSelectedFilters(portfolio.filterOptions.map(opt => opt.id))
     }
   }, [portfolio])
 
@@ -586,7 +580,6 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           thumbnailUuid: thumbnailUuid,
           filterOptionIds: selectedFilters,
           projectType: projectType || undefined,
-          projectScale: projectScale || undefined,
           projectDuration: projectDuration || undefined,
           projectDate: projectDate || undefined,
           budgetRange: budgetRangeValue,
@@ -613,7 +606,6 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           thumbnailUuid: thumbnailUuid,
           filterOptionIds: selectedFilters,
           projectType: projectType || undefined,
-          projectScale: projectScale || undefined,
           projectDuration: projectDuration || undefined,
           projectDate: projectDate || undefined,
           budgetRange: budgetRangeValue,
@@ -852,16 +844,6 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 placeholder="예: 주거 인테리어, 상업 공간, 리모델링"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={50}
-              />
-            </div>
-
-            <div>
-              <Select
-                label="프로젝트 규모"
-                options={PROJECT_SCALE_OPTIONS}
-                value={projectScale}
-                onChange={setProjectScale}
-                placeholder="선택하세요"
               />
             </div>
 
