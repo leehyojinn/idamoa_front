@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import { FiPlus, FiEdit2, FiTrash2, FiXCircle, FiChevronLeft, FiChevronRight, FiSave, FiX } from 'react-icons/fi'
 import {
   useAdminCompanyPartnerships,
-  useAdminCancelCompanyPartnership,
+  useAdminToggleCompanyPartnershipStatus,
   useAdminDeleteCompanyPartnership,
   useAdminReorderCompanyPartnerships,
 } from '@/hooks/usePartnership'
@@ -23,7 +23,7 @@ export default function AdminCompanyPartnershipsPage() {
   const [orderMap, setOrderMap] = useState<Record<string, number>>({})
 
   const { data, isLoading, error } = useAdminCompanyPartnerships({ status, page, size: 20 })
-  const cancelMutation = useAdminCancelCompanyPartnership()
+  const toggleStatusMutation = useAdminToggleCompanyPartnershipStatus()
   const deleteMutation = useAdminDeleteCompanyPartnership()
   const reorderMutation = useAdminReorderCompanyPartnerships()
 
@@ -38,9 +38,10 @@ export default function AdminCompanyPartnershipsPage() {
     }
   }, [data])
 
-  const handleCancel = (uuid: string, companyName: string) => {
-    if (confirm(`"${companyName}" 제휴를 취소하시겠습니까?`)) {
-      cancelMutation.mutate(uuid)
+  const handleToggleStatus = (uuid: string, companyName: string, currentStatus: string) => {
+    const action = currentStatus === 'ACTIVE' ? '비활성화' : '재활성화'
+    if (confirm(`"${companyName}" 제휴를 ${action}하시겠습니까?`)) {
+      toggleStatusMutation.mutate(uuid)
     }
   }
 
@@ -285,12 +286,16 @@ export default function AdminCompanyPartnershipsPage() {
                                 >
                                   <FiEdit2 className="w-4 h-4" />
                                 </Link>
-                                {partnership.status === 'ACTIVE' && (
+                                {(partnership.status === 'ACTIVE' || partnership.status === 'CANCELLED') && (
                                   <button
-                                    onClick={() => handleCancel(partnership.uuid, partnership.companyName)}
-                                    className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                                    disabled={cancelMutation.isPending}
-                                    title="취소"
+                                    onClick={() => handleToggleStatus(partnership.uuid, partnership.companyName, partnership.status)}
+                                    className={`p-2 rounded-lg transition-colors ${
+                                      partnership.status === 'ACTIVE'
+                                        ? 'text-orange-600 hover:bg-orange-50'
+                                        : 'text-green-600 hover:bg-green-50'
+                                    }`}
+                                    disabled={toggleStatusMutation.isPending}
+                                    title={partnership.status === 'ACTIVE' ? '비활성화' : '재활성화'}
                                   >
                                     <FiXCircle className="w-4 h-4" />
                                   </button>

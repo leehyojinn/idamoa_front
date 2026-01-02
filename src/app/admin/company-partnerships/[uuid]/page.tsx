@@ -7,7 +7,7 @@ import { format } from 'date-fns'
 import { FiArrowLeft, FiEdit2, FiTrash2, FiXCircle } from 'react-icons/fi'
 import {
   useAdminCompanyPartnership,
-  useAdminCancelCompanyPartnership,
+  useAdminToggleCompanyPartnershipStatus,
   useAdminDeleteCompanyPartnership,
 } from '@/hooks/usePartnership'
 import { COMPANY_PARTNERSHIP_STATUS_LABELS } from '@/types/partnership'
@@ -25,18 +25,19 @@ export default function AdminCompanyPartnershipDetailPage({ params }: PageProps)
   const router = useRouter()
 
   const { data: partnership, isLoading, error } = useAdminCompanyPartnership(uuid)
-  const cancelMutation = useAdminCancelCompanyPartnership()
+  const toggleStatusMutation = useAdminToggleCompanyPartnershipStatus()
   const deleteMutation = useAdminDeleteCompanyPartnership()
 
-  const handleCancel = () => {
+  const handleToggleStatus = () => {
     if (!partnership) return
-    if (confirm(`"${partnership.companyName}" 제휴를 취소하시겠습니까?`)) {
-      cancelMutation.mutate(uuid, {
+    const action = partnership.status === 'ACTIVE' ? '비활성화' : '재활성화'
+    if (confirm(`"${partnership.companyName}" 제휴를 ${action}하시겠습니까?`)) {
+      toggleStatusMutation.mutate(uuid, {
         onSuccess: () => {
-          toast.success('제휴가 취소되었습니다.')
+          toast.success(`제휴가 ${action}되었습니다.`)
         },
         onError: () => {
-          toast.error('제휴 취소에 실패했습니다.')
+          toast.error(`제휴 ${action}에 실패했습니다.`)
         },
       })
     }
@@ -187,14 +188,18 @@ export default function AdminCompanyPartnershipDetailPage({ params }: PageProps)
                 <FiEdit2 className="w-4 h-4" />
                 수정
               </Link>
-              {partnership.status === 'ACTIVE' && (
+              {(partnership.status === 'ACTIVE' || partnership.status === 'CANCELLED') && (
                 <button
-                  onClick={handleCancel}
-                  disabled={cancelMutation.isPending}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 transition-colors"
+                  onClick={handleToggleStatus}
+                  disabled={toggleStatusMutation.isPending}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg disabled:bg-gray-400 transition-colors ${
+                    partnership.status === 'ACTIVE'
+                      ? 'bg-orange-600 text-white hover:bg-orange-700'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
                 >
                   <FiXCircle className="w-4 h-4" />
-                  취소
+                  {partnership.status === 'ACTIVE' ? '비활성화' : '재활성화'}
                 </button>
               )}
               <button

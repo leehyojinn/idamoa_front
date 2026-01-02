@@ -89,12 +89,12 @@ export const adminUpdateCompanyPartnership = async (
 }
 
 /**
- * [관리자] 제휴 취소
+ * [관리자] 제휴 상태 토글 (ACTIVE ↔ CANCELLED)
  */
-export const adminCancelCompanyPartnership = async (
+export const adminToggleCompanyPartnershipStatus = async (
   uuid: string
-): Promise<ApiResponse<null>> => {
-  const response = await axiosInstance.patch(`/admin/company-partnerships/${uuid}/cancel`)
+): Promise<ApiResponse<CompanyPartnershipResponse>> => {
+  const response = await axiosInstance.patch(`/admin/company-partnerships/${uuid}/toggle-status`)
   return response.data
 }
 

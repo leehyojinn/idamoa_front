@@ -10,7 +10,7 @@ import {
   adminGetCompanyPartnerships,
   adminGetCompanyPartnership,
   adminUpdateCompanyPartnership,
-  adminCancelCompanyPartnership,
+  adminToggleCompanyPartnershipStatus,
   adminDeleteCompanyPartnership,
   adminReorderCompanyPartnerships,
   adminGetCompanyPartnershipHistory,
@@ -154,13 +154,13 @@ export const useAdminUpdateCompanyPartnership = () => {
 }
 
 /**
- * [관리자] 제휴 취소
+ * [관리자] 제휴 상태 토글 (ACTIVE ↔ CANCELLED)
  */
-export const useAdminCancelCompanyPartnership = () => {
+export const useAdminToggleCompanyPartnershipStatus = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (uuid: string) => adminCancelCompanyPartnership(uuid),
+    mutationFn: (uuid: string) => adminToggleCompanyPartnershipStatus(uuid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: partnershipKeys.admin.all })
       queryClient.invalidateQueries({ queryKey: partnershipKeys.active() })
