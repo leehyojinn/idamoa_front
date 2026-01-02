@@ -12,6 +12,7 @@ interface AuthState {
   setHasHydrated: (hasHydrated: boolean) => void
   clearAuth: () => void
   updateProfileStatus: (profileCompleted: boolean) => void
+  updateUserRole: (role: string) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -44,6 +45,10 @@ export const useAuthStore = create<AuthState>()(
 
       updateProfileStatus: (profileCompleted) => set((state) => ({
         user: state.user ? { ...state.user, profileCompleted } : null
+      })),
+
+      updateUserRole: (role) => set((state) => ({
+        user: state.user ? { ...state.user, currentRole: role } : null
       }))
     }),
     {
