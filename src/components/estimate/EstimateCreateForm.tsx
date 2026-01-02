@@ -91,10 +91,6 @@ export default function EstimateCreateForm() {
       showErrorToast(null, '상세 설명을 입력해주세요')
       return
     }
-    if (description.trim().length < 50) {
-      showErrorToast(null, '상세 설명은 최소 50자 이상이어야 합니다')
-      return
-    }
 
     setIsSubmitting(true)
     try {
@@ -254,10 +250,10 @@ export default function EstimateCreateForm() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="프로젝트에 대한 상세한 설명을 입력해주세요 (최소 50자)"
+                placeholder="프로젝트에 대한 상세한 설명을 입력해주세요"
                 required
               />
-              <p className="mt-2 text-sm text-gray-500">{description.length} / 50자 이상</p>
+              <p className="mt-2 text-sm text-gray-500">{description.length}자</p>
             </div>
 
             {/* Estimate Type */}
