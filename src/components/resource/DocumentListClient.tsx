@@ -787,6 +787,25 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                         </div>
                       )}
 
+                      {/* 필터 옵션 */}
+                      {doc.filterOptions && doc.filterOptions.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {doc.filterOptions.slice(0, 4).map(option => (
+                            <span
+                              key={option.id}
+                              className="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-medium"
+                            >
+                              {option.shortName || option.name}
+                            </span>
+                          ))}
+                          {doc.filterOptions.length > 4 && (
+                            <span className="text-xs text-gray-400">
+                              +{doc.filterOptions.length - 4}
+                            </span>
+                          )}
+                        </div>
+                      )}
+
                       {/* 태그 */}
                       {doc.tags && doc.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">

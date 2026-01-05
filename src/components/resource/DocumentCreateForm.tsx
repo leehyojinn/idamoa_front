@@ -3,12 +3,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { FiPlus, FiX, FiFile, FiTag, FiImage, FiFilter, FiChevronRight, FiChevronDown, FiCheck } from 'react-icons/fi'
+import DOMPurify from 'isomorphic-dompurify'
+import { FiPlus, FiX, FiFile, FiTag, FiImage, FiFilter, FiChevronRight, FiChevronDown, FiCheck, FiEye, FiCode } from 'react-icons/fi'
 import { createDocument, type CreateDocumentRequest } from '@/lib/api/resource'
 import { uploadFile } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { getPublicFilters, type PublicFilterCategory, type PublicFilterOption } from '@/lib/api/filter'
+import Checkbox from '@/components/ui/Checkbox'
 
 interface FileAttachment {
   file: File
@@ -39,6 +41,8 @@ export default function DocumentCreateForm() {
   // 기본 정보
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [contentMode, setContentMode] = useState<'text' | 'html'>('text')
+  const [isHtmlPreview, setIsHtmlPreview] = useState(false)
 
   // 유료 설정
   const [isPaid, setIsPaid] = useState(false)
@@ -434,18 +438,81 @@ export default function DocumentCreateForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  내용 <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={6}
-                  maxLength={5000}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="자료에 대한 설명을 입력하세요"
-                />
-                <p className="text-sm text-gray-500 mt-1">{content.length}/5000자</p>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    내용 <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setContentMode('text')
+                        setIsHtmlPreview(false)
+                      }}
+                      className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        contentMode === 'text'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      일반 텍스트
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setContentMode('html')
+                        setIsHtmlPreview(false)
+                      }}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                        contentMode === 'html'
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      <FiCode className="w-4 h-4" />
+                      HTML 코드
+                    </button>
+                    {contentMode === 'html' && (
+                      <button
+                        type="button"
+                        onClick={() => setIsHtmlPreview(!isHtmlPreview)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                          isHtmlPreview
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        <FiEye className="w-4 h-4" />
+                        미리보기
+                      </button>
+                    )}
+                  </div>
+                </div>
+                {contentMode === 'html' && isHtmlPreview ? (
+                  <div
+                    className="w-full min-h-[200px] px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 prose prose-sm max-w-none overflow-auto"
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+                  />
+                ) : contentMode === 'html' ? (
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    rows={8}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    placeholder="HTML 코드를 입력하세요.&#10;&#10;예시:&#10;<h3>제목</h3>&#10;<p>내용입니다.</p>&#10;<ul><li>목록 1</li><li>목록 2</li></ul>"
+                  />
+                ) : (
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    rows={8}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="자료에 대한 설명을 입력하세요."
+                  />
+                )}
+                <p className="text-sm text-gray-500 mt-1">
+                  {content.length}자{contentMode === 'html' && ' | HTML 모드'}
+                </p>
               </div>
             </div>
           </div>
@@ -454,18 +521,12 @@ export default function DocumentCreateForm() {
           <div>
             <h2 className="text-xl font-bold text-gray-900 mb-4">유료 설정</h2>
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="isPaid"
-                  checked={isPaid}
-                  onChange={(e) => setIsPaid(e.target.checked)}
-                  className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="isPaid" className="text-sm font-medium text-gray-700">
-                  유료 자료로 설정
-                </label>
-              </div>
+              <Checkbox
+                checked={isPaid}
+                onChange={setIsPaid}
+                label="유료 자료로 설정"
+                description="체크하면 가격을 설정할 수 있습니다"
+              />
 
               {isPaid && (
                 <div>

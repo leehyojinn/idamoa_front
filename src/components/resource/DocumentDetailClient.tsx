@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import DOMPurify from 'isomorphic-dompurify'
 import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiDownload, FiFile, FiAlertCircle } from 'react-icons/fi'
 import { getDocument, deleteDocument, toggleDocumentBookmark, type Document } from '@/lib/api/resource'
 import { getFilePurchaseStatus, downloadFile, type FilePurchaseStatusResponse } from '@/lib/api/file'
@@ -347,7 +348,14 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
               )}
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{document.title}</h1>
-            <p className="text-gray-600 whitespace-pre-wrap">{document.content || ''}</p>
+            {document.content ? (
+              <div
+                className="prose prose-gray max-w-none text-gray-600"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(document.content) }}
+              />
+            ) : (
+              <p className="text-gray-400">내용이 없습니다.</p>
+            )}
           </div>
 
           {/* 메타 정보 */}
