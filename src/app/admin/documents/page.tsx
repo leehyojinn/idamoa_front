@@ -16,22 +16,30 @@ import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 import type { DocumentBoard } from '@/types/document'
 
+const PAGE_SIZE = 20
+
 export default function AdminDocumentsPage() {
   const [documents, setDocuments] = useState<DocumentBoard[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [keyword, setKeyword] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
 
-  const fetchDocuments = async () => {
+  const fetchDocuments = async (page: number = 0) => {
     setIsLoading(true)
     try {
       const data = await getDocuments({
         keyword: searchKeyword || undefined,
-        page: 0,
-        size: 50,
+        page,
+        size: PAGE_SIZE,
         sort: 'publishedAt,DESC',
       })
       setDocuments(data.content)
+      setTotalPages(data.totalPages)
+      setTotalElements(data.totalElements)
+      setCurrentPage(data.number)
     } catch (error) {
       showErrorToast(error, '자료실 목록을 불러오는데 실패했습니다.')
     } finally {
@@ -40,11 +48,16 @@ export default function AdminDocumentsPage() {
   }
 
   useEffect(() => {
-    fetchDocuments()
+    fetchDocuments(0)
   }, [searchKeyword])
 
   const handleSearch = () => {
+    setCurrentPage(0)
     setSearchKeyword(keyword)
+  }
+
+  const handlePageChange = (page: number) => {
+    fetchDocuments(page)
   }
 
   const handleDelete = async (doc: DocumentBoard) => {
@@ -53,7 +66,7 @@ export default function AdminDocumentsPage() {
     try {
       await deleteDocument(doc.uuid)
       showSuccessToast('게시글이 삭제되었습니다.')
-      fetchDocuments()
+      fetchDocuments(currentPage)
     } catch (error) {
       showErrorToast(error, '게시글 삭제에 실패했습니다.')
     }
@@ -62,7 +75,7 @@ export default function AdminDocumentsPage() {
   const handleTogglePublish = async (doc: DocumentBoard) => {
     try {
       await togglePublish(doc.uuid)
-      await fetchDocuments()
+      await fetchDocuments(currentPage)
       showSuccessToast(`게시글이 ${doc.isPublished ? '게시 취소' : '게시'}되었습니다.`)
     } catch (error) {
       showErrorToast(error, '게시 상태 변경에 실패했습니다.')
@@ -72,7 +85,7 @@ export default function AdminDocumentsPage() {
   const handleTogglePin = async (doc: DocumentBoard) => {
     try {
       await togglePin(doc.uuid)
-      await fetchDocuments()
+      await fetchDocuments(currentPage)
       showSuccessToast(`게시글이 ${doc.isPinned ? '고정 해제' : '고정'}되었습니다.`)
     } catch (error) {
       showErrorToast(error, '고정 상태 변경에 실패했습니다.')
@@ -82,11 +95,28 @@ export default function AdminDocumentsPage() {
   const handleToggleFeature = async (doc: DocumentBoard) => {
     try {
       await toggleFeature(doc.uuid)
-      await fetchDocuments()
+      await fetchDocuments(currentPage)
       showSuccessToast(`게시글이 ${doc.isFeatured ? '추천 해제' : '추천'}되었습니다.`)
     } catch (error) {
       showErrorToast(error, '추천 상태 변경에 실패했습니다.')
     }
+  }
+
+  // 페이지 번호 배열 생성
+  const getPageNumbers = () => {
+    const pages: number[] = []
+    const maxVisiblePages = 5
+    let startPage = Math.max(0, currentPage - Math.floor(maxVisiblePages / 2))
+    const endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1)
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1)
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i)
+    }
+    return pages
   }
 
   const formatFileSize = (bytes: number) => {
@@ -138,7 +168,11 @@ export default function AdminDocumentsPage() {
             <p className="text-gray-500">게시글이 없습니다.</p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          <>
+            <div className="mb-4 text-sm text-gray-600">
+              총 {totalElements.toLocaleString()}개의 게시글
+            </div>
+            <div className="bg-white rounded-lg shadow overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
@@ -195,7 +229,7 @@ export default function AdminDocumentsPage() {
                           {doc.isFeatured && (
                             <span className="ml-2 text-yellow-600">⭐</span>
                           )}
-                          {doc.tags.length > 0 && (
+                          {doc.tags && doc.tags.length > 0 && (
                             <div className="mt-1 flex gap-1 flex-wrap">
                               {doc.tags.map((tag) => (
                                 <span
@@ -215,10 +249,10 @@ export default function AdminDocumentsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div>
-                        {doc.files.length}개
+                        {doc.files?.length || 0}개
                         <div className="text-xs text-gray-400">
                           {formatFileSize(
-                            doc.files.reduce((sum, f) => sum + f.fileSize, 0)
+                            doc.files?.reduce((sum, f) => sum + f.fileSize, 0) || 0
                           )}
                         </div>
                       </div>
@@ -279,6 +313,56 @@ export default function AdminDocumentsPage() {
               </tbody>
             </table>
           </div>
+
+            {/* 페이징 */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-6">
+                <button
+                  onClick={() => handlePageChange(0)}
+                  disabled={currentPage === 0}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  처음
+                </button>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  이전
+                </button>
+
+                {getPageNumbers().map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-3 py-2 text-sm border rounded-lg ${
+                      currentPage === page
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page + 1}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  다음
+                </button>
+                <button
+                  onClick={() => handlePageChange(totalPages - 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  마지막
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
       <Footer />

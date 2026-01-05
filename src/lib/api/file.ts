@@ -137,3 +137,99 @@ export const uploadFile = async (
     fileUrl: completeResponse.data.fileUrl,
   }
 }
+
+// ========================================
+// 파일 다운로드 관련 Types
+// ========================================
+
+/**
+ * 파일 구매 상태 응답
+ */
+export interface FilePurchaseStatusResponse {
+  fileUuid: string
+  isPaid: boolean
+  price: number
+  hasPurchased: boolean
+  canDownload: boolean
+}
+
+/**
+ * 파일 다운로드 응답
+ */
+export interface FileDownloadResponse {
+  fileUuid: string
+  fileName: string
+  downloadUrl: string
+  price: number
+}
+
+/**
+ * 크레딧 잔액 응답
+ */
+export interface CreditBalanceResponse {
+  balance: number
+  currency: string
+}
+
+// ========================================
+// 파일 다운로드 관련 API Functions
+// ========================================
+
+/**
+ * 파일 구매 상태 확인
+ * GET /api/files/{fileUuid}/purchase-status
+ */
+export const getFilePurchaseStatus = async (
+  fileUuid: string
+): Promise<FilePurchaseStatusResponse> => {
+  const response = await axiosInstance.get<ApiResponse<FilePurchaseStatusResponse>>(
+    `/files/${fileUuid}/purchase-status`
+  )
+  if (!response.data.success) {
+    throw new Error(response.data.message || '구매 상태 확인 실패')
+  }
+  return response.data.data
+}
+
+/**
+ * 파일 다운로드 (크레딧 차감)
+ * POST /api/files/{fileUuid}/download
+ */
+export const downloadFile = async (
+  fileUuid: string
+): Promise<FileDownloadResponse> => {
+  const response = await axiosInstance.post<ApiResponse<FileDownloadResponse>>(
+    `/files/${fileUuid}/download`
+  )
+  if (!response.data.success) {
+    const errorCode = (response.data as any).errorCode
+    if (errorCode === 'INSUFFICIENT_CREDITS') {
+      throw {
+        code: 'INSUFFICIENT_CREDITS',
+        message: '크레딧이 부족합니다. 충전 후 다시 시도해주세요.'
+      }
+    }
+    if (errorCode === 'DOWNLOAD_LIMIT_EXCEEDED') {
+      throw {
+        code: 'DOWNLOAD_LIMIT_EXCEEDED',
+        message: '다운로드 제한을 초과했습니다.'
+      }
+    }
+    throw new Error(response.data.message || '다운로드 실패')
+  }
+  return response.data.data
+}
+
+/**
+ * 크레딧 잔액 조회
+ * GET /api/payments/credits/balance
+ */
+export const getCreditBalance = async (): Promise<CreditBalanceResponse> => {
+  const response = await axiosInstance.get<ApiResponse<CreditBalanceResponse>>(
+    '/payments/credits/balance'
+  )
+  if (!response.data.success) {
+    throw new Error(response.data.message || '크레딧 잔액 조회 실패')
+  }
+  return response.data.data
+}

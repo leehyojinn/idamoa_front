@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { FiArrowLeft, FiX } from 'react-icons/fi'
+import { FiArrowLeft, FiX, FiFilter, FiChevronRight, FiChevronDown, FiCheck } from 'react-icons/fi'
 import {
   getDocument,
   createDocument,
   updateDocument,
 } from '@/lib/api/document'
+import { getPublicFilters, type PublicFilterCategory, type PublicFilterOption } from '@/lib/api/filter'
 import { useFileUpload } from '@/hooks/useFile'
 import ImageUpload, { type ImageData } from '@/components/ui/ImageUpload'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
@@ -29,10 +30,19 @@ export default function AdminDocumentDetailPage() {
   const documentUuid = params.uuid as string
   const isNew = documentUuid === 'new'
   const fileUploadMutation = useFileUpload()
+  const filterButtonRef = useRef<HTMLButtonElement>(null)
 
   const [document, setDocument] = useState<DocumentBoard | null>(null)
   const [isLoading, setIsLoading] = useState(!isNew)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // 필터 관련 상태
+  const [selectedFilters, setSelectedFilters] = useState<number[]>([])
+  const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
+  const [showFilterPanel, setShowFilterPanel] = useState(false)
+  const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
+  const [isLoadingFilters, setIsLoadingFilters] = useState(true)
 
   const [formData, setFormData] = useState({
     title: '',
@@ -64,28 +74,32 @@ export default function AdminDocumentDetailPage() {
         title: data.title,
         content: data.content,
         categoryId: data.categoryId,
-        fileUuids: data.files.map(f => f.uuid),
+        fileUuids: data.files?.map(f => f.uuid) || [],
         thumbnailUuid: data.thumbnail?.uuid,
         isPaid: data.isPaid,
         price: data.price,
-        filterOptionIds: data.filterOptions.map(o => o.id),
-        tags: data.tags,
+        filterOptionIds: data.filterOptions?.map(o => o.id) || [],
+        tags: data.tags || [],
         isPublished: data.isPublished,
         isPrivate: false,
       })
       // 기존 파일 정보 로드
       setUploadedFiles(
-        data.files.map(f => ({
+        data.files?.map(f => ({
           uuid: f.uuid,
           filename: f.originalFilename,
           fileUrl: f.fileUrl,
-        }))
+        })) || []
       )
       if (data.thumbnail) {
         setThumbnail({
           uuid: data.thumbnail.uuid,
           url: data.thumbnail.fileUrl,
         })
+      }
+      // 기존 필터 옵션 로드
+      if (data.filterOptions && data.filterOptions.length > 0) {
+        setSelectedFilters(data.filterOptions.map(opt => opt.id))
       }
     } catch (error) {
       showErrorToast(error, '게시글을 불러오는데 실패했습니다.')
@@ -149,6 +163,217 @@ export default function AdminDocumentDetailPage() {
     fetchDocument()
   }, [documentUuid])
 
+  // 필터 옵션 로드
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const filters = await getPublicFilters('DOCUMENT')
+
+        // 삭제되지 않고 활성화된 옵션만 필터링
+        const filterActiveOptions = (options: PublicFilterOption[]) => {
+          return options.filter(option => {
+            if (option.isDeleted === true) return false
+            if (option.isActive === false) return false
+            return true
+          })
+        }
+
+        // 플랫 배열을 트리 구조로 변환하는 함수
+        const buildOptionTree = (options: PublicFilterOption[]) => {
+          const activeOptions = filterActiveOptions(options)
+          const optionMap = new Map<number, PublicFilterOption>()
+          const roots: PublicFilterOption[] = []
+
+          activeOptions.forEach(option => {
+            optionMap.set(option.id, { ...option, children: [] })
+          })
+
+          activeOptions.forEach(option => {
+            const currentOption = optionMap.get(option.id)!
+            if (option.parentId && optionMap.has(option.parentId)) {
+              const parent = optionMap.get(option.parentId)!
+              if (!parent.children) parent.children = []
+              parent.children.push(currentOption)
+            } else {
+              roots.push(currentOption)
+            }
+          })
+
+          return roots
+        }
+
+        const filtersWithTree = filters.map(category => ({
+          ...category,
+          options: buildOptionTree(category.options)
+        }))
+        setFilterCategories(filtersWithTree)
+        setCollapsedCategories(new Set(filtersWithTree.map(c => c.id)))
+      } catch (error) {
+        showErrorToast(error, '필터 옵션을 불러오는데 실패했습니다')
+      } finally {
+        setIsLoadingFilters(false)
+      }
+    }
+
+    fetchFilters()
+  }, [])
+
+  // 필터 옵션 변경 핸들러
+  const handleFilterOptionChange = (categoryId: number, optionId: number, checked: boolean, filterType: string) => {
+    if (filterType === 'SINGLE_SELECT') {
+      const category = filterCategories.find(c => c.id === categoryId)
+      if (!category) return
+
+      const getAllOptionIds = (options: PublicFilterOption[]): number[] => {
+        return options.flatMap(o => [o.id, ...(o.children ? getAllOptionIds(o.children) : [])])
+      }
+      const categoryOptionIds = getAllOptionIds(category.options)
+      const filtered = selectedFilters.filter(id => !categoryOptionIds.includes(id))
+
+      if (checked) {
+        setSelectedFilters([...filtered, optionId])
+      } else {
+        setSelectedFilters(filtered)
+      }
+    } else {
+      if (checked) {
+        setSelectedFilters([...selectedFilters, optionId])
+      } else {
+        setSelectedFilters(selectedFilters.filter(id => id !== optionId))
+      }
+    }
+  }
+
+  // 필터 옵션 이름 찾기
+  const getFilterOptionName = (optionId: number): string => {
+    const findInOptions = (options: PublicFilterOption[]): string | null => {
+      for (const option of options) {
+        if (option.id === optionId) return option.name
+        if (option.children) {
+          const found = findInOptions(option.children)
+          if (found) return found
+        }
+      }
+      return null
+    }
+
+    for (const category of filterCategories) {
+      const found = findInOptions(category.options)
+      if (found) return found
+    }
+    return ''
+  }
+
+  // 필터 옵션 제거
+  const handleRemoveFilterOption = (optionId: number) => {
+    setSelectedFilters(selectedFilters.filter(id => id !== optionId))
+  }
+
+  // 전체 필터 초기화
+  const handleClearAllFilters = () => {
+    setSelectedFilters([])
+  }
+
+  // 아코디언 토글
+  const toggleOptionExpand = (optionId: number) => {
+    setExpandedOptions(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(optionId)) {
+        newSet.delete(optionId)
+      } else {
+        newSet.add(optionId)
+      }
+      return newSet
+    })
+  }
+
+  // 카테고리 접기/펼치기 토글
+  const toggleCategoryCollapse = (categoryId: number) => {
+    setCollapsedCategories(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId)
+      } else {
+        newSet.add(categoryId)
+      }
+      return newSet
+    })
+  }
+
+  // 자식 중 선택된 개수 계산 (재귀적으로)
+  const getSelectedChildrenCount = (option: PublicFilterOption): number => {
+    if (!option.children || option.children.length === 0) {
+      return selectedFilters.includes(option.id) ? 1 : 0
+    }
+    return option.children.reduce((sum, child) => sum + getSelectedChildrenCount(child), 0)
+  }
+
+  // 필터 옵션 렌더링 (재귀적으로 자식 처리)
+  const renderFilterOption = (
+    option: PublicFilterOption,
+    categoryId: number,
+    filterType: string,
+    depth: number = 0
+  ) => {
+    const hasChildren = option.children && option.children.length > 0
+    const isExpanded = expandedOptions.has(option.id)
+    const selectedCount = hasChildren ? getSelectedChildrenCount(option) : 0
+
+    if (hasChildren) {
+      return (
+        <div key={option.id} className={depth > 0 ? 'ml-3' : ''}>
+          <button
+            type="button"
+            onClick={() => toggleOptionExpand(option.id)}
+            className="w-full flex items-center justify-between py-2 px-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
+          >
+            <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+              {isExpanded ? (
+                <FiChevronDown className="w-4 h-4 text-gray-400" />
+              ) : (
+                <FiChevronRight className="w-4 h-4 text-gray-400" />
+              )}
+              {option.name}
+            </span>
+            {selectedCount > 0 && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                {selectedCount}
+              </span>
+            )}
+          </button>
+          {isExpanded && (
+            <div className="ml-2 mt-1 space-y-1 border-l-2 border-gray-100 pl-2">
+              {option.children!.map((child) => renderFilterOption(child, categoryId, filterType, depth + 1))}
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    const isSelected = selectedFilters.includes(option.id)
+    return (
+      <button
+        key={option.id}
+        type="button"
+        onClick={() => handleFilterOptionChange(categoryId, option.id, !isSelected, filterType)}
+        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+          isSelected
+            ? 'bg-blue-600 text-white shadow-md'
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+          isSelected
+            ? 'bg-white border-white'
+            : 'border-gray-400'
+        }`}>
+          {isSelected && <FiCheck className="w-3 h-3 text-blue-600" />}
+        </span>
+        <span className="truncate">{option.name}</span>
+      </button>
+    )
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -178,7 +403,7 @@ export default function AdminDocumentDetailPage() {
           thumbnailUuid: formData.thumbnailUuid,
           isPaid: formData.isPaid,
           price: formData.price,
-          filterOptionIds: formData.filterOptionIds,
+          filterOptionIds: selectedFilters,
           tags: formData.tags,
           isPublished: formData.isPublished,
           isPrivate: formData.isPrivate,
@@ -194,7 +419,7 @@ export default function AdminDocumentDetailPage() {
           thumbnailUuid: formData.thumbnailUuid,
           isPaid: formData.isPaid,
           price: formData.price,
-          filterOptionIds: formData.filterOptionIds,
+          filterOptionIds: selectedFilters,
           tags: formData.tags,
         }
         await updateDocument(documentUuid, updateData)
@@ -417,7 +642,7 @@ export default function AdminDocumentDetailPage() {
                 추가
               </button>
             </div>
-            {formData.tags.length > 0 && (
+            {formData.tags && formData.tags.length > 0 && (
               <div className="flex gap-2 flex-wrap">
                 {formData.tags.map((tag) => (
                   <span
@@ -437,6 +662,76 @@ export default function AdminDocumentDetailPage() {
               </div>
             )}
           </div>
+
+          {/* 필터 선택 */}
+          {filterCategories.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                카테고리 선택
+              </label>
+
+              {/* 필터 선택 버튼 */}
+              <button
+                ref={filterButtonRef}
+                type="button"
+                onClick={() => setShowFilterPanel(true)}
+                className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <FiFilter className="text-blue-600 text-xl" />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-gray-900">
+                      {selectedFilters.length > 0
+                        ? `${selectedFilters.length}개의 필터 선택됨`
+                        : '필터 선택하기'
+                      }
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {filterCategories.length}개 카테고리에서 선택
+                    </p>
+                  </div>
+                </div>
+                <FiChevronRight className="text-gray-400 text-xl group-hover:text-blue-600 transition-colors" />
+              </button>
+
+              {/* 선택된 필터 표시 */}
+              {selectedFilters.length > 0 && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-medium text-gray-700">
+                      선택된 필터 ({selectedFilters.length})
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleClearAllFilters}
+                      className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      전체 해제
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedFilters.map(optionId => (
+                      <span
+                        key={optionId}
+                        className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                      >
+                        {getFilterOptionName(optionId)}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFilterOption(optionId)}
+                          className="ml-1 hover:text-red-600 transition-colors"
+                        >
+                          <FiX className="w-3.5 h-3.5" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 제출 버튼 */}
           <div className="flex gap-3 pt-4">
@@ -459,6 +754,149 @@ export default function AdminDocumentDetailPage() {
         </form>
       </div>
       <Footer />
+
+      {/* 필터 사이드 패널 */}
+      {showFilterPanel && (
+        <div className="fixed inset-0 z-50">
+          {/* 배경 오버레이 */}
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowFilterPanel(false)}
+          />
+
+          {/* 사이드 패널 */}
+          <div className="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col animate-slide-in-right">
+            {/* 헤더 */}
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+              <div>
+                <h3 className="text-lg font-bold">필터 선택</h3>
+                <p className="text-sm text-blue-100">
+                  {selectedFilters.length}개 선택됨
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowFilterPanel(false)}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* 선택된 필터 미리보기 */}
+            {selectedFilters.length > 0 && (
+              <div className="p-4 bg-blue-50 border-b">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700">선택된 필터</span>
+                  <button
+                    type="button"
+                    onClick={handleClearAllFilters}
+                    className="text-xs text-red-600 hover:text-red-700 font-medium"
+                  >
+                    전체 해제
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedFilters.slice(0, 10).map(optionId => (
+                    <span
+                      key={optionId}
+                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-blue-200"
+                    >
+                      {getFilterOptionName(optionId)}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFilterOption(optionId)}
+                      >
+                        <FiX className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                  {selectedFilters.length > 10 && (
+                    <span className="text-xs text-gray-500 py-1">
+                      +{selectedFilters.length - 10}개 더
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 필터 목록 */}
+            <div className="flex-1 overflow-y-auto">
+              {isLoadingFilters ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                    <p className="mt-2 text-gray-600">필터 로딩 중...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {filterCategories.map((category) => {
+                    const countSelected = (options: PublicFilterOption[]): number => {
+                      return options.reduce((sum, opt) => {
+                        if (opt.children && opt.children.length > 0) {
+                          return sum + countSelected(opt.children)
+                        }
+                        return sum + (selectedFilters.includes(opt.id) ? 1 : 0)
+                      }, 0)
+                    }
+                    const selectedCount = countSelected(category.options)
+                    const isCollapsed = collapsedCategories.has(category.id)
+
+                    return (
+                      <div key={category.id} className="p-4">
+                        <button
+                          type="button"
+                          onClick={() => toggleCategoryCollapse(category.id)}
+                          className="w-full flex items-center justify-between mb-3 hover:bg-gray-50 -mx-2 px-2 py-1 rounded transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            {isCollapsed ? (
+                              <FiChevronRight className="w-5 h-5 text-gray-400" />
+                            ) : (
+                              <FiChevronDown className="w-5 h-5 text-gray-400" />
+                            )}
+                            <h4 className="font-semibold text-gray-900">
+                              {category.name}
+                            </h4>
+                            {category.isRequired && (
+                              <span className="text-red-500 text-sm">*</span>
+                            )}
+                          </div>
+                          {selectedCount > 0 && (
+                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                              {selectedCount}
+                            </span>
+                          )}
+                        </button>
+                        {!isCollapsed && (
+                          <div className="space-y-1">
+                            {category.options.map((option) => renderFilterOption(option, category.id, category.filterType, 0))}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* 하단 버튼 */}
+            <div className="p-4 border-t bg-gray-50">
+              <button
+                type="button"
+                onClick={() => setShowFilterPanel(false)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                {selectedFilters.length > 0
+                  ? `${selectedFilters.length}개 필터 적용하기`
+                  : '닫기'
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminGuard>
   )
 }
