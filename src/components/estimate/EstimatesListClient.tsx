@@ -32,23 +32,21 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
   const [myEstimatesCount, setMyEstimatesCount] = useState<number>(0)
   const [myProposalsCount, setMyProposalsCount] = useState<number>(0)
 
-  // 초기 데이터가 없을 때 클라이언트에서 fetch
+  // 클라이언트에서 데이터 fetch (항상 최신 데이터 로드)
   useEffect(() => {
-    if (!initialData) {
-      getEstimateRequests(0, 20, 'createdAt,desc')
-        .then(result => {
-          if (result.success && result.data) {
-            setData(result.data)
-          }
-        })
-        .catch(error => {
-          showErrorToast(error, '견적 목록을 불러오는데 실패했습니다')
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }
-  }, [initialData])
+    getEstimateRequests(0, 20, 'createdAt,desc')
+      .then(result => {
+        if (result.success && result.data) {
+          setData(result.data)
+        }
+      })
+      .catch(error => {
+        showErrorToast(error, '견적 목록을 불러오는데 실패했습니다')
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }, [])
 
   // 사용자가 로그인했을 때 내 견적 개수 가져오기
   useEffect(() => {
