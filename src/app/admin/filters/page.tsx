@@ -156,6 +156,8 @@ export default function AdminFiltersPage() {
     const updateData: FilterCategoryUpdateRequest = {
       name: formData.name,
       description: formData.description || undefined,
+      entityType: formData.entityType,
+      filterType: formData.filterType,
       displayOrder: formData.displayOrder,
       icon: formData.icon || undefined,
       isRequired: formData.isRequired,
@@ -615,6 +617,40 @@ export default function AdminFiltersPage() {
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      엔티티 타입 <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.entityType}
+                      onChange={(e) => setFormData({ ...formData, entityType: e.target.value as EntityType })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="COMPANY">업체</option>
+                      <option value="HOSPITAL">병원</option>
+                      <option value="SERVICE">서비스</option>
+                      <option value="GALLERY">갤러리</option>
+                      <option value="PORTFOLIO">포트폴리오</option>
+                      <option value="DOCUMENT">자료실</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      필터 타입 <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={formData.filterType}
+                      onChange={(e) => setFormData({ ...formData, filterType: e.target.value as FilterType })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="SINGLE_SELECT">단일 선택</option>
+                      <option value="MULTI_SELECT">다중 선택</option>
+                      <option value="HIERARCHICAL">계층 구조</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">

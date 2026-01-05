@@ -8,6 +8,8 @@ export interface DocumentFile {
   fileSize: number
   mimeType: string
   fileExtension: string
+  isPaid?: boolean
+  price?: number
 }
 
 export interface FilterOption {
@@ -120,14 +122,18 @@ export interface DocumentSearchResponse {
   last: boolean
 }
 
+export interface FileWithPrice {
+  uuid: string
+  isPaid: boolean
+  price: number
+}
+
 export interface CreateDocumentRequest {
   title: string
   content: string
-  fileUuids: string[]
+  files: FileWithPrice[]
   categoryId?: number
   thumbnailUuid?: string
-  isPaid?: boolean
-  price?: number
   filterOptionIds?: number[]
   tags?: string[]
   isPublished?: boolean
@@ -138,10 +144,8 @@ export interface UpdateDocumentRequest {
   title?: string
   content?: string
   categoryId?: number
-  fileUuids?: string[]
+  files?: FileWithPrice[]
   thumbnailUuid?: string
-  isPaid?: boolean
-  price?: number
   filterOptionIds?: number[]
   tags?: string[]
 }

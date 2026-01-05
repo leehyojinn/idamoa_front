@@ -5,6 +5,8 @@ export interface FileInfo {
   fileSize: number
   mimeType: string
   fileExtension: string
+  price?: number
+  isPaid?: boolean
 }
 
 export interface FilterOptionSummary {
