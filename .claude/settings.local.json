@@ -42,7 +42,8 @@
       "Bash(timeout:*)",
       "Bash(move \"[uuid]\" \"[id]\")",
       "Skill(frontend-design)",
-      "Bash(cmd /c:*)"
+      "Bash(cmd /c:*)",
+      "Bash(powershell -Command:*)"
     ],
     "deny": [],
     "ask": []

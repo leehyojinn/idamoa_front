@@ -45,7 +45,7 @@ export const defaultMetadata: Metadata = {
     siteName: siteName,
     images: [
       {
-        url: '/images/seo-image-v001.png',
+        url: '/images/seo-image-v002.png',
         width: 1200,
         height: 630,
         alt: '인테리어 다모아 - 인테리어 전문 업체 비교 플랫폼',
@@ -56,7 +56,7 @@ export const defaultMetadata: Metadata = {
     card: 'summary_large_image',
     title: `${siteName} | 인테리어의 모든 것`,
     description: siteDescription,
-    images: ['/images/seo-image-v001.png'],
+    images: ['/images/seo-image-v002.png'],
   },
   robots: {
     index: true,
@@ -87,7 +87,7 @@ export function createPageMetadata({
   path = '',
   keywords = [],
   noIndex = false,
-  image = '/images/seo-image-v001.png',
+  image = '/images/seo-image-v002.png',
 }: PageMetadataOptions): Metadata {
   const url = `${siteUrl}${path}`
 

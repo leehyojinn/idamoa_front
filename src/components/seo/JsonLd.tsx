@@ -10,7 +10,7 @@ interface OrganizationSchemaProps {
 export function OrganizationSchema({
   name = '인테리어 다모아',
   url = 'https://i-damoa.com',
-  logo = 'https://i-damoa.com/images/seo-image-v001.png',
+  logo = 'https://i-damoa.com/images/seo-image-v002.png',
   description = '인테리어 전문 업체를 한눈에! 업체 비교, 견적 요청, 포트폴리오 확인까지 인테리어의 모든 것을 다모아에서 만나보세요.',
 }: OrganizationSchemaProps) {
   const schema = {
@@ -166,7 +166,7 @@ export function ArticleSchema({
       name: '인테리어 다모아',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://i-damoa.com/images/seo-image-v001.png',
+        url: 'https://i-damoa.com/images/seo-image-v002.png',
       },
     },
   }
