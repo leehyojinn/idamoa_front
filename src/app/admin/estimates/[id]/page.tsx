@@ -19,7 +19,7 @@ import AdminGuard from '@/components/auth/AdminGuard'
 export default function AdminEstimateDetailPage() {
   const params = useParams()
   const router = useRouter()
-  const requestId = parseInt(params.id as string)
+  const requestUuid = params.id as string
 
   const [request, setRequest] = useState<AdminEstimateRequest | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -27,7 +27,7 @@ export default function AdminEstimateDetailPage() {
   const fetchRequest = async () => {
     setIsLoading(true)
     try {
-      const data = await getEstimateRequest(requestId)
+      const data = await getEstimateRequest(requestUuid)
       // 삭제된 항목이면 목록으로 리다이렉트
       if (data.isDeleted) {
         showErrorToast(null, '삭제된 견적 요청입니다.')
@@ -44,14 +44,16 @@ export default function AdminEstimateDetailPage() {
   }
 
   useEffect(() => {
-    fetchRequest()
-  }, [requestId])
+    if (requestUuid) {
+      fetchRequest()
+    }
+  }, [requestUuid])
 
   const handleChangeStatus = async (status: string) => {
     if (!request) return
 
     try {
-      await changeEstimateRequestStatus(request.id, status as any)
+      await changeEstimateRequestStatus(request.uuid, status as any)
       showSuccessToast('상태가 변경되었습니다.')
       fetchRequest()
     } catch (error) {
@@ -64,7 +66,7 @@ export default function AdminEstimateDetailPage() {
     if (!confirm(`정말로 "${request.title}" 견적 요청을 삭제하시겠습니까?`)) return
 
     try {
-      await deleteEstimateRequest(request.id)
+      await deleteEstimateRequest(request.uuid)
       showSuccessToast('견적 요청이 삭제되었습니다.')
       router.push('/admin/estimates')
     } catch (error) {
