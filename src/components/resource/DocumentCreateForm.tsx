@@ -15,6 +15,8 @@ import Checkbox from '@/components/ui/Checkbox'
 interface FileAttachment {
   file: File
   fileUuid?: string
+  isPaid: boolean
+  price: string
 }
 
 interface ThumbnailAttachment {
@@ -44,9 +46,9 @@ export default function DocumentCreateForm() {
   const [contentMode, setContentMode] = useState<'text' | 'html'>('text')
   const [isHtmlPreview, setIsHtmlPreview] = useState(false)
 
-  // 유료 설정
-  const [isPaid, setIsPaid] = useState(false)
-  const [price, setPrice] = useState('')
+  // 전체 유료 설정
+  const [useGlobalPrice, setUseGlobalPrice] = useState(false)
+  const [globalPrice, setGlobalPrice] = useState('')
 
   // 태그
   const [tags, setTags] = useState<string[]>([])
@@ -301,9 +303,19 @@ export default function DocumentCreateForm() {
 
     const newFiles: FileAttachment[] = Array.from(selectedFiles).map(file => ({
       file,
+      isPaid: false,
+      price: '',
     }))
 
     setFiles([...files, ...newFiles])
+  }
+
+  const handleFileIsPaidChange = (index: number, isPaid: boolean) => {
+    setFiles(files.map((f, i) => i === index ? { ...f, isPaid, price: isPaid ? f.price : '' } : f))
+  }
+
+  const handleFilePriceChange = (index: number, price: string) => {
+    setFiles(files.map((f, i) => i === index ? { ...f, price } : f))
   }
 
   const handleRemoveFile = (index: number) => {
@@ -350,20 +362,35 @@ export default function DocumentCreateForm() {
       return
     }
 
-    if (isPaid && (!price || parseInt(price) <= 0)) {
-      showErrorToast(null, '유료 파일의 가격을 입력하세요')
+    if (useGlobalPrice && (!globalPrice || parseInt(globalPrice) <= 0)) {
+      showErrorToast(null, '전체 가격을 입력하세요')
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      // 파일 업로드
-      const fileUuids: string[] = []
+      // 파일 업로드 및 가격 정보 수집
+      const filesWithPrice: { uuid: string; isPaid: boolean; price: number }[] = []
+      const globalPriceValue = parseInt(globalPrice) || 0
+
       for (const fileAttachment of files) {
         try {
           const result = await uploadFile(fileAttachment.file, 'OTHER')
-          fileUuids.push(result.uuid)
+          // 전체 가격 사용시 모든 파일에 전체 가격 적용
+          if (useGlobalPrice) {
+            filesWithPrice.push({
+              uuid: result.uuid,
+              isPaid: true,
+              price: globalPriceValue
+            })
+          } else {
+            filesWithPrice.push({
+              uuid: result.uuid,
+              isPaid: fileAttachment.isPaid,
+              price: fileAttachment.isPaid ? parseInt(fileAttachment.price) || 0 : 0
+            })
+          }
         } catch (error: any) {
           const errorMsg = error?.response?.data?.message || error?.message || '알 수 없는 오류'
           throw new Error(`파일 업로드 실패 (${fileAttachment.file.name}): ${errorMsg}`)
@@ -386,10 +413,8 @@ export default function DocumentCreateForm() {
       const data: CreateDocumentRequest = {
         title: title.trim(),
         content: content.trim(),
-        fileUuids,
+        files: filesWithPrice,
         thumbnailUuid,
-        isPaid,
-        price: isPaid ? parseInt(price) : undefined,
         tags: tags.length > 0 ? tags : undefined,
         filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
         isPublished: true,
@@ -517,31 +542,36 @@ export default function DocumentCreateForm() {
             </div>
           </div>
 
-          {/* 유료 설정 */}
+          {/* 전체 가격 설정 */}
           <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4">유료 설정</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">가격 설정</h2>
             <div className="space-y-4">
               <Checkbox
-                checked={isPaid}
-                onChange={setIsPaid}
-                label="유료 자료로 설정"
-                description="체크하면 가격을 설정할 수 있습니다"
+                checked={useGlobalPrice}
+                onChange={setUseGlobalPrice}
+                label="전체 가격 적용"
+                description="체크하면 모든 파일에 동일한 가격이 적용됩니다"
               />
 
-              {isPaid && (
+              {useGlobalPrice && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    가격 (원) <span className="text-red-500">*</span>
+                    전체 가격 (원) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    value={globalPrice}
+                    onChange={(e) => setGlobalPrice(e.target.value)}
                     min="0"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="가격을 입력하세요"
+                    placeholder="모든 파일에 적용될 가격을 입력하세요"
                   />
                 </div>
+              )}
+              {!useGlobalPrice && (
+                <p className="text-sm text-gray-500">
+                  개별 파일마다 가격을 설정하려면 아래 첨부 파일에서 설정하세요
+                </p>
               )}
             </div>
           </div>
@@ -754,26 +784,60 @@ export default function DocumentCreateForm() {
                   {files.map((fileAttachment, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-4 bg-gray-50 rounded-lg p-4"
+                      className="bg-gray-50 rounded-lg p-4 space-y-3"
                     >
-                      <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                        <FiFile className="w-6 h-6 text-gray-500" />
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                          <FiFile className="w-6 h-6 text-gray-500" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {fileAttachment.file.name}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatFileSize(fileAttachment.file.size)}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FiX className="w-5 h-5" />
+                        </button>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {fileAttachment.file.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formatFileSize(fileAttachment.file.size)}
-                        </p>
+                      <div className="flex items-center gap-4 pl-16">
+                        {useGlobalPrice ? (
+                          <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-bold">
+                            {globalPrice ? `${parseInt(globalPrice).toLocaleString()}원` : '전체 가격 미설정'}
+                          </span>
+                        ) : (
+                          <>
+                            <Checkbox
+                              checked={fileAttachment.isPaid}
+                              onChange={(checked) => handleFileIsPaidChange(index, checked)}
+                              label="유료"
+                              size="sm"
+                            />
+                            {fileAttachment.isPaid && (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  value={fileAttachment.price}
+                                  onChange={(e) => handleFilePriceChange(index, e.target.value)}
+                                  min="0"
+                                  className="w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  placeholder="가격"
+                                />
+                                <span className="text-sm text-gray-500">원</span>
+                              </div>
+                            )}
+                            {!fileAttachment.isPaid && (
+                              <span className="text-sm text-green-600 font-medium">무료</span>
+                            )}
+                          </>
+                        )}
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(index)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FiX className="w-5 h-5" />
-                      </button>
                     </div>
                   ))}
                 </div>

@@ -147,7 +147,8 @@ export const uploadFile = async (
  */
 export interface FilePurchaseStatusResponse {
   fileUuid: string
-  isPaid: boolean
+  isPaid?: boolean
+  paid?: boolean  // API에서 paid로 오는 경우
   price: number
   hasPurchased: boolean
   canDownload: boolean

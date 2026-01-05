@@ -739,10 +739,14 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                             ⭐ 추천
                           </div>
                         )}
-                        {/* 유료 표시 */}
-                        {doc.isPaid && (
+                        {/* 유료/무료 표시 */}
+                        {doc.isPaid || doc.files?.some(f => f.isPaid) ? (
                           <div className="bg-yellow-500 text-white px-2 py-1 rounded text-sm font-bold">
-                            {doc.price?.toLocaleString()}원
+                            유료
+                          </div>
+                        ) : (
+                          <div className="bg-green-500 text-white px-2 py-1 rounded text-sm font-bold">
+                            무료
                           </div>
                         )}
                       </div>

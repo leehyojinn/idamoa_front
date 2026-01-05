@@ -85,7 +85,6 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
   }, [uuid, router])
 
   useEffect(() => {
-    // initialData가 있으면 fetch 건너뛰기 (SSR 데이터 사용)
     if (initialData) return
     fetchDocument()
   }, [fetchDocument, initialData])
@@ -143,7 +142,6 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
    * 5. 크레딧 부족 → 충전 페이지로 이동
    */
   const handleDownload = async (fileUuid: string, fileName: string) => {
-    // 로그인 체크
     if (!user) {
       showErrorToast(null, '로그인이 필요합니다')
       router.push('/login')
@@ -153,28 +151,25 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
     setDownloadingFileUuid(fileUuid)
 
     try {
-      // 1. 구매 상태 확인
       const status = await getFilePurchaseStatus(fileUuid)
 
-      // 2. 다운로드 불가능 (크레딧 부족)
       if (!status.canDownload) {
         showErrorToast(null, `크레딧이 부족합니다. 필요: ${status.price.toLocaleString()}원`)
         router.push('/mypage')
         return
       }
 
-      // 3. 유료 파일이고 아직 구매하지 않은 경우 → 확인 다이얼로그 표시
-      if (status.isPaid && !status.hasPurchased) {
+      const isPaidFile = status.isPaid ?? status.paid
+      if (isPaidFile && !status.hasPurchased) {
         setPendingDownload({ fileUuid, fileName, status })
         setShowPurchaseDialog(true)
         setDownloadingFileUuid(null)
         return
       }
 
-      // 4. 무료 파일 또는 이미 구매한 파일 → 바로 다운로드
-      await executeDownload(fileUuid, fileName)
+      const isAlreadyPurchased = isPaidFile && status.hasPurchased
+      await executeDownload(fileUuid, fileName, isAlreadyPurchased)
     } catch (error: any) {
-      console.error('다운로드 오류:', error)
       if (error?.code === 'INSUFFICIENT_CREDITS') {
         showErrorToast(null, error.message)
         router.push('/mypage')
@@ -189,8 +184,15 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
   /**
    * 실제 다운로드 실행
    * POST /api/files/{fileUuid}/download 호출 후 downloadUrl로 파일 다운로드
+   * @param isAlreadyPurchased - 이미 구매한 파일인지 여부
+   * @param isNewPurchase - 새로 구매하는 경우 (구매 다이얼로그에서 호출)
    */
-  const executeDownload = async (fileUuid: string, fileName: string) => {
+  const executeDownload = async (
+    fileUuid: string,
+    fileName: string,
+    isAlreadyPurchased: boolean = false,
+    isNewPurchase: boolean = false
+  ) => {
     setDownloadingFileUuid(fileUuid)
 
     try {
@@ -217,14 +219,27 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
       // blob URL 해제
       window.URL.revokeObjectURL(blobUrl)
 
-      // 차감된 크레딧 표시
-      if (result.price > 0) {
+      // 다운로드 횟수 증가 (UI 업데이트)
+      if (document) {
+        setDocument({
+          ...document,
+          downloadCount: document.downloadCount + 1,
+          hasDownloaded: true,
+        })
+      }
+
+      // 상황별 토스트 메시지
+      if (isNewPurchase && result.price > 0) {
+        // 새로 구매한 경우
         showSuccessToast(`${result.price.toLocaleString()}원이 차감되었습니다. 다운로드가 시작됩니다.`)
+      } else if (isAlreadyPurchased) {
+        // 이미 구매한 파일 재다운로드
+        showSuccessToast('이미 구매한 파일입니다. 다운로드가 시작됩니다.')
       } else {
-        showSuccessToast(`${fileName} 다운로드가 시작됩니다.`)
+        // 무료 파일
+        showSuccessToast('다운로드가 시작됩니다.')
       }
     } catch (error: any) {
-      console.error('다운로드 실행 오류:', error)
       if (error?.code === 'INSUFFICIENT_CREDITS') {
         showErrorToast(null, error.message)
         router.push('/mypage')
@@ -245,7 +260,8 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
     if (!pendingDownload) return
 
     setShowPurchaseDialog(false)
-    await executeDownload(pendingDownload.fileUuid, pendingDownload.fileName)
+    // 새로 구매하는 경우이므로 isNewPurchase = true
+    await executeDownload(pendingDownload.fileUuid, pendingDownload.fileName, false, true)
     setPendingDownload(null)
   }
 
@@ -438,23 +454,34 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDownload(file.uuid, file.originalFilename)}
-                    disabled={downloadingFileUuid === file.uuid}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {downloadingFileUuid === file.uuid ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        처리 중...
-                      </>
+                  <div className="flex items-center gap-3">
+                    {file.isPaid && file.price && file.price > 0 ? (
+                      <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-bold">
+                        {file.price.toLocaleString()}원
+                      </span>
                     ) : (
-                      <>
-                        <FiDownload />
-                        다운로드
-                      </>
+                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+                        무료
+                      </span>
                     )}
-                  </button>
+                    <button
+                      onClick={() => handleDownload(file.uuid, file.originalFilename)}
+                      disabled={downloadingFileUuid === file.uuid}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {downloadingFileUuid === file.uuid ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                          처리 중...
+                        </>
+                      ) : (
+                        <>
+                          <FiDownload />
+                          다운로드
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               )
             })}

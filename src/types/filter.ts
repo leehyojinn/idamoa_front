@@ -64,6 +64,8 @@ export interface FilterCategoryCreateRequest {
 export interface FilterCategoryUpdateRequest {
   name?: string
   description?: string
+  entityType?: EntityType
+  filterType?: FilterType
   displayOrder?: number
   icon?: string
   isRequired?: boolean
