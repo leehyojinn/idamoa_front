@@ -76,7 +76,7 @@ export default function AdminEstimatesPage() {
     if (!confirm(`정말로 "${request.title}" 견적 요청을 삭제하시겠습니까?`)) return
 
     try {
-      await deleteEstimateRequest(request.id)
+      await deleteEstimateRequest(request.uuid)
       showSuccessToast('견적 요청이 삭제되었습니다.')
       fetchRequests()
     } catch (error) {
@@ -86,7 +86,7 @@ export default function AdminEstimatesPage() {
 
   const handleChangeStatus = async (request: EstimateRequestListItem, status: string) => {
     try {
-      await changeEstimateRequestStatus(request.id, status as any)
+      await changeEstimateRequestStatus(request.uuid, status as any)
       showSuccessToast('상태가 변경되었습니다.')
       fetchRequests()
     } catch (error) {
@@ -98,7 +98,7 @@ export default function AdminEstimatesPage() {
     if (!confirm(`정말로 "${proposal.title}" 견적 제안을 삭제하시겠습니까?`)) return
 
     try {
-      await deleteProposal(proposal.id)
+      await deleteProposal(proposal.uuid)
       showSuccessToast('견적 제안이 삭제되었습니다.')
       fetchProposals()
     } catch (error) {
@@ -234,7 +234,7 @@ export default function AdminEstimatesPage() {
                         </td>
                         <td className="px-6 py-4 max-w-[200px]">
                           <Link
-                            href={`/admin/estimates/${request.id}`}
+                            href={`/admin/estimates/${request.uuid}`}
                             className="font-medium text-gray-900 hover:text-blue-600 block truncate"
                             title={request.title}
                           >
@@ -269,7 +269,7 @@ export default function AdminEstimatesPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                           <Link
-                            href={`/admin/estimates/${request.id}`}
+                            href={`/admin/estimates/${request.uuid}`}
                             className="text-blue-600 hover:text-blue-900"
                           >
                             상세
@@ -354,7 +354,7 @@ export default function AdminEstimatesPage() {
                         </td>
                         <td className="px-6 py-4 max-w-[180px]">
                           <Link
-                            href={`/admin/estimates/${proposal.requestId}`}
+                            href={`/admin/estimates/${proposal.requestUuid}`}
                             className="text-blue-600 hover:text-blue-900 text-sm block truncate"
                             title={proposal.requestTitle}
                           >

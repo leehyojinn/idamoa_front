@@ -127,25 +127,25 @@ export async function getEstimateRequests(params?: {
 }
 
 // 견적 요청 상세 조회
-export async function getEstimateRequest(requestId: number): Promise<AdminEstimateRequest> {
+export async function getEstimateRequest(requestUuid: string): Promise<AdminEstimateRequest> {
   const response = await axiosInstance.get<ApiResponse<AdminEstimateRequest>>(
-    `/admin/estimate-requests/${requestId}`
+    `/admin/estimate-requests/${requestUuid}`
   )
   return response.data.data
 }
 
 // 견적 요청 삭제
-export async function deleteEstimateRequest(requestId: number): Promise<void> {
-  await axiosInstance.delete(`/admin/estimate-requests/${requestId}`)
+export async function deleteEstimateRequest(requestUuid: string): Promise<void> {
+  await axiosInstance.delete(`/admin/estimate-requests/${requestUuid}`)
 }
 
 // 견적 요청 상태 변경
 export async function changeEstimateRequestStatus(
-  requestId: number,
+  requestUuid: string,
   status: 'PUBLISHED' | 'CANCELLED' | 'COMPLETED'
 ): Promise<AdminEstimateRequest> {
   const response = await axiosInstance.patch<ApiResponse<AdminEstimateRequest>>(
-    `/admin/estimate-requests/${requestId}/status`,
+    `/admin/estimate-requests/${requestUuid}/status`,
     null,
     { params: { status } }
   )
@@ -168,6 +168,6 @@ export async function getProposals(params?: {
 }
 
 // 견적 제안 삭제
-export async function deleteProposal(proposalId: number): Promise<void> {
-  await axiosInstance.delete(`/admin/proposals/${proposalId}`)
+export async function deleteProposal(proposalUuid: string): Promise<void> {
+  await axiosInstance.delete(`/admin/proposals/${proposalUuid}`)
 }
