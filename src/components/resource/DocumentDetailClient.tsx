@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiDownload, FiFile } from 'react-icons/fi'
+import DOMPurify from 'isomorphic-dompurify'
+import { FiArrowLeft, FiEdit, FiTrash2, FiBookmark, FiEye, FiTag, FiDownload, FiFile, FiAlertCircle } from 'react-icons/fi'
 import { getDocument, deleteDocument, toggleDocumentBookmark, type Document } from '@/lib/api/resource'
+import { getFilePurchaseStatus, downloadFile, type FilePurchaseStatusResponse } from '@/lib/api/file'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { Dialog } from '@/components/ui/Dialog'
@@ -48,6 +50,15 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isBookmarking, setIsBookmarking] = useState(false)
+
+  // 다운로드 관련 상태
+  const [downloadingFileUuid, setDownloadingFileUuid] = useState<string | null>(null)
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false)
+  const [pendingDownload, setPendingDownload] = useState<{
+    fileUuid: string
+    fileName: string
+    status: FilePurchaseStatusResponse
+  } | null>(null)
 
   const getFileInfo = (extension: string) => {
     const ext = extension.toLowerCase()
@@ -123,14 +134,127 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
     }
   }
 
-  const handleDownload = (fileUrl: string, filename: string) => {
-    const link = window.document.createElement('a')
-    link.href = fileUrl
-    link.download = filename
-    link.target = '_blank'
-    window.document.body.appendChild(link)
-    link.click()
-    window.document.body.removeChild(link)
+  /**
+   * 다운로드 버튼 클릭 핸들러
+   * 1. 로그인 체크
+   * 2. 구매 상태 확인
+   * 3. 무료/이미 구매 → 바로 다운로드
+   * 4. 유료 미구매 + 크레딧 충분 → 구매 확인 다이얼로그
+   * 5. 크레딧 부족 → 충전 페이지로 이동
+   */
+  const handleDownload = async (fileUuid: string, fileName: string) => {
+    // 로그인 체크
+    if (!user) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push('/login')
+      return
+    }
+
+    setDownloadingFileUuid(fileUuid)
+
+    try {
+      // 1. 구매 상태 확인
+      const status = await getFilePurchaseStatus(fileUuid)
+
+      // 2. 다운로드 불가능 (크레딧 부족)
+      if (!status.canDownload) {
+        showErrorToast(null, `크레딧이 부족합니다. 필요: ${status.price.toLocaleString()}원`)
+        router.push('/mypage')
+        return
+      }
+
+      // 3. 유료 파일이고 아직 구매하지 않은 경우 → 확인 다이얼로그 표시
+      if (status.isPaid && !status.hasPurchased) {
+        setPendingDownload({ fileUuid, fileName, status })
+        setShowPurchaseDialog(true)
+        setDownloadingFileUuid(null)
+        return
+      }
+
+      // 4. 무료 파일 또는 이미 구매한 파일 → 바로 다운로드
+      await executeDownload(fileUuid, fileName)
+    } catch (error: any) {
+      console.error('다운로드 오류:', error)
+      if (error?.code === 'INSUFFICIENT_CREDITS') {
+        showErrorToast(null, error.message)
+        router.push('/mypage')
+      } else {
+        showErrorToast(error, '파일 다운로드에 실패했습니다')
+      }
+    } finally {
+      setDownloadingFileUuid(null)
+    }
+  }
+
+  /**
+   * 실제 다운로드 실행
+   * POST /api/files/{fileUuid}/download 호출 후 downloadUrl로 파일 다운로드
+   */
+  const executeDownload = async (fileUuid: string, fileName: string) => {
+    setDownloadingFileUuid(fileUuid)
+
+    try {
+      // 다운로드 API 호출 (크레딧 자동 차감)
+      const result = await downloadFile(fileUuid)
+
+      // 외부 URL(S3 등)에서 파일을 blob으로 가져와서 다운로드
+      // download 속성은 cross-origin URL에서 무시되므로 blob 변환 필요
+      const response = await fetch(result.downloadUrl)
+      if (!response.ok) {
+        throw new Error('파일을 가져오는데 실패했습니다')
+      }
+
+      const blob = await response.blob()
+      const blobUrl = window.URL.createObjectURL(blob)
+
+      const link = window.document.createElement('a')
+      link.href = blobUrl
+      link.download = result.fileName || fileName
+      window.document.body.appendChild(link)
+      link.click()
+      window.document.body.removeChild(link)
+
+      // blob URL 해제
+      window.URL.revokeObjectURL(blobUrl)
+
+      // 차감된 크레딧 표시
+      if (result.price > 0) {
+        showSuccessToast(`${result.price.toLocaleString()}원이 차감되었습니다. 다운로드가 시작됩니다.`)
+      } else {
+        showSuccessToast(`${fileName} 다운로드가 시작됩니다.`)
+      }
+    } catch (error: any) {
+      console.error('다운로드 실행 오류:', error)
+      if (error?.code === 'INSUFFICIENT_CREDITS') {
+        showErrorToast(null, error.message)
+        router.push('/mypage')
+      } else if (error?.code === 'DOWNLOAD_LIMIT_EXCEEDED') {
+        showErrorToast(null, error.message)
+      } else {
+        showErrorToast(error, '파일 다운로드에 실패했습니다')
+      }
+    } finally {
+      setDownloadingFileUuid(null)
+    }
+  }
+
+  /**
+   * 구매 확인 후 다운로드 진행
+   */
+  const handleConfirmPurchase = async () => {
+    if (!pendingDownload) return
+
+    setShowPurchaseDialog(false)
+    await executeDownload(pendingDownload.fileUuid, pendingDownload.fileName)
+    setPendingDownload(null)
+  }
+
+  /**
+   * 구매 취소
+   */
+  const handleCancelPurchase = () => {
+    setShowPurchaseDialog(false)
+    setPendingDownload(null)
   }
 
   if (isLoading) {
@@ -224,7 +348,14 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
               )}
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-4">{document.title}</h1>
-            <p className="text-gray-600 whitespace-pre-wrap">{document.content || ''}</p>
+            {document.content ? (
+              <div
+                className="prose prose-gray max-w-none text-gray-600"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(document.content) }}
+              />
+            ) : (
+              <p className="text-gray-400">내용이 없습니다.</p>
+            )}
           </div>
 
           {/* 메타 정보 */}
@@ -308,11 +439,21 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
                     </div>
                   </div>
                   <button
-                    onClick={() => handleDownload(file.fileUrl, file.originalFilename)}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                    onClick={() => handleDownload(file.uuid, file.originalFilename)}
+                    disabled={downloadingFileUuid === file.uuid}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <FiDownload />
-                    다운로드
+                    {downloadingFileUuid === file.uuid ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        처리 중...
+                      </>
+                    ) : (
+                      <>
+                        <FiDownload />
+                        다운로드
+                      </>
+                    )}
                   </button>
                 </div>
               )
@@ -348,6 +489,60 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
               <button
                 onClick={() => setShowDeleteDialog(false)}
                 className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-semibold transition-colors"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* 유료 파일 구매 확인 다이얼로그 */}
+      <Dialog
+        open={showPurchaseDialog}
+        onOpenChange={setShowPurchaseDialog}
+      >
+        <div
+          className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+              <FiAlertCircle className="w-6 h-6 text-yellow-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900">유료 파일 다운로드</h3>
+          </div>
+          <div className="space-y-4">
+            {pendingDownload && (
+              <>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <p className="text-sm text-gray-600 mb-2">파일명</p>
+                  <p className="font-medium text-gray-900 truncate">{pendingDownload.fileName}</p>
+                </div>
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <p className="text-sm text-yellow-800 mb-1">차감될 크레딧</p>
+                  <p className="text-2xl font-bold text-yellow-600">
+                    {pendingDownload.status.price.toLocaleString()}원
+                  </p>
+                </div>
+                <p className="text-sm text-gray-500">
+                  다운로드 시 위 금액이 보유 크레딧에서 자동으로 차감됩니다.
+                  <br />
+                  한번 구매한 파일은 무제한 재다운로드가 가능합니다.
+                </p>
+              </>
+            )}
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={handleConfirmPurchase}
+                disabled={downloadingFileUuid !== null}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+              >
+                {downloadingFileUuid ? '처리 중...' : '구매 및 다운로드'}
+              </button>
+              <button
+                onClick={handleCancelPurchase}
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-3 rounded-lg font-semibold transition-colors"
               >
                 취소
               </button>
