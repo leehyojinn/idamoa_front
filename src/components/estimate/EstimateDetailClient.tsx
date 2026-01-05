@@ -189,17 +189,17 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
 
       const company = companyResult.data
 
-      // 업체 상세정보 필수 항목 체크
+      // 업체 상세정보 필수 항목 체크 (description은 필수, detailContent는 선택)
       const hasRequiredInfo =
         company.name &&
         company.primaryPhone &&
         company.email &&
-        company.detailContent
+        company.description
 
       if (!hasRequiredInfo) {
-        confirm('제안서를 제출하려면 업체 상세정보 등록이 필요합니다.\n마이페이지에서 업체 상세정보를 등록하시겠습니까?', {
-          title: '업체 상세정보 필요',
-          confirmText: '등록하러 가기',
+        confirm('제안서를 제출하려면 업체 기본정보 등록이 필요합니다.\n마이페이지에서 업체 정보를 확인해주세요.', {
+          title: '업체 정보 필요',
+          confirmText: '확인하러 가기',
           cancelText: '취소',
           onConfirm: () => {
             router.push('/mypage')
