@@ -40,6 +40,12 @@ export default function AdminFiltersPage() {
   })
   const [searchInput, setSearchInput] = useState('')  // 검색어 입력 상태 (디바운싱용)
 
+  // 페이징
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
+  const pageSize = 20
+
   // 모달 상태
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -61,7 +67,7 @@ export default function AdminFiltersPage() {
     isExpanded: false,
   })
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (page: number = currentPage) => {
     setIsLoading(true)
     try {
       const params: {
@@ -73,8 +79,8 @@ export default function AdminFiltersPage() {
         size?: number
       } = {
         sort: filter.sort,
-        page: 0,
-        size: 100,
+        page,
+        size: pageSize,
       }
 
       if (filter.entityType) {
@@ -89,6 +95,8 @@ export default function AdminFiltersPage() {
 
       const data = await getFilterCategories(params)
       setCategories(data.content)
+      setTotalPages(data.totalPages)
+      setTotalElements(data.totalElements)
     } catch (error) {
       showErrorToast(error, '필터 카테고리 목록을 불러오는데 실패했습니다.')
     } finally {
@@ -105,8 +113,14 @@ export default function AdminFiltersPage() {
   }, [searchInput])
 
   useEffect(() => {
-    fetchCategories()
-  }, [filter.entityType, filter.isActive, filter.keyword, filter.sort])
+    fetchCategories(currentPage)
+  }, [filter.entityType, filter.isActive, filter.keyword, filter.sort, currentPage])
+
+  // 필터 변경 시 페이지 초기화
+  const handleFilterChange = (newFilter: typeof filter) => {
+    setCurrentPage(0)
+    setFilter(newFilter)
+  }
 
   const handleCreate = async () => {
     if (!formData.code || !formData.name) {
@@ -276,7 +290,7 @@ export default function AdminFiltersPage() {
 
           <select
             value={filter.entityType || ''}
-            onChange={(e) => setFilter({ ...filter, entityType: e.target.value || undefined })}
+            onChange={(e) => handleFilterChange({ ...filter, entityType: e.target.value || undefined })}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">전체 엔티티</option>
@@ -291,7 +305,7 @@ export default function AdminFiltersPage() {
           <select
             value={filter.isActive === undefined ? '' : String(filter.isActive)}
             onChange={(e) =>
-              setFilter({
+              handleFilterChange({
                 ...filter,
                 isActive: e.target.value === '' ? undefined : e.target.value === 'true',
               })
@@ -306,7 +320,7 @@ export default function AdminFiltersPage() {
           {/* 정렬 */}
           <select
             value={filter.sort || 'displayOrder,asc'}
-            onChange={(e) => setFilter({ ...filter, sort: e.target.value })}
+            onChange={(e) => handleFilterChange({ ...filter, sort: e.target.value })}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="displayOrder,asc">순서 오름차순</option>
@@ -425,6 +439,48 @@ export default function AdminFiltersPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* 페이징 */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div className="text-sm text-gray-500">
+                  총 {totalElements}개 중 {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}개
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(0)}
+                    disabled={currentPage === 0}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    처음
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                    disabled={currentPage === 0}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    이전
+                  </button>
+                  <span className="px-3 py-1 text-sm">
+                    {currentPage + 1} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                    disabled={currentPage >= totalPages - 1}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    다음
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages - 1)}
+                    disabled={currentPage >= totalPages - 1}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    마지막
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

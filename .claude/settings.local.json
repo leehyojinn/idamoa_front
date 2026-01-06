@@ -43,7 +43,8 @@
       "Bash(move \"[uuid]\" \"[id]\")",
       "Skill(frontend-design)",
       "Bash(cmd /c:*)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

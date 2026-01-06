@@ -65,14 +65,18 @@ export interface DocumentBoard {
   hasDownloaded: boolean
 }
 
+export interface FileWithPrice {
+  uuid: string
+  isPaid: boolean
+  price: number
+}
+
 export interface DocumentCreateRequest {
   title: string
   content: string
   categoryId?: number
-  fileUuids: string[]
+  files: FileWithPrice[]
   thumbnailUuid?: string
-  isPaid?: boolean
-  price?: number
   filterOptionIds?: number[]
   tags?: string[]
   isPublished?: boolean
@@ -83,10 +87,8 @@ export interface DocumentUpdateRequest {
   title?: string
   content?: string
   categoryId?: number
-  fileUuids?: string[]
+  files?: FileWithPrice[]
   thumbnailUuid?: string
-  isPaid?: boolean
-  price?: number
   filterOptionIds?: number[]
   tags?: string[]
 }
