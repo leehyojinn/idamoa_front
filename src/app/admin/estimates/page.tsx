@@ -25,21 +25,32 @@ export default function AdminEstimatesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>('')
 
-  const fetchRequests = async () => {
+  // 페이징 - 견적 요청
+  const [reqCurrentPage, setReqCurrentPage] = useState(0)
+  const [reqTotalPages, setReqTotalPages] = useState(0)
+  const [reqTotalElements, setReqTotalElements] = useState(0)
+
+  // 페이징 - 견적 제안
+  const [propCurrentPage, setPropCurrentPage] = useState(0)
+  const [propTotalPages, setPropTotalPages] = useState(0)
+  const [propTotalElements, setPropTotalElements] = useState(0)
+
+  const pageSize = 20
+
+  const fetchRequests = async (page: number = reqCurrentPage) => {
     setIsLoading(true)
     try {
       const data = await getEstimateRequests({
         status: statusFilter as any || undefined,
-        page: 0,
-        size: 50,
+        page,
+        size: pageSize,
         sort: 'createdAt,DESC',
       })
-      console.log('Fetched requests:', data.content)
-      console.log('Deleted items:', data.content.filter(req => req.isDeleted))
       // 삭제된 항목 제외
       const filteredRequests = data.content.filter(req => !req.isDeleted)
-      console.log('Filtered requests:', filteredRequests)
       setRequests(filteredRequests)
+      setReqTotalPages(data.totalPages)
+      setReqTotalElements(data.totalElements)
     } catch (error) {
       showErrorToast(error, '견적 요청 목록을 불러오는데 실패했습니다.')
     } finally {
@@ -47,16 +58,18 @@ export default function AdminEstimatesPage() {
     }
   }
 
-  const fetchProposals = async () => {
+  const fetchProposals = async (page: number = propCurrentPage) => {
     setIsLoading(true)
     try {
       const data = await getProposals({
-        page: 0,
-        size: 50,
+        page,
+        size: pageSize,
         sort: 'createdAt,DESC',
       })
       // 삭제된 항목 제외
       setProposals(data.content.filter(prop => !prop.isDeleted))
+      setPropTotalPages(data.totalPages)
+      setPropTotalElements(data.totalElements)
     } catch (error) {
       showErrorToast(error, '견적 제안 목록을 불러오는데 실패했습니다.')
     } finally {
@@ -66,11 +79,17 @@ export default function AdminEstimatesPage() {
 
   useEffect(() => {
     if (activeTab === 'requests') {
-      fetchRequests()
+      fetchRequests(reqCurrentPage)
     } else {
-      fetchProposals()
+      fetchProposals(propCurrentPage)
     }
-  }, [activeTab, statusFilter])
+  }, [activeTab, statusFilter, reqCurrentPage, propCurrentPage])
+
+  // 필터 변경 시 페이지 초기화
+  const handleStatusFilterChange = (value: string) => {
+    setReqCurrentPage(0)
+    setStatusFilter(value)
+  }
 
   const handleDeleteRequest = async (request: EstimateRequestListItem) => {
     if (!confirm(`정말로 "${request.title}" 견적 요청을 삭제하시겠습니까?`)) return
@@ -172,7 +191,7 @@ export default function AdminEstimatesPage() {
               <label className="text-sm font-medium text-gray-700 mr-2">상태 필터:</label>
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => handleStatusFilterChange(e.target.value)}
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">전체</option>
@@ -228,7 +247,7 @@ export default function AdminEstimatesPage() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {requests.map((request) => (
-                      <tr key={request.id} className="hover:bg-gray-50">
+                      <tr key={request.uuid} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {request.id}
                         </td>
@@ -285,6 +304,48 @@ export default function AdminEstimatesPage() {
                     ))}
                   </tbody>
                 </table>
+
+                {/* 페이징 */}
+                {reqTotalPages > 1 && (
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      총 {reqTotalElements}개 중 {reqCurrentPage * pageSize + 1}-{Math.min((reqCurrentPage + 1) * pageSize, reqTotalElements)}개
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setReqCurrentPage(0)}
+                        disabled={reqCurrentPage === 0}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        처음
+                      </button>
+                      <button
+                        onClick={() => setReqCurrentPage(prev => Math.max(0, prev - 1))}
+                        disabled={reqCurrentPage === 0}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        이전
+                      </button>
+                      <span className="px-3 py-1 text-sm">
+                        {reqCurrentPage + 1} / {reqTotalPages}
+                      </span>
+                      <button
+                        onClick={() => setReqCurrentPage(prev => Math.min(reqTotalPages - 1, prev + 1))}
+                        disabled={reqCurrentPage >= reqTotalPages - 1}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        다음
+                      </button>
+                      <button
+                        onClick={() => setReqCurrentPage(reqTotalPages - 1)}
+                        disabled={reqCurrentPage >= reqTotalPages - 1}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        마지막
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -338,7 +399,7 @@ export default function AdminEstimatesPage() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {proposals.map((proposal) => (
-                      <tr key={proposal.id} className="hover:bg-gray-50">
+                      <tr key={proposal.uuid} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {proposal.id}
                         </td>
@@ -387,6 +448,48 @@ export default function AdminEstimatesPage() {
                     ))}
                   </tbody>
                 </table>
+
+                {/* 페이징 */}
+                {propTotalPages > 1 && (
+                  <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      총 {propTotalElements}개 중 {propCurrentPage * pageSize + 1}-{Math.min((propCurrentPage + 1) * pageSize, propTotalElements)}개
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setPropCurrentPage(0)}
+                        disabled={propCurrentPage === 0}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        처음
+                      </button>
+                      <button
+                        onClick={() => setPropCurrentPage(prev => Math.max(0, prev - 1))}
+                        disabled={propCurrentPage === 0}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        이전
+                      </button>
+                      <span className="px-3 py-1 text-sm">
+                        {propCurrentPage + 1} / {propTotalPages}
+                      </span>
+                      <button
+                        onClick={() => setPropCurrentPage(prev => Math.min(propTotalPages - 1, prev + 1))}
+                        disabled={propCurrentPage >= propTotalPages - 1}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        다음
+                      </button>
+                      <button
+                        onClick={() => setPropCurrentPage(propTotalPages - 1)}
+                        disabled={propCurrentPage >= propTotalPages - 1}
+                        className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        마지막
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>

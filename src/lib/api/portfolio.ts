@@ -235,6 +235,44 @@ export interface ApiResponse<T> {
   error?: string
 }
 
+// 관리자 포트폴리오 수정 요청
+export interface AdminPortfolioUpdateRequest {
+  // 기본 정보
+  title?: string
+  description?: string
+  content?: string
+  category?: string
+  projectType?: string
+  projectScale?: string
+  projectDuration?: number
+  projectDate?: string
+  budgetRange?: string
+  actualCost?: number
+  imageUuids?: string[]
+  videoUuids?: string[]
+  thumbnailUuid?: string
+  tags?: string[]
+  relatedLink?: string
+  copyrightOwner?: string
+  copyrightLicense?: string
+  copyrightAttribution?: string
+  isPublic?: boolean
+  displayOrder?: number
+  filterOptionIds?: number[]
+
+  // 관리자 전용
+  isFeatured?: boolean
+
+  // 프로모션 관리
+  promotionType?: 'STANDARD' | 'PREMIUM'
+  autoRenew?: boolean
+  promotionStartDate?: string
+  promotionEndDate?: string
+  promotionWeight?: number
+  promotionMonthlyPrice?: number
+  cancelPromotion?: boolean
+}
+
 // ==================== 사용자 API ====================
 
 /**
@@ -473,6 +511,19 @@ export async function adminDeletePortfolio(uuid: string): Promise<ApiResponse<vo
     return { success: true }
   } catch (error: any) {
     console.error('관리자 포트폴리오 삭제 실패:', error)
+    throw error
+  }
+}
+
+/**
+ * [관리자] 포트폴리오 수정
+ */
+export async function adminUpdatePortfolio(uuid: string, data: AdminPortfolioUpdateRequest): Promise<ApiResponse<Portfolio>> {
+  try {
+    const response = await axiosInstance.put(`/admin/portfolios/${uuid}`, data)
+    return { success: true, data: response.data.data }
+  } catch (error: any) {
+    console.error('관리자 포트폴리오 수정 실패:', error)
     throw error
   }
 }

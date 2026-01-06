@@ -22,16 +22,24 @@ export default function AdminGalleriesPage() {
   const [keyword, setKeyword] = useState('')
   const [searchKeyword, setSearchKeyword] = useState('')
 
-  const fetchGalleries = async () => {
+  // 페이징
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
+  const pageSize = 20
+
+  const fetchGalleries = async (page: number = currentPage) => {
     setIsLoading(true)
     try {
       const data = await getAdminGalleries({
         keyword: searchKeyword || undefined,
-        page: 0,
-        size: 50,
+        page,
+        size: pageSize,
         sort: 'publishedAt,DESC',
       })
       setGalleries(data.content)
+      setTotalPages(data.totalPages)
+      setTotalElements(data.totalElements)
     } catch (error) {
       showErrorToast(error, '사진 목록을 불러오는데 실패했습니다.')
     } finally {
@@ -40,10 +48,11 @@ export default function AdminGalleriesPage() {
   }
 
   useEffect(() => {
-    fetchGalleries()
-  }, [searchKeyword])
+    fetchGalleries(currentPage)
+  }, [searchKeyword, currentPage])
 
   const handleSearch = () => {
+    setCurrentPage(0)
     setSearchKeyword(keyword)
   }
 
@@ -274,6 +283,48 @@ export default function AdminGalleriesPage() {
                 ))}
               </tbody>
             </table>
+
+            {/* 페이징 */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                <div className="text-sm text-gray-500">
+                  총 {totalElements}개 중 {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}개
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(0)}
+                    disabled={currentPage === 0}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    처음
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                    disabled={currentPage === 0}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    이전
+                  </button>
+                  <span className="px-3 py-1 text-sm">
+                    {currentPage + 1} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                    disabled={currentPage >= totalPages - 1}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    다음
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(totalPages - 1)}
+                    disabled={currentPage >= totalPages - 1}
+                    className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    마지막
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

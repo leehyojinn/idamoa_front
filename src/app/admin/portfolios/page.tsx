@@ -239,6 +239,12 @@ export default function AdminPortfoliosPage() {
                       >
                         보기
                       </Link>
+                      <Link
+                        href={`/admin/portfolios/${portfolio.uuid}`}
+                        className="text-green-600 hover:text-green-900"
+                      >
+                        수정
+                      </Link>
                       <button
                         onClick={() => handleDelete(portfolio)}
                         className="text-red-600 hover:text-red-900"
