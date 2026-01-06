@@ -77,11 +77,11 @@ function AuthCallbackContent() {
   }, [searchParams, router, setUser, setAccessToken])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100">
       <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md w-full mx-4">
         {status === 'loading' && (
           <>
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary mb-4"></div>
             <h2 className="text-xl font-bold text-gray-900">로그인 처리 중...</h2>
             <p className="text-gray-500 mt-2">잠시만 기다려주세요</p>
           </>
@@ -110,7 +110,7 @@ function AuthCallbackContent() {
             <p className="text-gray-500 mt-2">{errorMessage}</p>
             <button
               onClick={() => router.push('/login')}
-              className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+              className="mt-6 px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-800 transition-colors"
             >
               로그인 페이지로 이동
             </button>
@@ -124,9 +124,9 @@ function AuthCallbackContent() {
 export default function AuthCallbackPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
           <p className="text-lg font-semibold text-gray-700">로그인 처리 중...</p>
         </div>
       </div>

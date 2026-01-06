@@ -43,7 +43,7 @@ export default function GalleryEditFormWrapper({ uuid }: GalleryEditFormWrapperP
   if (isLoading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
         <p className="mt-4 text-gray-600">포트폴리오를 불러오는 중...</p>
       </div>
     )

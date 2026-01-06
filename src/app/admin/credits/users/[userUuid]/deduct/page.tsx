@@ -140,7 +140,7 @@ export default function DeductCreditPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">현재 잔액</span>
-              <span className="font-bold text-blue-600">{credit.availableCredits.toLocaleString()}원</span>
+              <span className="font-bold text-primary">{credit.availableCredits.toLocaleString()}원</span>
             </div>
           </div>
 
@@ -259,7 +259,7 @@ export default function DeductCreditPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">차감 후 잔액</span>
-                <span className="font-bold text-blue-600">{newBalance.toLocaleString()}원</span>
+                <span className="font-bold text-primary">{newBalance.toLocaleString()}원</span>
               </div>
               <div className="pt-3 border-t border-gray-200">
                 <p className="text-sm text-gray-600 mb-1">차감 사유</p>

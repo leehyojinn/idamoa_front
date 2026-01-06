@@ -61,7 +61,7 @@ export default function AdminPartnershipInquiryDetailPage({ params }: PageProps)
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800'
       case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary-100 text-primary-800'
       case 'COMPLETED':
         return 'bg-green-100 text-green-800'
       case 'CANCELLED':
@@ -76,7 +76,7 @@ export default function AdminPartnershipInquiryDetailPage({ params }: PageProps)
       <AdminGuard>
         <Navbar />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
         </div>
         <Footer />
       </AdminGuard>
@@ -90,7 +90,7 @@ export default function AdminPartnershipInquiryDetailPage({ params }: PageProps)
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-500 mb-4">문의 정보를 불러올 수 없습니다.</p>
-            <Link href="/admin/partnership-inquiries" className="text-blue-600 hover:underline">
+            <Link href="/admin/partnership-inquiries" className="text-primary hover:underline">
               목록으로 돌아가기
             </Link>
           </div>
@@ -142,7 +142,7 @@ export default function AdminPartnershipInquiryDetailPage({ params }: PageProps)
                   disabled={inquiry.status === s || changeStatusMutation.isPending}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     inquiry.status === s
-                      ? 'bg-blue-600 text-white cursor-default'
+                      ? 'bg-primary text-white cursor-default'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200 disabled:opacity-50'
                   }`}
                 >
@@ -168,7 +168,7 @@ export default function AdminPartnershipInquiryDetailPage({ params }: PageProps)
                 <label className="block text-sm font-medium text-gray-500 mb-1">이메일</label>
                 <a
                   href={`mailto:${inquiry.email}`}
-                  className="inline-flex items-center gap-2 text-blue-600 hover:underline"
+                  className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   <FiMail className="w-4 h-4" />
                   {inquiry.email}
@@ -178,7 +178,7 @@ export default function AdminPartnershipInquiryDetailPage({ params }: PageProps)
                 <label className="block text-sm font-medium text-gray-500 mb-1">연락처</label>
                 <a
                   href={`tel:${inquiry.phone}`}
-                  className="inline-flex items-center gap-2 text-blue-600 hover:underline"
+                  className="inline-flex items-center gap-2 text-primary hover:underline"
                 >
                   <FiPhone className="w-4 h-4" />
                   {inquiry.phone}

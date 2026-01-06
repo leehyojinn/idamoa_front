@@ -95,7 +95,7 @@ export default function EstimateProposalsClient({ requestUuid }: EstimateProposa
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      SUBMITTED: { label: '제출됨', color: 'bg-blue-100 text-blue-700' },
+      SUBMITTED: { label: '제출됨', color: 'bg-primary-100 text-primary' },
       VIEWED: { label: '확인됨', color: 'bg-green-100 text-green-700' },
       SELECTED: { label: '수락됨', color: 'bg-purple-100 text-purple-700' },
       REJECTED: { label: '거절됨', color: 'bg-red-100 text-red-700' },
@@ -172,7 +172,7 @@ export default function EstimateProposalsClient({ requestUuid }: EstimateProposa
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">제안서 목록을 불러오는 중...</p>
         </div>
       </div>
@@ -187,7 +187,7 @@ export default function EstimateProposalsClient({ requestUuid }: EstimateProposa
         <p className="text-xl text-gray-500 mb-4">제안서 목록을 볼 권한이 없습니다</p>
         <button
           onClick={() => router.back()}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+          className="px-6 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
         >
           뒤로 가기
         </button>
@@ -207,7 +207,7 @@ export default function EstimateProposalsClient({ requestUuid }: EstimateProposa
           <span className="font-medium">뒤로 가기</span>
         </button>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          제출된 제안서 <span className="text-blue-600">{proposals.length}</span>건
+          제출된 제안서 <span className="text-primary">{proposals.length}</span>건
         </h2>
         <p className="text-gray-600">제출된 제안서를 검토하고 수락하세요</p>
       </div>
@@ -239,7 +239,7 @@ export default function EstimateProposalsClient({ requestUuid }: EstimateProposa
                     </div>
                     <Link
                       href={`/proposals/${proposal.uuid}`}
-                      className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors mb-2 break-words block"
+                      className="text-xl font-bold text-gray-900 hover:text-primary transition-colors mb-2 break-words block"
                     >
                       {proposal.title}
                     </Link>
@@ -311,7 +311,7 @@ export default function EstimateProposalsClient({ requestUuid }: EstimateProposa
                     ) : null}
                     <Link
                       href={`/proposals/${proposal.uuid}`}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                      className="px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg text-sm font-semibold transition-colors"
                     >
                       상세보기
                     </Link>

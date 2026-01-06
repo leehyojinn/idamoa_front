@@ -450,7 +450,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
               {option.name}
             </span>
             {selectedCount > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+              <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                 {selectedCount}
               </span>
             )}
@@ -472,7 +472,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
         onClick={() => handleFilterOptionChange(categoryId, option.id, !isSelected, filterType)}
         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
           isSelected
-            ? 'bg-blue-600 text-white shadow-md'
+            ? 'bg-primary text-white shadow-md'
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
@@ -481,7 +481,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
             ? 'bg-white border-white'
             : 'border-gray-400'
         }`}>
-          {isSelected && <FiCheck className="w-3 h-3 text-blue-600" />}
+          {isSelected && <FiCheck className="w-3 h-3 text-primary" />}
         </span>
         <span className="truncate">{option.name}</span>
       </button>
@@ -669,7 +669,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 onClick={() => handleSelectThumbnail(index)}
                 className={`relative aspect-square bg-gray-100 rounded-lg overflow-hidden group cursor-pointer transition-all ${
                   selectedThumbnailIndex === index
-                    ? 'ring-4 ring-blue-500 ring-offset-2'
+                    ? 'ring-4 ring-primary-400 ring-offset-2'
                     : 'hover:ring-2 hover:ring-gray-300'
                 }`}
               >
@@ -690,7 +690,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                   <FiX className="w-4 h-4" />
                 </button>
                 {selectedThumbnailIndex === index && (
-                  <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-blue-600 text-white text-xs rounded flex items-center gap-1">
+                  <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-primary text-white text-xs rounded flex items-center gap-1">
                     <FiCheck className="w-3 h-3" />
                     대표
                   </span>
@@ -703,11 +703,11 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isCompressing}
-                className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-primary-500 hover:text-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCompressing ? (
                   <>
-                    <div className="w-8 h-8 mb-2 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    <div className="w-8 h-8 mb-2 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                     <span className="text-sm">압축 중...</span>
                   </>
                 ) : (
@@ -744,7 +744,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="포트폴리오 제목을 입력하세요"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 maxLength={100}
               />
             </div>
@@ -758,7 +758,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="포트폴리오에 대한 간략한 설명을 입력하세요"
                 rows={3}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                 maxLength={500}
               />
             </div>
@@ -772,7 +772,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="시공 과정, 사용 자재, 디자인 컨셉 등 상세 내용을 입력하세요"
                 rows={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                 maxLength={5000}
               />
             </div>
@@ -788,13 +788,13 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary-50 text-primary text-sm rounded-full"
                   >
                     #{tag}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="text-blue-400 hover:text-blue-600"
+                      className="text-primary-400 hover:text-primary"
                     >
                       <FiX className="w-3 h-3" />
                     </button>
@@ -808,7 +808,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleTagKeyDown}
                   placeholder="태그 입력 후 엔터"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   maxLength={20}
                 />
                 <button
@@ -842,7 +842,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 value={projectType}
                 onChange={(e) => setProjectType(e.target.value)}
                 placeholder="예: 주거 인테리어, 상업 공간, 리모델링"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 maxLength={50}
               />
             </div>
@@ -857,7 +857,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 onChange={(e) => setProjectDuration(e.target.value ? parseInt(e.target.value) : '')}
                 placeholder="예: 30"
                 min={1}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
             </div>
 
@@ -870,7 +870,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 type="date"
                 value={projectDate}
                 onChange={(e) => setProjectDate(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
             </div>
           </div>
@@ -897,7 +897,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                     onChange={(e) => setBudgetMin(e.target.value ? parseInt(e.target.value) : '')}
                     placeholder="최소"
                     min={0}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <span className="text-gray-400 font-medium">~</span>
@@ -908,7 +908,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                     onChange={(e) => setBudgetMax(e.target.value ? parseInt(e.target.value) : '')}
                     placeholder="최대"
                     min={0}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -929,7 +929,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                 onChange={(e) => setActualCost(e.target.value ? parseInt(e.target.value) : '')}
                 placeholder="예: 3000 (3천만원)"
                 min={0}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               {actualCost && (
                 <p className="text-sm text-gray-500 mt-1">
@@ -950,11 +950,11 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
               ref={filterButtonRef}
               type="button"
               onClick={() => setShowFilterPanel(true)}
-              className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-colors group focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                  <FiFilter className="text-blue-600 text-xl" />
+                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                  <FiFilter className="text-primary text-xl" />
                 </div>
                 <div className="text-left">
                   <p className="font-medium text-gray-900">
@@ -968,12 +968,12 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                   </p>
                 </div>
               </div>
-              <FiChevronRight className="text-gray-400 text-xl group-hover:text-blue-600 transition-colors" />
+              <FiChevronRight className="text-gray-400 text-xl group-hover:text-primary transition-colors" />
             </button>
 
             {/* 선택된 필터 표시 */}
             {selectedFilters.length > 0 && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-sm font-medium text-gray-700">
                     선택된 필터 ({selectedFilters.length})
@@ -990,7 +990,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                   {selectedFilters.map(optionId => (
                     <span
                       key={optionId}
-                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                      className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                     >
                       {getFilterOptionName(optionId)}
                       <button
@@ -1128,7 +1128,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 py-4 bg-primary text-white font-semibold rounded-xl hover:bg-primary-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
@@ -1154,10 +1154,10 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           {/* 사이드 패널 */}
           <div className="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col animate-slide-in-right">
             {/* 헤더 */}
-            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary to-indigo-600 text-white">
               <div>
                 <h3 className="text-lg font-bold">필터 선택</h3>
-                <p className="text-sm text-blue-100">
+                <p className="text-sm text-primary-100">
                   {selectedFilters.length}개 선택됨
                 </p>
               </div>
@@ -1172,7 +1172,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
 
             {/* 선택된 필터 미리보기 */}
             {selectedFilters.length > 0 && (
-              <div className="p-4 bg-blue-50 border-b">
+              <div className="p-4 bg-primary-50 border-b">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">선택된 필터</span>
                   <button
@@ -1187,7 +1187,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                   {selectedFilters.slice(0, 10).map(optionId => (
                     <span
                       key={optionId}
-                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-blue-200"
+                      className="inline-flex items-center gap-1 bg-white text-primary px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-primary-200"
                     >
                       {getFilterOptionName(optionId)}
                       <button
@@ -1212,7 +1212,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
               {isLoadingFilters ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
                     <p className="mt-2 text-gray-600">필터 로딩 중...</p>
                   </div>
                 </div>
@@ -1251,7 +1251,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
                             )}
                           </div>
                           {selectedCount > 0 && (
-                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                               {selectedCount}
                             </span>
                           )}
@@ -1273,7 +1273,7 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
               <button
                 type="button"
                 onClick={() => setShowFilterPanel(false)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-primary hover:bg-primary-800 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 {selectedFilters.length > 0
                   ? `${selectedFilters.length}개 필터 적용하기`

@@ -94,7 +94,7 @@ export const GENERAL_INQUIRY_STATUS_LABELS: Record<GeneralInquiryStatus, string>
 
 export const GENERAL_INQUIRY_STATUS_COLORS: Record<GeneralInquiryStatus, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
-  IN_PROGRESS: 'bg-blue-100 text-blue-800',
+  IN_PROGRESS: 'bg-primary-100 text-primary-800',
   ANSWERED: 'bg-green-100 text-green-800',
   CLOSED: 'bg-gray-100 text-gray-800',
 }
@@ -165,7 +165,7 @@ export const PARTNERSHIP_STATUS_LABELS: Record<PartnershipStatus, string> = {
 
 export const PARTNERSHIP_STATUS_COLORS: Record<PartnershipStatus, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
-  IN_PROGRESS: 'bg-blue-100 text-blue-800',
+  IN_PROGRESS: 'bg-primary-100 text-primary-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800',
 }

@@ -972,7 +972,7 @@ export default function CompanyRegisterPage() {
 
                 {/* 선택된 필터 표시 */}
                 {selectedFilterOptionIds.length > 0 && (
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-sm font-medium text-gray-700">
                         선택된 필터 ({selectedFilterOptionIds.length})
@@ -1006,7 +1006,7 @@ export default function CompanyRegisterPage() {
                         return (
                           <span
                             key={optionId}
-                            className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                            className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                           >
                             {optionName}
                             <button
@@ -1182,7 +1182,7 @@ export default function CompanyRegisterPage() {
 
             {/* 선택된 필터 미리보기 */}
             {selectedFilterOptionIds.length > 0 && (
-              <div className="p-4 bg-blue-50 border-b">
+              <div className="p-4 bg-primary-50 border-b">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">선택된 필터</span>
                   <button
@@ -1214,7 +1214,7 @@ export default function CompanyRegisterPage() {
                     return (
                       <span
                         key={optionId}
-                        className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-blue-200"
+                        className="inline-flex items-center gap-1 bg-white text-primary px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-primary-200"
                       >
                         {optionName}
                         <button
@@ -1300,7 +1300,7 @@ export default function CompanyRegisterPage() {
                                 {option.name}
                               </span>
                               {childSelectedCount > 0 && (
-                                <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                                <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                                   {childSelectedCount}
                                 </span>
                               )}
@@ -1356,7 +1356,7 @@ export default function CompanyRegisterPage() {
                               <span className="text-red-500 text-sm">*</span>
                             )}
                             {selectedCount > 0 && (
-                              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                              <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                                 {selectedCount}
                               </span>
                             )}

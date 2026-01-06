@@ -76,7 +76,7 @@ export default function PasswordResetModal() {
 
     if (strength <= 1) return { strength: 25, label: '약함', color: 'bg-red-500' }
     if (strength === 2) return { strength: 50, label: '보통', color: 'bg-yellow-500' }
-    if (strength === 3) return { strength: 75, label: '강함', color: 'bg-blue-500' }
+    if (strength === 3) return { strength: 75, label: '강함', color: 'bg-primary-800' }
     return { strength: 100, label: '매우 강함', color: 'bg-green-500' }
   }
 
@@ -271,7 +271,7 @@ export default function PasswordResetModal() {
       >
         {/* 헤더 - 그라데이션 배경 (드래그 핸들) */}
         <div
-          className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between rounded-t-3xl z-10 cursor-move select-none"
+          className="sticky top-0 bg-gradient-to-r from-primary to-indigo-600 px-6 py-5 flex items-center justify-between rounded-t-3xl z-10 cursor-move select-none"
           onMouseDown={handleMouseDown}
         >
           <div className="flex items-center gap-3">
@@ -291,12 +291,12 @@ export default function PasswordResetModal() {
         </div>
 
         {/* 진행 단계 표시 - 개선된 디자인 */}
-        <div className="px-6 py-6 bg-gradient-to-b from-blue-50 to-white">
+        <div className="px-6 py-6 bg-gradient-to-b from-primary-50 to-white">
           <div className="flex justify-between items-center relative">
             {/* 연결선 배경 */}
             <div className="absolute top-5 left-0 right-0 h-1 bg-gray-200 rounded-full" style={{ width: 'calc(100% - 40px)', left: '20px' }} />
             <div
-              className="absolute top-5 left-0 h-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500"
+              className="absolute top-5 left-0 h-1 bg-gradient-to-r from-primary to-indigo-600 rounded-full transition-all duration-500"
               style={{
                 width: step === 1 ? '0%' : step === 2 ? 'calc(50% - 20px)' : 'calc(100% - 40px)',
                 left: '20px'
@@ -312,14 +312,14 @@ export default function PasswordResetModal() {
                 <div
                   className={`w-11 h-11 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-300 transform ${
                     step >= num
-                      ? 'bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg scale-110'
+                      ? 'bg-gradient-to-br from-primary to-indigo-600 text-white shadow-lg scale-110'
                       : 'bg-white border-2 border-gray-300 text-gray-400'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
                 </div>
                 <span className={`mt-2 text-xs font-medium transition-colors ${
-                  step >= num ? 'text-blue-700' : 'text-gray-500'
+                  step >= num ? 'text-primary' : 'text-gray-500'
                 }`}>
                   {label}
                 </span>
@@ -334,8 +334,8 @@ export default function PasswordResetModal() {
           {step === 1 && (
             <div className="animate-slideIn">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FaEnvelope className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FaEnvelope className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">이메일 주소 확인</h3>
                 <p className="text-sm text-gray-600">
@@ -362,7 +362,7 @@ export default function PasswordResetModal() {
                           message: '올바른 이메일 형식이 아닙니다',
                         },
                       })}
-                      className={`w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      className={`w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all ${
                         errorsStep1.email ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:bg-white'
                       }`}
                       placeholder="example@email.com"
@@ -379,7 +379,7 @@ export default function PasswordResetModal() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl font-bold hover:from-primary-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -403,9 +403,9 @@ export default function PasswordResetModal() {
                   <FaCheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-lg font-bold text-gray-900 mb-2">이메일 인증</h3>
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
-                  <p className="text-sm text-blue-900">
-                    <span className="font-bold text-blue-700">{email}</span><br />
+                <div className="bg-gradient-to-r from-primary-50 to-primary-100 border-2 border-primary-200 rounded-xl p-4 mb-4">
+                  <p className="text-sm text-primary">
+                    <span className="font-bold text-primary">{email}</span><br />
                     위 이메일로 인증 코드를 발송합니다
                   </p>
                 </div>
@@ -461,7 +461,7 @@ export default function PasswordResetModal() {
                           message: '6자리 숫자를 입력해주세요',
                         },
                       })}
-                      className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-3xl font-bold tracking-[0.5em] transition-all ${
+                      className={`w-full px-4 py-4 border-2 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-500 text-center text-3xl font-bold tracking-[0.5em] transition-all ${
                         errorsStep2.code ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:bg-white'
                       }`}
                       placeholder="000000"
@@ -477,7 +477,7 @@ export default function PasswordResetModal() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl font-bold hover:from-primary-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center gap-2">
@@ -529,7 +529,7 @@ export default function PasswordResetModal() {
                           message: '8자 이상, 영문, 숫자, 특수문자(@$!%*#?&)를 포함해야 합니다',
                         },
                       })}
-                      className={`w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      className={`w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all ${
                         errorsStep3.newPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:bg-white'
                       }`}
                       placeholder="8자 이상, 영문, 숫자, 특수문자 포함"
@@ -543,7 +543,7 @@ export default function PasswordResetModal() {
                         <span className="text-xs font-medium text-gray-600">비밀번호 강도</span>
                         <span className={`text-xs font-bold ${
                           passwordStrength.strength === 100 ? 'text-green-600' :
-                          passwordStrength.strength === 75 ? 'text-blue-600' :
+                          passwordStrength.strength === 75 ? 'text-primary' :
                           passwordStrength.strength === 50 ? 'text-yellow-600' : 'text-red-600'
                         }`}>
                           {passwordStrength.label}
@@ -606,7 +606,7 @@ export default function PasswordResetModal() {
                         required: '비밀번호 확인을 입력해주세요',
                         validate: (value) => value === newPassword || '비밀번호가 일치하지 않습니다',
                       })}
-                      className={`w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                      className={`w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-500 transition-all ${
                         errorsStep3.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 focus:bg-white'
                       }`}
                       placeholder="비밀번호를 다시 입력하세요"
@@ -623,7 +623,7 @@ export default function PasswordResetModal() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl font-bold hover:from-primary-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">

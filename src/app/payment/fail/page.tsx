@@ -81,8 +81,8 @@ function PaymentFailContent() {
           </div>
 
           {/* 고객센터 안내 */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <p className="text-xs text-blue-900 text-center">
+          <div className="mt-6 p-4 bg-primary-50 rounded-lg">
+            <p className="text-xs text-primary text-center">
               문제가 계속되면 고객센터로 문의해 주세요<br />
               (문의: contact@damoa.com)
             </p>

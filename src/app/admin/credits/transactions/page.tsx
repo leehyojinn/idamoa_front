@@ -298,7 +298,7 @@ export default function AllTransactionsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <button
                           onClick={() => router.push(`/admin/credits/users/${tx.userUuid}`)}
-                          className="text-blue-600 hover:text-blue-900 flex items-center gap-1 justify-end ml-auto"
+                          className="text-primary hover:text-primary flex items-center gap-1 justify-end ml-auto"
                         >
                           <IoEye />
                           상세

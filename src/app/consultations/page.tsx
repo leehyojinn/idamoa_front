@@ -20,7 +20,7 @@ const STATUS_LABELS = {
 }
 
 const STATUS_COLORS = {
-  SUBMITTED: 'bg-blue-100 text-blue-800',
+  SUBMITTED: 'bg-primary-100 text-primary-800',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800'
@@ -122,12 +122,12 @@ export default function ConsultationsListPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">빠른상담</h1>
             <p className="text-gray-600">
-              총 <span className="font-semibold text-blue-600">{totalElements}</span>개의 상담
+              총 <span className="font-semibold text-primary">{totalElements}</span>개의 상담
             </p>
           </div>
           <Link
             href="/consultations/new"
-            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors"
           >
             <FiPlus />
             상담 신청하기
@@ -156,7 +156,7 @@ export default function ConsultationsListPage() {
                 onClick={() => handleStatusChange('')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedStatus === ''
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -166,7 +166,7 @@ export default function ConsultationsListPage() {
                 onClick={() => handleStatusChange('SUBMITTED')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedStatus === 'SUBMITTED'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -176,7 +176,7 @@ export default function ConsultationsListPage() {
                 onClick={() => handleStatusChange('IN_PROGRESS')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedStatus === 'IN_PROGRESS'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -186,7 +186,7 @@ export default function ConsultationsListPage() {
                 onClick={() => handleStatusChange('COMPLETED')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedStatus === 'COMPLETED'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -196,7 +196,7 @@ export default function ConsultationsListPage() {
                 onClick={() => handleStatusChange('CANCELLED')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedStatus === 'CANCELLED'
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-primary text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
@@ -209,7 +209,7 @@ export default function ConsultationsListPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">상담 목록을 불러오는 중...</p>
           </div>
         ) : consultations.length === 0 ? (
@@ -218,7 +218,7 @@ export default function ConsultationsListPage() {
             <p className="text-gray-500 text-lg mb-4">등록된 상담이 없습니다</p>
             <Link
               href="/consultations/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors"
             >
               <FiPlus />
               상담 신청하기
@@ -262,7 +262,7 @@ export default function ConsultationsListPage() {
                       </span>
                     )}
                     {consultation.isMyConsultation && (
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                      <span className="px-2 py-1 bg-primary-100 text-primary rounded text-xs font-medium">
                         내 상담
                       </span>
                     )}
@@ -290,7 +290,7 @@ export default function ConsultationsListPage() {
                         onClick={() => handlePageChange(page)}
                         className={`px-4 py-2 rounded-lg transition-colors ${
                           currentPage === page
-                            ? 'bg-blue-600 text-white font-semibold'
+                            ? 'bg-primary text-white font-semibold'
                             : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                         }`}
                       >

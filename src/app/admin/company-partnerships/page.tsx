@@ -146,7 +146,7 @@ export default function AdminCompanyPartnershipsPage() {
                   )}
                   <Link
                     href="/admin/company-partnerships/create"
-                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-800 transition-colors"
                   >
                     <FiPlus className="w-5 h-5" />
                     제휴업체 등록
@@ -176,7 +176,7 @@ export default function AdminCompanyPartnershipsPage() {
                   setPage(0)
                 }}
                 disabled={isReorderMode}
-                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:bg-gray-100"
               >
                 <option value="">전체</option>
                 {(Object.keys(COMPANY_PARTNERSHIP_STATUS_LABELS) as CompanyPartnershipStatus[]).map((s) => (
@@ -191,7 +191,7 @@ export default function AdminCompanyPartnershipsPage() {
           {/* 테이블 */}
           {isLoading ? (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
               <p className="mt-2 text-gray-600">로딩 중...</p>
             </div>
           ) : error ? (
@@ -244,7 +244,7 @@ export default function AdminCompanyPartnershipsPage() {
                                 min="0"
                                 value={orderMap[partnership.uuid] ?? partnership.displayOrder}
                                 onChange={(e) => handleOrderChange(partnership.uuid, e.target.value)}
-                                className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-20 border border-gray-300 rounded-lg px-3 py-2 text-center focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                               />
                             ) : (
                               partnership.displayOrder
@@ -253,7 +253,7 @@ export default function AdminCompanyPartnershipsPage() {
                           <td className="px-4 py-4 whitespace-nowrap">
                             <Link
                               href={`/admin/company-partnerships/${partnership.uuid}`}
-                              className="text-blue-600 hover:underline font-medium"
+                              className="text-primary hover:underline font-medium"
                             >
                               {partnership.companyName}
                             </Link>
@@ -281,7 +281,7 @@ export default function AdminCompanyPartnershipsPage() {
                               <div className="flex items-center gap-2">
                                 <Link
                                   href={`/admin/company-partnerships/${partnership.uuid}/edit`}
-                                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                  className="p-2 text-primary hover:bg-primary-50 rounded-lg transition-colors"
                                   title="수정"
                                 >
                                   <FiEdit2 className="w-4 h-4" />

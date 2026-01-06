@@ -218,7 +218,7 @@ export default function NotificationDropdown() {
             <div className="max-h-[400px] overflow-y-auto">
               {loading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                 </div>
               ) : !notifications || notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-gray-500">
@@ -232,7 +232,7 @@ export default function NotificationDropdown() {
                       key={notification.uuid}
                       onClick={() => handleNotificationClick(notification)}
                       className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        !notification.isRead ? 'bg-blue-50/50' : ''
+                        !notification.isRead ? 'bg-primary-50/50' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -240,7 +240,7 @@ export default function NotificationDropdown() {
                           {/* 제목 */}
                           <div className="flex items-center gap-2 mb-1">
                             {!notification.isRead && (
-                              <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+                              <span className="w-2 h-2 bg-primary-800 rounded-full flex-shrink-0"></span>
                             )}
                             <h4 className="font-medium text-sm text-gray-900 truncate">
                               {notification.title}

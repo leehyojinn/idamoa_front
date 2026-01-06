@@ -51,7 +51,7 @@ export default function PromotedPortfoliosPage() {
       case 'PREMIUM':
         return { label: '강력우대', color: 'bg-yellow-100 text-yellow-800' }
       case 'STANDARD':
-        return { label: '일반우대', color: 'bg-blue-100 text-blue-800' }
+        return { label: '일반우대', color: 'bg-primary-100 text-primary-800' }
       default:
         return { label: type, color: 'bg-gray-100 text-gray-800' }
     }
@@ -103,7 +103,7 @@ export default function PromotedPortfoliosPage() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : portfolios.length === 0 ? (
@@ -112,7 +112,7 @@ export default function PromotedPortfoliosPage() {
             <p className="text-gray-500 text-lg mb-4">우대등록 중인 포트폴리오가 없습니다</p>
             <Link
               href="/portfolios/create"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
             >
               포트폴리오 등록하기
             </Link>
@@ -216,7 +216,7 @@ export default function PromotedPortfoliosPage() {
                         </Link>
                         <Link
                           href={`/portfolios/${portfolio.uuid}/edit`}
-                          className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-center text-sm font-medium transition-colors flex items-center justify-center gap-1"
+                          className="flex-1 py-2 px-4 bg-primary hover:bg-primary-800 text-white rounded-lg text-center text-sm font-medium transition-colors flex items-center justify-center gap-1"
                         >
                           <FiEdit className="w-4 h-4" />
                           수정

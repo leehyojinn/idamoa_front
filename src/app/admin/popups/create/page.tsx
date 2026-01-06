@@ -122,7 +122,7 @@ export default function CreatePopupPage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 maxLength={200}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="팝업 제목을 입력하세요"
               />
             </div>
@@ -158,7 +158,7 @@ export default function CreatePopupPage() {
                 value={formData.linkUrl}
                 onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
                 maxLength={500}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="example.com (http/https 자동 추가)"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -183,7 +183,7 @@ export default function CreatePopupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, width: parseInt(e.target.value) || undefined })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
@@ -198,7 +198,7 @@ export default function CreatePopupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, height: parseInt(e.target.value) || undefined })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function CreatePopupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, position: e.target.value as PopupPosition })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               >
                 {(Object.keys(POSITION_LABELS) as PopupPosition[]).map((pos) => (
                   <option key={pos} value={pos}>
@@ -236,7 +236,7 @@ export default function CreatePopupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, offsetX: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
 
@@ -251,7 +251,7 @@ export default function CreatePopupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, offsetY: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -275,7 +275,7 @@ export default function CreatePopupPage() {
                   timeIntervals={15}
                   dateFormat="yyyy-MM-dd HH:mm"
                   placeholderText="시작일시 선택"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
@@ -292,7 +292,7 @@ export default function CreatePopupPage() {
                   dateFormat="yyyy-MM-dd HH:mm"
                   placeholderText="종료일시 선택"
                   minDate={displayStartDate || undefined}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -308,7 +308,7 @@ export default function CreatePopupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               <p className="mt-1 text-xs text-gray-500">낮을수록 먼저 표시됩니다</p>
             </div>
@@ -319,7 +319,7 @@ export default function CreatePopupPage() {
                   type="checkbox"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary-400"
                 />
                 <span className="ml-2 text-sm text-gray-700">활성화</span>
               </label>
@@ -337,7 +337,7 @@ export default function CreatePopupPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-4 px-6 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-4 px-6 bg-primary text-white rounded-xl font-semibold hover:bg-primary-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? '생성 중...' : '팝업 생성'}
             </button>

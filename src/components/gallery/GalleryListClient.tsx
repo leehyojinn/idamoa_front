@@ -577,7 +577,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             >
               <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
                 isSelected
-                  ? 'bg-blue-600 border-blue-600'
+                  ? 'bg-primary border-primary'
                   : 'border-gray-300'
               }`}>
                 {isSelected && (
@@ -588,7 +588,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               </div>
               <span className="text-sm font-medium text-gray-700 flex-1">{option.name}</span>
               {selectedCount > 0 && (
-                <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                <span className="bg-primary-100 text-primary text-xs px-1.5 py-0.5 rounded-full">
                   {selectedCount}
                 </span>
               )}
@@ -650,7 +650,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     <div className={isMobile ? '' : 'space-y-4'}>
       {isLoadingFilters ? (
         <div className="text-center py-8">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
           <p className="mt-2 text-gray-600">필터 로딩 중...</p>
         </div>
       ) : filterCategories.length > 0 ? (
@@ -675,7 +675,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                     {category.name}
                   </span>
                   {selectedCount > 0 && (
-                    <span className="bg-blue-100 text-blue-700 text-xs px-1.5 py-0.5 rounded-full">
+                    <span className="bg-primary-100 text-primary text-xs px-1.5 py-0.5 rounded-full">
                       {selectedCount}
                     </span>
                   )}
@@ -711,13 +711,13 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="검색어 입력..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             </div>
             <button
               onClick={handleSearch}
-              className="w-full mt-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              className="w-full mt-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg text-sm font-medium transition-colors"
             >
               검색
             </button>
@@ -726,14 +726,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               onClick={() => setShowPCFilterPopup(true)}
               className={`w-full mt-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
                 selectedFilterOptionIds.length > 0
-                  ? 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-300'
+                  ? 'bg-primary-100 text-primary hover:bg-primary-200 border border-primary-300'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
               }`}
             >
               <FiFilter />
               모든 필터보기
               {selectedFilterOptionIds.length > 0 && (
-                <span className="bg-blue-600 text-white px-1.5 py-0.5 rounded-full text-xs font-bold">
+                <span className="bg-primary text-white px-1.5 py-0.5 rounded-full text-xs font-bold">
                   {selectedFilterOptionIds.length}
                 </span>
               )}
@@ -743,7 +743,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           <div className="border-t border-gray-100 pt-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-bold text-gray-900 flex items-center gap-2 text-sm">
-                <FiFilter className="text-blue-600" />
+                <FiFilter className="text-primary" />
                 필터
               </h3>
               {(selectedFilterOptionIds.length > 0 || keyword) && (
@@ -762,7 +762,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   {selectedTags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs"
+                      className="inline-flex items-center gap-1 bg-primary-100 text-primary px-2 py-0.5 rounded text-xs"
                     >
                       {tag}
                       <button onClick={() => handleRemoveTag(tag)}>
@@ -791,7 +791,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           {user && (
             <Link
               href="/photos/create"
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="flex items-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
               <FiPlus className="text-xl" />
               포트폴리오 등록
@@ -801,16 +801,16 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
         {/* 업체 필터 표시 */}
         {companyUuid && companyName && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <FiFilter className="text-blue-600" />
-              <span className="text-blue-800 font-medium">
+              <FiFilter className="text-primary" />
+              <span className="text-primary-800 font-medium">
                 <span className="font-bold">{companyName}</span> 업체의 포트폴리오만 보기
               </span>
             </div>
             <button
               onClick={handleClearCompanyFilter}
-              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 font-medium text-sm"
+              className="flex items-center gap-1 text-primary hover:text-primary font-medium text-sm"
             >
               <FiX />
               필터 해제
@@ -830,14 +830,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="제목, 설명, 태그 등 검색..."
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
               </div>
             </div>
             <button
               onClick={handleSearch}
-              className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+              className="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
             >
               검색
             </button>
@@ -904,7 +904,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   }}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
                     onlyMyPosts
-                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                      ? 'bg-primary-100 text-primary border-2 border-primary-300'
                       : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
                   }`}
                 >
@@ -919,14 +919,14 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               onClick={() => setShowMobileFilterPopup(true)}
               className={`lg:hidden flex items-center gap-2 px-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ml-auto ${
                 selectedFilterOptionIds.length > 0
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  ? 'bg-primary text-white hover:bg-primary-800'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               <FiFilter />
               <span className="whitespace-nowrap">모든 필터</span>
               {selectedFilterOptionIds.length > 0 && (
-                <span className="bg-white text-blue-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                <span className="bg-white text-primary px-1.5 py-0.5 rounded-full text-xs font-bold">
                   {selectedFilterOptionIds.length}
                 </span>
               )}
@@ -935,7 +935,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
           {/* 선택된 필터 미리보기 (모바일) */}
           {selectedTags.length > 0 && (
-            <div className="lg:hidden flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <div className="lg:hidden flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200">
               <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
                 <FiTag />
                 선택된 필터:
@@ -943,12 +943,12 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               {selectedTags.map(tag => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                  className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                 >
                   {tag}
                   <button
                     onClick={() => handleRemoveTag(tag)}
-                    className="ml-1 hover:text-blue-900 transition-colors"
+                    className="ml-1 hover:text-primary transition-colors"
                   >
                     <FiX className="w-3 h-3" />
                   </button>
@@ -967,7 +967,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
       {/* 포트폴리오 그리드 */}
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
           <p className="mt-4 text-gray-600">포트폴리오 불러오는 중...</p>
         </div>
       ) : galleries.length === 0 ? (
@@ -976,7 +976,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           {user && (
             <Link
               href="/photos/create"
-              className="inline-flex items-center gap-2 mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="inline-flex items-center gap-2 mt-6 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
               <FiPlus className="text-xl" />
               첫 포트폴리오 등록하기
@@ -1101,7 +1101,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                         e.stopPropagation()
                         window.open(gallery.relatedLink, '_blank', 'noopener,noreferrer')
                       }}
-                      className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 hover:underline"
+                      className="flex items-center gap-1 text-sm text-primary hover:text-primary hover:underline"
                     >
                       <FiExternalLink className="text-xs" />
                       관련 링크
@@ -1226,7 +1226,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                       onClick={() => handlePageChange(pageNum)}
                       className={`flex-shrink-0 min-w-[36px] px-2 py-2 text-sm sm:min-w-[40px] sm:px-3 sm:text-base rounded-lg ${
                         currentPage === pageNum
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-primary text-white'
                           : 'border border-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -1261,10 +1261,10 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
             <div className="sticky top-0 bg-white p-4 border-b z-10">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-lg flex items-center gap-2">
-                  <FiFilter className="text-blue-600" />
+                  <FiFilter className="text-primary" />
                   검색 및 필터
                   {selectedFilterOptionIds.length > 0 && (
-                    <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-sm">
+                    <span className="bg-primary-100 text-primary px-2 py-0.5 rounded-full text-sm">
                       {selectedFilterOptionIds.length}
                     </span>
                   )}
@@ -1294,7 +1294,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="검색어 입력..."
-                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
                 <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               </div>
@@ -1302,13 +1302,13 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
             {/* 선택된 필터 표시 */}
             {selectedTags.length > 0 && (
-              <div className="px-4 py-3 bg-blue-50 border-b border-blue-100">
+              <div className="px-4 py-3 bg-primary-50 border-b border-primary-100">
                 <p className="text-xs text-gray-600 mb-2">선택된 필터</p>
                 <div className="flex flex-wrap gap-1">
                   {selectedTags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                      className="inline-flex items-center gap-1 bg-white text-primary px-2 py-1 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                     >
                       {tag}
                       <button onClick={() => handleRemoveTag(tag)}>
@@ -1332,7 +1332,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   handleSearch()
                   setShowMobileFilterPopup(false)
                 }}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-primary hover:bg-primary-800 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 검색하기
               </button>
@@ -1353,10 +1353,10 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
           {/* 팝업 컨텐츠 */}
           <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] mx-4 overflow-hidden flex flex-col">
             {/* 헤더 */}
-            <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-primary to-indigo-600 text-white">
               <div>
                 <h3 className="text-xl font-bold">모든 필터</h3>
-                <p className="text-sm text-blue-100">
+                <p className="text-sm text-primary-100">
                   {selectedFilterOptionIds.length > 0
                     ? `${selectedFilterOptionIds.length}개 필터 선택됨`
                     : '원하는 필터를 선택하세요'
@@ -1383,13 +1383,13 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
             {/* 선택된 필터 표시 */}
             {selectedTags.length > 0 && (
-              <div className="px-5 py-3 bg-blue-50 border-b border-blue-100">
+              <div className="px-5 py-3 bg-primary-50 border-b border-primary-100">
                 <p className="text-xs text-gray-600 mb-2 font-medium">선택된 필터</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedTags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                      className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                     >
                       {tag}
                       <button onClick={() => handleRemoveTag(tag)} className="hover:text-red-600 transition-colors">
@@ -1406,7 +1406,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
               {isLoadingFilters ? (
                 <div className="flex items-center justify-center h-64">
                   <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-blue-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-primary"></div>
                     <p className="mt-3 text-gray-600">필터 로딩 중...</p>
                   </div>
                 </div>
@@ -1432,7 +1432,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                             {category.name}
                           </h4>
                           {selectedCount > 0 && (
-                            <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                            <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-medium">
                               {selectedCount}
                             </span>
                           )}
@@ -1466,7 +1466,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                   handleSearch()
                   setShowPCFilterPopup(false)
                 }}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="flex-1 bg-primary hover:bg-primary-800 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 {selectedFilterOptionIds.length > 0
                   ? `${selectedFilterOptionIds.length}개 필터 적용하기`

@@ -415,9 +415,9 @@ export default function FloatingChatButton({
             }}
           >
             {/* Header */}
-            <div className="bg-blue-600 text-white p-4 flex items-center gap-3">
+            <div className="bg-primary text-white p-4 flex items-center gap-3">
               {selectedRoom && (
-                <button onClick={handleBack} className="p-1 hover:bg-blue-700 rounded">
+                <button onClick={handleBack} className="p-1 hover:bg-primary-800 rounded">
                   <FiArrowLeft className="w-5 h-5" />
                 </button>
               )}
@@ -436,7 +436,7 @@ export default function FloatingChatButton({
                   <button
                     onClick={refreshMessages}
                     disabled={isLoadingMessages}
-                    className="p-1 hover:bg-blue-700 rounded disabled:opacity-50"
+                    className="p-1 hover:bg-primary-800 rounded disabled:opacity-50"
                     title="새로고침"
                   >
                     <FiRefreshCw className={`w-5 h-5 ${isLoadingMessages ? 'animate-spin' : ''}`} />
@@ -446,7 +446,7 @@ export default function FloatingChatButton({
                       setIsMessageSearchOpen(!isMessageSearchOpen)
                       if (isMessageSearchOpen) setMessageSearchQuery('')
                     }}
-                    className={`p-1 hover:bg-blue-700 rounded ${isMessageSearchOpen ? 'bg-blue-700' : ''}`}
+                    className={`p-1 hover:bg-primary-800 rounded ${isMessageSearchOpen ? 'bg-primary-700' : ''}`}
                     title="메시지 검색"
                   >
                     <FiSearch className="w-5 h-5" />
@@ -460,7 +460,7 @@ export default function FloatingChatButton({
                   </button>
                 </>
               )}
-              <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-blue-700 rounded">
+              <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-primary-800 rounded">
                 <FiX className="w-5 h-5" />
               </button>
             </div>
@@ -479,14 +479,14 @@ export default function FloatingChatButton({
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="대화방 검색"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                       />
                     </div>
                   </div>
 
                   {isLoadingRooms ? (
                     <div className="flex items-center justify-center flex-1">
-                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
+                      <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
                     </div>
                   ) : filteredChatRooms.length === 0 ? (
                     <div className="flex flex-col items-center justify-center flex-1 text-gray-500">
@@ -562,7 +562,7 @@ export default function FloatingChatButton({
                           value={messageSearchQuery}
                           onChange={(e) => setMessageSearchQuery(e.target.value)}
                           placeholder="메시지 검색"
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                           autoFocus
                         />
                         {messageSearchQuery && (
@@ -577,7 +577,7 @@ export default function FloatingChatButton({
                   <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3">
                     {isLoadingMessages ? (
                       <div className="flex items-center justify-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
+                        <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent" />
                       </div>
                     ) : filteredMessages.length === 0 ? (
                       <div className="flex flex-col items-center justify-center h-full text-gray-500">
@@ -591,7 +591,7 @@ export default function FloatingChatButton({
                             <button
                               onClick={loadMoreMessages}
                               disabled={isLoadingMore}
-                              className="text-xs text-blue-600 hover:text-blue-800 disabled:text-gray-400 py-1 px-3 rounded-full bg-blue-50 hover:bg-blue-100 transition-colors"
+                              className="text-xs text-primary hover:text-primary disabled:text-gray-400 py-1 px-3 rounded-full bg-primary-50 hover:bg-primary-100 transition-colors"
                             >
                               {isLoadingMore ? '불러오는 중...' : '이전 메시지 보기'}
                             </button>
@@ -605,7 +605,7 @@ export default function FloatingChatButton({
                           <div
                             className={`max-w-[70%] rounded-lg px-4 py-2 ${
                               message.isMine
-                                ? 'bg-blue-600 text-white'
+                                ? 'bg-primary text-white'
                                 : 'bg-gray-100 text-gray-900'
                             }`}
                           >
@@ -634,7 +634,7 @@ export default function FloatingChatButton({
                             )}
                             <span
                               className={`text-xs mt-1 block ${
-                                message.isMine ? 'text-blue-200' : 'text-gray-400'
+                                message.isMine ? 'text-primary-200' : 'text-gray-400'
                               }`}
                             >
                               {formatTime(message.createdAt)}
@@ -672,12 +672,12 @@ export default function FloatingChatButton({
                       onChange={handleInputChange}
                       onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                       placeholder="메시지를 입력하세요"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                     <button
                       onClick={handleSendMessage}
                       disabled={!messageInput.trim()}
-                      className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="p-2 bg-primary text-white rounded-full hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <FiSend className="w-5 h-5" />
                     </button>

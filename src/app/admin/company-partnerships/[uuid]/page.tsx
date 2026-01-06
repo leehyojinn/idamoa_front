@@ -76,7 +76,7 @@ export default function AdminCompanyPartnershipDetailPage({ params }: PageProps)
       <AdminGuard>
         <Navbar />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
         </div>
         <Footer />
       </AdminGuard>
@@ -90,7 +90,7 @@ export default function AdminCompanyPartnershipDetailPage({ params }: PageProps)
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-500 mb-4">제휴 정보를 불러올 수 없습니다.</p>
-            <Link href="/admin/company-partnerships" className="text-blue-600 hover:underline">
+            <Link href="/admin/company-partnerships" className="text-primary hover:underline">
               목록으로 돌아가기
             </Link>
           </div>

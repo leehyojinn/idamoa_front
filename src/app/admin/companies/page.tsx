@@ -129,7 +129,7 @@ export default function AdminCompaniesPage() {
           <h1 className="text-2xl font-bold text-gray-900">업체 관리</h1>
           <Link
             href="/admin/companies/create"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
           >
             + 업체 추가
           </Link>
@@ -141,7 +141,7 @@ export default function AdminCompaniesPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체 상태</option>
               <option value="ACTIVE">활성</option>
@@ -156,7 +156,7 @@ export default function AdminCompaniesPage() {
                   e.target.value === '' ? '' : e.target.value === 'true'
                 )
               }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체 인증 상태</option>
               <option value="true">인증됨</option>
@@ -170,7 +170,7 @@ export default function AdminCompaniesPage() {
                   e.target.value === '' ? '' : e.target.value === 'true'
                 )
               }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체 추천 상태</option>
               <option value="true">추천</option>
@@ -182,7 +182,7 @@ export default function AdminCompaniesPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : filteredCompanies.length === 0 ? (
@@ -222,14 +222,14 @@ export default function AdminCompaniesPage() {
                         <div>
                           <Link
                             href={`/companies/${company.slug}`}
-                            className="font-medium text-gray-900 hover:text-blue-600"
+                            className="font-medium text-gray-900 hover:text-primary"
                             title={company.name}
                           >
                             {company.name}
                           </Link>
                           <div className="flex gap-1 mt-1">
                             {company.verified && (
-                              <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">
+                              <span className="px-2 py-0.5 bg-primary-100 text-primary-800 text-xs rounded">
                                 인증
                               </span>
                             )}
@@ -278,7 +278,7 @@ export default function AdminCompaniesPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <Link
                           href={`/admin/companies/${company.uuid}/edit`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-primary hover:text-primary"
                         >
                           수정
                         </Link>

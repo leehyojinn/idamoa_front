@@ -221,7 +221,7 @@ export default function AdminGalleryDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -257,7 +257,7 @@ export default function AdminGalleryDetailPage() {
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               maxLength={200}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="제목을 입력하세요"
               required
             />
@@ -273,7 +273,7 @@ export default function AdminGalleryDetailPage() {
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               rows={6}
               maxLength={5000}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="내용을 입력하세요"
             />
           </div>
@@ -299,7 +299,7 @@ export default function AdminGalleryDetailPage() {
               />
               <label
                 htmlFor="image-upload"
-                className={`inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer ${
+                className={`inline-flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 cursor-pointer ${
                   isUploadingImages ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
               >
@@ -356,7 +356,7 @@ export default function AdminGalleryDetailPage() {
                   setFormData({ ...formData, relatedLink: formatted })
                 }
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="example.com/portfolio/123"
             />
           </div>
@@ -376,7 +376,7 @@ export default function AdminGalleryDetailPage() {
                       copyright: { ...formData.copyright, owner: e.target.value },
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="홍길동 디자인"
                 />
               </div>
@@ -391,7 +391,7 @@ export default function AdminGalleryDetailPage() {
                       copyright: { ...formData.copyright, license: e.target.value },
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 >
                   <option value="All Rights Reserved">All Rights Reserved</option>
                   <option value="CC BY">CC BY (저작자 표시)</option>
@@ -410,7 +410,7 @@ export default function AdminGalleryDetailPage() {
                       copyright: { ...formData.copyright, attribution: e.target.value },
                     })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 >
                   <option value="필수">필수</option>
                   <option value="선택">선택</option>
@@ -433,13 +433,13 @@ export default function AdminGalleryDetailPage() {
                     handleAddTag()
                   }
                 }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="태그 입력 후 Enter"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600"
               >
                 추가
               </button>
@@ -449,13 +449,13 @@ export default function AdminGalleryDetailPage() {
                 {formData.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm flex items-center gap-2"
+                    className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm flex items-center gap-2"
                   >
                     #{tag}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="text-blue-600 hover:text-blue-900"
+                      className="text-primary hover:text-primary"
                     >
                       ×
                     </button>
@@ -478,7 +478,7 @@ export default function AdminGalleryDetailPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50"
             >
               {isSubmitting ? (isNew ? '생성 중...' : '수정 중...') : isNew ? '생성' : '수정'}
             </button>

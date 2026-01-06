@@ -36,7 +36,7 @@ export default function AdminGalleryPromotionsPage() {
       case 'PREMIUM':
         return { label: '강력우대', color: 'bg-yellow-100 text-yellow-800' }
       case 'STANDARD':
-        return { label: '일반우대', color: 'bg-blue-100 text-blue-800' }
+        return { label: '일반우대', color: 'bg-primary-100 text-primary-800' }
       default:
         return { label: type, color: 'bg-gray-100 text-gray-800' }
     }
@@ -92,7 +92,7 @@ export default function AdminGalleryPromotionsPage() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : promotions.length === 0 ? (
@@ -132,7 +132,7 @@ export default function AdminGalleryPromotionsPage() {
                             <Link
                               href={`/photos/${promo.boardUuid}`}
                               target="_blank"
-                              className="text-blue-600 hover:text-blue-700"
+                              className="text-primary hover:text-primary"
                             >
                               <FiExternalLink className="w-4 h-4" />
                             </Link>
@@ -207,7 +207,7 @@ export default function AdminGalleryPromotionsPage() {
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <p className="text-sm text-gray-600">STANDARD 우대</p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-primary">
                 {promotions.filter(p => p.promotionType === 'STANDARD').length}건
               </p>
             </div>

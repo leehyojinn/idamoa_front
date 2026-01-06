@@ -191,7 +191,7 @@ export default function AdminCreditPackagesPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center gap-3">
-                <IoCash className="text-3xl text-blue-600" />
+                <IoCash className="text-3xl text-primary" />
                 <div>
                   <p className="text-sm text-gray-600">전체 패키지</p>
                   <p className="text-2xl font-bold text-gray-900">{totalElements}개</p>
@@ -346,7 +346,7 @@ export default function AdminCreditPackagesPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => router.push(`/admin/credit-packages/${pkg.uuid}/edit`)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-primary hover:text-primary"
                           >
                             수정
                           </button>

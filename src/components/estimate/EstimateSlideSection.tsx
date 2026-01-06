@@ -68,7 +68,7 @@ export default function EstimateSlideSection() {
       return <span className="px-2 py-1 rounded text-xs bg-gray-200 text-gray-700">마감</span>
     }
     if (status === 'IN_PROGRESS' || status === 'PUBLISHED') {
-      return <span className="px-2 py-1 rounded text-xs bg-blue-100 text-blue-700">진행중</span>
+      return <span className="px-2 py-1 rounded text-xs bg-primary-100 text-primary">진행중</span>
     }
     return <span className="px-2 py-1 rounded text-xs bg-green-100 text-green-700">접수중</span>
   }
@@ -82,7 +82,7 @@ export default function EstimateSlideSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* 헤더 */}
         <div className="text-center mb-8">
-          <p className="inline-block text-gray-800 text-lg bg-blue-100/80 mx-auto px-6 py-1 rounded-full shadow-md mb-3">
+          <p className="inline-block text-gray-800 text-lg bg-primary-100/80 mx-auto px-6 py-1 rounded-full shadow-md mb-3">
             인테리어 전문 매칭 플랫폼
           </p>
           <h2 className="text-3xl md:text-4xl mb-6 text-gray-800 font-bold">

@@ -199,7 +199,7 @@ export default function ConsultationsPage() {
                 maxLength={100}
                 value={formData.name}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="홍길동"
               />
             </div>
@@ -214,7 +214,7 @@ export default function ConsultationsPage() {
                 required
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="010-1234-5678"
               />
               <p className="mt-1 text-sm text-gray-500">숫자만 입력하시면 자동으로 하이픈이 추가됩니다</p>
@@ -230,7 +230,7 @@ export default function ConsultationsPage() {
                 maxLength={255}
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="hong@example.com"
               />
             </div>
@@ -248,7 +248,7 @@ export default function ConsultationsPage() {
                 pattern="\d{4}"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="1234"
               />
               <p className="mt-1 text-sm text-gray-500">
@@ -275,7 +275,7 @@ export default function ConsultationsPage() {
                 maxLength={200}
                 value={formData.subject}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="인테리어 견적 문의드립니다"
               />
             </div>
@@ -292,7 +292,7 @@ export default function ConsultationsPage() {
                 rows={8}
                 value={formData.message}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                 placeholder="상담 내용을 자세히 입력해주세요 (10자 이상)"
               />
               <p className="mt-1 text-sm text-gray-500">
@@ -310,7 +310,7 @@ export default function ConsultationsPage() {
                 maxLength={20}
                 value={formData.preferredContactMethod}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="전화, 이메일, 문자 등"
               />
             </div>
@@ -325,7 +325,7 @@ export default function ConsultationsPage() {
                 maxLength={100}
                 value={formData.preferredContactTime}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="오전 10시~12시"
               />
             </div>
@@ -402,7 +402,7 @@ export default function ConsultationsPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-1 py-3 px-6 bg-primary text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? '신청 중...' : '상담 신청하기'}
           </button>

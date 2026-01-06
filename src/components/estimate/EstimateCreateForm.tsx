@@ -233,7 +233,7 @@ export default function EstimateCreateForm() {
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="예: 강남구 사무실 인테리어 견적 요청"
                 required
               />
@@ -249,7 +249,7 @@ export default function EstimateCreateForm() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="프로젝트에 대한 상세한 설명을 입력해주세요"
                 required
               />
@@ -283,7 +283,7 @@ export default function EstimateCreateForm() {
                   id="clientName"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="회사명 또는 개인명"
                 />
               </div>
@@ -296,7 +296,7 @@ export default function EstimateCreateForm() {
                   id="businessType"
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="예: 카페, 사무실, 주거"
                 />
               </div>
@@ -329,7 +329,7 @@ export default function EstimateCreateForm() {
                   value={siteAddress}
                   onChange={(e) => setSiteAddress(e.target.value)}
                   disabled={isAddressUndecided}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="주소 검색 버튼을 클릭하세요"
                   readOnly
                 />
@@ -337,7 +337,7 @@ export default function EstimateCreateForm() {
                   type="button"
                   onClick={handleAddressSearch}
                   disabled={isAddressUndecided}
-                  className="px-6 bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-300"
+                  className="px-6 bg-primary hover:bg-primary-800 text-white disabled:bg-gray-300"
                 >
                   <IoSearchOutline className="mr-2" />
                   주소 검색
@@ -357,7 +357,7 @@ export default function EstimateCreateForm() {
                   value={siteCity}
                   onChange={(e) => setSiteCity(e.target.value)}
                   disabled={isAddressUndecided}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="예: 강남구"
                   readOnly
                 />
@@ -372,7 +372,7 @@ export default function EstimateCreateForm() {
                   value={siteState}
                   onChange={(e) => setSiteState(e.target.value)}
                   disabled={isAddressUndecided}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                   placeholder="예: 서울특별시"
                   readOnly
                 />
@@ -391,7 +391,7 @@ export default function EstimateCreateForm() {
                   value={areaPyeong}
                   onChange={(e) => handleAreaPyeongChange(e.target.value)}
                   step="0.01"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="예: 30"
                 />
               </div>
@@ -405,7 +405,7 @@ export default function EstimateCreateForm() {
                   value={areaSqm}
                   onChange={(e) => handleAreaSqmChange(e.target.value)}
                   step="0.01"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="예: 99.17"
                 />
               </div>
@@ -428,7 +428,7 @@ export default function EstimateCreateForm() {
                   id="budgetMin"
                   value={formatNumber(budgetMin)}
                   onChange={(e) => setBudgetMin(parseNumber(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="예: 3,000"
                 />
               </div>
@@ -441,7 +441,7 @@ export default function EstimateCreateForm() {
                   id="budgetMax"
                   value={formatNumber(budgetMax)}
                   onChange={(e) => setBudgetMax(parseNumber(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="예: 5,000"
                 />
               </div>
@@ -460,7 +460,7 @@ export default function EstimateCreateForm() {
                     locale={ko}
                     dateFormat="yyyy년 MM월 dd일"
                     placeholderText="날짜를 선택하세요"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     wrapperClassName="w-full"
                   />
                   <IoCalendarOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -478,7 +478,7 @@ export default function EstimateCreateForm() {
                     dateFormat="yyyy년 MM월 dd일"
                     placeholderText="날짜를 선택하세요"
                     minDate={desiredStartDate || undefined}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     wrapperClassName="w-full"
                   />
                   <IoCalendarOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -498,7 +498,7 @@ export default function EstimateCreateForm() {
                     timeIntervals={30}
                     dateFormat="yyyy년 MM월 dd일 HH:mm"
                     placeholderText="날짜와 시간을 선택하세요"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     wrapperClassName="w-full"
                   />
                   <IoCalendarOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -521,7 +521,7 @@ export default function EstimateCreateForm() {
                 id="contactName"
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="홍길동"
               />
             </div>
@@ -534,7 +534,7 @@ export default function EstimateCreateForm() {
                 id="contactPhone"
                 value={contactPhone}
                 onChange={(e) => handleContactPhoneChange(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="010-1234-5678"
                 maxLength={13}
               />
@@ -566,7 +566,7 @@ export default function EstimateCreateForm() {
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            className="flex-1 bg-primary hover:bg-primary-800 text-white"
           >
             <IoCloudUploadOutline className="mr-2" />
             {isSubmitting ? '등록 중...' : '견적 요청 등록'}

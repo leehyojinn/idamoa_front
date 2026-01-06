@@ -121,7 +121,7 @@ export default function AdminNoticeEventsPage() {
           <h1 className="text-2xl font-bold text-gray-900">공지사항/이벤트 관리</h1>
           <Link
             href="/admin/notice-events/create"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
           >
             + 게시글 추가
           </Link>
@@ -136,11 +136,11 @@ export default function AdminNoticeEventsPage() {
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="제목/내용 검색"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             />
             <button
               onClick={handleSearch}
-              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600 transition-colors"
             >
               검색
             </button>
@@ -150,7 +150,7 @@ export default function AdminNoticeEventsPage() {
             <select
               value={boardType}
               onChange={(e) => setBoardType(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체</option>
               <option value="NOTICE">공지사항</option>
@@ -161,7 +161,7 @@ export default function AdminNoticeEventsPage() {
               <select
                 value={eventStatus}
                 onChange={(e) => setEventStatus(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               >
                 <option value="">전체 상태</option>
                 <option value="ACTIVE">진행중</option>
@@ -176,7 +176,7 @@ export default function AdminNoticeEventsPage() {
                   e.target.value === '' ? '' : e.target.value === 'true'
                 )
               }
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체 게시 상태</option>
               <option value="true">게시중</option>
@@ -188,7 +188,7 @@ export default function AdminNoticeEventsPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : items.length === 0 ? (
@@ -231,7 +231,7 @@ export default function AdminNoticeEventsPage() {
                         <span
                           className={`px-2 py-1 text-xs font-medium rounded ${
                             item.boardType === 'NOTICE'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-primary-100 text-primary-800'
                               : 'bg-purple-100 text-purple-800'
                           }`}
                         >
@@ -252,7 +252,7 @@ export default function AdminNoticeEventsPage() {
                           <div className="min-w-0 flex-1">
                             <Link
                               href={`/notices/${item.uuid}`}
-                              className="font-medium text-gray-900 hover:text-blue-600 block"
+                              className="font-medium text-gray-900 hover:text-primary block"
                               title={item.title}
                             >
                               {item.title}
@@ -323,7 +323,7 @@ export default function AdminNoticeEventsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <Link
                           href={`/admin/notice-events/${item.uuid}/edit`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-primary hover:text-primary"
                         >
                           수정
                         </Link>

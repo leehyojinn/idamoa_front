@@ -67,7 +67,7 @@ export default function AdminPlannerApplicationsPage() {
           onClick={() => handleStatusFilterChange('')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
             statusFilter === ''
-              ? 'bg-blue-600 text-white'
+              ? 'bg-primary text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
@@ -79,7 +79,7 @@ export default function AdminPlannerApplicationsPage() {
             onClick={() => handleStatusFilterChange(status)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               statusFilter === status
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -146,7 +146,7 @@ export default function AdminPlannerApplicationsPage() {
                     <td className="px-4 py-3">
                       <Link
                         href={`/admin/planner-applications/${app.uuid}`}
-                        className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                        className="text-primary hover:text-primary font-medium text-sm"
                       >
                         상세보기
                       </Link>

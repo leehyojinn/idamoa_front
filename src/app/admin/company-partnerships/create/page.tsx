@@ -127,7 +127,7 @@ export default function AdminCreateCompanyPartnershipPage() {
               </label>
 
               {selectedCompany ? (
-                <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between bg-primary-50 border border-primary-200 rounded-lg p-4">
                   <div>
                     <p className="font-medium text-gray-900">{selectedCompany.name}</p>
                     <p className="text-sm text-gray-600">{selectedCompany.address}</p>
@@ -152,13 +152,13 @@ export default function AdminCreateCompanyPartnershipPage() {
                       onChange={(e) => setSearchKeyword(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
                       placeholder="업체명을 검색하세요"
-                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                     <button
                       type="button"
                       onClick={handleSearch}
                       disabled={isSearching}
-                      className="px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 transition-colors"
+                      className="px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-primary-600 disabled:bg-gray-400 transition-colors"
                     >
                       {isSearching ? (
                         <FiLoader className="w-5 h-5 animate-spin" />
@@ -199,7 +199,7 @@ export default function AdminCreateCompanyPartnershipPage() {
               <input
                 type="date"
                 {...register('startDate')}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               {errors.startDate && (
                 <p className="mt-1 text-sm text-red-500">{errors.startDate.message}</p>
@@ -214,7 +214,7 @@ export default function AdminCreateCompanyPartnershipPage() {
               <input
                 type="date"
                 {...register('endDate')}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               {errors.endDate && (
                 <p className="mt-1 text-sm text-red-500">{errors.endDate.message}</p>
@@ -231,7 +231,7 @@ export default function AdminCreateCompanyPartnershipPage() {
                 {...register('displayOrder', { valueAsNumber: true })}
                 placeholder="0"
                 min="0"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               <p className="mt-1 text-xs text-gray-500">낮을수록 먼저 노출됩니다. (기본값: 0)</p>
               {errors.displayOrder && (
@@ -248,7 +248,7 @@ export default function AdminCreateCompanyPartnershipPage() {
                 {...register('adminMemo')}
                 rows={3}
                 placeholder="관리자만 볼 수 있는 메모입니다."
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
               />
             </div>
 
@@ -264,7 +264,7 @@ export default function AdminCreateCompanyPartnershipPage() {
               <button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 {isPending ? (
                   <>

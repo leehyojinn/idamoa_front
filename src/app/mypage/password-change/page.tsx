@@ -206,9 +206,9 @@ export default function PasswordChangePage() {
             </form>
 
             {/* 안내 사항 */}
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="text-sm font-semibold text-blue-900 mb-2">비밀번호 변경 안내</h4>
-              <ul className="text-xs text-blue-800 space-y-1">
+            <div className="mt-8 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-primary mb-2">비밀번호 변경 안내</h4>
+              <ul className="text-xs text-primary-800 space-y-1">
                 <li>• 안전한 비밀번호를 위해 영문, 숫자, 특수문자를 조합해주세요</li>
                 <li>• 개인정보(이름, 생일 등)가 포함되지 않도록 주의해주세요</li>
                 <li>• 다른 사이트와 동일한 비밀번호 사용을 피해주세요</li>

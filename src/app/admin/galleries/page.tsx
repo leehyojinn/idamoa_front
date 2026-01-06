@@ -112,7 +112,7 @@ export default function AdminGalleriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">사진 관리</h1>
           <Link
             href="/admin/galleries/new"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
           >
             + 게시글 추가
           </Link>
@@ -126,11 +126,11 @@ export default function AdminGalleriesPage() {
             onChange={(e) => setKeyword(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             placeholder="제목/내용 검색"
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
           />
           <button
             onClick={handleSearch}
-            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
             검색
           </button>
@@ -139,7 +139,7 @@ export default function AdminGalleriesPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : galleries.length === 0 ? (
@@ -188,7 +188,7 @@ export default function AdminGalleriesPage() {
                         <div className="min-w-0 flex-1">
                           <Link
                             href={`/admin/galleries/${gallery.uuid}`}
-                            className="font-medium text-gray-900 hover:text-blue-600 block truncate"
+                            className="font-medium text-gray-900 hover:text-primary block truncate"
                             title={gallery.title}
                           >
                             {gallery.title}
@@ -268,7 +268,7 @@ export default function AdminGalleriesPage() {
                       </button>
                       <Link
                         href={`/admin/galleries/${gallery.uuid}`}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-primary hover:text-primary"
                       >
                         수정
                       </Link>

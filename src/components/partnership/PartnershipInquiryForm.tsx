@@ -79,7 +79,7 @@ export default function PartnershipInquiryForm() {
         </label>
         <select
           {...register('partnershipType')}
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
         >
           {(Object.keys(PARTNERSHIP_TYPE_LABELS) as PartnershipType[]).map((type) => (
             <option key={type} value={type}>
@@ -101,7 +101,7 @@ export default function PartnershipInquiryForm() {
           {...register('name')}
           type="text"
           placeholder="홍길동"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
         />
         {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>}
       </div>
@@ -115,7 +115,7 @@ export default function PartnershipInquiryForm() {
           {...register('email')}
           type="email"
           placeholder="contact@example.com"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
         />
         {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
       </div>
@@ -129,7 +129,7 @@ export default function PartnershipInquiryForm() {
           {...register('phone')}
           type="tel"
           placeholder="010-1234-5678"
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
         />
         {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
       </div>
@@ -143,7 +143,7 @@ export default function PartnershipInquiryForm() {
           {...register('content')}
           rows={6}
           placeholder="문의 내용을 상세히 작성해주세요."
-          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all resize-none"
         />
         {errors.content && <p className="mt-1 text-sm text-red-500">{errors.content.message}</p>}
       </div>
@@ -152,7 +152,7 @@ export default function PartnershipInquiryForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-blue-600 text-white font-medium py-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        className="w-full bg-primary text-white font-medium py-4 rounded-lg hover:bg-primary-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       >
         {isPending ? (
           <>

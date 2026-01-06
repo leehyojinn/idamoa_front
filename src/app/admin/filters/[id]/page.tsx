@@ -413,7 +413,7 @@ export default function AdminFilterOptionsPage() {
           </div>
           <button
             onClick={() => openCreateModal()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
           >
             + 옵션 추가
           </button>
@@ -422,7 +422,7 @@ export default function AdminFilterOptionsPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : options.length === 0 ? (
@@ -521,7 +521,7 @@ export default function AdminFilterOptionsPage() {
                       </button>
                       <button
                         onClick={() => openEditModal(option)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-primary hover:text-primary"
                       >
                         수정
                       </button>
@@ -634,7 +634,7 @@ export default function AdminFilterOptionsPage() {
                 <button
                   onClick={handlePreviewMigration}
                   disabled={!sourceOptionId || !targetOptionId}
-                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   미리보기
                 </button>
@@ -707,8 +707,8 @@ export default function AdminFilterOptionsPage() {
                     </div>
                   )}
 
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-sm text-blue-800">
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-3">
+                    <p className="text-sm text-primary-800">
                       <strong>예상 결과:</strong>{' '}
                       {previewResult.affectedCompanyCount - previewResult.duplicateCompanyCount}개 업체,{' '}
                       {previewResult.affectedBoardCount - previewResult.duplicateBoardCount}개 게시글이 마이그레이션됩니다.
@@ -735,8 +735,8 @@ export default function AdminFilterOptionsPage() {
 
               <div className="space-y-4">
                 {formData.parentId && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <p className="text-sm text-blue-800">
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-3">
+                    <p className="text-sm text-primary-800">
                       <strong>부모 옵션:</strong> {options.find(o => o.id === formData.parentId)?.name}
                       <br />
                       이 옵션의 자식 옵션으로 생성됩니다.
@@ -752,7 +752,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.code}
                       onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: seoul"
                     />
                   </div>
@@ -764,7 +764,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: 서울"
                     />
                   </div>
@@ -777,7 +777,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.shortName}
                       onChange={(e) => setFormData({ ...formData, shortName: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: 서울"
                     />
                   </div>
@@ -794,8 +794,8 @@ export default function AdminFilterOptionsPage() {
                         type="text"
                         value={formData.color}
                         onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="예: #3B82F6 또는 bg-blue-600"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        placeholder="예: #3B82F6 또는 bg-primary"
                       />
                     </div>
                   </div>
@@ -807,7 +807,7 @@ export default function AdminFilterOptionsPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="옵션 설명"
                   />
                 </div>
@@ -819,7 +819,7 @@ export default function AdminFilterOptionsPage() {
                       type="number"
                       value={formData.displayOrder}
                       onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -829,7 +829,7 @@ export default function AdminFilterOptionsPage() {
                         href="https://react-icons.github.io/react-icons/search?q=io"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-2 text-xs text-blue-600 hover:underline"
+                        className="ml-2 text-xs text-primary hover:underline"
                       >
                         아이콘 찾기 →
                       </a>
@@ -838,7 +838,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: IoBrush, IoMegaphone, IoHome 등"
                     />
                     <p className="mt-1 text-xs text-gray-500">
@@ -886,7 +886,7 @@ export default function AdminFilterOptionsPage() {
                 <button
                   onClick={handleCreate}
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50"
                 >
                   {isSubmitting ? '생성 중...' : '생성'}
                 </button>
@@ -920,7 +920,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -932,7 +932,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.shortName}
                       onChange={(e) => setFormData({ ...formData, shortName: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -948,8 +948,8 @@ export default function AdminFilterOptionsPage() {
                         type="text"
                         value={formData.color}
                         onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="예: #3B82F6 또는 bg-blue-600"
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        placeholder="예: #3B82F6 또는 bg-primary"
                       />
                     </div>
                   </div>
@@ -961,7 +961,7 @@ export default function AdminFilterOptionsPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
 
@@ -972,7 +972,7 @@ export default function AdminFilterOptionsPage() {
                       type="number"
                       value={formData.displayOrder}
                       onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -982,7 +982,7 @@ export default function AdminFilterOptionsPage() {
                         href="https://react-icons.github.io/react-icons/search?q=io"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-2 text-xs text-blue-600 hover:underline"
+                        className="ml-2 text-xs text-primary hover:underline"
                       >
                         아이콘 찾기 →
                       </a>
@@ -991,7 +991,7 @@ export default function AdminFilterOptionsPage() {
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: IoBrush, IoMegaphone, IoHome 등"
                     />
                     <p className="mt-1 text-xs text-gray-500">
@@ -1031,7 +1031,7 @@ export default function AdminFilterOptionsPage() {
                 <button
                   onClick={handleEdit}
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50"
                 >
                   {isSubmitting ? '수정 중...' : '수정'}
                 </button>

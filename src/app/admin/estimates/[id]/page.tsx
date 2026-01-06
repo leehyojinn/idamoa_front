@@ -81,7 +81,7 @@ export default function AdminEstimateDetailPage() {
       case 'CANCELLED':
         return 'bg-red-100 text-red-800'
       case 'COMPLETED':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary-100 text-primary-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -93,7 +93,7 @@ export default function AdminEstimateDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-6xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -235,7 +235,7 @@ export default function AdminEstimateDetailPage() {
                 {request.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
                   >
                     #{tag}
                   </span>

@@ -232,7 +232,7 @@ export default function ProfileEditPage() {
                     type="button"
                     onClick={handleAddressSearch}
                     disabled={!isScriptLoaded}
-                    className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-primary-600 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isScriptLoaded ? '주소 검색' : '로딩 중...'}
                   </button>
@@ -281,9 +281,9 @@ export default function ProfileEditPage() {
             </form>
 
             {/* 안내 사항 */}
-            <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="text-sm font-semibold text-blue-900 mb-2">프로필 수정 안내</h4>
-              <ul className="text-xs text-blue-800 space-y-1">
+            <div className="mt-8 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+              <h4 className="text-sm font-semibold text-primary mb-2">프로필 수정 안내</h4>
+              <ul className="text-xs text-primary-800 space-y-1">
                 <li>• 이름은 필수 입력 항목입니다</li>
                 <li>• 주소는 &quot;주소 검색&quot; 버튼을 통해 정확한 주소를 입력할 수 있습니다</li>
                 <li>• 전화번호 등 기타 정보는 고객센터에 문의해 주세요</li>

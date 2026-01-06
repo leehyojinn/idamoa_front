@@ -151,7 +151,7 @@ export default function NoticeListClient() {
         {isAdmin && (
           <Link
             href="/notices/create"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
           >
             <FiCalendar className="text-xl" />
             글쓰기
@@ -167,14 +167,14 @@ export default function NoticeListClient() {
               onClick={() => handleTabChange('notice')}
               className={`flex-1 flex items-center justify-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'notice'
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-primary text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               <FiBell className="text-lg" />
               공지사항
               {activeTab === 'notice' && totalElements > 0 && (
-                <span className="ml-1 bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                <span className="ml-1 bg-primary-100 text-primary px-2 py-0.5 rounded-full text-xs font-bold">
                   {totalElements}
                 </span>
               )}
@@ -183,14 +183,14 @@ export default function NoticeListClient() {
               onClick={() => handleTabChange('event')}
               className={`flex-1 flex items-center justify-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'event'
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-primary text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               <FiCalendar className="text-lg" />
               이벤트
               {activeTab === 'event' && totalElements > 0 && (
-                <span className="ml-1 bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                <span className="ml-1 bg-primary-100 text-primary px-2 py-0.5 rounded-full text-xs font-bold">
                   {totalElements}
                 </span>
               )}
@@ -199,14 +199,14 @@ export default function NoticeListClient() {
               onClick={() => handleTabChange('ended')}
               className={`flex-1 flex items-center justify-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'ended'
-                  ? 'border-blue-600 text-blue-600'
+                  ? 'border-primary text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               <FiArchive className="text-lg" />
               종료된 이벤트
               {activeTab === 'ended' && totalElements > 0 && (
-                <span className="ml-1 bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                <span className="ml-1 bg-primary-100 text-primary px-2 py-0.5 rounded-full text-xs font-bold">
                   {totalElements}
                 </span>
               )}
@@ -253,7 +253,7 @@ export default function NoticeListClient() {
                             {item.viewCount}
                           </span>
                           {item.eventStartDate && item.eventEndDate && (
-                            <span className="text-blue-600 font-medium">
+                            <span className="text-primary font-medium">
                               {new Date(item.eventStartDate).toLocaleDateString()} ~ {new Date(item.eventEndDate).toLocaleDateString()}
                             </span>
                           )}
@@ -271,7 +271,7 @@ export default function NoticeListClient() {
         <div className="p-6 min-h-[600px]">
           {isLoading ? (
             <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
               <p className="mt-4 text-gray-600">로딩 중...</p>
             </div>
           ) : items.length === 0 ? (
@@ -295,7 +295,7 @@ export default function NoticeListClient() {
                   <Link
                     key={item.uuid}
                     href={`/notices/${item.uuid}`}
-                    className="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-blue-300 transition-all"
+                    className="block bg-white border border-gray-200 rounded-lg p-4 hover:shadow-lg hover:border-primary-300 transition-all"
                   >
                     {/* 모바일: 세로 배치, PC: 가로 배치 */}
                     <div className="flex flex-col sm:flex-row gap-4">
@@ -338,7 +338,7 @@ export default function NoticeListClient() {
                             {item.tags.slice(0, 3).map((tag) => (
                               <span
                                 key={tag}
-                                className="inline-block bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium"
+                                className="inline-block bg-primary-100 text-primary px-2 py-1 rounded text-xs font-medium"
                               >
                                 #{tag}
                               </span>
@@ -398,7 +398,7 @@ export default function NoticeListClient() {
                           onClick={() => handlePageChange(pageNum)}
                           className={`px-4 py-2 rounded-lg transition-colors ${
                             currentPage === pageNum
-                              ? 'bg-blue-600 text-white'
+                              ? 'bg-primary text-white'
                               : 'border border-gray-300 hover:bg-gray-50'
                           }`}
                         >

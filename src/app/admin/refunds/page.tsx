@@ -231,12 +231,12 @@ export default function AdminRefundsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 md:col-span-2">
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 md:col-span-2">
                 <div className="flex items-center gap-2">
-                  <IoCash className="text-2xl text-blue-600" />
+                  <IoCash className="text-2xl text-primary" />
                   <div>
-                    <p className="text-sm text-blue-800">총 환불 완료 금액</p>
-                    <p className="text-2xl font-bold text-blue-900">
+                    <p className="text-sm text-primary-800">총 환불 완료 금액</p>
+                    <p className="text-2xl font-bold text-primary">
                       {stats.totalRefundedAmount.toLocaleString()}원
                     </p>
                   </div>
@@ -333,7 +333,7 @@ export default function AdminRefundsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="text-lg font-bold text-blue-600">
+                          <span className="text-lg font-bold text-primary">
                             {refund.refundAmount.toLocaleString()}원
                           </span>
                         </td>
@@ -358,7 +358,7 @@ export default function AdminRefundsPage() {
                           {refund.status === 'PENDING' ? (
                             <button
                               onClick={() => router.push(`/admin/refunds/${refund.refundUuid}`)}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="text-primary hover:text-primary"
                             >
                               처리하기
                             </button>

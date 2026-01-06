@@ -256,7 +256,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
         label: isExpired ? '마감' : '접수중',
         color: isExpired ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
       },
-      IN_PROGRESS: { label: '진행중', color: 'bg-blue-100 text-blue-700' },
+      IN_PROGRESS: { label: '진행중', color: 'bg-primary-100 text-primary' },
       MATCHED: { label: '매칭완료', color: 'bg-purple-100 text-purple-700' },
       COMPLETED: { label: '완료', color: 'bg-gray-100 text-gray-700' },
     }
@@ -316,7 +316,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {viewMode === 'MY' ? '내 견적 요청' : viewMode === 'MY_PROPOSALS' ? '내가 제안한 견적' : '전체 견적 요청'} <span className="text-blue-600">{data?.totalElements || 0}</span>건
+            {viewMode === 'MY' ? '내 견적 요청' : viewMode === 'MY_PROPOSALS' ? '내가 제안한 견적' : '전체 견적 요청'} <span className="text-primary">{data?.totalElements || 0}</span>건
           </h2>
           <p className="text-gray-600">
             {viewMode === 'MY_PROPOSALS'
@@ -327,7 +327,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
         {user && (
           <button
             onClick={() => router.push('/estimates/create')}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
           >
             <IoAddCircleOutline className="text-xl" />
             견적 요청하기
@@ -342,7 +342,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
             onClick={() => setSelectedStatus('ALL')}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               selectedStatus === 'ALL'
-                ? 'bg-blue-600 text-white shadow-md'
+                ? 'bg-primary text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -387,7 +387,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
               onClick={() => handleViewModeChange('ALL')}
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                 viewMode === 'ALL'
-                  ? 'bg-blue-600 text-white shadow-md'
+                  ? 'bg-primary text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -451,7 +451,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
                         </span>
                       )}
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2 break-words">
+                    <h3 className="text-xl font-bold text-gray-900 group-hover:text-primary transition-colors mb-2 break-words">
                       {estimate.title}
                     </h3>
                     <p className="text-gray-600 line-clamp-2 break-words">{estimate.description}</p>
@@ -504,8 +504,8 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
 
                 {/* Budget & Deadline */}
                 <div className="flex flex-wrap gap-4 mb-4">
-                  <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
-                    <IoPricetagOutline className="text-blue-600" />
+                  <div className="flex items-center gap-2 bg-primary-50 px-4 py-2 rounded-lg">
+                    <IoPricetagOutline className="text-primary" />
                     <span className="text-sm font-semibold text-gray-900">
                       {formatBudget(estimate.budgetMin, estimate.budgetMax)}
                     </span>
@@ -532,7 +532,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
                       <span>{formatDate(estimate.createdAt)}</span>
                     </div>
                   </div>
-                  <div className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
+                  <div className="text-sm font-semibold text-primary group-hover:text-primary">
                     상세보기 →
                   </div>
                 </div>
@@ -569,7 +569,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
                     disabled={isLoading}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       currentPage === pageNum
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-primary text-white'
                         : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                   >

@@ -324,7 +324,7 @@ export default function AdminPortfolioEditPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">포트폴리오를 불러오는 중...</p>
           </div>
         </div>
@@ -352,7 +352,7 @@ export default function AdminPortfolioEditPage() {
             {/* 기본 정보 */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiStar className="text-blue-600" />
+                <FiStar className="text-primary" />
                 기본 정보
               </h2>
               <div className="space-y-4">
@@ -365,7 +365,7 @@ export default function AdminPortfolioEditPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     maxLength={200}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="포트폴리오 제목"
                   />
                 </div>
@@ -377,7 +377,7 @@ export default function AdminPortfolioEditPage() {
                       type="text"
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: 사무실, 주거, 상업공간"
                     />
                   </div>
@@ -387,7 +387,7 @@ export default function AdminPortfolioEditPage() {
                       type="text"
                       value={projectType}
                       onChange={(e) => setProjectType(e.target.value)}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: 리모델링, 신축, 인테리어"
                     />
                   </div>
@@ -399,7 +399,7 @@ export default function AdminPortfolioEditPage() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="포트폴리오에 대한 간단한 설명"
                   />
                 </div>
@@ -410,7 +410,7 @@ export default function AdminPortfolioEditPage() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="포트폴리오 상세 내용"
                   />
                 </div>
@@ -427,7 +427,7 @@ export default function AdminPortfolioEditPage() {
                     type="text"
                     value={projectScale}
                     onChange={(e) => setProjectScale(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="예: 30평"
                   />
                 </div>
@@ -437,7 +437,7 @@ export default function AdminPortfolioEditPage() {
                     type="number"
                     value={projectDuration}
                     onChange={(e) => setProjectDuration(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="45"
                   />
                 </div>
@@ -447,7 +447,7 @@ export default function AdminPortfolioEditPage() {
                     type="date"
                     value={projectDate}
                     onChange={(e) => setProjectDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -456,7 +456,7 @@ export default function AdminPortfolioEditPage() {
                     type="text"
                     value={budgetRange}
                     onChange={(e) => setBudgetRange(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="예: 5000만원~1억원"
                   />
                 </div>
@@ -466,7 +466,7 @@ export default function AdminPortfolioEditPage() {
                     type="number"
                     value={actualCost}
                     onChange={(e) => setActualCost(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="75000000"
                   />
                 </div>
@@ -476,7 +476,7 @@ export default function AdminPortfolioEditPage() {
                     type="number"
                     value={displayOrder}
                     onChange={(e) => setDisplayOrder(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="1"
                   />
                 </div>
@@ -513,8 +513,8 @@ export default function AdminPortfolioEditPage() {
               </h2>
 
               {portfolio?.promotion && (
-                <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-700">
+                <div className="mb-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+                  <p className="text-sm text-primary">
                     현재 프로모션: <strong>{portfolio.promotion.promotionType}</strong>
                     {' '}| 상태: <strong>{portfolio.promotion.status}</strong>
                     {' '}| 남은 기간: <strong>{portfolio.promotion.remainingDays}일</strong>
@@ -528,7 +528,7 @@ export default function AdminPortfolioEditPage() {
                   <select
                     value={promotionType}
                     onChange={(e) => setPromotionType(e.target.value as 'STANDARD' | 'PREMIUM' | '')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   >
                     <option value="">없음</option>
                     <option value="STANDARD">STANDARD (일반우대)</option>
@@ -541,7 +541,7 @@ export default function AdminPortfolioEditPage() {
                     type="number"
                     value={promotionWeight}
                     onChange={(e) => setPromotionWeight(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="높을수록 우선 노출 (예: 100)"
                   />
                 </div>
@@ -551,7 +551,7 @@ export default function AdminPortfolioEditPage() {
                     type="date"
                     value={promotionStartDate}
                     onChange={(e) => setPromotionStartDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -560,7 +560,7 @@ export default function AdminPortfolioEditPage() {
                     type="date"
                     value={promotionEndDate}
                     onChange={(e) => setPromotionEndDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -569,7 +569,7 @@ export default function AdminPortfolioEditPage() {
                     type="number"
                     value={promotionMonthlyPrice}
                     onChange={(e) => setPromotionMonthlyPrice(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="50000"
                   />
                 </div>
@@ -606,7 +606,7 @@ export default function AdminPortfolioEditPage() {
                   className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer block"
                 >
                   <FiPlus className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <span className="text-blue-600 font-medium">이미지 추가</span>
+                  <span className="text-primary font-medium">이미지 추가</span>
                   <input
                     id="image-upload"
                     type="file"
@@ -674,7 +674,7 @@ export default function AdminPortfolioEditPage() {
                   className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer block"
                 >
                   <FiPlus className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <span className="text-blue-600 font-medium">비디오 추가</span>
+                  <span className="text-primary font-medium">비디오 추가</span>
                   <input
                     id="video-upload"
                     type="file"
@@ -735,7 +735,7 @@ export default function AdminPortfolioEditPage() {
                     className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer block"
                   >
                     <FiImage className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                    <span className="text-blue-600 font-medium">썸네일 선택</span>
+                    <span className="text-primary font-medium">썸네일 선택</span>
                     <input
                       id="thumbnail-upload"
                       type="file"
@@ -787,7 +787,7 @@ export default function AdminPortfolioEditPage() {
             {/* 태그 */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FiTag className="text-blue-600" />
+                <FiTag className="text-primary" />
                 태그
               </h2>
               <div className="space-y-4">
@@ -802,13 +802,13 @@ export default function AdminPortfolioEditPage() {
                         handleAddTag()
                       }
                     }}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="태그 입력 후 엔터"
                   />
                   <button
                     type="button"
                     onClick={handleAddTag}
-                    className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                    className="px-6 py-3 bg-gray-600 hover:bg-primary-600 text-white rounded-lg font-semibold transition-colors"
                   >
                     추가
                   </button>
@@ -819,13 +819,13 @@ export default function AdminPortfolioEditPage() {
                     {tags.map(tag => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                        className="inline-flex items-center gap-1 bg-primary-100 text-primary px-3 py-1 rounded-full text-sm"
                       >
                         #{tag}
                         <button
                           type="button"
                           onClick={() => handleRemoveTag(tag)}
-                          className="ml-1 hover:text-blue-900"
+                          className="ml-1 hover:text-primary"
                         >
                           ×
                         </button>
@@ -846,7 +846,7 @@ export default function AdminPortfolioEditPage() {
                     type="text"
                     value={copyrightOwner}
                     onChange={(e) => setCopyrightOwner(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="저작권자명"
                   />
                 </div>
@@ -856,7 +856,7 @@ export default function AdminPortfolioEditPage() {
                     type="text"
                     value={copyrightLicense}
                     onChange={(e) => setCopyrightLicense(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="예: CC BY-NC"
                   />
                 </div>
@@ -866,7 +866,7 @@ export default function AdminPortfolioEditPage() {
                     type="text"
                     value={copyrightAttribution}
                     onChange={(e) => setCopyrightAttribution(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="저작권 표시 문구"
                   />
                 </div>
@@ -880,7 +880,7 @@ export default function AdminPortfolioEditPage() {
                 type="url"
                 value={relatedLink}
                 onChange={(e) => setRelatedLink(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="https://example.com/project"
               />
             </div>
@@ -890,7 +890,7 @@ export default function AdminPortfolioEditPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? '저장 중...' : '포트폴리오 수정'}
               </button>

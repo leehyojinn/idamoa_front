@@ -176,7 +176,7 @@ export default function AdminPlannerApplicationDetailPage() {
         <div>
           <Link
             href="/admin/planner-applications"
-            className="text-blue-600 hover:text-blue-800 text-sm mb-2 inline-block"
+            className="text-primary hover:text-primary text-sm mb-2 inline-block"
           >
             &larr; 목록으로
           </Link>
@@ -196,7 +196,7 @@ export default function AdminPlannerApplicationDetailPage() {
       <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => setShowStatusModal(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
         >
           상태 변경
         </button>
@@ -217,7 +217,7 @@ export default function AdminPlannerApplicationDetailPage() {
         </button>
         <button
           onClick={() => setShowMemoModal(true)}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600 transition-colors"
         >
           메모 등록
         </button>
@@ -240,7 +240,7 @@ export default function AdminPlannerApplicationDetailPage() {
                 {application.requestTypes.map((type) => (
                   <span
                     key={type}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 text-sm rounded"
+                    className="px-2 py-1 bg-primary-100 text-primary-800 text-sm rounded"
                   >
                     {REQUEST_TYPE_LABELS[type]}
                   </span>
@@ -312,7 +312,7 @@ export default function AdminPlannerApplicationDetailPage() {
           <div className="space-y-2">
             {application.preferredDates.map((date) => (
               <div key={date.priority} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                <span className="font-medium text-blue-600">{date.priority}순위</span>
+                <span className="font-medium text-primary">{date.priority}순위</span>
                 <span className="text-gray-900">{date.preferredDate}</span>
                 <span className="text-gray-600">{date.preferredTime}</span>
               </div>
@@ -359,7 +359,7 @@ export default function AdminPlannerApplicationDetailPage() {
                 <label
                   key={status}
                   className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer ${
-                    selectedStatus === status ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                    selectedStatus === status ? 'border-primary-500 bg-primary-50' : 'border-gray-200'
                   }`}
                 >
                   <input
@@ -386,7 +386,7 @@ export default function AdminPlannerApplicationDetailPage() {
               <button
                 onClick={handleStatusChange}
                 disabled={isUpdating}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50"
               >
                 {isUpdating ? '변경 중...' : '변경'}
               </button>
@@ -405,7 +405,7 @@ export default function AdminPlannerApplicationDetailPage() {
               value={responseText}
               onChange={(e) => setResponseText(e.target.value)}
               rows={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none mb-4"
               placeholder="답변 내용을 입력하세요..."
             />
             <div className="flex gap-3">
@@ -437,7 +437,7 @@ export default function AdminPlannerApplicationDetailPage() {
               value={memoText}
               onChange={(e) => setMemoText(e.target.value)}
               rows={6}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none mb-4"
               placeholder="메모 내용을 입력하세요..."
             />
             <div className="flex gap-3">
@@ -450,7 +450,7 @@ export default function AdminPlannerApplicationDetailPage() {
               <button
                 onClick={handleMemoSubmit}
                 disabled={isUpdating || !memoText.trim()}
-                className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50"
               >
                 {isUpdating ? '등록 중...' : '등록'}
               </button>

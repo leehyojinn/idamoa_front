@@ -70,19 +70,19 @@ export default function MyInquiriesPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <FiMessageSquare className="w-7 h-7 text-white" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">내 문의 내역</h1>
                 <p className="text-gray-600 mt-1">
-                  총 <span className="font-bold text-blue-600">{totalElements}</span>개의 문의
+                  총 <span className="font-bold text-primary">{totalElements}</span>개의 문의
                 </p>
               </div>
             </div>
             <Link
               href="/inquiries"
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
             >
               <FiPlus className="w-5 h-5" />
               새 문의 작성
@@ -91,14 +91,14 @@ export default function MyInquiriesPage() {
 
           {/* 통계 카드 */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-primary-800 rounded-lg flex items-center justify-center">
                   <FiClock className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm text-blue-700 font-medium">대기중</p>
-                  <p className="text-2xl font-bold text-blue-900">
+                  <p className="text-sm text-primary font-medium">대기중</p>
+                  <p className="text-2xl font-bold text-primary">
                     {inquiries.filter(i => i.status === 'PENDING').length}
                   </p>
                 </div>
@@ -152,7 +152,7 @@ export default function MyInquiriesPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary mb-4"></div>
             <p className="text-gray-600 text-lg">문의 목록을 불러오는 중...</p>
           </div>
         ) : inquiries.length === 0 ? (
@@ -164,7 +164,7 @@ export default function MyInquiriesPage() {
             <p className="text-gray-600 mb-8">궁금하신 사항을 문의해주시면 빠르게 답변드리겠습니다</p>
             <Link
               href="/inquiries"
-              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl"
             >
               <FiPlus className="w-5 h-5" />
               문의하기
@@ -199,14 +199,14 @@ export default function MyInquiriesPage() {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-100">
                     {inquiries.map((inquiry) => (
-                      <tr key={inquiry.uuid} className="hover:bg-blue-50/50 transition-colors cursor-pointer" onClick={() => router.push(`/inquiries/my/${inquiry.uuid}`)}>
+                      <tr key={inquiry.uuid} className="hover:bg-primary-50/50 transition-colors cursor-pointer" onClick={() => router.push(`/inquiries/my/${inquiry.uuid}`)}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
                             {GENERAL_INQUIRY_TYPE_LABELS[inquiry.inquiryType]}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold text-gray-900 line-clamp-1 hover:text-blue-600 transition-colors">
+                          <div className="text-sm font-semibold text-gray-900 line-clamp-1 hover:text-primary transition-colors">
                             {inquiry.title}
                           </div>
                         </td>
@@ -235,7 +235,7 @@ export default function MyInquiriesPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <Link
                             href={`/inquiries/my/${inquiry.uuid}`}
-                            className="inline-flex items-center justify-center w-9 h-9 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-lg transition-colors"
+                            className="inline-flex items-center justify-center w-9 h-9 bg-primary-100 hover:bg-primary-200 text-primary rounded-lg transition-colors"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <FiEye className="w-5 h-5" />
@@ -268,7 +268,7 @@ export default function MyInquiriesPage() {
                         onClick={() => handlePageChange(page)}
                         className={`px-4 py-2 rounded-lg font-semibold transition-all ${
                           currentPage === page
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg'
+                            ? 'bg-gradient-to-r from-primary to-indigo-600 text-white shadow-lg'
                             : 'border-2 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
                         }`}
                       >

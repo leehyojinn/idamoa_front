@@ -79,7 +79,7 @@ export default function AdminPopupsPage() {
           </div>
           <Link
             href="/admin/popups/create"
-            className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-800 transition-colors"
           >
             팝업 생성
           </Link>
@@ -148,7 +148,7 @@ export default function AdminPopupsPage() {
                         <div className="flex gap-2">
                           <Link
                             href={`/admin/popups/${popup.uuid}/edit`}
-                            className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                            className="text-primary hover:text-primary font-medium text-sm"
                           >
                             수정
                           </Link>

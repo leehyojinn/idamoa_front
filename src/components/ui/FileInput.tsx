@@ -111,7 +111,7 @@ export default function FileInput({
 
   const getFileIcon = (file: File) => {
     if (file.type.startsWith('image/')) {
-      return <IoImageOutline className="text-2xl text-blue-500" />;
+      return <IoImageOutline className="text-2xl text-primary-700" />;
     }
     return <IoDocumentTextOutline className="text-2xl text-gray-500" />;
   };
@@ -146,8 +146,8 @@ export default function FileInput({
             : displayError
             ? 'border-red-300 bg-red-50 hover:border-red-400'
             : isDragging
-            ? 'border-blue-500 bg-blue-50 scale-[1.02]'
-            : 'border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/30'
+            ? 'border-primary-500 bg-primary-50 scale-[1.02]'
+            : 'border-gray-300 bg-white hover:border-primary-400 hover:bg-primary-50/30'
           }
         `}
       >
@@ -171,7 +171,7 @@ export default function FileInput({
           >
             <IoCloudUploadOutline
               className={`text-6xl mb-4 ${
-                disabled ? 'text-gray-300' : isDragging ? 'text-blue-500' : 'text-gray-400'
+                disabled ? 'text-gray-300' : isDragging ? 'text-primary-700' : 'text-gray-400'
               }`}
             />
           </motion.div>

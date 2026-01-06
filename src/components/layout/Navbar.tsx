@@ -19,7 +19,7 @@ const UserMenu = dynamic(() => import('./UserMenu'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center px-4 py-2">
-      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-600"></div>
+      <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
     </div>
   ),
 })
@@ -115,7 +115,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
       {user?.currentRole === 'ADMIN' && (
         <button
           onClick={() => setIsAdminMenuOpen(true)}
-          className="fixed top-4 left-4 z-50 p-3 rounded-lg bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors"
+          className="fixed top-4 left-4 z-50 p-3 rounded-lg bg-primary text-white shadow-lg hover:bg-primary-800 transition-colors"
           aria-label="관리자 메뉴"
         >
           <FiSettings className="w-5 h-5" />
@@ -136,7 +136,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
             <div className="flex items-center">
               <Link href="/" className="flex items-center focus:outline-none focus:ring-2 focus:ring-primary rounded-lg">
                 <Image
-                  src="/images/bi/bi-logo-wide-blue.svg"
+                  src="/images/bi/bi-logo-wide-black.svg"
                   alt="Logo"
                   width={120}
                   height={40}
@@ -219,11 +219,11 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
             >
               <div className="flex flex-col h-full">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-blue-600">
+                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-primary">
                   <h2 className="text-lg font-semibold text-white">관리자 메뉴</h2>
                   <button
                     onClick={() => setIsAdminMenuOpen(false)}
-                    className="p-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="p-2 rounded-lg hover:bg-primary-800 transition-colors"
                     aria-label="메뉴 닫기"
                   >
                     <FaTimes className="w-5 h-5 text-white" />
@@ -243,7 +243,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
                         <Link
                           href={page.href}
                           onClick={() => setIsAdminMenuOpen(false)}
-                          className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors font-medium"
+                          className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary transition-colors font-medium"
                         >
                           {page.label}
                         </Link>

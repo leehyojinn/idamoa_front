@@ -239,7 +239,7 @@ export default function PortfolioDetailPage({ params }: Props) {
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary mb-4"></div>
             <p className="text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -255,7 +255,7 @@ export default function PortfolioDetailPage({ params }: Props) {
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <p className="text-gray-600 text-lg mb-4">포트폴리오를 찾을 수 없습니다</p>
-            <Link href="/" className="text-blue-600 hover:text-blue-700">
+            <Link href="/" className="text-primary hover:text-primary">
               메인으로 돌아가기
             </Link>
           </div>
@@ -321,7 +321,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                   <>
                     <Link
                       href={`/portfolios/${portfolio.uuid}/edit`}
-                      className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                      className="p-2 bg-primary-50 text-primary hover:bg-primary-100 rounded-lg transition-colors"
                     >
                       <FiEdit2 className="w-5 h-5" />
                     </Link>
@@ -366,7 +366,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                             e.stopPropagation()
                             handlePrevImage()
                           }}
-                          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-primary-800/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <FiChevronLeft className="w-6 h-6" />
                         </button>
@@ -375,7 +375,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                             e.stopPropagation()
                             handleNextImage()
                           }}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-primary-800/70 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <FiChevronRight className="w-6 h-6" />
                         </button>
@@ -389,7 +389,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                       <span className={`absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-bold shadow-lg ${
                         portfolio.promotion.promotionType === 'PREMIUM'
                           ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'
-                          : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                          : 'bg-gradient-to-r from-primary-500 to-primary-1000 text-white'
                       }`}>
                         {portfolio.promotion.promotionType === 'PREMIUM' ? 'PREMIUM' : '추천'}
                       </span>
@@ -418,7 +418,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                       onClick={() => handleThumbnailClick(index)}
                       className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden transition-all ${
                         index === currentImageIndex
-                          ? 'ring-2 ring-blue-600 scale-105'
+                          ? 'ring-2 ring-primary-500 scale-105'
                           : 'opacity-70 hover:opacity-100'
                       }`}
                     >
@@ -499,7 +499,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {portfolio.videos.map((video, index) => (
-                      <div key={video.uuid} className="aspect-video bg-gray-900 rounded-xl overflow-hidden">
+                      <div key={video.uuid} className="aspect-video bg-primary rounded-xl overflow-hidden">
                         <video
                           src={getCdnUrl(video.fileUrl)}
                           controls
@@ -656,7 +656,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                           <FiPhone className="w-4 h-4 text-gray-400" />
                           <a
                             href={`tel:${portfolio.company.contactPhone}`}
-                            className="text-blue-600 hover:text-blue-700"
+                            className="text-primary hover:text-primary"
                           >
                             {portfolio.company.contactPhone}
                           </a>
@@ -667,7 +667,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                           <FiMail className="w-4 h-4 text-gray-400" />
                           <a
                             href={`mailto:${portfolio.company.contactEmail}`}
-                            className="text-blue-600 hover:text-blue-700"
+                            className="text-primary hover:text-primary"
                           >
                             {portfolio.company.contactEmail}
                           </a>
@@ -686,7 +686,7 @@ export default function PortfolioDetailPage({ params }: Props) {
                       {(portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid) && (
                         <Link
                           href={`/companies/${portfolio.company.slug || portfolio.company.uuid || portfolio.company.companyUuid}`}
-                          className="block w-full py-3 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"
+                          className="block w-full py-3 text-center bg-primary hover:bg-primary-800 text-white font-semibold rounded-xl transition-colors"
                         >
                           업체 상세보기
                         </Link>

@@ -47,7 +47,7 @@ export default function AdminPartnershipInquiriesPage() {
       case 'PENDING':
         return 'bg-yellow-100 text-yellow-800'
       case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary-100 text-primary-800'
       case 'COMPLETED':
         return 'bg-green-100 text-green-800'
       case 'CANCELLED':
@@ -92,7 +92,7 @@ export default function AdminPartnershipInquiriesPage() {
                     setStatus((e.target.value as PartnershipStatus) || undefined)
                     setPage(0)
                   }}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 >
                   <option value="">전체</option>
                   {(Object.keys(PARTNERSHIP_STATUS_LABELS) as PartnershipStatus[]).map((s) => (
@@ -110,7 +110,7 @@ export default function AdminPartnershipInquiriesPage() {
                     setType((e.target.value as PartnershipType) || undefined)
                     setPage(0)
                   }}
-                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 >
                   <option value="">전체</option>
                   {(Object.keys(PARTNERSHIP_TYPE_LABELS) as PartnershipType[]).map((t) => (
@@ -126,7 +126,7 @@ export default function AdminPartnershipInquiriesPage() {
           {/* 테이블 */}
           {isLoading ? (
             <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
               <p className="mt-2 text-gray-600">로딩 중...</p>
             </div>
           ) : error ? (
@@ -198,7 +198,7 @@ export default function AdminPartnershipInquiriesPage() {
                             <div className="flex items-center gap-2">
                               <Link
                                 href={`/admin/partnership-inquiries/${inquiry.uuid}`}
-                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="p-2 text-primary hover:bg-primary-50 rounded-lg transition-colors"
                                 title="상세보기"
                               >
                                 <FiEye className="w-4 h-4" />

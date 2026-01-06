@@ -223,38 +223,38 @@ export default function CreateCreditPackagePage() {
           </div>
 
           {/* 미리보기 */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-4">미리보기</h3>
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-primary mb-4">미리보기</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-blue-700 font-medium">코드:</span>
-                <span className="text-blue-900">KRW_{formData.unitAmount}</span>
+                <span className="text-primary font-medium">코드:</span>
+                <span className="text-primary">KRW_{formData.unitAmount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-blue-700 font-medium">표시명:</span>
-                <span className="text-blue-900">{(formData.unitAmount / 10000).toFixed(0)}만원권</span>
+                <span className="text-primary font-medium">표시명:</span>
+                <span className="text-primary">{(formData.unitAmount / 10000).toFixed(0)}만원권</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-blue-700 font-medium">단위 금액:</span>
-                <span className="text-blue-900 font-bold">{formData.unitAmount.toLocaleString()}원</span>
+                <span className="text-primary font-medium">단위 금액:</span>
+                <span className="text-primary font-bold">{formData.unitAmount.toLocaleString()}원</span>
               </div>
               {!isBonusDisabled && formData.bonusRate > 0 && (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-blue-700 font-medium">보너스율:</span>
+                    <span className="text-primary font-medium">보너스율:</span>
                     <span className="text-green-700 font-bold">{formData.bonusRate}%</span>
                   </div>
                   {formData.maxBonus && (
                     <div className="flex justify-between">
-                      <span className="text-blue-700 font-medium">최대 보너스:</span>
-                      <span className="text-blue-900">{formData.maxBonus.toLocaleString()}원</span>
+                      <span className="text-primary font-medium">최대 보너스:</span>
+                      <span className="text-primary">{formData.maxBonus.toLocaleString()}원</span>
                     </div>
                   )}
                 </>
               )}
               <div className="flex justify-between">
-                <span className="text-blue-700 font-medium">설명:</span>
-                <span className="text-blue-900">{formData.description || '(없음)'}</span>
+                <span className="text-primary font-medium">설명:</span>
+                <span className="text-primary">{formData.description || '(없음)'}</span>
               </div>
             </div>
           </div>

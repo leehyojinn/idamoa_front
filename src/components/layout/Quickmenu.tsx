@@ -61,14 +61,14 @@ export default function Quickmenu() {
         <div>
             {/* PC 퀵메뉴 패널 */}
             <div
-                className={`fixed top-1/2 -translate-y-1/2 right-6 z-50 flex-col items-center bg-[#d7e5fdcc] rounded-[100px] px-3 py-5 space-y-5 shadow-lg backdrop-blur-sm select-none overflow-visible transition-[transform,opacity] duration-500 ease-in-out hidden lg:flex ${
+                className={`fixed top-1/2 -translate-y-1/2 right-6 z-50 flex-col items-center bg-gray-100/90 rounded-[100px] px-3 py-5 space-y-5 shadow-lg backdrop-blur-sm select-none overflow-visible transition-[transform,opacity] duration-500 ease-in-out hidden lg:flex ${
                 isOpen
                     ? 'w-[100px] translate-x-0 opacity-100'
                     : 'w-12 translate-x-24 opacity-0 pointer-events-none'}`}>
                 {/* 숨기기 버튼 */}
                 <button
                     onClick={() => setIsOpen(false)}
-                    className="mt-3 cursor-pointer flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md text-blue-700 font-semibold text-sm hover:bg-blue-100 transition select-none"
+                    className="mt-3 cursor-pointer flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md text-primary font-semibold text-sm hover:bg-primary-100 transition select-none"
                     aria-label="숨기기"
                     title="숨기기">
                     <FaChevronRight className="w-6 h-6"/>
@@ -87,11 +87,11 @@ export default function Quickmenu() {
                                         onMouseLeave={() => setHovered(null)}>
                                         <Link
                                             href={item.href}
-                                            className="flex flex-col items-center rounded-lg focus:outline-none hover:bg-blue-100 transition w-full cursor-pointer"
+                                            className="flex flex-col items-center rounded-lg focus:outline-none hover:bg-primary-100 transition w-full cursor-pointer"
                                             aria-label={item.label}
                                             title={item.label}>
-                                            <item.icon className="w-6 h-6 text-[#2c76ff]"/>
-                                            <span className="mt-2 text-xs font-semibold text-blue-600">{item.label}</span>
+                                            <item.icon className="w-6 h-6 text-primary"/>
+                                            <span className="mt-2 text-xs font-semibold text-primary">{item.label}</span>
                                         </Link>
 
                                         {
@@ -112,7 +112,7 @@ export default function Quickmenu() {
                             {/* 탑 버튼 (열렸을 때만) */}
                             <button
                                 onClick={scrollToTop}
-                                className="flex items-center cursor-pointer justify-center w-12 h-12 bg-white rounded-full shadow-md text-blue-700 font-semibold text-sm hover:bg-blue-100 transition select-none"
+                                className="flex items-center cursor-pointer justify-center w-12 h-12 bg-white rounded-full shadow-md text-primary font-semibold mx-auto text-sm hover:bg-primary-100 transition select-none"
                                 aria-label="페이지 상단으로 이동">
                                 TOP
                             </button>
@@ -126,7 +126,7 @@ export default function Quickmenu() {
                 !isOpen && (
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="fixed top-1/2 -translate-y-1/2 right-6 z-50 flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md text-blue-700 font-semibold text-sm hover:bg-blue-100 select-none hidden lg:flex"
+                        className="fixed top-1/2 -translate-y-1/2 right-6 z-50 flex items-center justify-center w-12 h-12 bg-white rounded-full shadow-md text-primary font-semibold text-sm hover:bg-primary-100 select-none hidden lg:flex"
                         aria-label="퀵메뉴 열기"
                         title="퀵메뉴 열기">
                         <FaChevronLeft className="w-6 h-6"/>
@@ -136,10 +136,10 @@ export default function Quickmenu() {
 
             {/* 모바일 하단 1열 메뉴 */}
             <div
-                className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-1 bg-[#d7e5fdcc] px-2 py-2 shadow-lg backdrop-blur-sm select-none lg:hidden w-full justify-around">
+                className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-1 bg-gray-100/90 px-2 py-2 shadow-lg backdrop-blur-sm select-none lg:hidden w-full justify-around">
                 <Link
                     href="/"
-                    className="flex flex-col items-center text-blue-600 hover:text-blue-800 select-none"
+                    className="flex flex-col items-center text-primary hover:text-primary select-none"
                     aria-label="홈으로 이동"
                     title="홈으로 이동">
                     <FaHouse className="w-5 h-5"/>
@@ -151,7 +151,7 @@ export default function Quickmenu() {
                         <Link
                             key={item.id}
                             href={item.href}
-                            className="flex flex-col items-center text-blue-600 hover:text-blue-800 select-none"
+                            className="flex flex-col items-center text-primary hover:text-primary select-none"
                             aria-label={item.label}
                             title={item.label}>
                             <item.icon className="w-5 h-5"/>

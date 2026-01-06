@@ -55,7 +55,7 @@ export default function AdminGuard({ children }: AdminGuardProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
           <p className="mt-4 text-gray-600">권한을 확인하는 중...</p>
         </div>
       </div>

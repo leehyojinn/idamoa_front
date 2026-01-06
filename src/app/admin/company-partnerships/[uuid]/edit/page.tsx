@@ -90,7 +90,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
     return (
       <AdminGuard>
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
         </div>
       </AdminGuard>
     )
@@ -102,7 +102,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-500 mb-4">제휴 정보를 불러올 수 없습니다.</p>
-            <Link href="/admin/company-partnerships" className="text-blue-600 hover:underline">
+            <Link href="/admin/company-partnerships" className="text-primary hover:underline">
               목록으로 돌아가기
             </Link>
           </div>
@@ -144,7 +144,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
               <input
                 type="date"
                 {...register('startDate')}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               {errors.startDate && (
                 <p className="mt-1 text-sm text-red-500">{errors.startDate.message}</p>
@@ -159,7 +159,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
               <input
                 type="date"
                 {...register('endDate')}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               {errors.endDate && (
                 <p className="mt-1 text-sm text-red-500">{errors.endDate.message}</p>
@@ -176,7 +176,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
                 {...register('displayOrder', { valueAsNumber: true })}
                 placeholder="0"
                 min="0"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               <p className="mt-1 text-xs text-gray-500">낮을수록 먼저 노출됩니다.</p>
               {errors.displayOrder && (
@@ -193,7 +193,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
                 {...register('adminMemo')}
                 rows={3}
                 placeholder="관리자만 볼 수 있는 메모입니다."
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
               />
             </div>
 
@@ -209,7 +209,7 @@ export default function AdminEditCompanyPartnershipPage({ params }: PageProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 {isPending ? (
                   <>

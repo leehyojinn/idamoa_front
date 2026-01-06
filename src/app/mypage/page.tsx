@@ -213,7 +213,7 @@ export default function MyPage() {
 
           {/* 크레딧 정보 */}
           {creditBalanceResponse?.data && (
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+            <div className="bg-gradient-to-br from-primary-500 to-primary rounded-lg shadow-lg p-6 mb-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -226,13 +226,13 @@ export default function MyPage() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => router.push('/mypage/credits/purchase')}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm"
+                    className="px-4 py-2 bg-white text-primary rounded-lg font-medium hover:bg-primary-50 transition-colors text-sm"
                   >
                     충전하기
                   </button>
                   <button
                     onClick={() => router.push('/mypage/credits/transactions')}
-                    className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors text-sm"
+                    className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-lg font-medium transition-colors text-sm"
                   >
                     내역 보기
                   </button>
@@ -330,24 +330,24 @@ export default function MyPage() {
 
         <main className="flex-1 container mx-auto px-4 py-8">
           {/* 프로필 기본 정보 */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm p-6 mb-6">
+          <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg shadow-sm p-6 mb-6">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">{profile.name}</h2>
                 <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                   <span className="flex items-center gap-1">
-                    <FaPhone className="text-blue-600" />
+                    <FaPhone className="text-primary" />
                     {formatPhoneNumber(profile.phone)}
                   </span>
                   {profile.email && (
                     <span className="flex items-center gap-1">
-                      <FaEnvelope className="text-blue-600" />
+                      <FaEnvelope className="text-primary" />
                       {profile.email}
                     </span>
                   )}
                   {profile.address && (
                     <span className="flex items-center gap-1">
-                      <FaMapMarkerAlt className="text-blue-600" />
+                      <FaMapMarkerAlt className="text-primary" />
                       {profile.address}
                     </span>
                   )}
@@ -361,7 +361,7 @@ export default function MyPage() {
 
           {/* 크레딧 정보 */}
           {creditBalanceResponse?.data && (
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+            <div className="bg-gradient-to-br from-primary-500 to-primary rounded-lg shadow-lg p-6 mb-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -374,13 +374,13 @@ export default function MyPage() {
                 <div className="flex flex-col gap-2">
                   <button
                     onClick={() => router.push('/mypage/credits/purchase')}
-                    className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm"
+                    className="px-4 py-2 bg-white text-primary rounded-lg font-medium hover:bg-primary-50 transition-colors text-sm"
                   >
                     충전하기
                   </button>
                   <button
                     onClick={() => router.push('/mypage/credits/transactions')}
-                    className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors text-sm"
+                    className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-lg font-medium transition-colors text-sm"
                   >
                     내역 보기
                   </button>
@@ -507,24 +507,24 @@ export default function MyPage() {
 
       <main className="flex-1 container mx-auto px-4 py-8">
         {/* 프로필 기본 정보 */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{displayName}</h2>
               <div className="flex flex-wrap gap-4 text-sm text-gray-700">
                 <span className="flex items-center gap-1">
-                  <FaPhone className="text-blue-600" />
+                  <FaPhone className="text-primary" />
                   {formatPhoneNumber(displayPhone)}
                 </span>
                 {displayEmail && (
                   <span className="flex items-center gap-1">
-                    <FaEnvelope className="text-blue-600" />
+                    <FaEnvelope className="text-primary" />
                     {displayEmail}
                   </span>
                 )}
                 {displayAddress && (
                   <span className="flex items-center gap-1">
-                    <FaMapMarkerAlt className="text-blue-600" />
+                    <FaMapMarkerAlt className="text-primary" />
                     {displayAddress}
                   </span>
                 )}
@@ -538,7 +538,7 @@ export default function MyPage() {
 
         {/* 크레딧 정보 */}
         {creditBalanceResponse?.data && (
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+          <div className="bg-gradient-to-br from-primary-500 to-primary rounded-lg shadow-lg p-6 mb-6 text-white">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -551,13 +551,13 @@ export default function MyPage() {
               <div className="flex flex-col gap-2">
                 <button
                   onClick={() => router.push('/mypage/credits/purchase')}
-                  className="px-4 py-2 bg-white text-blue-600 rounded-lg font-medium hover:bg-blue-50 transition-colors text-sm"
+                  className="px-4 py-2 bg-white text-primary rounded-lg font-medium hover:bg-primary-50 transition-colors text-sm"
                 >
                   충전하기
                 </button>
                 <button
                   onClick={() => router.push('/mypage/credits/transactions')}
-                  className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-medium transition-colors text-sm"
+                  className="px-4 py-2 bg-primary-700 hover:bg-primary-800 text-white rounded-lg font-medium transition-colors text-sm"
                 >
                   내역 보기
                 </button>
@@ -585,7 +585,7 @@ export default function MyPage() {
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
                   {company.verified && (
-                    <span className="flex items-center gap-1 text-blue-600 text-sm">
+                    <span className="flex items-center gap-1 text-primary text-sm">
                       <FaCheckCircle />
                       인증됨
                     </span>
@@ -685,7 +685,7 @@ export default function MyPage() {
                       {filterGroup.options.map((option) => (
                         <span
                           key={option.id}
-                          className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                          className="px-3 py-1 bg-primary-50 text-primary rounded-full text-sm"
                         >
                           {option.name}
                         </span>
@@ -775,7 +775,7 @@ export default function MyPage() {
                     href={company.websiteUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm"
+                    className="flex items-center gap-2 text-primary hover:text-primary text-sm"
                   >
                     <FaGlobe />
                     <span>웹사이트</span>
@@ -810,7 +810,7 @@ export default function MyPage() {
                         href={(company.socialLinks as Record<string, string>).facebook}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-blue-700 hover:text-blue-800 text-sm"
+                        className="flex items-center gap-2 text-primary hover:text-primary text-sm"
                       >
                         <FaFacebook />
                         <span>Facebook</span>
@@ -947,7 +947,7 @@ export default function MyPage() {
                 </button>
                 <button
                   onClick={() => router.push('/mypage/company-register')}
-                  className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+                  className="w-full py-2 px-4 bg-primary hover:bg-primary-800 text-white rounded-lg transition-colors text-sm font-medium"
                 >
                   업체 상세정보 수정
                 </button>

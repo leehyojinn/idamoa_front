@@ -379,7 +379,7 @@ export default function GalleryCreateForm() {
               {option.name}
             </span>
             {selectedCount > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+              <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                 {selectedCount}
               </span>
             )}
@@ -402,7 +402,7 @@ export default function GalleryCreateForm() {
         onClick={() => handleFilterOptionChange(categoryId, option.id, !isSelected, filterType)}
         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
           isSelected
-            ? 'bg-blue-600 text-white shadow-md'
+            ? 'bg-primary text-white shadow-md'
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
@@ -411,7 +411,7 @@ export default function GalleryCreateForm() {
             ? 'bg-white border-white'
             : 'border-gray-400'
         }`}>
-          {isSelected && <FiCheck className="w-3 h-3 text-blue-600" />}
+          {isSelected && <FiCheck className="w-3 h-3 text-primary" />}
         </span>
         <span className="truncate">{option.name}</span>
       </button>
@@ -575,7 +575,7 @@ export default function GalleryCreateForm() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-md p-8">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">권한 확인 중...</p>
           </div>
         </div>
@@ -590,9 +590,9 @@ export default function GalleryCreateForm() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
             <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6">
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-6">
                 <svg
-                  className="h-8 w-8 text-blue-600"
+                  className="h-8 w-8 text-primary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -630,7 +630,7 @@ export default function GalleryCreateForm() {
                     setShowCompanyRequiredDialog(false)
                     router.push('/mypage/company-register')
                   }}
-                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                  className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary-800 transition-colors"
                 >
                   업체 등록하기
                 </button>
@@ -720,7 +720,7 @@ export default function GalleryCreateForm() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={200}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="포트폴리오 제목을 입력하세요"
                 />
                 <p className="text-sm text-gray-500 mt-1">{title.length}/200자</p>
@@ -734,7 +734,7 @@ export default function GalleryCreateForm() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="포트폴리오에 대한 설명을 입력하세요"
                 />
               </div>
@@ -747,7 +747,7 @@ export default function GalleryCreateForm() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="관련 링크 (예: example.com)"
                 />
               </div>
@@ -761,7 +761,7 @@ export default function GalleryCreateForm() {
                   value={copyrightInfo}
                   onChange={(e) => setCopyrightInfo(e.target.value)}
                   maxLength={200}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="저작권 정보 (예: Copyright 2024 홍길동)"
                 />
               </div>
@@ -777,11 +777,11 @@ export default function GalleryCreateForm() {
               <button
                 type="button"
                 onClick={() => setShowFilterPanel(true)}
-                className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group"
+                className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <FiFilter className="text-blue-600 text-xl" />
+                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                    <FiFilter className="text-primary text-xl" />
                   </div>
                   <div className="text-left">
                     <p className="font-medium text-gray-900">
@@ -795,12 +795,12 @@ export default function GalleryCreateForm() {
                     </p>
                   </div>
                 </div>
-                <FiChevronRight className="text-gray-400 text-xl group-hover:text-blue-600 transition-colors" />
+                <FiChevronRight className="text-gray-400 text-xl group-hover:text-primary transition-colors" />
               </button>
 
               {/* 선택된 필터 표시 */}
               {selectedFilterOptionIds.length > 0 && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-medium text-gray-700">
                       선택된 필터 ({selectedFilterOptionIds.length})
@@ -817,7 +817,7 @@ export default function GalleryCreateForm() {
                     {selectedFilterOptionIds.map(optionId => (
                       <span
                         key={optionId}
-                        className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                        className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                       >
                         {getFilterOptionName(optionId)}
                         <button
@@ -854,13 +854,13 @@ export default function GalleryCreateForm() {
                         handleAddTag()
                       }
                     }}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="태그 입력 후 엔터 또는 추가 버튼"
                   />
                   <button
                     type="button"
                     onClick={handleAddTag}
-                    className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                    className="px-6 py-3 bg-gray-600 hover:bg-primary-600 text-white rounded-lg font-semibold transition-colors"
                   >
                     추가
                   </button>
@@ -869,20 +869,20 @@ export default function GalleryCreateForm() {
 
               {/* 선택된 태그 목록 */}
               {tags.length > 0 && (
-                <div className="border border-blue-200 bg-blue-50 rounded-lg p-4">
+                <div className="border border-primary-200 bg-primary-50 rounded-lg p-4">
                   <h3 className="font-bold text-gray-800 mb-3">선택된 태그 ({tags.length})</h3>
                   <div className="flex flex-wrap gap-2">
                     {tags.map(tag => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                        className="inline-flex items-center gap-1 bg-primary-100 text-primary px-3 py-1 rounded-full text-sm"
                       >
                         <FiTag className="text-xs" />
                         {tag}
                         <button
                           type="button"
                           onClick={() => handleRemoveTag(tag)}
-                          className="ml-1 hover:text-blue-900"
+                          className="ml-1 hover:text-primary"
                         >
                           ×
                         </button>
@@ -906,7 +906,7 @@ export default function GalleryCreateForm() {
                 <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                   <FiCreditCard className="text-gray-500" />
                   <span className="text-sm text-gray-600">내 크레딧:</span>
-                  <span className="font-bold text-blue-600">
+                  <span className="font-bold text-primary">
                     {creditBalance.toLocaleString()}원
                   </span>
                 </div>
@@ -962,7 +962,7 @@ export default function GalleryCreateForm() {
                           isSelected
                             ? isPremium
                               ? 'border-yellow-500 bg-yellow-50 shadow-md'
-                              : 'border-blue-500 bg-blue-50 shadow-md'
+                              : 'border-primary-500 bg-primary-50 shadow-md'
                             : insufficientCredits
                               ? 'border-gray-200 bg-gray-100 opacity-50 cursor-not-allowed'
                               : 'border-gray-200 hover:border-gray-300'
@@ -974,14 +974,14 @@ export default function GalleryCreateForm() {
                           </div>
                         )}
                         <div className="flex items-center justify-between mb-2">
-                          <span className={`font-bold ${isPremium ? 'text-yellow-700' : 'text-blue-700'}`}>
+                          <span className={`font-bold ${isPremium ? 'text-yellow-700' : 'text-primary'}`}>
                             {setting.displayName}
                           </span>
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                             isSelected
                               ? isPremium
                                 ? 'border-yellow-500 bg-yellow-500'
-                                : 'border-blue-500 bg-blue-500'
+                                : 'border-primary-500 bg-primary-800'
                               : 'border-gray-300'
                           }`}>
                             {isSelected && <FiCheck className="w-3 h-3 text-white" />}
@@ -989,13 +989,13 @@ export default function GalleryCreateForm() {
                         </div>
                         <p className="text-sm text-gray-600">{setting.description}</p>
                         <div className="mt-2 flex items-center justify-between">
-                          <p className={`text-lg font-bold ${isPremium ? 'text-yellow-700' : 'text-blue-700'}`}>
+                          <p className={`text-lg font-bold ${isPremium ? 'text-yellow-700' : 'text-primary'}`}>
                             {setting.price.toLocaleString()}원/월
                           </p>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${
                             isPremium
                               ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-blue-100 text-blue-700'
+                              : 'bg-primary-100 text-primary'
                           }`}>
                             가중치 {setting.weight}x
                           </span>
@@ -1010,13 +1010,13 @@ export default function GalleryCreateForm() {
 
                 {/* 자동 갱신 옵션 */}
                 {selectedPromotionType && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="p-4 bg-primary-50 border border-primary-200 rounded-lg">
                     <label className="flex items-start gap-3 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={autoRenew}
                         onChange={(e) => setAutoRenew(e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 mt-0.5"
+                        className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary-400 mt-0.5"
                       />
                       <div>
                         <span className="font-medium text-gray-900">자동 갱신</span>
@@ -1039,16 +1039,16 @@ export default function GalleryCreateForm() {
 
                 {/* 선택된 우대 요약 */}
                 {selectedPromotionType && (
-                  <div className="p-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg">
+                  <div className="p-4 bg-gradient-to-r from-primary-500 to-indigo-600 text-white rounded-lg">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-blue-100">선택된 우대</p>
+                        <p className="text-sm text-primary-100">선택된 우대</p>
                         <p className="font-bold text-lg">
                           {getSelectedPromotion()?.displayName}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm text-blue-100">결제 금액</p>
+                        <p className="text-sm text-primary-100">결제 금액</p>
                         <p className="font-bold text-lg">
                           {getSelectedPromotion()?.price.toLocaleString()}원
                         </p>
@@ -1072,9 +1072,9 @@ export default function GalleryCreateForm() {
             </h2>
             <div className="space-y-4">
               {isCompressing ? (
-                <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
-                  <p className="text-blue-600 font-medium">이미지 압축 중...</p>
+                <div className="border-2 border-dashed border-primary-300 rounded-lg p-6 text-center bg-primary-50">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary mb-4"></div>
+                  <p className="text-primary font-medium">이미지 압축 중...</p>
                   <p className="text-sm text-gray-500 mt-1">
                     잠시만 기다려주세요
                   </p>
@@ -1086,7 +1086,7 @@ export default function GalleryCreateForm() {
                 >
                   <FiImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                   <div className="flex flex-col items-center justify-center">
-                    <span className="text-blue-600 font-medium hover:text-blue-700">
+                    <span className="text-primary font-medium hover:text-primary">
                       이미지 선택
                     </span>
                     <input
@@ -1167,7 +1167,7 @@ export default function GalleryCreateForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiPlus className="text-2xl" />
               {isSubmitting ? '등록 중...' : '포트폴리오 등록'}
@@ -1195,10 +1195,10 @@ export default function GalleryCreateForm() {
           {/* 사이드 패널 */}
           <div className="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col animate-slide-in-right">
             {/* 헤더 */}
-            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary to-indigo-600 text-white">
               <div>
                 <h3 className="text-lg font-bold">필터 선택</h3>
-                <p className="text-sm text-blue-100">
+                <p className="text-sm text-primary-100">
                   {selectedFilterOptionIds.length}개 선택됨
                 </p>
               </div>
@@ -1213,7 +1213,7 @@ export default function GalleryCreateForm() {
 
             {/* 선택된 필터 미리보기 */}
             {selectedFilterOptionIds.length > 0 && (
-              <div className="p-4 bg-blue-50 border-b">
+              <div className="p-4 bg-primary-50 border-b">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">선택된 필터</span>
                   <button
@@ -1228,7 +1228,7 @@ export default function GalleryCreateForm() {
                   {selectedFilterOptionIds.slice(0, 10).map(optionId => (
                     <span
                       key={optionId}
-                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-blue-200"
+                      className="inline-flex items-center gap-1 bg-white text-primary px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-primary-200"
                     >
                       {getFilterOptionName(optionId)}
                       <button
@@ -1253,7 +1253,7 @@ export default function GalleryCreateForm() {
               {isLoadingFilters ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
                     <p className="mt-2 text-gray-600">필터 로딩 중...</p>
                   </div>
                 </div>
@@ -1293,7 +1293,7 @@ export default function GalleryCreateForm() {
                             )}
                           </div>
                           {selectedCount > 0 && (
-                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                               {selectedCount}
                             </span>
                           )}
@@ -1315,7 +1315,7 @@ export default function GalleryCreateForm() {
               <button
                 type="button"
                 onClick={() => setShowFilterPanel(false)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-primary hover:bg-primary-800 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 {selectedFilterOptionIds.length > 0
                   ? `${selectedFilterOptionIds.length}개 필터 적용하기`

@@ -129,7 +129,7 @@ export default function GrantCreditPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">현재 잔액</span>
-              <span className="font-bold text-blue-600">{credit.availableCredits.toLocaleString()}원</span>
+              <span className="font-bold text-primary">{credit.availableCredits.toLocaleString()}원</span>
             </div>
           </div>
 

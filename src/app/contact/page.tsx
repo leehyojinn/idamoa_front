@@ -129,9 +129,9 @@ export default function InquiryPage() {
       <Navbar />
 
       {/* 히어로 섹션 */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-indigo-900 to-purple-900 py-16 md:py-24">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-800/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
         </div>
 
@@ -142,7 +142,7 @@ export default function InquiryPage() {
               함께 성장하세요
             </span>
           </h1>
-          <p className="text-xl text-blue-100/90 max-w-2xl mx-auto">
+          <p className="text-xl text-primary-100/90 max-w-2xl mx-auto">
             제휴 및 광고 문의를 통해 새로운 비즈니스 기회를 만들어보세요.
           </p>
         </div>
@@ -187,7 +187,7 @@ export default function InquiryPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   maxLength={100}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="홍길동"
                 />
                 {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
@@ -205,7 +205,7 @@ export default function InquiryPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   maxLength={100}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="contact@example.com"
                 />
                 {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
@@ -222,7 +222,7 @@ export default function InquiryPage() {
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="010-1234-5678"
                 />
                 {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
@@ -240,7 +240,7 @@ export default function InquiryPage() {
                   value={formData.content}
                   onChange={handleInputChange}
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                   placeholder="문의하실 내용을 자세히 입력해주세요."
                 />
                 {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
@@ -259,7 +259,7 @@ export default function InquiryPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-3 px-6 bg-primary text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? '접수 중...' : '문의하기'}
               </button>
@@ -278,8 +278,8 @@ export default function InquiryPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {/* 혜택 1 */}
-            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50">
-              <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+            <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary-50 to-primary-100">
+              <div className="w-16 h-16 mx-auto mb-4 bg-primary-100 rounded-full flex items-center justify-center">
                 <span className="text-3xl">📈</span>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">브랜드 노출</h3>

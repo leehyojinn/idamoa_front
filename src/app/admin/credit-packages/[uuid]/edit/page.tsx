@@ -252,30 +252,30 @@ export default function EditCreditPackagePage() {
           </div>
 
           {/* 미리보기 */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-4">변경 사항 미리보기</h3>
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-primary mb-4">변경 사항 미리보기</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-blue-700 font-medium">표시명:</span>
-                <span className="text-blue-900">{formData.displayName || `${(originalData.unitAmount / 10000).toFixed(0)}만원권`}</span>
+                <span className="text-primary font-medium">표시명:</span>
+                <span className="text-primary">{formData.displayName || `${(originalData.unitAmount / 10000).toFixed(0)}만원권`}</span>
               </div>
               {!isBonusDisabled && formData.bonusRate > 0 && (
                 <>
                   <div className="flex justify-between">
-                    <span className="text-blue-700 font-medium">보너스율:</span>
+                    <span className="text-primary font-medium">보너스율:</span>
                     <span className="text-green-700 font-bold">{formData.bonusRate}%</span>
                   </div>
                   {formData.maxBonus && (
                     <div className="flex justify-between">
-                      <span className="text-blue-700 font-medium">최대 보너스:</span>
-                      <span className="text-blue-900">{formData.maxBonus.toLocaleString()}원</span>
+                      <span className="text-primary font-medium">최대 보너스:</span>
+                      <span className="text-primary">{formData.maxBonus.toLocaleString()}원</span>
                     </div>
                   )}
                 </>
               )}
               <div className="flex justify-between">
-                <span className="text-blue-700 font-medium">설명:</span>
-                <span className="text-blue-900">{formData.description || '(없음)'}</span>
+                <span className="text-primary font-medium">설명:</span>
+                <span className="text-primary">{formData.description || '(없음)'}</span>
               </div>
             </div>
           </div>

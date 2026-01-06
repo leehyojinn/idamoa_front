@@ -19,7 +19,7 @@ const STATUS_LABELS = {
 }
 
 const STATUS_COLORS = {
-  SUBMITTED: 'bg-blue-100 text-blue-800',
+  SUBMITTED: 'bg-primary-100 text-primary-800',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800'
@@ -109,7 +109,7 @@ export default function AdminConsultationsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">빠른상담 관리</h1>
           <p className="text-gray-600">
-            총 <span className="font-semibold text-blue-600">{totalElements}</span>개의 상담
+            총 <span className="font-semibold text-primary">{totalElements}</span>개의 상담
           </p>
         </div>
       </div>
@@ -121,7 +121,7 @@ export default function AdminConsultationsPage() {
             onClick={() => handleStatusChange('')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedStatus === ''
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -131,7 +131,7 @@ export default function AdminConsultationsPage() {
             onClick={() => handleStatusChange('SUBMITTED')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedStatus === 'SUBMITTED'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -141,7 +141,7 @@ export default function AdminConsultationsPage() {
             onClick={() => handleStatusChange('IN_PROGRESS')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedStatus === 'IN_PROGRESS'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -151,7 +151,7 @@ export default function AdminConsultationsPage() {
             onClick={() => handleStatusChange('COMPLETED')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedStatus === 'COMPLETED'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -161,7 +161,7 @@ export default function AdminConsultationsPage() {
             onClick={() => handleStatusChange('CANCELLED')}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedStatus === 'CANCELLED'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -173,7 +173,7 @@ export default function AdminConsultationsPage() {
       {/* 목록 */}
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
           <p className="mt-4 text-gray-600">상담 목록을 불러오는 중...</p>
         </div>
       ) : consultations.length === 0 ? (
@@ -210,7 +210,7 @@ export default function AdminConsultationsPage() {
                     <td className="px-6 py-4">
                       <Link
                         href={`/admin/consultations/${consultation.uuid}`}
-                        className="block hover:text-blue-600"
+                        className="block hover:text-primary"
                       >
                         <div className="text-sm font-medium text-gray-900">
                           {consultation.subject || '상담 문의'}
@@ -241,7 +241,7 @@ export default function AdminConsultationsPage() {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/admin/consultations/${consultation.uuid}`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-primary hover:text-primary"
                         >
                           <FiEdit className="w-5 h-5" />
                         </Link>
@@ -278,7 +278,7 @@ export default function AdminConsultationsPage() {
                     onClick={() => handlePageChange(page)}
                     className={`px-4 py-2 rounded-lg transition-colors ${
                       currentPage === page
-                        ? 'bg-blue-600 text-white font-semibold'
+                        ? 'bg-primary text-white font-semibold'
                         : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                     }`}
                   >

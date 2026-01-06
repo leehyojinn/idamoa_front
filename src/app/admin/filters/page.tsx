@@ -269,7 +269,7 @@ export default function AdminFiltersPage() {
           <h1 className="text-2xl font-bold text-gray-900">필터 카테고리 관리</h1>
           <button
             onClick={openCreateModal}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
           >
             + 카테고리 추가
           </button>
@@ -284,14 +284,14 @@ export default function AdminFiltersPage() {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="코드, 이름, 설명으로 검색..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             />
           </div>
 
           <select
             value={filter.entityType || ''}
             onChange={(e) => handleFilterChange({ ...filter, entityType: e.target.value || undefined })}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
           >
             <option value="">전체 엔티티</option>
             <option value="COMPANY">업체</option>
@@ -310,7 +310,7 @@ export default function AdminFiltersPage() {
                 isActive: e.target.value === '' ? undefined : e.target.value === 'true',
               })
             }
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
           >
             <option value="">전체 상태</option>
             <option value="true">활성화</option>
@@ -321,7 +321,7 @@ export default function AdminFiltersPage() {
           <select
             value={filter.sort || 'displayOrder,asc'}
             onChange={(e) => handleFilterChange({ ...filter, sort: e.target.value })}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
           >
             <option value="displayOrder,asc">순서 오름차순</option>
             <option value="displayOrder,desc">순서 내림차순</option>
@@ -335,7 +335,7 @@ export default function AdminFiltersPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : categories.length === 0 ? (
@@ -424,7 +424,7 @@ export default function AdminFiltersPage() {
                       </Link>
                       <button
                         onClick={() => openEditModal(category)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-primary hover:text-primary"
                       >
                         수정
                       </button>
@@ -500,7 +500,7 @@ export default function AdminFiltersPage() {
                       type="text"
                       value={formData.code}
                       onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: specialty"
                     />
                   </div>
@@ -512,7 +512,7 @@ export default function AdminFiltersPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: 전문 영역"
                     />
                   </div>
@@ -524,7 +524,7 @@ export default function AdminFiltersPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="카테고리 설명"
                   />
                 </div>
@@ -537,7 +537,7 @@ export default function AdminFiltersPage() {
                     <select
                       value={formData.entityType}
                       onChange={(e) => setFormData({ ...formData, entityType: e.target.value as EntityType })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     >
                       <option value="COMPANY">업체</option>
                       <option value="HOSPITAL">병원</option>
@@ -554,7 +554,7 @@ export default function AdminFiltersPage() {
                     <select
                       value={formData.filterType}
                       onChange={(e) => setFormData({ ...formData, filterType: e.target.value as FilterType })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     >
                       <option value="SINGLE_SELECT">단일 선택</option>
                       <option value="MULTI_SELECT">다중 선택</option>
@@ -570,7 +570,7 @@ export default function AdminFiltersPage() {
                       type="number"
                       value={formData.displayOrder}
                       onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -579,7 +579,7 @@ export default function AdminFiltersPage() {
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                       placeholder="예: work"
                     />
                   </div>
@@ -626,7 +626,7 @@ export default function AdminFiltersPage() {
                 <button
                   onClick={handleCreate}
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50"
                 >
                   {isSubmitting ? '생성 중...' : '생성'}
                 </button>
@@ -660,7 +660,7 @@ export default function AdminFiltersPage() {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -671,7 +671,7 @@ export default function AdminFiltersPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
 
@@ -683,7 +683,7 @@ export default function AdminFiltersPage() {
                     <select
                       value={formData.entityType}
                       onChange={(e) => setFormData({ ...formData, entityType: e.target.value as EntityType })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     >
                       <option value="COMPANY">업체</option>
                       <option value="HOSPITAL">병원</option>
@@ -700,7 +700,7 @@ export default function AdminFiltersPage() {
                     <select
                       value={formData.filterType}
                       onChange={(e) => setFormData({ ...formData, filterType: e.target.value as FilterType })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     >
                       <option value="SINGLE_SELECT">단일 선택</option>
                       <option value="MULTI_SELECT">다중 선택</option>
@@ -716,7 +716,7 @@ export default function AdminFiltersPage() {
                       type="number"
                       value={formData.displayOrder}
                       onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                   <div>
@@ -725,7 +725,7 @@ export default function AdminFiltersPage() {
                       type="text"
                       value={formData.icon}
                       onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     />
                   </div>
                   <div className="flex items-end">
@@ -772,7 +772,7 @@ export default function AdminFiltersPage() {
                 <button
                   onClick={handleEdit}
                   disabled={isSubmitting}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50"
                 >
                   {isSubmitting ? '수정 중...' : '수정'}
                 </button>

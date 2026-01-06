@@ -370,7 +370,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
         {user && (
           <Link
             href="/resources/create"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
           >
             <FiPlus className="text-xl" />
             자료 등록
@@ -390,14 +390,14 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="제목, 내용, 태그 등 검색..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
             </div>
           </div>
           <button
             onClick={handleSearch}
-            className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+            className="w-full sm:w-auto px-6 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
           >
             검색
           </button>
@@ -433,14 +433,14 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap ${
                   showFilters || selectedFilterOptionIds.length > 0
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-primary text-white hover:bg-primary-800'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 <FiFilter />
                 상세 필터
                 {selectedFilterOptionIds.length > 0 && (
-                  <span className="bg-white text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">
+                  <span className="bg-white text-primary px-2 py-0.5 rounded-full text-xs font-bold">
                     {selectedFilterOptionIds.length}
                   </span>
                 )}
@@ -492,7 +492,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                   }}
                   className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
                     onlyMyPosts
-                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300'
+                      ? 'bg-primary-100 text-primary border-2 border-primary-300'
                       : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
                   }`}
                 >
@@ -517,14 +517,14 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   showFilters || selectedFilterOptionIds.length > 0
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-primary text-white hover:bg-primary-800'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
                 <FiFilter />
                 <span className="whitespace-nowrap">필터</span>
                 {selectedFilterOptionIds.length > 0 && (
-                  <span className="bg-white text-blue-600 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                  <span className="bg-white text-primary px-1.5 py-0.5 rounded-full text-xs font-bold">
                     {selectedFilterOptionIds.length}
                   </span>
                 )}
@@ -535,7 +535,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
 
         {/* 선택된 필터 미리보기 */}
         {selectedFilterOptionIds.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+          <div className="flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200">
             <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
               <FiFilter />
               선택된 필터:
@@ -543,12 +543,12 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
             {getSelectedFilterNames().map(filter => (
               <span
                 key={filter.id}
-                className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-primary-200"
               >
                 {filter.name}
                 <button
                   onClick={() => handleRemoveFilter(filter.id)}
-                  className="ml-1 hover:text-blue-900 transition-colors"
+                  className="ml-1 hover:text-primary transition-colors"
                 >
                   <FiX className="w-3 h-3" />
                 </button>
@@ -568,14 +568,14 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
           <div className="space-y-4 pt-4 border-t border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
-                <FiFilter className="text-blue-600" />
+                <FiFilter className="text-primary" />
                 필터 선택
               </h3>
             </div>
 
             {isLoadingFilters ? (
               <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
                 <p className="mt-2 text-gray-600">필터 로딩 중...</p>
               </div>
             ) : filterCategories.length > 0 ? (
@@ -612,7 +612,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
       {/* 자료 그리드 */}
       {isLoading ? (
         <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
           <p className="mt-4 text-gray-600">자료를 불러오는 중...</p>
         </div>
       ) : documents.length === 0 ? (
@@ -621,7 +621,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
           {user && (
             <Link
               href="/resources/create"
-              className="inline-flex items-center gap-2 mt-6 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="inline-flex items-center gap-2 mt-6 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
             >
               <FiPlus className="text-xl" />
               첫 자료 등록하기
@@ -779,7 +779,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                           {doc.filterOptions.slice(0, 4).map(option => (
                             <span
                               key={option.id}
-                              className="inline-flex items-center bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-medium"
+                              className="inline-flex items-center bg-primary-50 text-primary px-2 py-0.5 rounded text-xs font-medium"
                             >
                               {option.shortName || option.name}
                             </span>
@@ -867,7 +867,7 @@ export default function DocumentListClient({ initialData }: DocumentListClientPr
                       onClick={() => handlePageChange(pageNum)}
                       className={`px-4 py-2 rounded-lg ${
                         currentPage === pageNum
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-primary text-white'
                           : 'border border-gray-300 hover:bg-gray-50'
                       }`}
                     >

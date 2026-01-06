@@ -87,7 +87,7 @@ export default function CreatePortfolioPage() {
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary mb-4"></div>
             <p className="text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -105,9 +105,9 @@ export default function CreatePortfolioPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
               <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-6">
+                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-6">
                   <svg
-                    className="h-8 w-8 text-blue-600"
+                    className="h-8 w-8 text-primary"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -137,7 +137,7 @@ export default function CreatePortfolioPage() {
                   </button>
                   <button
                     onClick={handleGoToCompanyRegister}
-                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                    className="flex-1 px-4 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary-800 transition-colors"
                   >
                     업체 등록하기
                   </button>

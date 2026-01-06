@@ -182,7 +182,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={200}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="제안 제목을 입력하세요"
                 />
                 <p className="text-sm text-gray-500 mt-1">{title.length}/200자</p>
@@ -196,7 +196,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={8}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="제안 내용을 상세히 작성하세요"
                 />
               </div>
@@ -209,7 +209,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   type="text"
                   value={formatNumber(price)}
                   onChange={(e) => setPrice(parseNumber(e.target.value))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="80,000,000"
                 />
                 {price && parseInt(price) > 0 && (
@@ -230,7 +230,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                     locale={ko}
                     dateFormat="yyyy년 MM월 dd일"
                     placeholderText="날짜를 선택하세요"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     wrapperClassName="w-full"
                   />
                   <IoCalendarOutline className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
@@ -248,7 +248,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                     onChange={(e) =>
                       setProposedStartDate(e.target.value ? new Date(e.target.value) : null)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -261,7 +261,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                     onChange={(e) =>
                       setProposedEndDate(e.target.value ? new Date(e.target.value) : null)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -277,20 +277,20 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   type="text"
                   value={pricingKey}
                   onChange={(e) => setPricingKey(e.target.value)}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="항목명 (예: 재료비)"
                 />
                 <input
                   type="text"
                   value={formatNumber(pricingValue)}
                   onChange={(e) => setPricingValue(parseNumber(e.target.value))}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="금액 (원)"
                 />
                 <button
                   type="button"
                   onClick={handleAddPricing}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                  className="px-6 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
                 >
                   추가
                 </button>
@@ -329,20 +329,20 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
                   type="text"
                   value={timelineKey}
                   onChange={(e) => setTimelineKey(e.target.value)}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="단계명 (예: 설계기간)"
                 />
                 <input
                   type="text"
                   value={timelineValue}
                   onChange={(e) => setTimelineValue(e.target.value)}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="기간 (예: 2주)"
                 />
                 <button
                   type="button"
                   onClick={handleAddTimeline}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                  className="px-6 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
                 >
                   추가
                 </button>
@@ -385,7 +385,7 @@ export default function ProposalCreateForm({ requestUuid, requestTitle }: Propos
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <IoAddCircleOutline className="text-2xl" />
               {isSubmitting ? '제출 중...' : '제안서 제출'}

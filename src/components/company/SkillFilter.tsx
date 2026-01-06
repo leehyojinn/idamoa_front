@@ -65,7 +65,7 @@ const getIconForSkill = (name: string): React.ComponentType<{ className?: string
 // 색상 매핑
 const colors = [
   'bg-purple-600',
-  'bg-blue-600',
+  'bg-primary',
   'bg-pink-600',
   'bg-indigo-600',
   'bg-cyan-600',

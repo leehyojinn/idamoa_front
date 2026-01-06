@@ -145,7 +145,7 @@ export default function AdminUserDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function AdminUserDetailPage() {
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value as any)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 >
                   <option value="ACTIVE">활성</option>
                   <option value="INACTIVE">비활성</option>
@@ -247,14 +247,14 @@ export default function AdminUserDetailPage() {
                   onChange={(e) => setStatusReason(e.target.value)}
                   placeholder="예: 스팸 활동으로 인한 계정 정지"
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
               <button
                 onClick={handleStatusChange}
                 disabled={selectedStatus === user.status && !statusReason}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 상태 변경
               </button>
@@ -271,7 +271,7 @@ export default function AdminUserDetailPage() {
                   {user.roles.map((role) => (
                     <span
                       key={role}
-                      className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded"
+                      className="px-3 py-1 bg-primary-100 text-primary-800 text-sm rounded"
                     >
                       {role === 'USER' ? '사용자' : role === 'COMPANY' ? '업체' : '관리자'}
                     </span>
@@ -287,7 +287,7 @@ export default function AdminUserDetailPage() {
                       type="checkbox"
                       checked={selectedRoles.includes('USER')}
                       onChange={() => toggleRole('USER')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary-400"
                     />
                     <span className="ml-2 text-sm text-gray-700">사용자</span>
                   </label>
@@ -296,7 +296,7 @@ export default function AdminUserDetailPage() {
                       type="checkbox"
                       checked={selectedRoles.includes('COMPANY')}
                       onChange={() => toggleRole('COMPANY')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary-400"
                     />
                     <span className="ml-2 text-sm text-gray-700">업체</span>
                   </label>
@@ -305,7 +305,7 @@ export default function AdminUserDetailPage() {
                       type="checkbox"
                       checked={selectedRoles.includes('ADMIN')}
                       onChange={() => toggleRole('ADMIN')}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary-400"
                     />
                     <span className="ml-2 text-sm text-gray-700">관리자</span>
                   </label>
@@ -314,7 +314,7 @@ export default function AdminUserDetailPage() {
 
               <button
                 onClick={handleRolesChange}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
               >
                 역할 변경
               </button>

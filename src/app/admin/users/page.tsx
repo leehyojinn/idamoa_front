@@ -131,7 +131,7 @@ export default function AdminUsersPage() {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'USER':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary-100 text-primary-800'
       case 'COMPANY':
         return 'bg-purple-100 text-purple-800'
       case 'ADMIN':
@@ -164,12 +164,12 @@ export default function AdminUsersPage() {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              className="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 min-w-[200px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체 상태</option>
               <option value="ACTIVE">활성</option>
@@ -181,7 +181,7 @@ export default function AdminUsersPage() {
             <select
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             >
               <option value="">전체 역할</option>
               <option value="USER">사용자</option>
@@ -191,7 +191,7 @@ export default function AdminUsersPage() {
 
             <button
               onClick={handleSearch}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
             >
               검색
             </button>
@@ -201,7 +201,7 @@ export default function AdminUsersPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : filteredUsers.length === 0 ? (
@@ -241,7 +241,7 @@ export default function AdminUsersPage() {
                         <div>
                           <Link
                             href={`/admin/users/${user.uuid}`}
-                            className="font-medium text-gray-900 hover:text-blue-600"
+                            className="font-medium text-gray-900 hover:text-primary"
                           >
                             {user.name}
                           </Link>
@@ -292,7 +292,7 @@ export default function AdminUsersPage() {
                             </span>
                           )}
                           {user.identityVerified && (
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">
+                            <span className="px-2 py-0.5 bg-primary-100 text-primary-800 text-xs rounded">
                               본인인증
                             </span>
                           )}
@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <Link
                           href={`/admin/users/${user.uuid}`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-primary hover:text-primary"
                         >
                           상세
                         </Link>

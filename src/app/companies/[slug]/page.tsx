@@ -144,7 +144,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* 커버 이미지 섹션 */}
-        <div className="relative h-[400px] bg-gray-900">
+        <div className="relative h-[400px] bg-primary">
           <Image
             src={getPrimaryImage()}
             alt={company.name}
@@ -203,7 +203,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                     {company.name}
                   </h1>
                   {company.verified && (
-                    <IoCheckmarkCircle className="text-blue-500 text-3xl" />
+                    <IoCheckmarkCircle className="text-primary-700 text-3xl" />
                   )}
                 </div>
 
@@ -320,7 +320,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                     영업 시간
                   </h2>
                   {company.businessHoursNote && (
-                    <p className="text-sm text-gray-600 mb-4 p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-4 p-3 bg-primary-50 rounded-lg">
                       {company.businessHoursNote}
                     </p>
                   )}
@@ -372,7 +372,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                           fill
                           className="object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-primary-800/20 transition-colors" />
                       </div>
                     ))}
                   </div>
@@ -393,7 +393,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                       <div key={filterGroup.categoryId}>
                         <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                           {filterGroup.categoryCode === 'region' && (
-                            <IoLocationOutline className="text-blue-600" />
+                            <IoLocationOutline className="text-primary" />
                           )}
                           {filterGroup.categoryName}
                         </h3>
@@ -404,7 +404,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                           {filterGroup.options.map((option) => (
                             <span
                               key={option.id}
-                              className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium hover:bg-blue-100 transition-colors"
+                              className="px-4 py-2 bg-primary-50 text-primary rounded-full font-medium hover:bg-primary-100 transition-colors"
                             >
                               {option.name}
                             </span>
@@ -487,7 +487,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                     href={company.socialLinks.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-5 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    className="flex items-center gap-3 px-5 py-3 bg-primary text-white rounded-xl hover:bg-primary-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                     title="Facebook"
                   >
                     <IoLogoFacebook className="w-5 h-5" />

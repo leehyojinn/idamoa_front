@@ -119,7 +119,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="inline-block w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <div className="inline-block w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-gray-600">로딩 중...</p>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
           <p className="text-gray-600 text-lg">공지사항을 찾을 수 없습니다</p>
           <Link
             href="/notices"
-            className="inline-flex items-center gap-2 mt-4 text-blue-600 hover:text-blue-700 font-medium"
+            className="inline-flex items-center gap-2 mt-4 text-primary hover:text-primary font-medium"
           >
             <FiArrowLeft />
             목록으로 돌아가기
@@ -165,7 +165,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
                 notice.boardType === 'NOTICE'
-                  ? 'bg-blue-100 text-blue-700'
+                  ? 'bg-primary-100 text-primary'
                   : 'bg-purple-100 text-purple-700'
               }`}
             >
@@ -223,12 +223,12 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
           {notice.boardType === 'EVENT' &&
             notice.eventStartDate &&
             notice.eventEndDate && (
-              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center gap-2 text-blue-900">
-                  <FiCalendar className="text-blue-600" />
+              <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+                <div className="flex items-center gap-2 text-primary">
+                  <FiCalendar className="text-primary" />
                   <span className="font-semibold">이벤트 기간</span>
                 </div>
-                <p className="text-blue-800 mt-1">
+                <p className="text-primary-800 mt-1">
                   {formatDate(notice.eventStartDate)} ~{' '}
                   {formatDate(notice.eventEndDate)}
                 </p>
@@ -296,7 +296,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
               <div className="flex gap-2">
                 <button
                   onClick={handleEdit}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg font-medium transition-colors"
                 >
                   <FiEdit />
                   수정
