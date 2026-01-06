@@ -465,7 +465,7 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                         {company.name}
                       </h3>
                       {company.verified && (
-                        <IoCheckmarkCircle className="text-blue-500 text-xl flex-shrink-0 ml-2" />
+                        <IoCheckmarkCircle className="text-primary-700 text-xl flex-shrink-0 ml-2" />
                       )}
                     </div>
 

@@ -120,7 +120,7 @@ export default function UserCreditDetailPage() {
 
         {/* 크레딧 정보 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+          <div className="bg-gradient-to-br from-primary-500 to-primary rounded-xl p-6 text-white shadow-lg">
             <div className="flex items-center gap-3 mb-2">
               <IoCash className="text-3xl" />
               <h3 className="text-lg font-semibold">가용 크레딧</h3>

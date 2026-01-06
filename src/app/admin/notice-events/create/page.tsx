@@ -195,7 +195,7 @@ export default function CreateNoticeEventPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="제목을 입력하세요 (최대 200자)"
               required
             />
@@ -211,7 +211,7 @@ export default function CreateNoticeEventPage() {
               onChange={(e) => setContent(e.target.value)}
               maxLength={10000}
               rows={10}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="내용을 입력하세요 (최대 10000자)"
               required
             />
@@ -228,7 +228,7 @@ export default function CreateNoticeEventPage() {
                   type="datetime-local"
                   value={eventStartDate}
                   onChange={(e) => setEventStartDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -239,7 +239,7 @@ export default function CreateNoticeEventPage() {
                   type="datetime-local"
                   value={eventEndDate}
                   onChange={(e) => setEventEndDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -344,13 +344,13 @@ export default function CreateNoticeEventPage() {
                     handleAddTag()
                   }
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="태그 입력 후 엔터"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600"
               >
                 <FiPlus />
               </button>
@@ -360,13 +360,13 @@ export default function CreateNoticeEventPage() {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
                   >
                     #{tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-primary hover:text-primary"
                     >
                       <FiX size={14} />
                     </button>
@@ -403,7 +403,7 @@ export default function CreateNoticeEventPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? '작성 중...' : '작성 완료'}
             </button>

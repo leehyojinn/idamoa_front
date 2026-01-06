@@ -114,7 +114,7 @@ export default function FeaturedPartnerships({ count = 8 }: Props) {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span className="text-blue-500">🤝</span>
+              <span className="text-primary-700">🤝</span>
               제휴 업체
             </h2>
             <p className="text-sm text-gray-600 mt-1">
@@ -224,7 +224,7 @@ export default function FeaturedPartnerships({ count = 8 }: Props) {
 
                     {/* 하단 정보 (기본) */}
                     <div className="mt-3 px-1">
-                      <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
                         {company.companyName}
                       </h3>
                       <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
@@ -266,7 +266,7 @@ export default function FeaturedPartnerships({ count = 8 }: Props) {
                 key={i}
                 onClick={() => setCurrentIndex(i)}
                 className={`w-2 h-2 rounded-full transition-colors ${
-                  currentIndex === i ? 'bg-blue-600' : 'bg-gray-300'
+                  currentIndex === i ? 'bg-primary' : 'bg-gray-300'
                 }`}
               />
             ))}

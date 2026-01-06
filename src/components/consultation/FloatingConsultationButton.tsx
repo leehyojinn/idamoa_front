@@ -280,7 +280,7 @@ export default function FloatingConsultationButton() {
                     maxLength={100}
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                     placeholder="홍길동"
                   />
                 </div>
@@ -295,7 +295,7 @@ export default function FloatingConsultationButton() {
                     required
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                     placeholder="010-0000-0000"
                   />
                 </div>
@@ -315,7 +315,7 @@ export default function FloatingConsultationButton() {
                   pattern="\d{4}"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                   placeholder="1234"
                 />
               </div>
@@ -333,7 +333,7 @@ export default function FloatingConsultationButton() {
                   rows={3}
                   value={formData.message}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none text-sm"
                   placeholder="상담 내용을 입력해주세요 (10자 이상)"
                 />
                 <p className="mt-1 text-xs text-gray-400 text-right">
@@ -346,7 +346,7 @@ export default function FloatingConsultationButton() {
                 <button
                   type="button"
                   onClick={() => setShowOptional(!showOptional)}
-                  className="w-full py-2 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-1"
+                  className="w-full py-2 text-sm text-primary hover:text-primary font-medium flex items-center justify-center gap-1"
                 >
                   {showOptional ? '추가 정보 숨기기 ▲' : '추가 정보 입력 ▼'}
                 </button>
@@ -363,7 +363,7 @@ export default function FloatingConsultationButton() {
                         maxLength={200}
                         value={formData.subject}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                         placeholder="인테리어 견적 문의"
                       />
                     </div>
@@ -378,7 +378,7 @@ export default function FloatingConsultationButton() {
                         maxLength={255}
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                         placeholder="hong@example.com"
                       />
                     </div>
@@ -394,7 +394,7 @@ export default function FloatingConsultationButton() {
                           maxLength={20}
                           value={formData.preferredContactMethod}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                           placeholder="전화"
                         />
                       </div>
@@ -409,7 +409,7 @@ export default function FloatingConsultationButton() {
                           maxLength={100}
                           value={formData.preferredContactTime}
                           onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm"
                           placeholder="오전 10시"
                         />
                       </div>
@@ -488,7 +488,7 @@ export default function FloatingConsultationButton() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                className="w-full flex items-center justify-center gap-2 bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
                 {isSubmitting ? (
                   <>
@@ -514,7 +514,7 @@ export default function FloatingConsultationButton() {
       {/* 플로팅 버튼 */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed z-40 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors ${
+        className={`fixed z-40 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-primary-800 transition-colors ${
           isMobile ? 'bottom-20 right-4' : 'bottom-6 right-6'
         }`}
         whileHover={{ scale: 1.1 }}

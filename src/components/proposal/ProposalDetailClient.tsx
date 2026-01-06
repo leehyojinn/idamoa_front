@@ -68,7 +68,7 @@ export default function ProposalDetailClient({
 
   const getStatusBadge = (status: string) => {
     const statusMap = {
-      SUBMITTED: { label: '제출됨', color: 'bg-blue-100 text-blue-700' },
+      SUBMITTED: { label: '제출됨', color: 'bg-primary-100 text-primary' },
       VIEWED: { label: '확인됨', color: 'bg-green-100 text-green-700' },
       SELECTED: { label: '수락됨', color: 'bg-purple-100 text-purple-700' },
       REJECTED: { label: '거절됨', color: 'bg-red-100 text-red-700' },
@@ -154,7 +154,7 @@ export default function ProposalDetailClient({
   return (
     <div className="max-w-6xl mx-auto">
       {/* Header */}
-      <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
+      <div className="bg-gradient-to-br from-primary to-indigo-700 rounded-2xl shadow-xl p-8 mb-8 text-white">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-3">
@@ -166,7 +166,7 @@ export default function ProposalDetailClient({
               )}
             </div>
             <h1 className="text-3xl font-bold mb-2">{proposal.title}</h1>
-            <p className="text-blue-100 text-lg">
+            <p className="text-primary-100 text-lg">
               견적 요청: {proposal.requestTitle}
             </p>
           </div>
@@ -221,7 +221,7 @@ export default function ProposalDetailClient({
               <button
                 onClick={handleEdit}
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
               >
                 <IoCreateOutline className="text-xl" />
                 제안 수정
@@ -231,7 +231,7 @@ export default function ProposalDetailClient({
               <button
                 onClick={handleWithdraw}
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-gray-600 hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
               >
                 <IoTrashOutline className="text-xl" />
                 제안 철회
@@ -244,7 +244,7 @@ export default function ProposalDetailClient({
       {/* 기본 정보 */}
       <div className="bg-white rounded-xl shadow-md p-8 mb-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-          <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg">
+          <div className="p-2 bg-gradient-to-br from-primary to-indigo-700 rounded-lg">
             <IoDocumentTextOutline className="text-white text-xl" />
           </div>
           기본 정보
@@ -274,8 +274,8 @@ export default function ProposalDetailClient({
           </div>
 
           {/* 제안 금액 */}
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
-            <div className="p-2 bg-blue-600 rounded-lg flex-shrink-0">
+          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl">
+            <div className="p-2 bg-primary rounded-lg flex-shrink-0">
               <IoPricetagOutline className="text-white text-xl" />
             </div>
             <div className="min-w-0 flex-1">

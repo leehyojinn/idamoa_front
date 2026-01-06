@@ -153,7 +153,7 @@ export default function AdminPromotionSettingsPage() {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg font-medium transition-colors"
           >
             <FiPlus className="w-4 h-4" />
             새 타입 추가
@@ -162,7 +162,7 @@ export default function AdminPromotionSettingsPage() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : (
@@ -198,7 +198,7 @@ export default function AdminPromotionSettingsPage() {
                               type="text"
                               value={editForm.displayName || ''}
                               onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                             />
                           ) : (
                             <span className="font-medium text-gray-900">{setting.displayName}</span>
@@ -210,7 +210,7 @@ export default function AdminPromotionSettingsPage() {
                               type="number"
                               value={editForm.price || 0}
                               onChange={(e) => setEditForm({ ...editForm, price: Number(e.target.value) })}
-                              className="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-32 px-3 py-2 border border-gray-300 rounded-lg text-right focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                             />
                           ) : (
                             <span className="font-medium">{setting.price.toLocaleString()}</span>
@@ -223,10 +223,10 @@ export default function AdminPromotionSettingsPage() {
                               min="1"
                               value={editForm.weight || 1}
                               onChange={(e) => setEditForm({ ...editForm, weight: Number(e.target.value) })}
-                              className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                             />
                           ) : (
-                            <span className="font-bold text-blue-600">{setting.weight}x</span>
+                            <span className="font-bold text-primary">{setting.weight}x</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-center">
@@ -236,7 +236,7 @@ export default function AdminPromotionSettingsPage() {
                               min="0"
                               value={editForm.displayOrder || 0}
                               onChange={(e) => setEditForm({ ...editForm, displayOrder: Number(e.target.value) })}
-                              className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-20 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                             />
                           ) : (
                             <span>{setting.displayOrder}</span>
@@ -248,7 +248,7 @@ export default function AdminPromotionSettingsPage() {
                               type="text"
                               value={editForm.description || ''}
                               onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                             />
                           ) : (
                             <span className="text-gray-600 text-sm">{setting.description}</span>
@@ -287,7 +287,7 @@ export default function AdminPromotionSettingsPage() {
                             <div className="flex items-center justify-center gap-2">
                               <button
                                 onClick={() => handleStartEdit(setting)}
-                                className="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                                className="p-2 bg-primary-100 text-primary rounded-lg hover:bg-primary-200 transition-colors"
                               >
                                 <FiEdit2 className="w-4 h-4" />
                               </button>
@@ -351,7 +351,7 @@ export default function AdminPromotionSettingsPage() {
                     })
                   }
                   placeholder="SUPER_PREMIUM"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent font-mono"
                 />
                 <p className="text-xs text-gray-500 mt-1">대문자와 언더스코어만 사용 가능</p>
               </div>
@@ -365,7 +365,7 @@ export default function AdminPromotionSettingsPage() {
                   value={newSetting.displayName}
                   onChange={(e) => setNewSetting({ ...newSetting, displayName: e.target.value })}
                   placeholder="슈퍼우대"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
@@ -378,7 +378,7 @@ export default function AdminPromotionSettingsPage() {
                     type="number"
                     value={newSetting.price}
                     onChange={(e) => setNewSetting({ ...newSetting, price: Number(e.target.value) })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -390,7 +390,7 @@ export default function AdminPromotionSettingsPage() {
                     min="1"
                     value={newSetting.weight}
                     onChange={(e) => setNewSetting({ ...newSetting, weight: Number(e.target.value) })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -404,7 +404,7 @@ export default function AdminPromotionSettingsPage() {
                   min="0"
                   value={newSetting.displayOrder}
                   onChange={(e) => setNewSetting({ ...newSetting, displayOrder: Number(e.target.value) })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
@@ -417,7 +417,7 @@ export default function AdminPromotionSettingsPage() {
                   value={newSetting.description}
                   onChange={(e) => setNewSetting({ ...newSetting, description: e.target.value })}
                   placeholder="5배 노출 확률"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -432,7 +432,7 @@ export default function AdminPromotionSettingsPage() {
               <button
                 onClick={handleCreate}
                 disabled={isSubmitting}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-800 transition-colors disabled:opacity-50"
               >
                 {isSubmitting ? '생성 중...' : '생성'}
               </button>

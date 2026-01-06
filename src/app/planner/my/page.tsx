@@ -92,7 +92,7 @@ export default function MyPlannerApplicationsPage() {
               </Link>
               <Link
                 href="/planner/create"
-                className="inline-flex items-center justify-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center px-5 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-800 transition-colors"
               >
                 새 상담 신청
               </Link>
@@ -106,7 +106,7 @@ export default function MyPlannerApplicationsPage() {
             onClick={() => handleStatusFilterChange('')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               statusFilter === ''
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -118,7 +118,7 @@ export default function MyPlannerApplicationsPage() {
               onClick={() => handleStatusFilterChange(status)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 statusFilter === status
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -136,7 +136,7 @@ export default function MyPlannerApplicationsPage() {
               <p className="text-gray-500 mb-4">신청 내역이 없습니다.</p>
               <Link
                 href="/planner/create"
-                className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-800 transition-colors"
               >
                 첫 상담 신청하기
               </Link>
@@ -199,7 +199,7 @@ export default function MyPlannerApplicationsPage() {
                         <td className="px-4 py-3">
                           <Link
                             href={`/planner/my/${app.uuid}`}
-                            className="text-gray-900 hover:text-blue-600 font-medium"
+                            className="text-gray-900 hover:text-primary font-medium"
                           >
                             <div className="max-w-xs truncate">{app.title}</div>
                           </Link>
@@ -235,7 +235,7 @@ export default function MyPlannerApplicationsPage() {
                         <td className="px-4 py-3">
                           <Link
                             href={`/planner/my/${app.uuid}`}
-                            className="text-blue-600 hover:text-blue-800 font-medium text-sm"
+                            className="text-primary hover:text-primary font-medium text-sm"
                           >
                             상세보기
                           </Link>

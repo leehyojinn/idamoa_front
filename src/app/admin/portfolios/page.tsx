@@ -104,12 +104,12 @@ export default function AdminPortfoliosPage() {
               onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="제목/내용 검색"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
             />
           </div>
           <button
             onClick={handleSearch}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
           >
             검색
           </button>
@@ -118,7 +118,7 @@ export default function AdminPortfoliosPage() {
         {/* 목록 */}
         {isLoading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : portfolios.length === 0 ? (
@@ -168,7 +168,7 @@ export default function AdminPortfoliosPage() {
                           <Link
                             href={`/portfolios/${portfolio.uuid}`}
                             target="_blank"
-                            className="font-medium text-gray-900 hover:text-blue-600 block truncate"
+                            className="font-medium text-gray-900 hover:text-primary block truncate"
                             title={portfolio.title}
                           >
                             {portfolio.title}
@@ -223,7 +223,7 @@ export default function AdminPortfoliosPage() {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           portfolio.promotion.promotionType === 'PREMIUM'
                             ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-blue-100 text-blue-800'
+                            : 'bg-primary-100 text-primary-800'
                         }`}>
                           {portfolio.promotion.promotionType === 'PREMIUM' ? '강력우대' : '일반우대'}
                         </span>
@@ -235,7 +235,7 @@ export default function AdminPortfoliosPage() {
                       <Link
                         href={`/portfolios/${portfolio.uuid}`}
                         target="_blank"
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-primary hover:text-primary"
                       >
                         보기
                       </Link>

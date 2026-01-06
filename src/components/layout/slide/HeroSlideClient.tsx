@@ -45,7 +45,7 @@ export default function HeroSlideClient() {
     },
     {
       id: 2,
-      bgColor: 'from-blue-500 to-blue-600',
+      bgColor: 'from-primary-500 to-primary',
       title: '검증된 전문 업체',
       subtitle: '믿을 수 있는 파트너',
       description: '철저한 검증을 거친\n인테리어 전문 업체',

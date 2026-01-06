@@ -25,7 +25,7 @@ const STATUS_LABELS = {
 }
 
 const STATUS_COLORS = {
-  SUBMITTED: 'bg-blue-100 text-blue-800',
+  SUBMITTED: 'bg-primary-100 text-primary-800',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800'
@@ -148,7 +148,7 @@ export default function AdminConsultationDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-5xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">상담 내용을 불러오는 중...</p>
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function AdminConsultationDetailPage() {
                 <span className="font-medium">이름:</span>
                 <span>{consultation.name}</span>
                 {consultation.isMember && (
-                  <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                  <span className="ml-2 px-2 py-0.5 bg-primary-100 text-primary rounded text-xs font-medium">
                     회원
                   </span>
                 )}
@@ -332,7 +332,7 @@ export default function AdminConsultationDetailPage() {
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value as ConsultationStatus)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 >
                   <option value="SUBMITTED">접수됨</option>
                   <option value="IN_PROGRESS">진행중</option>
@@ -343,7 +343,7 @@ export default function AdminConsultationDetailPage() {
               <button
                 onClick={handleStatusUpdate}
                 disabled={isSubmitting || selectedStatus === consultation.status}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FiSave />
                 상태 변경
@@ -384,7 +384,7 @@ export default function AdminConsultationDetailPage() {
                   rows={8}
                   value={responseMessage}
                   onChange={(e) => setResponseMessage(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                   placeholder="상담 답변을 입력해주세요..."
                 />
               </div>
@@ -442,7 +442,7 @@ export default function AdminConsultationDetailPage() {
               />
               <button
                 onClick={handleSearchCompanies}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600 transition-colors"
               >
                 검색
               </button>

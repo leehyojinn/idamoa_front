@@ -486,7 +486,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleEditReview(review)}
-                            className="text-sm text-blue-600 hover:text-blue-700"
+                            className="text-sm text-primary hover:text-primary"
                           >
                             수정
                           </button>
@@ -534,7 +534,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                 {editingReview !== review.uuid && (
                   <>
                     {review.reply && (
-                      <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                      <div className="mt-4 p-4 bg-primary-50 rounded-lg">
                         <div className="flex items-start justify-between mb-2">
                           <div>
                             <p className="text-sm font-semibold text-gray-900">{companyName} 답변</p>
@@ -549,7 +549,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                                   setReplyingTo(review.uuid)
                                   setReplyContent(review.reply || '')
                                 }}
-                                className="text-sm text-blue-600 hover:text-blue-700"
+                                className="text-sm text-primary hover:text-primary"
                               >
                                 수정
                               </button>
@@ -603,7 +603,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                           setReplyingTo(review.uuid)
                           setReplyContent('')
                         }}
-                        className="mt-4 text-sm text-blue-600 hover:text-blue-700"
+                        className="mt-4 text-sm text-primary hover:text-primary"
                       >
                         답변 작성하기
                       </button>

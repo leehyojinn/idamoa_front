@@ -208,7 +208,7 @@ export default function RefundDetailPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-gray-500 text-sm">환불 금액</span>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-2xl font-bold text-primary">
                     {refund.refundAmount.toLocaleString()}원
                   </p>
                 </div>

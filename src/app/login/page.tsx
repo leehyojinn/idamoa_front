@@ -119,7 +119,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar showQuickmenu={false} />
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           {/* Header */}
           <div className="text-center">
@@ -149,7 +149,7 @@ export default function LoginPage() {
                   {...register('email')}
                   type="email"
                   id="email"
-                  className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-sm"
+                  className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all sm:text-sm"
                   placeholder="example@email.com"
                 />
                 {errors.email && (
@@ -171,7 +171,7 @@ export default function LoginPage() {
                   {...register('password')}
                   type="password"
                   id="password"
-                  className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-sm"
+                  className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all sm:text-sm"
                   placeholder="••••••••"
                 />
                 {errors.password && (
@@ -187,7 +187,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={openPasswordResetModal}
-                className="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                className="text-sm font-medium text-primary hover:text-primary-700 transition-colors"
               >
                 비밀번호를 잊으셨나요?
               </button>
@@ -198,7 +198,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-primary to-indigo-600 hover:from-primary-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
               >
                 {isLoading ? (
                   <span className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function LoginPage() {
                 아직 계정이 없으신가요?{' '}
                 <Link
                   href="/signup"
-                  className="font-bold text-blue-600 hover:text-blue-500 transition-colors"
+                  className="font-bold text-primary hover:text-primary-700 transition-colors"
                 >
                   회원가입
                 </Link>
@@ -290,8 +290,8 @@ export default function LoginPage() {
           </form>
 
           {/* Info Box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-            <p className="text-xs text-blue-800 text-center">
+          <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+            <p className="text-xs text-primary-800 text-center">
               로그인하면 다모아의 모든 서비스를 이용하실 수 있습니다
             </p>
           </div>

@@ -24,10 +24,10 @@ export default async function EstimatesPage() {
       <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
+        <div className="bg-gradient-to-r from-primary to-indigo-700 text-white py-16">
           <div className="max-w-6xl mx-auto px-4">
             <h1 className="text-4xl font-bold mb-4">견적 요청</h1>
-            <p className="text-xl text-blue-100">
+            <p className="text-xl text-primary-100">
               시공 견적 요청을 확인하고 최적의 제안서를 제출하세요
             </p>
           </div>

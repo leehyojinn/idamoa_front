@@ -196,7 +196,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="inline-block w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <div className="inline-block w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
           <p className="text-gray-600">데이터 로딩 중...</p>
         </div>
       </div>
@@ -219,7 +219,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
         {/* 기본 정보 */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 bg-blue-600 rounded"></span>
+            <span className="w-1 h-5 bg-primary rounded"></span>
             기본 정보
           </h2>
 
@@ -231,7 +231,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
               </label>
               <div className="p-4 border-2 border-gray-200 rounded-xl bg-gray-50">
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-2 border-blue-600 bg-blue-600 flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                     <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
                   <div>
@@ -264,7 +264,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="제목을 입력하세요"
                 maxLength={200}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-500 outline-none transition-all"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {title.length} / 200자
@@ -286,7 +286,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                 placeholder="내용을 입력하세요"
                 maxLength={10000}
                 rows={12}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-500 outline-none transition-all resize-none"
               />
               <p className="text-xs text-gray-500 mt-1">
                 {content.length} / 10,000자
@@ -299,7 +299,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
         {boardType === 'EVENT' && (
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 bg-blue-600 rounded"></span>
+              <span className="w-1 h-5 bg-primary rounded"></span>
               이벤트 기간
             </h2>
 
@@ -318,7 +318,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                     id="eventStartDate"
                     value={eventStartDate}
                     onChange={(e) => setEventStartDate(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-500 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -336,7 +336,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                     id="eventEndDate"
                     value={eventEndDate}
                     onChange={(e) => setEventEndDate(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-500 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -347,7 +347,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
         {/* 추가 설정 */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 bg-blue-600 rounded"></span>
+            <span className="w-1 h-5 bg-primary rounded"></span>
             추가 설정
           </h2>
 
@@ -364,12 +364,12 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyPress={handleTagInputKeyPress}
                   placeholder="태그를 입력하고 Enter 또는 + 버튼을 눌러주세요"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-500 outline-none transition-all"
                 />
                 <button
                   type="button"
                   onClick={handleAddTag}
-                  className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
+                  className="px-5 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors flex items-center gap-2"
                 >
                   <FiPlus />
                   추가
@@ -380,13 +380,13 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                   {tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium"
+                      className="inline-flex items-center gap-2 bg-primary-100 text-primary px-3 py-1.5 rounded-lg text-sm font-medium"
                     >
                       #{tag}
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(tag)}
-                        className="hover:text-blue-900 transition-colors"
+                        className="hover:text-primary transition-colors"
                       >
                         <FiX />
                       </button>
@@ -411,10 +411,10 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
                     disabled={isUploadingThumbnail}
                     className="hidden"
                   />
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-blue-400 hover:bg-blue-50 transition-all text-center">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 hover:border-primary-400 hover:bg-primary-50 transition-all text-center">
                     {isUploadingThumbnail ? (
                       <div className="flex flex-col items-center gap-3">
-                        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                         <p className="text-sm text-gray-600">업로드 중...</p>
                       </div>
                     ) : (
@@ -473,7 +473,7 @@ export default function NoticeEditClient({ uuid }: NoticeEditClientProps) {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-200"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-200"
             >
               <FiSave className="text-xl" />
               {isSubmitting ? '수정 중...' : '수정하기'}

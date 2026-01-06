@@ -14,10 +14,10 @@ export default function EstimateCreatePage() {
       <Navbar />
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
+        <div className="bg-gradient-to-r from-primary to-indigo-700 text-white py-16">
           <div className="max-w-4xl mx-auto px-4">
             <h1 className="text-4xl font-bold mb-4">견적 요청 등록</h1>
-            <p className="text-xl text-blue-100">
+            <p className="text-xl text-primary-100">
               프로젝트 정보를 입력하고 전문 업체들로부터 견적을 받아보세요
             </p>
           </div>

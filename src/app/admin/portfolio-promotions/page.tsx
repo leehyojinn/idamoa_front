@@ -37,7 +37,7 @@ export default function AdminPortfolioPromotionsPage() {
       case 'PREMIUM':
         return { label: '강력우대', color: 'bg-yellow-100 text-yellow-800' }
       case 'STANDARD':
-        return { label: '일반우대', color: 'bg-blue-100 text-blue-800' }
+        return { label: '일반우대', color: 'bg-primary-100 text-primary-800' }
       default:
         return { label: type, color: 'bg-gray-100 text-gray-800' }
     }
@@ -99,7 +99,7 @@ export default function AdminPortfolioPromotionsPage() {
               onClick={() => setStatusFilter(status)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 statusFilter === status
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -110,7 +110,7 @@ export default function AdminPortfolioPromotionsPage() {
             onClick={() => setStatusFilter(undefined)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               statusFilter === undefined
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -120,7 +120,7 @@ export default function AdminPortfolioPromotionsPage() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : promotions.length === 0 ? (
@@ -158,7 +158,7 @@ export default function AdminPortfolioPromotionsPage() {
                             <Link
                               href={`/portfolios/${promo.portfolioUuid}`}
                               target="_blank"
-                              className="text-blue-600 hover:text-blue-700"
+                              className="text-primary hover:text-primary"
                             >
                               <FiExternalLink className="w-4 h-4" />
                             </Link>
@@ -219,7 +219,7 @@ export default function AdminPortfolioPromotionsPage() {
             </div>
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <p className="text-sm text-gray-600">STANDARD 우대</p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-primary">
                 {promotions.filter(p => p.promotionType === 'STANDARD').length}건
               </p>
             </div>

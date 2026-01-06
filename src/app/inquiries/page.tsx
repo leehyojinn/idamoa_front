@@ -93,9 +93,9 @@ export default function GeneralInquiryPage() {
       <>
         <Navbar />
         <div className="container mx-auto px-4 py-16 max-w-2xl min-h-[calc(100vh-64px-200px)]">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 p-12 text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <FiAlertCircle className="w-10 h-10 text-blue-600" />
+          <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl shadow-lg border border-primary-100 p-12 text-center">
+            <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <FiAlertCircle className="w-10 h-10 text-primary" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요한 서비스입니다</h2>
             <p className="text-gray-600 mb-8">
@@ -104,7 +104,7 @@ export default function GeneralInquiryPage() {
             </p>
             <button
               onClick={() => router.push('/login')}
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+              className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-800 transition-colors shadow-md hover:shadow-lg"
             >
               로그인하기
             </button>
@@ -122,7 +122,7 @@ export default function GeneralInquiryPage() {
         {/* 헤더 */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
               <FiMessageSquare className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -138,7 +138,7 @@ export default function GeneralInquiryPage() {
           {/* 문의 정보 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <div className="w-2 h-6 bg-blue-600 rounded-full"></div>
+              <div className="w-2 h-6 bg-primary rounded-full"></div>
               문의 정보
             </h2>
 
@@ -172,7 +172,7 @@ export default function GeneralInquiryPage() {
                   value={formData.title}
                   onChange={handleInputChange}
                   maxLength={200}
-                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all ${
                     errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
                   }`}
                   placeholder="문의 제목을 입력해주세요"
@@ -191,7 +191,7 @@ export default function GeneralInquiryPage() {
           {/* 문의 내용 */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <div className="w-2 h-6 bg-blue-600 rounded-full"></div>
+              <div className="w-2 h-6 bg-primary rounded-full"></div>
               문의 내용
             </h2>
 
@@ -205,7 +205,7 @@ export default function GeneralInquiryPage() {
                 value={formData.content}
                 onChange={handleInputChange}
                 rows={10}
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all ${
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none transition-all ${
                   errors.content ? 'border-red-300 bg-red-50' : 'border-gray-300'
                 }`}
                 placeholder="문의하실 내용을 자세히 입력해주세요. (10자 이상)&#10;&#10;• 문제가 발생한 상황&#10;• 오류 메시지 (있는 경우)&#10;• 기타 참고사항"
@@ -221,10 +221,10 @@ export default function GeneralInquiryPage() {
           </div>
 
           {/* 안내사항 */}
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+          <div className="bg-primary-50 border border-primary-200 rounded-xl p-5">
             <div className="flex gap-3">
-              <FiCheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-900 space-y-1">
+              <FiCheckCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-primary space-y-1">
                 <p className="font-semibold mb-2">답변 안내</p>
                 <ul className="space-y-1 ml-1">
                   <li>• 답변은 영업일 기준 1-2일 이내에 등록됩니다</li>
@@ -247,7 +247,7 @@ export default function GeneralInquiryPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3.5 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="flex-1 py-3.5 px-6 bg-gradient-to-r from-primary to-indigo-600 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-2">

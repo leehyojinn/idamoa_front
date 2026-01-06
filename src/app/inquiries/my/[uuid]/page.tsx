@@ -76,7 +76,7 @@ export default function MyInquiryDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-5xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary mb-4"></div>
             <p className="text-gray-600 text-lg">문의 내용을 불러오는 중...</p>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function MyInquiryDetailPage() {
           <div className="lg:col-span-2 space-y-6">
             {/* 문의 정보 */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 p-6">
+              <div className="bg-gradient-to-r from-primary-50 to-primary-100 border-b border-gray-200 p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-3 mb-3">
@@ -166,7 +166,7 @@ export default function MyInquiryDetailPage() {
               {/* 문의 내용 */}
               <div className="p-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-1.5 h-5 bg-blue-600 rounded-full"></div>
+                  <div className="w-1.5 h-5 bg-primary rounded-full"></div>
                   문의 내용
                 </h2>
                 <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
@@ -187,9 +187,9 @@ export default function MyInquiryDetailPage() {
                   </h2>
                 </div>
                 <div className="p-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                  <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg p-6 border border-primary-200">
                     <p className="text-gray-800 whitespace-pre-wrap leading-relaxed mb-4">{inquiry.answer.content}</p>
-                    <div className="flex items-center gap-3 text-sm text-gray-600 pt-4 border-t border-blue-200">
+                    <div className="flex items-center gap-3 text-sm text-gray-600 pt-4 border-t border-primary-200">
                       <FiUser className="w-4 h-4" />
                       <span className="font-medium">답변자:</span>
                       <span>관리자</span>
@@ -228,13 +228,13 @@ export default function MyInquiryDetailPage() {
             {canEdit && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-1.5 h-5 bg-blue-600 rounded-full"></div>
+                  <div className="w-1.5 h-5 bg-primary rounded-full"></div>
                   문의 관리
                 </h3>
                 <div className="space-y-3">
                   <button
                     onClick={() => router.push(`/inquiries/my/${uuid}/edit`)}
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
+                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-indigo-600 text-white py-3 rounded-xl font-semibold hover:from-primary-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
                   >
                     <FiEdit className="w-5 h-5" />
                     수정하기
@@ -254,24 +254,24 @@ export default function MyInquiryDetailPage() {
             )}
 
             {/* 안내 */}
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
-              <h3 className="text-sm font-bold text-blue-900 mb-3 flex items-center gap-2">
-                <div className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200 rounded-xl p-6">
+              <h3 className="text-sm font-bold text-primary mb-3 flex items-center gap-2">
+                <div className="w-6 h-6 bg-primary-800 rounded-lg flex items-center justify-center">
                   <FiMessageSquare className="w-4 h-4 text-white" />
                 </div>
                 안내사항
               </h3>
-              <ul className="text-sm text-blue-800 space-y-2">
+              <ul className="text-sm text-primary-800 space-y-2">
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">•</span>
+                  <span className="text-primary-700 mt-0.5">•</span>
                   <span>답변은 영업일 기준 1-2일 이내에 등록됩니다</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">•</span>
+                  <span className="text-primary-700 mt-0.5">•</span>
                   <span>답변이 등록되면 알림으로 안내됩니다</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-500 mt-0.5">•</span>
+                  <span className="text-primary-700 mt-0.5">•</span>
                   <span>PENDING 상태에서만 수정/삭제 가능합니다</span>
                 </li>
               </ul>

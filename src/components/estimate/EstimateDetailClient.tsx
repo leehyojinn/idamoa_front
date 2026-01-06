@@ -247,7 +247,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
 
   const getProposalStatusBadge = (status: string) => {
     const statusMap = {
-      SUBMITTED: { label: '제출됨', color: 'bg-blue-100 text-blue-700' },
+      SUBMITTED: { label: '제출됨', color: 'bg-primary-100 text-primary' },
       VIEWED: { label: '확인됨', color: 'bg-green-100 text-green-700' },
       SELECTED: { label: '수락됨', color: 'bg-purple-100 text-purple-700' },
       REJECTED: { label: '거절됨', color: 'bg-red-100 text-red-700' },
@@ -324,7 +324,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
           ? 'bg-gradient-to-r from-red-100 to-rose-100 text-red-700 border border-red-300'
           : 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border border-green-300'
       },
-      IN_PROGRESS: { label: '진행중', color: 'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-300' },
+      IN_PROGRESS: { label: '진행중', color: 'bg-gradient-to-r from-primary-100 to-indigo-100 text-primary border border-primary-300' },
       MATCHED: { label: '매칭완료', color: 'bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 border border-purple-300' },
       COMPLETED: { label: '완료', color: 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-700 border border-gray-300' },
     }
@@ -368,9 +368,9 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-primary-50 to-primary-100">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-12 shadow-xl">
+      <div className="bg-gradient-to-r from-primary via-indigo-600 to-purple-600 text-white py-12 shadow-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => router.back()}
@@ -388,7 +388,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             )}
           </div>
           <h1 className="text-4xl font-bold mb-3 break-words leading-tight">{estimate.title}</h1>
-          <div className="flex flex-wrap items-center gap-6 text-blue-100">
+          <div className="flex flex-wrap items-center gap-6 text-primary-100">
             <div className="flex items-center gap-2">
               <IoCalendarOutline className="text-lg" />
               <span>등록일: {formatDate(estimate.createdAt)}</span>
@@ -418,7 +418,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
               )}
               <button
                 onClick={() => router.push(`/estimates/${estimate.uuid}/edit`)}
-                className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                className="flex items-center gap-2 bg-gradient-to-r from-primary-500 to-indigo-600 hover:from-primary hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
               >
                 <IoCreateOutline className="text-xl" />
                 수정하기
@@ -449,9 +449,9 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
               </div>
             ) : hasMyProposal && myProposal ? (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
-                <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200 mb-6">
-                  <IoCheckmarkCircleOutline className="text-2xl text-blue-600" />
-                  <p className="text-blue-900 font-semibold">이 견적에 대한 제안서를 제출하셨습니다</p>
+                <div className="flex items-center gap-3 p-4 bg-primary-50 rounded-xl border border-primary-200 mb-6">
+                  <IoCheckmarkCircleOutline className="text-2xl text-primary" />
+                  <p className="text-primary font-semibold">이 견적에 대한 제안서를 제출하셨습니다</p>
                 </div>
 
                 <div className="p-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-200">
@@ -499,7 +499,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
                   <div className="flex gap-2 justify-end">
                     <Link
                       href={`/proposals/${myProposal.uuid}`}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                      className="px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg text-sm font-semibold transition-colors"
                     >
                       상세보기
                     </Link>
@@ -513,13 +513,13 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
         {/* Basic Info Grid - 상단 배치 */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8 hover:shadow-xl transition-shadow duration-300">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+            <div className="w-1 h-8 bg-gradient-to-b from-primary-500 to-indigo-600 rounded-full"></div>
             <h2 className="text-2xl font-bold text-gray-900">기본 정보</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* 예산 */}
-            <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 hover:shadow-md transition-all duration-200">
-              <div className="p-2 bg-blue-500 rounded-lg flex-shrink-0">
+            <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-100 hover:shadow-md transition-all duration-200">
+              <div className="p-2 bg-primary-800 rounded-lg flex-shrink-0">
                 <IoPricetagOutline className="text-white text-xl" />
               </div>
               <div className="min-w-0 flex-1">
@@ -678,13 +678,13 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             )}
 
             {/* 제안서 수 */}
-            <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 hover:shadow-md transition-all duration-200">
-              <div className="p-2 bg-blue-500 rounded-lg flex-shrink-0">
+            <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-100 hover:shadow-md transition-all duration-200">
+              <div className="p-2 bg-primary-800 rounded-lg flex-shrink-0">
                 <IoPeopleOutline className="text-white text-xl" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-gray-600 mb-1 font-medium uppercase tracking-wide">제안서</p>
-                <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <p className="text-2xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
                   {estimate.proposals?.totalCount ?? estimate.proposalCount ?? 0}건
                 </p>
               </div>
@@ -697,16 +697,16 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             {/* Description */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                <div className="w-1 h-8 bg-gradient-to-b from-primary-500 to-indigo-600 rounded-full"></div>
                 <h2 className="text-2xl font-bold text-gray-900">상세 설명</h2>
               </div>
               <p className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words overflow-wrap-anywhere text-lg">
                 {estimate.description}
               </p>
               {estimate.requirements && typeof estimate.requirements === 'string' && (
-                <div className="mt-6 p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                <div className="mt-6 p-5 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-100">
                   <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <IoCheckmarkCircleOutline className="text-blue-600 text-xl" />
+                    <IoCheckmarkCircleOutline className="text-primary text-xl" />
                     요구사항
                   </h3>
                   <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{estimate.requirements}</p>
@@ -725,12 +725,12 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             {estimate.images && estimate.images.length > 0 && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                  <div className="w-1 h-8 bg-gradient-to-b from-primary-500 to-indigo-600 rounded-full"></div>
                   <h2 className="text-2xl font-bold text-gray-900">이미지</h2>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   {estimate.images.map((image, index) => (
-                    <div key={index} className="group relative aspect-video rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-blue-300">
+                    <div key={index} className="group relative aspect-video rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border border-gray-200 hover:border-primary-300">
                       <Image
                         src={image}
                         alt={`견적 요청 이미지 ${index + 1}`}
@@ -748,7 +748,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
               (estimate.requiredSkills && estimate.requiredSkills.length > 0)) && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                  <div className="w-1 h-8 bg-gradient-to-b from-primary-500 to-indigo-600 rounded-full"></div>
                   <h2 className="text-2xl font-bold text-gray-900">태그 및 필요 기술</h2>
                 </div>
                 {estimate.tags && estimate.tags.length > 0 && (
@@ -758,7 +758,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
                       {estimate.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="px-4 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 rounded-full text-sm font-semibold hover:from-blue-200 hover:to-indigo-200 transition-colors duration-200 border border-blue-200"
+                          className="px-4 py-2 bg-gradient-to-r from-primary-100 to-indigo-100 text-primary rounded-full text-sm font-semibold hover:from-primary-200 hover:to-indigo-200 transition-colors duration-200 border border-primary-200"
                         >
                           #{tag}
                         </span>
@@ -788,16 +788,16 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
             {isOwner && (
               <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-1 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+                  <div className="w-1 h-8 bg-gradient-to-b from-primary-500 to-indigo-600 rounded-full"></div>
                   <h2 className="text-2xl font-bold text-gray-900">
-                    제출된 제안서 <span className="text-blue-600">{proposals.length}</span>건
+                    제출된 제안서 <span className="text-primary">{proposals.length}</span>건
                   </h2>
                 </div>
 
                 {isLoadingProposals ? (
                   <div className="flex justify-center items-center py-12">
                     <div className="text-center">
-                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
                       <p className="text-gray-600">제안서를 불러오는 중...</p>
                     </div>
                   </div>
@@ -811,7 +811,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
                     {proposals.map((proposal) => (
                       <div
                         key={proposal.id}
-                        className="p-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                        className="p-6 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all duration-200"
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex-1">
@@ -825,7 +825,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
                             </div>
                             <Link
                               href={`/proposals/${proposal.uuid}`}
-                              className="text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors block mb-2"
+                              className="text-lg font-bold text-gray-900 hover:text-primary transition-colors block mb-2"
                             >
                               {proposal.title}
                             </Link>
@@ -878,7 +878,7 @@ export default function EstimateDetailClient({ estimate }: EstimateDetailClientP
                           )}
                           <Link
                             href={`/proposals/${proposal.uuid}`}
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors"
+                            className="px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg text-sm font-semibold transition-colors"
                           >
                             상세보기
                           </Link>

@@ -141,18 +141,18 @@ export default function UserTransactionsPage() {
         </div>
 
         {/* 사용자 정보 */}
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg mb-6">
+        <div className="bg-gradient-to-br from-primary-500 to-primary rounded-xl p-6 text-white shadow-lg mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <p className="text-blue-100 text-sm mb-1">가용 크레딧</p>
+              <p className="text-primary-100 text-sm mb-1">가용 크레딧</p>
               <p className="text-3xl font-bold">{credit.availableCredits.toLocaleString()}원</p>
             </div>
             <div>
-              <p className="text-blue-100 text-sm mb-1">총 적립</p>
+              <p className="text-primary-100 text-sm mb-1">총 적립</p>
               <p className="text-2xl font-bold">+{credit.totalEarned.toLocaleString()}원</p>
             </div>
             <div>
-              <p className="text-blue-100 text-sm mb-1">총 사용</p>
+              <p className="text-primary-100 text-sm mb-1">총 사용</p>
               <p className="text-2xl font-bold">-{credit.totalSpent.toLocaleString()}원</p>
             </div>
           </div>

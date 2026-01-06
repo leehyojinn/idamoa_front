@@ -200,14 +200,14 @@ export default function PopupManager() {
                   <>
                     <button
                       onClick={handlePrev}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors z-10"
+                      className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-primary-800/70 transition-colors z-10"
                       aria-label="이전"
                     >
                       <FaChevronLeft className="w-4 h-4" />
                     </button>
                     <button
                       onClick={handleNext}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors z-10"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-primary-800/70 transition-colors z-10"
                       aria-label="다음"
                     >
                       <FaChevronRight className="w-4 h-4" />
@@ -226,7 +226,7 @@ export default function PopupManager() {
                         onClick={() => setCurrentIndex(index)}
                         className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
                           index === currentIndex
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary text-white'
                             : 'bg-white text-gray-700 hover:bg-gray-100'
                         }`}
                       >
@@ -256,7 +256,7 @@ export default function PopupManager() {
               {/* 우측 상단 닫기 버튼 */}
               <button
                 onClick={handleClose}
-                className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors z-10"
+                className="absolute top-2 right-2 p-2 rounded-full bg-black/50 text-white hover:bg-primary-800/70 transition-colors z-10"
                 aria-label="닫기"
               >
                 <FaTimes className="w-4 h-4" />

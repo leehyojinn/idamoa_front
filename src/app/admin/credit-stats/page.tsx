@@ -101,7 +101,7 @@ export default function CreditStatsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl p-6 shadow">
               <div className="flex items-center gap-3 mb-2">
-                <IoPeople className="text-3xl text-blue-600" />
+                <IoPeople className="text-3xl text-primary" />
                 <h3 className="text-sm font-medium text-gray-600">총 사용자</h3>
               </div>
               <p className="text-3xl font-bold text-gray-900">{stats.totalUsers.toLocaleString()}명</p>
@@ -127,10 +127,10 @@ export default function CreditStatsPage() {
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">크레딧 잔액 통계</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
-              <h3 className="text-blue-100 text-sm mb-2">총 가용 크레딧</h3>
+            <div className="bg-gradient-to-br from-primary-500 to-primary rounded-xl p-6 text-white shadow-lg">
+              <h3 className="text-primary-100 text-sm mb-2">총 가용 크레딧</h3>
               <p className="text-4xl font-bold">{balanceStats.totalAvailableCredits.toLocaleString()}원</p>
-              <p className="text-blue-100 text-sm mt-2">현재 사용자들이 보유한 총 크레딧</p>
+              <p className="text-primary-100 text-sm mt-2">현재 사용자들이 보유한 총 크레딧</p>
             </div>
             <div className="bg-white rounded-xl p-6 shadow">
               <h3 className="text-sm font-medium text-gray-600 mb-2">총 적립 크레딧</h3>
@@ -242,7 +242,7 @@ export default function CreditStatsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
               onClick={() => router.push('/admin/credits/users')}
-              className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="px-6 py-3 bg-primary-800 text-white rounded-lg hover:bg-primary transition-colors"
             >
               사용자 크레딧 관리
             </button>

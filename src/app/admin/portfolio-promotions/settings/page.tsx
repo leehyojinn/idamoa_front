@@ -149,7 +149,7 @@ export default function AdminPromotionSettingsPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg font-medium transition-colors"
             >
               <FiPlus className="w-4 h-4" />
               새 타입 추가
@@ -166,7 +166,7 @@ export default function AdminPromotionSettingsPage() {
 
         {isLoading ? (
           <div className="text-center py-20">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         ) : settings.length === 0 ? (
@@ -175,7 +175,7 @@ export default function AdminPromotionSettingsPage() {
             <p className="text-gray-500 text-lg mb-4">등록된 프로모션 설정이 없습니다</p>
             <button
               onClick={handleCreate}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
             >
               <FiPlus className="w-4 h-4" />
               첫 프로모션 타입 추가하기
@@ -195,7 +195,7 @@ export default function AdminPromotionSettingsPage() {
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg ${
                       setting.promotionType === 'PREMIUM'
                         ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-blue-100 text-blue-700'
+                        : 'bg-primary-100 text-primary'
                     }`}>
                       {setting.weight}x
                     </div>
@@ -234,7 +234,7 @@ export default function AdminPromotionSettingsPage() {
                       </button>
                       <button
                         onClick={() => handleEdit(setting)}
-                        className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-gray-600 hover:text-primary hover:bg-primary-50 rounded-lg transition-colors"
                       >
                         <FiEdit2 className="w-5 h-5" />
                       </button>
@@ -275,7 +275,7 @@ export default function AdminPromotionSettingsPage() {
                     value={formData.promotionType}
                     onChange={(e) => setFormData({ ...formData, promotionType: e.target.value.toUpperCase() })}
                     placeholder="예: PREMIUM, STANDARD"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               )}
@@ -288,7 +288,7 @@ export default function AdminPromotionSettingsPage() {
                   value={formData.displayName}
                   onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                   placeholder="예: 강력우대, 일반우대"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -300,7 +300,7 @@ export default function AdminPromotionSettingsPage() {
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
                 <div>
@@ -312,7 +312,7 @@ export default function AdminPromotionSettingsPage() {
                     value={formData.weight}
                     onChange={(e) => setFormData({ ...formData, weight: Number(e.target.value) })}
                     min="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -325,7 +325,7 @@ export default function AdminPromotionSettingsPage() {
                   value={formData.displayOrder}
                   onChange={(e) => setFormData({ ...formData, displayOrder: Number(e.target.value) })}
                   min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -337,14 +337,14 @@ export default function AdminPromotionSettingsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={2}
                   placeholder="이 프로모션 타입에 대한 설명"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
             <div className="flex gap-2 mt-6">
               <button
                 onClick={handleSubmit}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                className="flex-1 bg-primary hover:bg-primary-800 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
               >
                 {editingSetting ? '수정' : '추가'}
               </button>

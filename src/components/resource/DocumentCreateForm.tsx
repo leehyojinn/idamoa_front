@@ -259,7 +259,7 @@ export default function DocumentCreateForm() {
               {option.name}
             </span>
             {selectedCount > 0 && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+              <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                 {selectedCount}
               </span>
             )}
@@ -281,7 +281,7 @@ export default function DocumentCreateForm() {
         onClick={() => handleFilterOptionChange(categoryId, option.id, !isSelected, filterType)}
         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
           isSelected
-            ? 'bg-blue-600 text-white shadow-md'
+            ? 'bg-primary text-white shadow-md'
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
         }`}
       >
@@ -290,7 +290,7 @@ export default function DocumentCreateForm() {
             ? 'bg-white border-white'
             : 'border-gray-400'
         }`}>
-          {isSelected && <FiCheck className="w-3 h-3 text-blue-600" />}
+          {isSelected && <FiCheck className="w-3 h-3 text-primary" />}
         </span>
         <span className="truncate">{option.name}</span>
       </button>
@@ -456,7 +456,7 @@ export default function DocumentCreateForm() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   maxLength={200}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="자료 제목을 입력하세요"
                 />
                 <p className="text-sm text-gray-500 mt-1">{title.length}/200자</p>
@@ -503,7 +503,7 @@ export default function DocumentCreateForm() {
                         onClick={() => setIsHtmlPreview(!isHtmlPreview)}
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                           isHtmlPreview
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-primary text-white'
                             : 'text-gray-600 hover:text-gray-900'
                         }`}
                       >
@@ -523,7 +523,7 @@ export default function DocumentCreateForm() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={8}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent font-mono text-sm"
                     placeholder="HTML 코드를 입력하세요.&#10;&#10;예시:&#10;<h3>제목</h3>&#10;<p>내용입니다.</p>&#10;<ul><li>목록 1</li><li>목록 2</li></ul>"
                   />
                 ) : (
@@ -531,7 +531,7 @@ export default function DocumentCreateForm() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={8}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="자료에 대한 설명을 입력하세요."
                   />
                 )}
@@ -563,7 +563,7 @@ export default function DocumentCreateForm() {
                     value={globalPrice}
                     onChange={(e) => setGlobalPrice(e.target.value)}
                     min="0"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                     placeholder="모든 파일에 적용될 가격을 입력하세요"
                   />
                 </div>
@@ -586,11 +586,11 @@ export default function DocumentCreateForm() {
                 ref={filterButtonRef}
                 type="button"
                 onClick={() => setShowFilterPanel(true)}
-                className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="w-full flex items-center justify-between p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary-400 hover:bg-primary-50 transition-colors group focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                    <FiFilter className="text-blue-600 text-xl" />
+                  <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                    <FiFilter className="text-primary text-xl" />
                   </div>
                   <div className="text-left">
                     <p className="font-medium text-gray-900">
@@ -604,12 +604,12 @@ export default function DocumentCreateForm() {
                     </p>
                   </div>
                 </div>
-                <FiChevronRight className="text-gray-400 text-xl group-hover:text-blue-600 transition-colors" />
+                <FiChevronRight className="text-gray-400 text-xl group-hover:text-primary transition-colors" />
               </button>
 
               {/* 선택된 필터 표시 */}
               {selectedFilterOptionIds.length > 0 && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
                   <div className="flex items-center justify-between mb-3">
                     <p className="text-sm font-medium text-gray-700">
                       선택된 필터 ({selectedFilterOptionIds.length})
@@ -626,7 +626,7 @@ export default function DocumentCreateForm() {
                     {selectedFilterOptionIds.map(optionId => (
                       <span
                         key={optionId}
-                        className="inline-flex items-center gap-1 bg-white text-blue-700 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-blue-200"
+                        className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1.5 rounded-full text-sm font-medium shadow-sm border border-primary-200"
                       >
                         {getFilterOptionName(optionId)}
                         <button
@@ -659,13 +659,13 @@ export default function DocumentCreateForm() {
                       handleAddTag()
                     }
                   }}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   placeholder="태그 입력 후 엔터 또는 추가 버튼"
                 />
                 <button
                   type="button"
                   onClick={handleAddTag}
-                  className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-semibold transition-colors"
+                  className="px-6 py-3 bg-gray-600 hover:bg-primary-600 text-white rounded-lg font-semibold transition-colors"
                 >
                   추가
                 </button>
@@ -676,14 +676,14 @@ export default function DocumentCreateForm() {
                   {tags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                      className="inline-flex items-center gap-1 bg-primary-100 text-primary px-3 py-1 rounded-full text-sm"
                     >
                       <FiTag className="text-xs" />
                       {tag}
                       <button
                         type="button"
                         onClick={() => handleRemoveTag(tag)}
-                        className="ml-1 hover:text-blue-900"
+                        className="ml-1 hover:text-primary"
                       >
                         ×
                       </button>
@@ -704,7 +704,7 @@ export default function DocumentCreateForm() {
                   className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 hover:bg-gray-50 transition-colors cursor-pointer block"
                 >
                   <FiImage className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <span className="text-blue-600 font-medium hover:text-blue-700">
+                  <span className="text-primary font-medium hover:text-primary">
                     썸네일 이미지 선택
                   </span>
                   <input
@@ -760,7 +760,7 @@ export default function DocumentCreateForm() {
               >
                 <FiFile className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <div className="flex flex-col items-center justify-center">
-                  <span className="text-blue-600 font-medium hover:text-blue-700">
+                  <span className="text-primary font-medium hover:text-primary">
                     파일 선택
                   </span>
                   <input
@@ -826,7 +826,7 @@ export default function DocumentCreateForm() {
                                   value={fileAttachment.price}
                                   onChange={(e) => handleFilePriceChange(index, e.target.value)}
                                   min="0"
-                                  className="w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  className="w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                                   placeholder="가격"
                                 />
                                 <span className="text-sm text-gray-500">원</span>
@@ -850,7 +850,7 @@ export default function DocumentCreateForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-800 text-white px-8 py-4 rounded-lg font-bold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FiPlus className="text-2xl" />
               {isSubmitting ? '등록 중...' : '자료 등록'}
@@ -878,10 +878,10 @@ export default function DocumentCreateForm() {
           {/* 사이드 패널 */}
           <div className="absolute top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col animate-slide-in-right">
             {/* 헤더 */}
-            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary to-indigo-600 text-white">
               <div>
                 <h3 className="text-lg font-bold">필터 선택</h3>
-                <p className="text-sm text-blue-100">
+                <p className="text-sm text-primary-100">
                   {selectedFilterOptionIds.length}개 선택됨
                 </p>
               </div>
@@ -896,7 +896,7 @@ export default function DocumentCreateForm() {
 
             {/* 선택된 필터 미리보기 */}
             {selectedFilterOptionIds.length > 0 && (
-              <div className="p-4 bg-blue-50 border-b">
+              <div className="p-4 bg-primary-50 border-b">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-gray-700">선택된 필터</span>
                   <button
@@ -911,7 +911,7 @@ export default function DocumentCreateForm() {
                   {selectedFilterOptionIds.slice(0, 10).map(optionId => (
                     <span
                       key={optionId}
-                      className="inline-flex items-center gap-1 bg-white text-blue-700 px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-blue-200"
+                      className="inline-flex items-center gap-1 bg-white text-primary px-2 py-1 rounded-full text-xs font-medium shadow-sm border border-primary-200"
                     >
                       {getFilterOptionName(optionId)}
                       <button
@@ -936,7 +936,7 @@ export default function DocumentCreateForm() {
               {isLoadingFilters ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
                     <p className="mt-2 text-gray-600">필터 로딩 중...</p>
                   </div>
                 </div>
@@ -975,7 +975,7 @@ export default function DocumentCreateForm() {
                             )}
                           </div>
                           {selectedCount > 0 && (
-                            <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+                            <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
                               {selectedCount}
                             </span>
                           )}
@@ -997,7 +997,7 @@ export default function DocumentCreateForm() {
               <button
                 type="button"
                 onClick={() => setShowFilterPanel(false)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                className="w-full bg-primary hover:bg-primary-800 text-white py-3 rounded-lg font-semibold transition-colors"
               >
                 {selectedFilterOptionIds.length > 0
                   ? `${selectedFilterOptionIds.length}개 필터 적용하기`

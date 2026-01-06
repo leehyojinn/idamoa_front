@@ -144,7 +144,7 @@ export default function EditPopupPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         </div>
         <Footer />
@@ -159,7 +159,7 @@ export default function EditPopupPage() {
         <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-20">
             <p className="text-gray-500">팝업을 찾을 수 없습니다.</p>
-            <Link href="/admin/popups" className="mt-4 inline-block text-blue-600 hover:underline">
+            <Link href="/admin/popups" className="mt-4 inline-block text-primary hover:underline">
               목록으로 돌아가기
             </Link>
           </div>
@@ -207,7 +207,7 @@ export default function EditPopupPage() {
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 maxLength={200}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="팝업 제목을 입력하세요"
               />
             </div>
@@ -243,7 +243,7 @@ export default function EditPopupPage() {
                 value={formData.linkUrl}
                 onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })}
                 maxLength={500}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="example.com (http/https 자동 추가)"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -268,7 +268,7 @@ export default function EditPopupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, width: parseInt(e.target.value) || undefined })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
@@ -283,7 +283,7 @@ export default function EditPopupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, height: parseInt(e.target.value) || undefined })
                   }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function EditPopupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, position: e.target.value as PopupPosition })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               >
                 {(Object.keys(POSITION_LABELS) as PopupPosition[]).map((pos) => (
                   <option key={pos} value={pos}>
@@ -321,7 +321,7 @@ export default function EditPopupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, offsetX: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
 
@@ -336,7 +336,7 @@ export default function EditPopupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, offsetY: parseInt(e.target.value) || 0 })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function EditPopupPage() {
                   timeIntervals={15}
                   dateFormat="yyyy-MM-dd HH:mm"
                   placeholderText="시작일시 선택"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
 
@@ -377,7 +377,7 @@ export default function EditPopupPage() {
                   dateFormat="yyyy-MM-dd HH:mm"
                   placeholderText="종료일시 선택"
                   minDate={displayStartDate || undefined}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -393,7 +393,7 @@ export default function EditPopupPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })
                 }
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               <p className="mt-1 text-xs text-gray-500">낮을수록 먼저 표시됩니다</p>
             </div>
@@ -433,7 +433,7 @@ export default function EditPopupPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-4 px-6 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-4 px-6 bg-primary text-white rounded-xl font-semibold hover:bg-primary-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? '수정 중...' : '팝업 수정'}
             </button>

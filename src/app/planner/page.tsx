@@ -73,13 +73,13 @@ export default function PlannerListPage() {
             <div className="flex gap-3">
               <Link
                 href="/planner/my"
-                className="inline-flex items-center justify-center px-5 py-3 border border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors"
+                className="inline-flex items-center justify-center px-5 py-3 border border-primary text-primary font-semibold rounded-lg hover:bg-primary-50 transition-colors"
               >
                 내 신청현황
               </Link>
               <Link
                 href="/planner/create"
-                className="inline-flex items-center justify-center px-5 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center justify-center px-5 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-800 transition-colors"
               >
                 상담 신청하기
               </Link>
@@ -93,7 +93,7 @@ export default function PlannerListPage() {
             onClick={() => handleStatusFilterChange('')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               statusFilter === ''
-                ? 'bg-blue-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -105,7 +105,7 @@ export default function PlannerListPage() {
               onClick={() => handleStatusFilterChange(status)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 statusFilter === status
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
@@ -178,7 +178,7 @@ export default function PlannerListPage() {
                         <td className="px-4 py-3">
                           <Link
                             href={`/planner/${app.uuid}`}
-                            className="text-gray-900 hover:text-blue-600 font-medium"
+                            className="text-gray-900 hover:text-primary font-medium"
                           >
                             <div className="max-w-xs truncate">{app.title}</div>
                           </Link>

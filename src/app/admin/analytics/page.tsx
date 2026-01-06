@@ -305,7 +305,7 @@ export default function AdminAnalyticsPage() {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
             </div>
             <div className="flex-1">
@@ -314,10 +314,10 @@ export default function AdminAnalyticsPage() {
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
             </div>
-            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button type="submit" className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors">
               조회
             </button>
           </form>
@@ -347,8 +347,8 @@ export default function AdminAnalyticsPage() {
                     <p className="text-sm text-gray-600 mb-1">활성 사용자</p>
                     <p className="text-2xl font-bold">{formatNumber(summaryStats.activeUsers)}</p>
                   </div>
-                  <div className="bg-blue-100 p-3 rounded-full">
-                    <Users className="w-6 h-6 text-blue-600" />
+                  <div className="bg-primary-100 p-3 rounded-full">
+                    <Users className="w-6 h-6 text-primary" />
                   </div>
                 </div>
               </div>
@@ -557,7 +557,7 @@ export default function AdminAnalyticsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg shadow-xl">
               <div className="flex items-center gap-3">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600"></div>
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
                 <span>데이터를 불러오는 중...</span>
               </div>
             </div>

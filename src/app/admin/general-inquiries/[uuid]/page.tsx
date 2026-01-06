@@ -143,7 +143,7 @@ export default function AdminGeneralInquiryDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-5xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">문의 내용을 불러오는 중...</p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function AdminGeneralInquiryDetailPage() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setIsEditingAnswer(true)}
-                      className="text-blue-600 hover:text-blue-700 flex items-center gap-1 text-sm"
+                      className="text-primary hover:text-primary flex items-center gap-1 text-sm"
                     >
                       <FiEdit />
                       수정
@@ -271,7 +271,7 @@ export default function AdminGeneralInquiryDetailPage() {
                     value={answerContent}
                     onChange={(e) => setAnswerContent(e.target.value)}
                     rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                     placeholder="답변 내용을 입력해주세요"
                   />
                   <div className="flex gap-2">
@@ -280,7 +280,7 @@ export default function AdminGeneralInquiryDetailPage() {
                         <button
                           onClick={handleUpdateAnswer}
                           disabled={isSubmitting}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-800 transition-colors disabled:opacity-50"
                         >
                           수정
                         </button>
@@ -298,7 +298,7 @@ export default function AdminGeneralInquiryDetailPage() {
                       <button
                         onClick={handleCreateAnswer}
                         disabled={isSubmitting}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
+                        className="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-800 transition-colors disabled:opacity-50"
                       >
                         답변 작성
                       </button>
@@ -322,7 +322,7 @@ export default function AdminGeneralInquiryDetailPage() {
                   <select
                     value={selectedStatus}
                     onChange={(e) => setSelectedStatus(e.target.value as GeneralInquiryStatus)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                   >
                     <option value="PENDING">대기중</option>
                     <option value="IN_PROGRESS">처리중</option>
@@ -333,7 +333,7 @@ export default function AdminGeneralInquiryDetailPage() {
                 <button
                   onClick={handleStatusUpdate}
                   disabled={isSubmitting || selectedStatus === inquiry.status}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 bg-primary text-white py-2 rounded-lg font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FiSave />
                   상태 변경

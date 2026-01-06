@@ -143,14 +143,14 @@ function PaymentSuccessContent() {
           </p>
 
           {/* 충전 후 잔액 */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg p-6 mb-6 text-white">
+          <div className="bg-gradient-to-br from-primary-500 to-primary rounded-lg p-6 mb-6 text-white">
             <p className="text-sm opacity-90 text-center mb-2">현재 크레딧 잔액</p>
             <p className="text-3xl font-bold text-center">{balance.toLocaleString()} 원</p>
           </div>
 
           {/* 안내 */}
-          <div className="p-4 bg-blue-50 rounded-lg">
-            <p className="text-xs text-blue-900 text-center">
+          <div className="p-4 bg-primary-50 rounded-lg">
+            <p className="text-xs text-primary text-center">
               충전된 크레딧은 다양한 서비스 이용 시 사용하실 수 있습니다<br />
               잠시 후 거래 내역 페이지로 이동합니다...
             </p>

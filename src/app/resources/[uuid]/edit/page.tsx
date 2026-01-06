@@ -16,7 +16,7 @@ export default async function DocumentEditPage({ params }: PageProps) {
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Suspense fallback={
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
           </div>
         }>
           <DocumentEditForm uuid={uuid} />

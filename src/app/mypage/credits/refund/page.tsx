@@ -151,7 +151,7 @@ export default function RefundPage() {
           </div>
 
           {/* 현재 잔액 */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 mb-8 text-white shadow-lg">
+          <div className="bg-gradient-to-br from-primary-500 to-primary rounded-xl p-6 mb-8 text-white shadow-lg">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm opacity-90">환불 가능 크레딧</p>

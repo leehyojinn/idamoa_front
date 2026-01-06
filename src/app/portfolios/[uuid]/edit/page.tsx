@@ -63,7 +63,7 @@ export default function EditPortfolioPage({ params }: Props) {
         <Navbar />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary mb-4"></div>
             <p className="text-gray-600">로딩 중...</p>
           </div>
         </div>

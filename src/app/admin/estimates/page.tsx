@@ -132,7 +132,7 @@ export default function AdminEstimatesPage() {
       case 'CANCELLED':
         return 'bg-red-100 text-red-800'
       case 'COMPLETED':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-primary-100 text-primary-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -164,7 +164,7 @@ export default function AdminEstimatesPage() {
               onClick={() => setActiveTab('requests')}
               className={`${
                 activeTab === 'requests'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-primary-500 text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
@@ -174,7 +174,7 @@ export default function AdminEstimatesPage() {
               onClick={() => setActiveTab('proposals')}
               className={`${
                 activeTab === 'proposals'
-                  ? 'border-blue-500 text-blue-600'
+                  ? 'border-primary-500 text-primary'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
@@ -192,7 +192,7 @@ export default function AdminEstimatesPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => handleStatusFilterChange(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               >
                 <option value="">전체</option>
                 <option value="PUBLISHED">게시됨</option>
@@ -204,7 +204,7 @@ export default function AdminEstimatesPage() {
             {/* 목록 */}
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
                 <p className="mt-4 text-gray-600">로딩 중...</p>
               </div>
             ) : requests.length === 0 ? (
@@ -254,7 +254,7 @@ export default function AdminEstimatesPage() {
                         <td className="px-6 py-4 max-w-[200px]">
                           <Link
                             href={`/admin/estimates/${request.uuid}`}
-                            className="font-medium text-gray-900 hover:text-blue-600 block truncate"
+                            className="font-medium text-gray-900 hover:text-primary block truncate"
                             title={request.title}
                           >
                             {request.title}
@@ -289,7 +289,7 @@ export default function AdminEstimatesPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                           <Link
                             href={`/admin/estimates/${request.uuid}`}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-primary hover:text-primary"
                           >
                             상세
                           </Link>
@@ -356,7 +356,7 @@ export default function AdminEstimatesPage() {
           <>
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
                 <p className="mt-4 text-gray-600">로딩 중...</p>
               </div>
             ) : proposals.length === 0 ? (
@@ -416,7 +416,7 @@ export default function AdminEstimatesPage() {
                         <td className="px-6 py-4 max-w-[180px]">
                           <Link
                             href={`/admin/estimates/${proposal.requestUuid}`}
-                            className="text-blue-600 hover:text-blue-900 text-sm block truncate"
+                            className="text-primary hover:text-primary text-sm block truncate"
                             title={proposal.requestTitle}
                           >
                             {proposal.requestTitle}

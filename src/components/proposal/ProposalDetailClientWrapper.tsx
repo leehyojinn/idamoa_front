@@ -69,7 +69,7 @@ export default function ProposalDetailClientWrapper({ uuid }: ProposalDetailClie
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">제안서를 불러오는 중...</p>
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function ProposalDetailClientWrapper({ uuid }: ProposalDetailClie
         <p className="text-xl text-gray-500 mb-4">제안서를 찾을 수 없습니다</p>
         <button
           onClick={() => router.back()}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+          className="px-6 py-3 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
         >
           뒤로 가기
         </button>

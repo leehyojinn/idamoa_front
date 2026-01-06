@@ -79,13 +79,13 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
                               <Link
                                 href={item.href}
                                 onClick={onClose}
-                                className="flex-1 px-4 py-3 rounded-l-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
+                                className="flex-1 px-4 py-3 rounded-l-lg text-gray-700 hover:bg-primary-50 hover:text-secondary transition-colors font-medium"
                               >
                                 {item.label}
                               </Link>
                               <button
                                 onClick={() => toggleExpanded(item.id)}
-                                className="px-3 py-3 rounded-r-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors"
+                                className="px-3 py-3 rounded-r-lg text-gray-700 hover:bg-primary-50 hover:text-secondary transition-colors"
                                 aria-label={`${item.label} 하위 메뉴 ${isExpanded ? '접기' : '펼치기'}`}
                               >
                                 <motion.div
@@ -110,7 +110,7 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
                                       <Link
                                         href={child.href}
                                         onClick={onClose}
-                                        className="block px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-blue-50 hover:text-secondary transition-colors"
+                                        className="block px-4 py-2 rounded-lg text-sm text-gray-600 hover:bg-primary-50 hover:text-secondary transition-colors"
                                       >
                                         {child.label}
                                       </Link>
@@ -124,7 +124,7 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
                           <Link
                             href={item.href}
                             onClick={onClose}
-                            className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-secondary transition-colors font-medium"
+                            className="block px-4 py-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-secondary transition-colors font-medium"
                           >
                             {item.label}
                           </Link>
@@ -149,7 +149,7 @@ export default function MobileMenu({ isOpen, onClose, navItems }: MobileMenuProp
                         logout()
                         onClose()
                       }}
-                      className="w-full py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
+                      className="w-full py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-primary-600 transition-colors"
                     >
                       로그아웃
                     </button>

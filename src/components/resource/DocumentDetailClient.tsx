@@ -276,7 +276,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
   if (isLoading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
         <p className="mt-4 text-gray-600">자료를 불러오는 중...</p>
       </div>
     )
@@ -288,7 +288,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
         <p className="text-gray-500 text-lg">자료를 찾을 수 없습니다.</p>
         <Link
           href="/resources"
-          className="inline-flex items-center gap-2 mt-6 text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-2 mt-6 text-primary hover:text-primary"
         >
           <FiArrowLeft />
           목록으로 돌아가기
@@ -331,7 +331,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
               <>
                 <Link
                   href={`/resources/${document.uuid}/edit`}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
                 >
                   <FiEdit />
                   수정
@@ -358,7 +358,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
                 </span>
               )}
               {document.categoryName && (
-                <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                <span className="bg-primary-100 text-primary px-3 py-1 rounded-full text-sm">
                   {document.categoryName}
                 </span>
               )}
@@ -401,7 +401,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
               {document.tags.map(tag => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 bg-primary-100 text-primary px-3 py-1 rounded-full text-sm"
                 >
                   <FiTag className="text-xs" />
                   {tag}
@@ -467,7 +467,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
                     <button
                       onClick={() => handleDownload(file.uuid, file.originalFilename)}
                       disabled={downloadingFileUuid === file.uuid}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {downloadingFileUuid === file.uuid ? (
                         <>
@@ -563,7 +563,7 @@ export default function DocumentDetailClient({ uuid, initialData }: DocumentDeta
               <button
                 onClick={handleConfirmPurchase}
                 disabled={downloadingFileUuid !== null}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
+                className="flex-1 bg-primary hover:bg-primary-800 text-white px-4 py-3 rounded-lg font-semibold transition-colors disabled:opacity-50"
               >
                 {downloadingFileUuid ? '처리 중...' : '구매 및 다운로드'}
               </button>

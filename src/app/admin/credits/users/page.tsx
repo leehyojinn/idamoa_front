@@ -126,7 +126,7 @@ export default function AdminUserCreditsPage() {
         {/* 통계 */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex items-center gap-3">
-            <IoCash className="text-3xl text-blue-600" />
+            <IoCash className="text-3xl text-primary" />
             <div>
               <p className="text-sm text-gray-600">총 사용자</p>
               <p className="text-2xl font-bold text-gray-900">{totalElements.toLocaleString()}명</p>
@@ -212,7 +212,7 @@ export default function AdminUserCreditsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-lg font-bold text-blue-600">
+                        <span className="text-lg font-bold text-primary">
                           {credit.availableCredits.toLocaleString()}원
                         </span>
                       </td>
@@ -233,7 +233,7 @@ export default function AdminUserCreditsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => router.push(`/admin/credits/users/${credit.userUuid}`)}
-                            className="text-blue-600 hover:text-blue-900 flex items-center gap-1"
+                            className="text-primary hover:text-primary flex items-center gap-1"
                           >
                             <IoEye />
                             상세

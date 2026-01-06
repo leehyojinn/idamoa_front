@@ -84,7 +84,7 @@ export default function MyPlannerDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         </div>
         <Footer />
@@ -103,7 +103,7 @@ export default function MyPlannerDetailPage() {
         <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-20">
             <p className="text-gray-500">신청서를 찾을 수 없습니다.</p>
-            <Link href="/planner/my" className="mt-4 inline-block text-blue-600 hover:underline">
+            <Link href="/planner/my" className="mt-4 inline-block text-primary hover:underline">
               목록으로 돌아가기
             </Link>
           </div>
@@ -149,7 +149,7 @@ export default function MyPlannerDetailPage() {
             <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
               <Link
                 href={`/planner/my/${application.uuid}/edit`}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                className="px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-800 transition-colors"
               >
                 수정하기
               </Link>
@@ -181,7 +181,7 @@ export default function MyPlannerDetailPage() {
                 {application.requestTypes.map((type) => (
                   <span
                     key={type}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full"
+                    className="px-3 py-1 bg-primary-100 text-primary text-sm rounded-full"
                   >
                     {REQUEST_TYPE_LABELS[type]}
                   </span>
@@ -263,7 +263,7 @@ export default function MyPlannerDetailPage() {
                   key={date.priority}
                   className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
                 >
-                  <span className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full">
+                  <span className="px-3 py-1 bg-primary text-white text-sm font-medium rounded-full">
                     {date.priority}순위
                   </span>
                   <span className="text-gray-900">
@@ -292,7 +292,7 @@ export default function MyPlannerDetailPage() {
                   <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                   </svg>
-                  <span className="text-blue-600 hover:underline">{file.fileName}</span>
+                  <span className="text-primary hover:underline">{file.fileName}</span>
                 </a>
               ))}
             </div>
@@ -301,9 +301,9 @@ export default function MyPlannerDetailPage() {
 
         {/* 관리자 답변 */}
         {application.adminResponse && (
-          <div className="bg-blue-50 rounded-2xl border border-blue-100 p-6 md:p-8 mb-6">
-            <h2 className="text-lg font-bold text-blue-900 mb-4 pb-3 border-b border-blue-200">관리자 답변</h2>
-            <p className="text-blue-800 whitespace-pre-wrap leading-relaxed">
+          <div className="bg-primary-50 rounded-2xl border border-primary-100 p-6 md:p-8 mb-6">
+            <h2 className="text-lg font-bold text-primary mb-4 pb-3 border-b border-primary-200">관리자 답변</h2>
+            <p className="text-primary-800 whitespace-pre-wrap leading-relaxed">
               {application.adminResponse}
             </p>
           </div>
@@ -327,7 +327,7 @@ export default function MyPlannerDetailPage() {
           </Link>
           <Link
             href="/planner/create"
-            className="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-8 py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary-800 transition-colors"
           >
             새 상담 신청
           </Link>

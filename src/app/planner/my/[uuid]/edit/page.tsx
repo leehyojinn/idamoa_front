@@ -280,7 +280,7 @@ export default function PlannerEditPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 min-h-[calc(100vh-64px-200px)]">
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           </div>
         </div>
         <Footer />
@@ -322,8 +322,8 @@ export default function PlannerEditPage() {
           {/* 기본 정보 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-gray-100">
-              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                <span className="text-blue-600 font-bold">1</span>
+              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                <span className="text-primary font-bold">1</span>
               </div>
               <h2 className="text-xl font-bold text-gray-900">상담 정보</h2>
             </div>
@@ -341,7 +341,7 @@ export default function PlannerEditPage() {
                 value={formData.title}
                 onChange={handleInputChange}
                 maxLength={200}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               />
               {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
             </div>
@@ -357,8 +357,8 @@ export default function PlannerEditPage() {
                     key={method}
                     className={`relative flex items-center justify-center px-4 py-3 border-2 rounded-xl cursor-pointer transition-all ${
                       formData.consultationMethod === method
-                        ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm'
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        ? 'border-primary-500 bg-primary-50 text-primary shadow-sm'
+                        : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
                     }`}
                   >
                     <input
@@ -376,7 +376,7 @@ export default function PlannerEditPage() {
                     />
                     <span className="font-medium">{CONSULTATION_METHOD_LABELS[method]}</span>
                     {formData.consultationMethod === method && (
-                      <IoCheckmarkCircle className="absolute top-2 right-2 w-5 h-5 text-blue-500" />
+                      <IoCheckmarkCircle className="absolute top-2 right-2 w-5 h-5 text-primary-700" />
                     )}
                   </label>
                 ))}
@@ -397,8 +397,8 @@ export default function PlannerEditPage() {
                     onClick={() => handleRequestTypeToggle(type)}
                     className={`px-4 py-2.5 rounded-full border-2 font-medium transition-all ${
                       formData.requestTypes.includes(type)
-                        ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-200'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
+                        ? 'bg-primary text-white border-primary shadow-md shadow-primary-200'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-primary-300 hover:text-primary'
                     }`}
                   >
                     {formData.requestTypes.includes(type) && (
@@ -425,7 +425,7 @@ export default function PlannerEditPage() {
                 value={formData.content}
                 onChange={handleInputChange}
                 rows={5}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
               />
               {errors.content && <p className="mt-1 text-sm text-red-600">{errors.content}</p>}
             </div>
@@ -454,7 +454,7 @@ export default function PlannerEditPage() {
                     name="applicantName"
                     value={formData.applicantName}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                   />
                 </div>
                 {errors.applicantName && (
@@ -475,7 +475,7 @@ export default function PlannerEditPage() {
                     name="applicantPhone"
                     value={formData.applicantPhone}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                   />
                 </div>
                 {errors.applicantPhone && (
@@ -496,7 +496,7 @@ export default function PlannerEditPage() {
                     name="applicantEmail"
                     value={formData.applicantEmail}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                   />
                 </div>
                 {errors.applicantEmail && (
@@ -531,7 +531,7 @@ export default function PlannerEditPage() {
                     name="businessName"
                     value={formData.businessName}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -548,7 +548,7 @@ export default function PlannerEditPage() {
                     name="businessAreaSize"
                     value={formData.businessAreaSize}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -565,7 +565,7 @@ export default function PlannerEditPage() {
                     name="businessType"
                     value={formData.businessType}
                     onChange={handleInputChange}
-                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                   />
                 </div>
               </div>
@@ -582,7 +582,7 @@ export default function PlannerEditPage() {
                       id="businessAddress"
                       value={formData.businessAddress}
                       readOnly
-                      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 cursor-pointer focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all"
                       placeholder="주소 검색을 클릭하세요"
                       onClick={() =>
                         openAddressSearch((data) => {
@@ -598,7 +598,7 @@ export default function PlannerEditPage() {
                         setFormData((prev) => ({ ...prev, businessAddress: data.address }))
                       })
                     }
-                    className="px-5 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-800 transition-colors whitespace-nowrap font-medium"
+                    className="px-5 py-3 bg-gray-700 text-white rounded-xl hover:bg-primary-800 transition-colors whitespace-nowrap font-medium"
                   >
                     주소 검색
                   </button>
@@ -622,7 +622,7 @@ export default function PlannerEditPage() {
                 <button
                   type="button"
                   onClick={addPreferredDate}
-                  className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-primary-50 text-primary rounded-lg hover:bg-primary-100 text-sm font-medium transition-colors"
                 >
                   + 일정 추가
                 </button>
@@ -635,7 +635,7 @@ export default function PlannerEditPage() {
                   key={index}
                   className="flex flex-col sm:flex-row gap-3 items-start sm:items-center p-4 bg-gray-50 rounded-xl"
                 >
-                  <span className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full">
+                  <span className="px-3 py-1 bg-primary text-white text-sm font-medium rounded-full">
                     {date.priority}순위
                   </span>
                   <div className="relative flex-1 w-full sm:w-auto">
@@ -652,7 +652,7 @@ export default function PlannerEditPage() {
                       locale={ko}
                       dateFormat="yyyy년 MM월 dd일"
                       placeholderText="날짜를 선택하세요"
-                      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                      className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent bg-white"
                       wrapperClassName="w-full"
                     />
                   </div>
@@ -662,7 +662,7 @@ export default function PlannerEditPage() {
                     onChange={(e) =>
                       handlePreferredDateChange(index, 'preferredTime', e.target.value)
                     }
-                    className="w-full sm:w-36 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    className="w-full sm:w-36 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-transparent bg-white"
                     placeholder="오전 10시"
                   />
                   {formData.preferredDates.length > 1 && (

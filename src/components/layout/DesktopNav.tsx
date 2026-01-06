@@ -49,7 +49,7 @@ export default function DesktopNav({ navItems }: DesktopNavProps) {
                         href={child.href}
                         className={`block px-4 py-2 text-sm text-center transition-colors ${
                           isChildActive
-                            ? 'text-primary bg-blue-50 font-medium'
+                            ? 'text-primary bg-primary-50 font-medium'
                             : 'text-gray-700 hover:text-secondary hover:bg-gray-50'
                         }`}
                       >

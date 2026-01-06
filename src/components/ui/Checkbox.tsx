@@ -76,8 +76,8 @@ export default function Checkbox({
                   ? 'bg-gradient-to-br from-red-500 to-red-600 shadow-lg shadow-red-200'
                   : 'border-2 border-red-300 bg-white'
                 : checked
-                ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-200'
-                : 'border-2 border-gray-300 bg-white group-hover:border-blue-400 group-hover:shadow-md'
+                ? 'bg-primary shadow-lg shadow-primary-200'
+                : 'border-2 border-gray-300 bg-white group-hover:border-primary-400 group-hover:shadow-md'
               }
             `}
             whileTap={!disabled ? { scale: 0.92 } : {}}
@@ -130,7 +130,7 @@ export default function Checkbox({
           {!disabled && !checked && (
             <div className={`
               absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity
-              ring-2 ring-blue-300 ring-offset-1
+              ring-2 ring-primary-300 ring-offset-1
             `} />
           )}
         </div>

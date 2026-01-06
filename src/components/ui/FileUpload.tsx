@@ -100,7 +100,7 @@ export default function FileUpload({ attachments, onChange, maxFiles = 10 }: Fil
         htmlFor="file-upload"
         className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer block ${
           isDragging
-            ? 'border-primary bg-blue-50'
+            ? 'border-primary bg-primary-50'
             : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'
         }`}
         onDrop={handleDrop}

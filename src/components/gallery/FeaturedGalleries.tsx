@@ -175,7 +175,7 @@ export default function FeaturedGalleries({ count = 8 }: Props) {
                       <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold shadow-lg ${
                         gallery.promotion.promotionType === 'PREMIUM'
                           ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white'
-                          : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                          : 'bg-gradient-to-r from-primary-500 to-primary-1000 text-white'
                       }`}>
                         {gallery.promotion.promotionType === 'PREMIUM' ? '🔥 PREMIUM' : '✨ 추천'}
                       </span>
@@ -208,7 +208,7 @@ export default function FeaturedGalleries({ count = 8 }: Props) {
 
                   {/* 하단 정보 (기본) */}
                   <div className="mt-3 px-1">
-                    <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
                       {gallery.title}
                     </h3>
                     {gallery.company && (
@@ -240,7 +240,7 @@ export default function FeaturedGalleries({ count = 8 }: Props) {
                 key={i}
                 onClick={() => setCurrentIndex(i)}
                 className={`w-2 h-2 rounded-full transition-colors ${
-                  currentIndex === i ? 'bg-blue-600' : 'bg-gray-300'
+                  currentIndex === i ? 'bg-primary' : 'bg-gray-300'
                 }`}
               />
             ))}

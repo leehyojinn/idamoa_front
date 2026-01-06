@@ -73,8 +73,8 @@ export default function Select({
               : error
               ? 'border-red-300 bg-red-50 hover:border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100'
               : isOpen
-              ? 'border-blue-500 bg-white shadow-lg ring-4 ring-blue-100'
-              : 'border-gray-200 bg-white hover:border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100'
+              ? 'border-primary-500 bg-white shadow-lg ring-4 ring-primary-100'
+              : 'border-gray-200 bg-white hover:border-gray-300 focus:border-primary-500 focus:ring-4 focus:ring-primary-100'
             }
           `}
         >
@@ -112,10 +112,10 @@ export default function Select({
                     onClick={() => handleSelect(option.value)}
                     className={`
                       w-full px-4 py-3 text-left transition-all duration-150
-                      hover:bg-blue-50 hover:text-blue-600
+                      hover:bg-primary-50 hover:text-primary
                       flex items-center gap-2
                       ${option.value === value
-                        ? 'bg-blue-500 text-white hover:bg-blue-600 hover:text-white font-medium'
+                        ? 'bg-primary-800 text-white hover:bg-primary hover:text-white font-medium'
                         : 'text-gray-700'
                       }
                     `}

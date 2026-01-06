@@ -20,7 +20,7 @@ const STATUS_LABELS = {
 }
 
 const STATUS_COLORS = {
-  SUBMITTED: 'bg-blue-100 text-blue-800',
+  SUBMITTED: 'bg-primary-100 text-primary-800',
   IN_PROGRESS: 'bg-yellow-100 text-yellow-800',
   COMPLETED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-gray-100 text-gray-800'
@@ -144,7 +144,7 @@ export default function ConsultationDetailPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-md min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">상담 내용을 불러오는 중...</p>
           </div>
         </div>
@@ -180,7 +180,7 @@ export default function ConsultationDetailPage() {
               pattern="\d{4}"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="1234"
             />
             <p className="mt-2 text-sm text-gray-500">
@@ -191,7 +191,7 @@ export default function ConsultationDetailPage() {
           <button
             type="submit"
             disabled={isVerifying || password.length !== 4}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isVerifying ? '조회 중...' : '조회하기'}
           </button>
@@ -311,11 +311,11 @@ export default function ConsultationDetailPage() {
 
         {/* 관리자 답변 */}
         {consultation.responseMessage && (
-          <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
-            <h2 className="text-lg font-bold text-blue-900 mb-4">관리자 답변</h2>
-            <p className="text-blue-800 whitespace-pre-wrap mb-4">{consultation.responseMessage}</p>
+          <div className="bg-primary-50 rounded-lg border border-primary-200 p-6">
+            <h2 className="text-lg font-bold text-primary mb-4">관리자 답변</h2>
+            <p className="text-primary-800 whitespace-pre-wrap mb-4">{consultation.responseMessage}</p>
             {consultation.respondedAt && (
-              <p className="text-sm text-blue-600">
+              <p className="text-sm text-primary">
                 답변일: {new Date(consultation.respondedAt).toLocaleString('ko-KR')}
               </p>
             )}
@@ -329,7 +329,7 @@ export default function ConsultationDetailPage() {
             {consultation.assignedCompanyUuid ? (
               <Link
                 href={`/companies/${consultation.assignedCompanyUuid}`}
-                className="text-blue-600 hover:text-blue-800 font-medium hover:underline inline-flex items-center gap-1"
+                className="text-primary hover:text-primary font-medium hover:underline inline-flex items-center gap-1"
               >
                 {consultation.assignedCompanyName}
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -391,7 +391,7 @@ export default function ConsultationDetailPage() {
                 rows={4}
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                 placeholder="취소 사유를 입력해주세요"
               />
             </div>
@@ -439,7 +439,7 @@ export default function ConsultationDetailPage() {
                 pattern="\d{4}"
                 value={cancelPassword}
                 onChange={(e) => setCancelPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="1234"
                 autoFocus
               />
@@ -459,7 +459,7 @@ export default function ConsultationDetailPage() {
             <button
               onClick={handlePasswordConfirm}
               disabled={cancelPassword.length !== 4}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary hover:bg-primary-800 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               확인
             </button>

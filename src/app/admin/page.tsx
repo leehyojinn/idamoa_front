@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
         <div className="container mx-auto px-4 py-8 max-w-7xl min-h-[calc(100vh-64px-200px)]">
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
-              <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-blue-600 mb-4"></div>
+              <div className="inline-block animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary mb-4"></div>
               <p className="text-gray-600 text-lg">대시보드를 불러오는 중...</p>
             </div>
           </div>
@@ -115,7 +115,7 @@ export default function AdminDashboardPage() {
             <p className="text-gray-500">대시보드 데이터를 불러올 수 없습니다</p>
             <button
               onClick={handleRefresh}
-              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-800"
             >
               다시 시도
             </button>
@@ -156,7 +156,7 @@ export default function AdminDashboardPage() {
               value={overview.totalUsers}
               subtitle="등록된 전체 회원 수"
               icon={<FiUsers className="w-6 h-6 text-white" />}
-              color="bg-blue-500"
+              color="bg-primary-800"
               link="/admin/users"
             />
             <StatCard
@@ -274,18 +274,18 @@ export default function AdminDashboardPage() {
               color="bg-violet-500"
               link="/admin/general-inquiries"
             />
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
-              <h3 className="text-sm font-semibold text-blue-900 mb-3">빠른 이동</h3>
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-200 p-6">
+              <h3 className="text-sm font-semibold text-primary mb-3">빠른 이동</h3>
               <div className="space-y-2">
                 <Link
                   href="/admin/analytics"
-                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-primary-50 text-primary rounded-lg font-medium transition-colors text-sm border border-primary-200"
                 >
                   상세 분석
                 </Link>
                 <Link
                   href="/admin/users"
-                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-primary-50 text-primary rounded-lg font-medium transition-colors text-sm border border-primary-200"
                 >
                   회원 관리
                 </Link>
@@ -324,20 +324,20 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-200 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-primary-800 rounded-lg flex items-center justify-center">
                   <FiUsers className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-blue-900">사용자 크레딧</h3>
+                <h3 className="text-lg font-semibold text-primary">사용자 크레딧</h3>
               </div>
-              <p className="text-sm text-blue-700 mb-4">
+              <p className="text-sm text-primary mb-4">
                 사용자별 크레딧을 조회하고 관리합니다
               </p>
               <div className="space-y-2">
                 <Link
                   href="/admin/credits/users"
-                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-primary-50 text-primary rounded-lg font-medium transition-colors text-sm border border-primary-200"
                 >
                   사용자 크레딧 관리
                 </Link>
@@ -410,20 +410,20 @@ export default function AdminDashboardPage() {
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">포트폴리오 관리</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
+            <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-200 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-primary-800 rounded-lg flex items-center justify-center">
                   <FiFileText className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-blue-900">포트폴리오 목록</h3>
+                <h3 className="text-lg font-semibold text-primary">포트폴리오 목록</h3>
               </div>
-              <p className="text-sm text-blue-700 mb-4">
+              <p className="text-sm text-primary mb-4">
                 등록된 전체 포트폴리오를 조회하고 관리합니다
               </p>
               <div className="space-y-2">
                 <Link
                   href="/admin/portfolios"
-                  className="block w-full py-2 px-4 text-center bg-white hover:bg-blue-50 text-blue-700 rounded-lg font-medium transition-colors text-sm border border-blue-200"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-primary-50 text-primary rounded-lg font-medium transition-colors text-sm border border-primary-200"
                 >
                   포트폴리오 관리
                 </Link>
@@ -476,7 +476,7 @@ export default function AdminDashboardPage() {
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">제휴 관리</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-xl border border-cyan-200 p-6">
+            <div className="bg-gradient-to-br from-cyan-50 to-primary-50 rounded-xl border border-cyan-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-cyan-500 rounded-lg flex items-center justify-center">
                   <FiLink className="w-6 h-6 text-white" />

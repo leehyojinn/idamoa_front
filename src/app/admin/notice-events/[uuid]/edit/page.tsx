@@ -206,7 +206,7 @@ export default function EditNoticeEventPage() {
         <Navbar />
         <div className="container mx-auto px-4 py-8 max-w-4xl min-h-[calc(100vh-64px-200px)]">
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">로딩 중...</p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function EditNoticeEventPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="제목을 입력하세요 (최대 200자)"
               required
             />
@@ -254,7 +254,7 @@ export default function EditNoticeEventPage() {
               onChange={(e) => setContent(e.target.value)}
               maxLength={10000}
               rows={10}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               placeholder="내용을 입력하세요 (최대 10000자)"
               required
             />
@@ -271,7 +271,7 @@ export default function EditNoticeEventPage() {
                   type="datetime-local"
                   value={eventStartDate}
                   onChange={(e) => setEventStartDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
               <div>
@@ -282,7 +282,7 @@ export default function EditNoticeEventPage() {
                   type="datetime-local"
                   value={eventEndDate}
                   onChange={(e) => setEventEndDate(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 />
               </div>
             </div>
@@ -381,7 +381,7 @@ export default function EditNoticeEventPage() {
                 {attachmentFiles.map((file, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-primary-50 rounded-lg"
                   >
                     <span className="text-sm text-gray-700">{file.name}</span>
                     <button
@@ -413,13 +413,13 @@ export default function EditNoticeEventPage() {
                     handleAddTag()
                   }
                 }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
                 placeholder="태그 입력 후 엔터"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-primary-600"
               >
                 <FiPlus />
               </button>
@@ -429,13 +429,13 @@ export default function EditNoticeEventPage() {
                 {tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
                   >
                     #{tag}
                     <button
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="text-primary hover:text-primary"
                     >
                       <FiX size={14} />
                     </button>
@@ -472,7 +472,7 @@ export default function EditNoticeEventPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSubmitting ? '수정 중...' : '수정 완료'}
             </button>

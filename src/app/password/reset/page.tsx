@@ -242,8 +242,8 @@ export default function PasswordResetPage() {
           {/* 2단계: 인증 코드 입력 */}
           {step === 2 && (
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-4">
+                <p className="text-sm text-primary-800">
                   <span className="font-semibold">{email}</span> 으로 인증 코드를 발송합니다.
                 </p>
               </div>
@@ -252,7 +252,7 @@ export default function PasswordResetPage() {
                 type="button"
                 onClick={handleSendCode}
                 disabled={isLoading || timer > 0}
-                className="w-full py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 px-4 bg-gray-600 text-white rounded-lg font-medium hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {timer > 0
                   ? `재전송 (${formatTimer(timer)})`

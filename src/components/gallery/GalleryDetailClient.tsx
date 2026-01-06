@@ -213,7 +213,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
   if (isLoading) {
     return (
       <div className="text-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-blue-600"></div>
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
         <p className="mt-4 text-gray-600">포트폴리오를 불러오는 중...</p>
       </div>
     )
@@ -225,7 +225,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
         <p className="text-gray-500 text-lg">포트폴리오를 찾을 수 없습니다.</p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 mt-6 text-blue-600 hover:text-blue-700"
+          className="inline-flex items-center gap-2 mt-6 text-primary hover:text-primary"
         >
           <FiArrowLeft />
           목록으로 돌아가기
@@ -280,7 +280,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
               <>
                 <Link
                   href={`/photos/${gallery.uuid}/edit`}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-800 text-white rounded-lg font-semibold transition-colors"
                 >
                   <FiEdit />
                   수정
@@ -311,7 +311,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                 href={gallery.relatedLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline"
+                className="flex items-center gap-1 text-primary hover:text-primary hover:underline"
               >
                 <FiExternalLink />
                 관련 링크
@@ -364,7 +364,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                 {gallery.tags.map(tag => (
                   <span
                     key={tag}
-                    className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                    className="inline-flex items-center gap-1 bg-primary-100 text-primary px-3 py-1 rounded-full text-sm"
                   >
                     #{tag}
                   </span>
@@ -413,12 +413,12 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
 
         {/* 업체 정보 */}
         {gallery.company && (
-          <div className="bg-blue-50 rounded-lg shadow-sm p-6">
+          <div className="bg-primary-50 rounded-lg shadow-sm p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">시공 업체</h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-lg font-semibold text-blue-800">{gallery.company.companyName}</p>
-                <p className="flex items-center gap-2 text-blue-600 mt-1">
+                <p className="text-lg font-semibold text-primary-800">{gallery.company.companyName}</p>
+                <p className="flex items-center gap-2 text-primary mt-1">
                   <FiPhone />
                   {gallery.company.phone}
                 </p>
@@ -426,13 +426,13 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
               <div className="flex gap-2">
                 <Link
                   href={`/?companyUuid=${gallery.company.companyUuid}&companyName=${encodeURIComponent(gallery.company.companyName)}`}
-                  className="px-4 py-2 bg-white border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                  className="px-4 py-2 bg-white border border-primary text-primary rounded-lg hover:bg-primary-50 transition-colors"
                 >
                   포트폴리오 모두보기
                 </Link>
                 <Link
                   href={`/companies/${gallery.company.companyUuid}`}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors"
                 >
                   업체 상세보기
                 </Link>
@@ -451,7 +451,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
               {user && !showReviewForm && (
                 <button
                   onClick={() => setShowReviewForm(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors text-sm font-medium"
                 >
                   리뷰 작성
                 </button>
@@ -488,7 +488,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                     onChange={(e) => setReviewContent(e.target.value)}
                     placeholder="서비스 이용 후기를 작성해주세요 (최소 10자)"
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-none"
                   />
                   <p className="mt-1 text-sm text-gray-500">{reviewContent.length} / 5000</p>
                 </div>
@@ -517,7 +517,7 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
                   <button
                     onClick={handleSubmitReview}
                     disabled={isSubmittingReview || !reviewContent.trim()}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-800 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     <FiSend />
                     {isSubmittingReview ? '등록 중...' : '리뷰 등록'}
@@ -563,8 +563,8 @@ export default function GalleryDetailClient({ uuid, initialData }: GalleryDetail
 
                     {/* 업체 답변 */}
                     {review.reply && (
-                      <div className="mt-3 pl-4 border-l-2 border-blue-300 bg-blue-50 p-3 rounded">
-                        <p className="text-sm text-blue-800 font-semibold mb-1">업체 답변</p>
+                      <div className="mt-3 pl-4 border-l-2 border-primary-300 bg-primary-50 p-3 rounded">
+                        <p className="text-sm text-primary-800 font-semibold mb-1">업체 답변</p>
                         <p className="text-sm text-gray-700">{review.reply}</p>
                         {review.repliedAt && (
                           <p className="text-xs text-gray-500 mt-1">
