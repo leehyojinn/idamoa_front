@@ -16,6 +16,7 @@ export interface ReviewResponse {
   companyName: string
   userId: number
   userEmail: string
+  userName?: string
   rating: number
   title?: string
   content: string
