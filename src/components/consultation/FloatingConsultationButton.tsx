@@ -432,53 +432,41 @@ export default function FloatingConsultationButton() {
                   </div>
 
                   {/* 개별 약관은 작게 표시 */}
-                  <div className="mt-2 space-y-1 text-xs text-gray-600 pl-2">
+                  <div className="mt-2 space-y-1 pl-2">
                     {pendingConsents.personalInfoConsent && (
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!!formData.personalInfoConsent}
-                          onChange={(e) => handleConsentChange('personalInfoConsent', e.target.checked)}
-                          className="w-3 h-3"
-                        />
-                        <span>개인정보 수집·이용 (필수)</span>
-                      </label>
+                      <Checkbox
+                        checked={!!formData.personalInfoConsent}
+                        onChange={(checked) => handleConsentChange('personalInfoConsent', checked)}
+                        label="개인정보 수집·이용 (필수)"
+                        size="sm"
+                      />
                     )}
 
                     {pendingConsents.thirdPartyConsent && (
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!!formData.thirdPartyConsent}
-                          onChange={(e) => handleConsentChange('thirdPartyConsent', e.target.checked)}
-                          className="w-3 h-3"
-                        />
-                        <span>개인정보 제3자 제공 (필수)</span>
-                      </label>
+                      <Checkbox
+                        checked={!!formData.thirdPartyConsent}
+                        onChange={(checked) => handleConsentChange('thirdPartyConsent', checked)}
+                        label="개인정보 제3자 제공 (필수)"
+                        size="sm"
+                      />
                     )}
 
                     {pendingConsents.termsOfServiceConsent && (
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!!formData.termsOfServiceConsent}
-                          onChange={(e) => handleConsentChange('termsOfServiceConsent', e.target.checked)}
-                          className="w-3 h-3"
-                        />
-                        <span>이용약관 (필수)</span>
-                      </label>
+                      <Checkbox
+                        checked={!!formData.termsOfServiceConsent}
+                        onChange={(checked) => handleConsentChange('termsOfServiceConsent', checked)}
+                        label="이용약관 (필수)"
+                        size="sm"
+                      />
                     )}
 
                     {pendingConsents.marketingConsent && (
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!!formData.marketingConsent}
-                          onChange={(e) => handleConsentChange('marketingConsent', e.target.checked)}
-                          className="w-3 h-3"
-                        />
-                        <span>마케팅 수신 (선택)</span>
-                      </label>
+                      <Checkbox
+                        checked={!!formData.marketingConsent}
+                        onChange={(checked) => handleConsentChange('marketingConsent', checked)}
+                        label="마케팅 수신 (선택)"
+                        size="sm"
+                      />
                     )}
                   </div>
                 </div>
@@ -514,7 +502,7 @@ export default function FloatingConsultationButton() {
       {/* 플로팅 버튼 */}
       <motion.button
         onClick={() => setIsOpen(true)}
-        className={`fixed z-40 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-primary-800 transition-colors ${
+        className={`fixed z-40 bg-amber-500 text-white p-4 rounded-full shadow-lg hover:bg-amber-600 transition-colors ${
           isMobile ? 'bottom-20 right-4' : 'bottom-6 right-6'
         }`}
         whileHover={{ scale: 1.1 }}

@@ -112,11 +112,10 @@ export default function Select({
                     onClick={() => handleSelect(option.value)}
                     className={`
                       w-full px-4 py-3 text-left transition-all duration-150
-                      hover:bg-primary-50 hover:text-primary
                       flex items-center gap-2
                       ${option.value === value
-                        ? 'bg-primary-800 text-white hover:bg-primary hover:text-white font-medium'
-                        : 'text-gray-700'
+                        ? 'bg-primary text-white hover:bg-primary-800 font-medium'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                       }
                     `}
                   >
