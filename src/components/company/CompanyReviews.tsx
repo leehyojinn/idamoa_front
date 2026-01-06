@@ -477,7 +477,7 @@ export default function CompanyReviews({ companyUuid, companyName, isOwner = fal
                           <h4 className="text-lg font-bold text-gray-900 mb-2">{review.title}</h4>
                         )}
                         <p className="text-sm text-gray-500">
-                          {review.userEmail} · {new Date(review.createdAt).toLocaleDateString()}
+                          {review.userName || '익명'} · {new Date(review.createdAt).toLocaleDateString()}
                         </p>
                       </div>
 
