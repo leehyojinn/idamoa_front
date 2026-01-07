@@ -1,12 +1,13 @@
-import { Metadata } from 'next'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import NoticeListClient from '@/components/notice/NoticeListClient'
+import { createPageMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  title: '공지사항 & 이벤트 | 다모아',
+export const metadata = createPageMetadata({
+  title: '공지사항 & 이벤트',
   description: '다모아의 공지사항 및 이벤트를 확인하세요',
-}
+  path: '/notices',
+})
 
 export default function NoticesPage() {
   return (

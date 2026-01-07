@@ -58,10 +58,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                         company.images?.[0]?.imageUrl ||
                         '/images/img-placeholder.png'
 
+    const canonicalUrl = `https://i-damoa.com/companies/${company.slug || slug}`
+
     return {
       title: `${company.name} - 다모아`,
       description: company.description || `${company.name}의 상세 정보를 확인하세요. 평점 ${company.avgRating.toFixed(1)}, ${company.reviewCount}개의 리뷰, ${company.completedProjects}건의 완료 프로젝트.`,
       keywords: company.tags?.join(', '),
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: company.name,
         description: company.description,

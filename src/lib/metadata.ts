@@ -7,6 +7,9 @@ const siteDescription = '인테리어 전문 업체를 한눈에! 업체 비교,
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: siteUrl,
+  },
   title: {
     default: `${siteName} | 인테리어의 모든 것`,
     template: `%s | ${siteName}`,
@@ -90,11 +93,17 @@ export function createPageMetadata({
   image = '/images/seo-image-v003.png',
 }: PageMetadataOptions): Metadata {
   const url = `${siteUrl}${path}`
+  // 쿼리 파라미터 제거하여 canonical URL 생성
+  const canonicalPath = path.split('?')[0]
+  const canonicalUrl = `${siteUrl}${canonicalPath}`
 
   return {
     title,
     description,
     keywords: [...defaultMetadata.keywords as string[], ...keywords],
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       type: 'website',
       locale: 'ko_KR',
