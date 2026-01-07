@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { FiArrowLeft, FiRefreshCw, FiSearch, FiEye, FiHeart, FiTrash2 } from 'react-icons/fi'
 import { adminGetAllPortfolios, adminDeletePortfolio, type PortfolioListItem } from '@/lib/api/portfolio'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
@@ -11,13 +12,40 @@ import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 
 export default function AdminPortfoliosPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const isInitialLoadRef = useRef(true)
+
+  // URL에서 초기값 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialKeyword = () => searchParams.get('keyword') || ''
+
   const [portfolios, setPortfolios] = useState<PortfolioListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [keyword, setKeyword] = useState('')
-  const [searchKeyword, setSearchKeyword] = useState('')
-  const [currentPage, setCurrentPage] = useState(0)
+  const [keyword, setKeyword] = useState(getInitialKeyword())
+  const [searchKeyword, setSearchKeyword] = useState(getInitialKeyword())
+  const [currentPage, setCurrentPage] = useState(getInitialPage())
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    keyword?: string
+  }) => {
+    const urlParams = new URLSearchParams()
+    const newPage = params.page ?? currentPage
+    const newKeyword = params.keyword ?? searchKeyword
+
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+    if (newKeyword) urlParams.set('keyword', newKeyword)
+
+    const queryString = urlParams.toString()
+    const basePath = pathname || '/admin/portfolios'
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [currentPage, searchKeyword, pathname, router])
 
   const fetchPortfolios = async () => {
     setIsLoading(true)
@@ -47,7 +75,32 @@ export default function AdminPortfoliosPage() {
   const handleSearch = () => {
     setCurrentPage(0)
     setSearchKeyword(keyword)
+    updateURL({ keyword, page: 0 })
   }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateURL({ page })
+  }
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlKeyword = searchParams.get('keyword') || ''
+
+    const needsUpdate = urlPage !== currentPage || urlKeyword !== searchKeyword
+
+    if (needsUpdate) {
+      setCurrentPage(urlPage)
+      setKeyword(urlKeyword)
+      setSearchKeyword(urlKeyword)
+    }
+  }, [searchParams])
 
   const handleDelete = async (portfolio: PortfolioListItem) => {
     if (!confirm(`정말로 "${portfolio.title}" 포트폴리오를 삭제하시겠습니까?`)) return
@@ -263,7 +316,7 @@ export default function AdminPortfoliosPage() {
         {totalPages > 1 && (
           <div className="flex justify-center gap-2 mt-6">
             <button
-              onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+              onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
               disabled={currentPage === 0}
               className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
@@ -273,7 +326,7 @@ export default function AdminPortfoliosPage() {
               {currentPage + 1} / {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
+              onClick={() => handlePageChange(Math.min(totalPages - 1, currentPage + 1))}
               disabled={currentPage >= totalPages - 1}
               className="px-4 py-2 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >

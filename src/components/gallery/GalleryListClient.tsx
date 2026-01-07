@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -22,9 +22,25 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const { user } = useAuth()
+  const isInitialLoadRef = useRef(true)
 
   // 현재 경로 (메인페이지면 '/', 아니면 현재 경로)
-  const basePath = pathname || '/'
+  const basePath = pathname || '/photos'
+
+  // URL에서 초기값 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialKeyword = () => searchParams.get('keyword') || ''
+  const getInitialSort = () => (searchParams.get('sort') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT') || 'CREATED_AT'
+  const getInitialFilterIds = () => {
+    const ids = searchParams.get('filterIds')
+    return ids ? ids.split(',').map(Number).filter(n => !isNaN(n)) : []
+  }
+  const getInitialTags = () => {
+    const tags = searchParams.get('tags')
+    return tags ? tags.split(',') : []
+  }
+  const getInitialBookmarked = () => searchParams.get('bookmarked') === 'true'
+  const getInitialMyPosts = () => searchParams.get('myPosts') === 'true'
 
   const [galleries, setGalleries] = useState<GalleryListItem[]>(initialData?.content || [])
   const [isLoading, setIsLoading] = useState(!initialData)
@@ -66,23 +82,64 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   }
 
   // Pagination
-  const [currentPage, setCurrentPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(getInitialPage())
   const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
   const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
   // Search & Filter
-  const [keyword, setKeyword] = useState('')
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
-  const [sortBy, setSortBy] = useState<'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'>('CREATED_AT')
+  const [keyword, setKeyword] = useState(getInitialKeyword())
+  const [selectedTags, setSelectedTags] = useState<string[]>(getInitialTags())
+  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>(getInitialFilterIds())
+  const [sortBy, setSortBy] = useState<'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'>(getInitialSort())
   const [sortDirection, setSortDirection] = useState<'ASC' | 'DESC'>('DESC')
-  const [onlyBookmarked, setOnlyBookmarked] = useState(false)
-  const [onlyMyPosts, setOnlyMyPosts] = useState(false)
+  const [onlyBookmarked, setOnlyBookmarked] = useState(getInitialBookmarked())
+  const [onlyMyPosts, setOnlyMyPosts] = useState(getInitialMyPosts())
   const [companyUuid, setCompanyUuid] = useState<string | null>(null)
   const [companyName, setCompanyName] = useState<string | null>(null)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    keyword?: string
+    sort?: string
+    filterIds?: number[]
+    tags?: string[]
+    bookmarked?: boolean
+    myPosts?: boolean
+    companyUuid?: string | null
+    companyName?: string | null
+  }) => {
+    const urlParams = new URLSearchParams()
+
+    const newPage = params.page ?? currentPage
+    const newKeyword = params.keyword ?? keyword
+    const newSort = params.sort ?? sortBy
+    const newFilterIds = params.filterIds ?? selectedFilterOptionIds
+    const newTags = params.tags ?? selectedTags
+    const newBookmarked = params.bookmarked ?? onlyBookmarked
+    const newMyPosts = params.myPosts ?? onlyMyPosts
+    const newCompanyUuid = params.companyUuid !== undefined ? params.companyUuid : companyUuid
+    const newCompanyName = params.companyName !== undefined ? params.companyName : companyName
+
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+    if (newKeyword) urlParams.set('keyword', newKeyword)
+    if (newSort && newSort !== 'CREATED_AT') urlParams.set('sort', newSort)
+    if (newFilterIds.length > 0) urlParams.set('filterIds', newFilterIds.join(','))
+    if (newTags.length > 0) urlParams.set('tags', newTags.join(','))
+    if (newBookmarked) urlParams.set('bookmarked', 'true')
+    if (newMyPosts) urlParams.set('myPosts', 'true')
+    if (newCompanyUuid) {
+      urlParams.set('companyUuid', newCompanyUuid)
+      if (newCompanyName) urlParams.set('companyName', newCompanyName)
+    }
+
+    const queryString = urlParams.toString()
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [currentPage, keyword, sortBy, selectedFilterOptionIds, selectedTags, onlyBookmarked, onlyMyPosts, companyUuid, companyName, basePath, router])
 
   // 필터 로드
   useEffect(() => {
@@ -214,7 +271,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setSelectedTags(newTags)
     setSelectedFilterOptionIds(newFilterOptionIds)
     setCurrentPage(0)
-    // URL 변경 없이 바로 API 호출
+    updateURL({ tags: newTags, filterIds: newFilterOptionIds, page: 0 })
     fetchGalleries({
       page: 0,
       keyword,
@@ -232,7 +289,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setSelectedTags([])
     setSelectedFilterOptionIds([])
     setCurrentPage(0)
-    // URL 변경 없이 바로 API 호출
+    updateURL({ tags: [], filterIds: [], page: 0 })
     fetchGalleries({
       page: 0,
       keyword,
@@ -246,7 +303,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     })
   }
 
-  // 체크박스로 필터 토글 (URL 변경 없이 비동기 처리)
+  // 체크박스로 필터 토글
   const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
     let newFilterOptionIds: number[]
     let newTags: string[]
@@ -262,7 +319,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setSelectedFilterOptionIds(newFilterOptionIds)
     setSelectedTags(newTags)
     setCurrentPage(0)
-    // URL 변경 없이 바로 API 호출
+    updateURL({ filterIds: newFilterOptionIds, tags: newTags, page: 0 })
     fetchGalleries({
       page: 0,
       keyword,
@@ -287,7 +344,8 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     setCompanyUuid(null)
     setCompanyName(null)
     setCurrentPage(0)
-    // URL 변경 없이 바로 API 호출
+    // URL 완전 초기화
+    router.replace(basePath, { scroll: false })
     fetchGalleries({
       page: 0,
       sortBy: 'CREATED_AT',
@@ -331,24 +389,24 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
   }, [sortBy, sortDirection])
 
   useEffect(() => {
-    // URL 파라미터에서 업체 필터만 복원 (companyUuid)
-    const companyUuid = searchParams.get('companyUuid') || null
-    const companyName = searchParams.get('companyName') || null
+    // URL 파라미터에서 값 읽기
+    const urlCompanyUuid = searchParams.get('companyUuid') || null
+    const urlCompanyName = searchParams.get('companyName') || null
 
     // 초기 로드 시 SSR 데이터 사용
-    if (isInitialLoad && initialData && !companyUuid) {
+    if (isInitialLoad && initialData && !urlCompanyUuid) {
       setIsInitialLoad(false)
       return
     }
 
     // companyUuid가 있으면 해당 업체의 포트폴리오만 로드
-    if (companyUuid) {
-      setCompanyUuid(companyUuid)
-      setCompanyName(companyName)
+    if (urlCompanyUuid) {
+      setCompanyUuid(urlCompanyUuid)
+      setCompanyName(urlCompanyName)
       setCurrentPage(0)
       fetchGalleries({
         page: 0,
-        companyUuid,
+        companyUuid: urlCompanyUuid,
         sortBy: 'CREATED_AT',
         sortDirection: 'DESC',
       })
@@ -356,6 +414,55 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
     setIsInitialLoad(false)
   }, [searchParams, fetchGalleries, isInitialLoad, initialData])
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    // 초기 로드 시에는 스킵
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlKeyword = searchParams.get('keyword') || ''
+    const urlSort = (searchParams.get('sort') as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT') || 'CREATED_AT'
+    const urlFilterIds = searchParams.get('filterIds')
+    const urlFilterIdValues = urlFilterIds ? urlFilterIds.split(',').map(Number).filter(n => !isNaN(n)) : []
+    const urlTags = searchParams.get('tags')
+    const urlTagValues = urlTags ? urlTags.split(',') : []
+    const urlBookmarked = searchParams.get('bookmarked') === 'true'
+    const urlMyPosts = searchParams.get('myPosts') === 'true'
+
+    // URL과 현재 상태가 다르면 동기화 (뒤로가기/앞으로가기 감지)
+    const needsUpdate = urlPage !== currentPage ||
+      urlKeyword !== keyword ||
+      urlSort !== sortBy ||
+      JSON.stringify(urlFilterIdValues) !== JSON.stringify(selectedFilterOptionIds) ||
+      urlBookmarked !== onlyBookmarked ||
+      urlMyPosts !== onlyMyPosts
+
+    if (needsUpdate) {
+      setCurrentPage(urlPage)
+      setKeyword(urlKeyword)
+      setSortBy(urlSort)
+      setSelectedFilterOptionIds(urlFilterIdValues)
+      setSelectedTags(urlTagValues)
+      setOnlyBookmarked(urlBookmarked)
+      setOnlyMyPosts(urlMyPosts)
+
+      // 데이터 다시 로드
+      fetchGalleries({
+        page: urlPage,
+        keyword: urlKeyword,
+        sortBy: urlSort,
+        filterOptionIds: urlFilterIdValues.length > 0 ? urlFilterIdValues : undefined,
+        tags: urlTagValues.length > 0 ? urlTagValues : undefined,
+        companyUuid: companyUuid || undefined,
+        onlyBookmarked: urlBookmarked,
+        onlyMyPosts: urlMyPosts,
+      })
+    }
+  }, [searchParams])
 
   // 업체 필터 해제
   const handleClearCompanyFilter = () => {
@@ -378,6 +485,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
   const handleSearch = () => {
     setCurrentPage(0)
+    updateURL({ keyword, page: 0 })
     fetchGalleries({
       page: 0,
       keyword,
@@ -393,6 +501,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage)
+    updateURL({ page: newPage })
     fetchGalleries({
       page: newPage,
       keyword,
@@ -410,6 +519,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
     const newSort = newSortBy as 'CREATED_AT' | 'VIEW_COUNT' | 'BOOKMARK_COUNT'
     setSortBy(newSort)
     setCurrentPage(0)
+    updateURL({ sort: newSort, page: 0 })
     fetchGalleries({
       page: 0,
       keyword,
@@ -864,6 +974,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                     const newValue = !onlyBookmarked
                     setOnlyBookmarked(newValue)
                     setCurrentPage(0)
+                    updateURL({ bookmarked: newValue, page: 0 })
                     fetchGalleries({
                       page: 0,
                       keyword,
@@ -890,6 +1001,7 @@ export default function GalleryListClient({ initialData }: GalleryListClientProp
                     const newValue = !onlyMyPosts
                     setOnlyMyPosts(newValue)
                     setCurrentPage(0)
+                    updateURL({ myPosts: newValue, page: 0 })
                     fetchGalleries({
                       page: 0,
                       keyword,
