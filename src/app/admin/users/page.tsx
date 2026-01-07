@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
   getAdminUsers,
   deleteAdminUser,
@@ -15,15 +16,50 @@ import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 
 export default function AdminUsersPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const isInitialLoadRef = useRef(true)
+
+  // URL에서 초기값 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialKeyword = () => searchParams.get('keyword') || ''
+  const getInitialStatus = () => (searchParams.get('status') as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | '') || ''
+  const getInitialRole = () => (searchParams.get('role') as 'USER' | 'COMPANY' | 'ADMIN' | '') || ''
+
   const [users, setUsers] = useState<UserListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [totalPages, setTotalPages] = useState(0)
-  const [currentPage, setCurrentPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(getInitialPage())
 
   // 필터
-  const [keyword, setKeyword] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | ''>('')
-  const [roleFilter, setRoleFilter] = useState<'USER' | 'COMPANY' | 'ADMIN' | ''>('')
+  const [keyword, setKeyword] = useState(getInitialKeyword())
+  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | ''>(getInitialStatus())
+  const [roleFilter, setRoleFilter] = useState<'USER' | 'COMPANY' | 'ADMIN' | ''>(getInitialRole())
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    keyword?: string
+    status?: string
+    role?: string
+  }) => {
+    const urlParams = new URLSearchParams()
+    const newPage = params.page ?? currentPage
+    const newKeyword = params.keyword ?? keyword
+    const newStatus = params.status ?? statusFilter
+    const newRole = params.role ?? roleFilter
+
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+    if (newKeyword) urlParams.set('keyword', newKeyword)
+    if (newStatus) urlParams.set('status', newStatus)
+    if (newRole) urlParams.set('role', newRole)
+
+    const queryString = urlParams.toString()
+    const basePath = pathname || '/admin/users'
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [currentPage, keyword, statusFilter, roleFilter, pathname, router])
 
   const fetchUsers = async (page: number = 0) => {
     setIsLoading(true)
@@ -51,12 +87,43 @@ export default function AdminUsersPage() {
   }
 
   useEffect(() => {
-    fetchUsers(0)
+    fetchUsers(getInitialPage())
   }, [])
 
   const handleSearch = () => {
+    setCurrentPage(0)
+    updateURL({ keyword, status: statusFilter, role: roleFilter, page: 0 })
     fetchUsers(0)
   }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateURL({ page })
+    fetchUsers(page)
+  }
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlKeyword = searchParams.get('keyword') || ''
+    const urlStatus = (searchParams.get('status') as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'PENDING' | '') || ''
+    const urlRole = (searchParams.get('role') as 'USER' | 'COMPANY' | 'ADMIN' | '') || ''
+
+    const needsUpdate = urlPage !== currentPage || urlKeyword !== keyword || urlStatus !== statusFilter || urlRole !== roleFilter
+
+    if (needsUpdate) {
+      setCurrentPage(urlPage)
+      setKeyword(urlKeyword)
+      setStatusFilter(urlStatus)
+      setRoleFilter(urlRole)
+      fetchUsers(urlPage)
+    }
+  }, [searchParams])
 
   const handleDelete = async (user: UserListItem) => {
     if (!confirm(`정말로 "${user.name} (${user.email})" 회원을 삭제하시겠습니까?`)) return
@@ -335,7 +402,7 @@ export default function AdminUsersPage() {
             {totalPages > 1 && (
               <div className="flex justify-center gap-2 mt-6">
                 <button
-                  onClick={() => fetchUsers(currentPage - 1)}
+                  onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -345,7 +412,7 @@ export default function AdminUsersPage() {
                   {currentPage + 1} / {totalPages}
                 </span>
                 <button
-                  onClick={() => fetchUsers(currentPage + 1)}
+                  onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

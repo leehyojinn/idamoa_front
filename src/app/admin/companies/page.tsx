@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
   getAdminCompanies,
   deleteAdminCompany,
@@ -16,13 +17,54 @@ import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 
 export default function AdminCompaniesPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const isInitialLoadRef = useRef(true)
+
+  // URL에서 초기값 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialStatus = () => (searchParams.get('status') as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | '') || ''
+  const getInitialVerified = () => {
+    const v = searchParams.get('verified')
+    return v === 'true' ? true : v === 'false' ? false : ''
+  }
+  const getInitialFeatured = () => {
+    const f = searchParams.get('featured')
+    return f === 'true' ? true : f === 'false' ? false : ''
+  }
+
   const [companies, setCompanies] = useState<CompanyListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [totalPages, setTotalPages] = useState(0)
-  const [currentPage, setCurrentPage] = useState(0)
-  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | ''>('')
-  const [verifiedFilter, setVerifiedFilter] = useState<boolean | ''>('')
-  const [featuredFilter, setFeaturedFilter] = useState<boolean | ''>('')
+  const [currentPage, setCurrentPage] = useState(getInitialPage())
+  const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | ''>(getInitialStatus())
+  const [verifiedFilter, setVerifiedFilter] = useState<boolean | ''>(getInitialVerified())
+  const [featuredFilter, setFeaturedFilter] = useState<boolean | ''>(getInitialFeatured())
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    status?: string
+    verified?: boolean | ''
+    featured?: boolean | ''
+  }) => {
+    const urlParams = new URLSearchParams()
+    const newPage = params.page ?? currentPage
+    const newStatus = params.status ?? statusFilter
+    const newVerified = params.verified !== undefined ? params.verified : verifiedFilter
+    const newFeatured = params.featured !== undefined ? params.featured : featuredFilter
+
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+    if (newStatus) urlParams.set('status', newStatus)
+    if (newVerified !== '') urlParams.set('verified', newVerified.toString())
+    if (newFeatured !== '') urlParams.set('featured', newFeatured.toString())
+
+    const queryString = urlParams.toString()
+    const basePath = pathname || '/admin/companies'
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [currentPage, statusFilter, verifiedFilter, featuredFilter, pathname, router])
 
   const fetchCompanies = async (page: number = 0) => {
     setIsLoading(true)
@@ -47,8 +89,39 @@ export default function AdminCompaniesPage() {
   }
 
   useEffect(() => {
-    fetchCompanies(0)
+    fetchCompanies(getInitialPage())
   }, [])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    updateURL({ page })
+    fetchCompanies(page)
+  }
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlStatus = (searchParams.get('status') as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | '') || ''
+    const urlVerified = searchParams.get('verified')
+    const urlVerifiedVal = urlVerified === 'true' ? true : urlVerified === 'false' ? false : ''
+    const urlFeatured = searchParams.get('featured')
+    const urlFeaturedVal = urlFeatured === 'true' ? true : urlFeatured === 'false' ? false : ''
+
+    const needsUpdate = urlPage !== currentPage || urlStatus !== statusFilter || urlVerifiedVal !== verifiedFilter || urlFeaturedVal !== featuredFilter
+
+    if (needsUpdate) {
+      setCurrentPage(urlPage)
+      setStatusFilter(urlStatus)
+      setVerifiedFilter(urlVerifiedVal)
+      setFeaturedFilter(urlFeaturedVal)
+      fetchCompanies(urlPage)
+    }
+  }, [searchParams])
 
   const handleDelete = async (company: CompanyListItem) => {
     if (!confirm(`정말로 "${company.name}" 업체를 삭제하시겠습니까?`)) return
@@ -307,7 +380,7 @@ export default function AdminCompaniesPage() {
             {totalPages > 1 && (
               <div className="flex justify-center gap-2 mt-6">
                 <button
-                  onClick={() => fetchCompanies(currentPage - 1)}
+                  onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -317,7 +390,7 @@ export default function AdminCompaniesPage() {
                   {currentPage + 1} / {totalPages}
                 </span>
                 <button
-                  onClick={() => fetchCompanies(currentPage + 1)}
+                  onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

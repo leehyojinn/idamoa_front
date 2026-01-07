@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import {
   IoCalendarOutline,
   IoLocationOutline,
@@ -23,14 +23,45 @@ interface EstimatesListClientProps {
 
 export default function EstimatesListClient({ initialData }: EstimatesListClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const { user } = useAuthStore()
+  const isInitialLoadRef = useRef(true)
+
+  // URL에서 초기값 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialStatus = () => searchParams.get('status') || 'ALL'
+  const getInitialViewMode = () => (searchParams.get('viewMode') as 'ALL' | 'MY' | 'MY_PROPOSALS') || 'ALL'
+
   const [data, setData] = useState<EstimateRequestListResponse | null>(initialData || null)
-  const [currentPage, setCurrentPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(getInitialPage())
   const [isLoading, setIsLoading] = useState(!initialData)
-  const [selectedStatus, setSelectedStatus] = useState<string>('ALL')
-  const [viewMode, setViewMode] = useState<'ALL' | 'MY' | 'MY_PROPOSALS'>('ALL')
+  const [selectedStatus, setSelectedStatus] = useState<string>(getInitialStatus())
+  const [viewMode, setViewMode] = useState<'ALL' | 'MY' | 'MY_PROPOSALS'>(getInitialViewMode())
   const [myEstimatesCount, setMyEstimatesCount] = useState<number>(0)
   const [myProposalsCount, setMyProposalsCount] = useState<number>(0)
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    status?: string
+    viewMode?: string
+  }) => {
+    const urlParams = new URLSearchParams()
+
+    const newPage = params.page ?? currentPage
+    const newStatus = params.status ?? selectedStatus
+    const newViewMode = params.viewMode ?? viewMode
+
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+    if (newStatus && newStatus !== 'ALL') urlParams.set('status', newStatus)
+    if (newViewMode && newViewMode !== 'ALL') urlParams.set('viewMode', newViewMode)
+
+    const queryString = urlParams.toString()
+    const basePath = pathname || '/estimates'
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [currentPage, selectedStatus, viewMode, pathname, router])
 
   // 클라이언트에서 데이터 fetch (항상 최신 데이터 로드)
   useEffect(() => {
@@ -102,7 +133,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
             // Proposal 데이터를 EstimateRequest 형식으로 변환 (철회된 제안만 제외)
             const proposals = proposalsResult.data.content.filter(p => p.status !== 'WITHDRAWN')
             const estimateRequests = proposals.map(proposal => ({
-              id: proposal.requestId,
+              id: proposal.id,
               uuid: proposal.requestUuid,
               userId: 0,
               userEmail: '',
@@ -307,8 +338,39 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
     setViewMode(mode)
     setCurrentPage(0)
     setSelectedStatus('ALL') // 모드 변경 시 상태 필터 초기화
+    updateURL({ viewMode: mode, page: 0, status: 'ALL' })
     await fetchEstimates(0, mode)
   }
+
+  // 상태 필터 변경 핸들러
+  const handleStatusChange = (status: string) => {
+    setSelectedStatus(status)
+    updateURL({ status, page: 0 })
+  }
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    // 초기 로드 시에는 스킵
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlStatus = searchParams.get('status') || 'ALL'
+    const urlViewMode = (searchParams.get('viewMode') as 'ALL' | 'MY' | 'MY_PROPOSALS') || 'ALL'
+
+    // URL과 현재 상태가 다르면 동기화 (뒤로가기/앞으로가기 감지)
+    const needsUpdate = urlPage !== currentPage || urlStatus !== selectedStatus || urlViewMode !== viewMode
+
+    if (needsUpdate) {
+      setCurrentPage(urlPage)
+      setSelectedStatus(urlStatus)
+      setViewMode(urlViewMode)
+      // 데이터 다시 로드
+      fetchEstimates(urlPage, urlViewMode)
+    }
+  }, [searchParams])
 
   return (
     <div>
@@ -339,7 +401,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
       <div className="mb-6 bg-white rounded-xl shadow-md p-4">
         <div className="flex flex-wrap gap-2">
           <button
-            onClick={() => setSelectedStatus('ALL')}
+            onClick={() => handleStatusChange('ALL')}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               selectedStatus === 'ALL'
                 ? 'bg-primary text-white shadow-md'
@@ -349,7 +411,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
             전체 ({getStatusCount('ALL')})
           </button>
           <button
-            onClick={() => setSelectedStatus('ACTIVE')}
+            onClick={() => handleStatusChange('ACTIVE')}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               selectedStatus === 'ACTIVE'
                 ? 'bg-green-600 text-white shadow-md'
@@ -359,7 +421,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
             접수중 ({getStatusCount('ACTIVE')})
           </button>
           <button
-            onClick={() => setSelectedStatus('EXPIRED')}
+            onClick={() => handleStatusChange('EXPIRED')}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               selectedStatus === 'EXPIRED'
                 ? 'bg-red-600 text-white shadow-md'
@@ -369,7 +431,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
             마감 ({getStatusCount('EXPIRED')})
           </button>
           <button
-            onClick={() => setSelectedStatus('MATCHED')}
+            onClick={() => handleStatusChange('MATCHED')}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               selectedStatus === 'MATCHED'
                 ? 'bg-purple-600 text-white shadow-md'
@@ -435,7 +497,7 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
         <div className="space-y-6">
           {filteredData.map((estimate) => (
             <Link
-              key={estimate.id}
+              key={estimate.uuid || estimate.id}
               href={`/estimates/${estimate.uuid}`}
               className="block bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
             >
@@ -547,7 +609,10 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
         <div className="mt-8 flex justify-center">
           <div className="flex gap-2">
             <button
-              onClick={() => fetchEstimates(currentPage - 1)}
+              onClick={() => {
+                updateURL({ page: currentPage - 1 })
+                fetchEstimates(currentPage - 1)
+              }}
               disabled={data.first || isLoading}
               className="px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
@@ -565,7 +630,10 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
                 return (
                   <button
                     key={pageNum}
-                    onClick={() => fetchEstimates(pageNum)}
+                    onClick={() => {
+                      updateURL({ page: pageNum })
+                      fetchEstimates(pageNum)
+                    }}
                     disabled={isLoading}
                     className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                       currentPage === pageNum
@@ -579,7 +647,10 @@ export default function EstimatesListClient({ initialData }: EstimatesListClient
               })}
             </div>
             <button
-              onClick={() => fetchEstimates(currentPage + 1)}
+              onClick={() => {
+                updateURL({ page: currentPage + 1 })
+                fetchEstimates(currentPage + 1)
+              }}
               disabled={data.last || isLoading}
               className="px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >

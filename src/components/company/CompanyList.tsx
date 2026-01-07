@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import Pagination from '@/components/ui/Pagination'
 import Select from '@/components/ui/Select'
@@ -38,22 +38,60 @@ interface CompanyListProps {
 
 export default function CompanyList({ initialData, selectedTag }: CompanyListProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const accessToken = useAuthStore((state) => state.accessToken)
+
+  // URL에서 초기값 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialKeyword = () => searchParams.get('keyword') || ''
+  const getInitialSort = () => (searchParams.get('sort') as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER') || 'PREMIUM_TIER'
+  const getInitialRegion = () => {
+    const region = searchParams.get('region')
+    return region ? Number(region) : ''
+  }
+
   const [companies, setCompanies] = useState<CompanyListItem[]>(initialData?.content || [])
-  const [page, setPage] = useState(0)
+  const [page, setPage] = useState(getInitialPage())
   const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
   const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [loading, setLoading] = useState(false)
-  const [sortBy, setSortBy] = useState<'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'>('PREMIUM_TIER')
+  const [sortBy, setSortBy] = useState<'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'>(getInitialSort())
   const [isInitialLoad, setIsInitialLoad] = useState(true)
+  const isInitialLoadRef = useRef(true)
 
   // 새로운 상태들
-  const [keyword, setKeyword] = useState('')
-  const [searchInput, setSearchInput] = useState('')
+  const [keyword, setKeyword] = useState(getInitialKeyword())
+  const [searchInput, setSearchInput] = useState(getInitialKeyword())
   const [filters, setFilters] = useState<Record<number, number[]>>({})
   const [filterCategories, setFilterCategories] = useState<PublicFilterCategory[]>([])
-  const [selectedRegion, setSelectedRegion] = useState<number | ''>('')
+  const [selectedRegion, setSelectedRegion] = useState<number | ''>(getInitialRegion())
   const [filtersLoading, setFiltersLoading] = useState(true)
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    keyword?: string
+    sort?: string
+    region?: number | ''
+  }) => {
+    const urlParams = new URLSearchParams()
+
+    const newPage = params.page ?? page
+    const newKeyword = params.keyword ?? keyword
+    const newSort = params.sort ?? sortBy
+    const newRegion = params.region ?? selectedRegion
+
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+    if (newKeyword) urlParams.set('keyword', newKeyword)
+    if (newSort && newSort !== 'PREMIUM_TIER') urlParams.set('sort', newSort)
+    if (newRegion !== '') urlParams.set('region', newRegion.toString())
+
+    const queryString = urlParams.toString()
+    const basePath = pathname || '/companies'
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [page, keyword, sortBy, selectedRegion, pathname, router])
 
   // 필터 카테고리 로드
   useEffect(() => {
@@ -193,18 +231,22 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
+    updateURL({ page: newPage })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSortChange = (newSort: string) => {
-    setSortBy(newSort as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER')
+    const sort = newSort as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER'
+    setSortBy(sort)
     setPage(0)
+    updateURL({ sort, page: 0 })
   }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setKeyword(searchInput)
     setPage(0)
+    updateURL({ keyword: searchInput, page: 0 })
   }
 
   const handleReset = () => {
@@ -214,7 +256,36 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
     setFilters({})
     setSortBy('PREMIUM_TIER')
     setPage(0)
+    // URL 완전 초기화
+    const basePath = pathname || '/companies'
+    router.replace(basePath, { scroll: false })
   }
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    // 초기 로드 시에는 스킵
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlKeyword = searchParams.get('keyword') || ''
+    const urlSort = (searchParams.get('sort') as 'LATEST' | 'RATING' | 'REVIEW_COUNT' | 'POPULAR' | 'PREMIUM_TIER') || 'PREMIUM_TIER'
+    const urlRegion = searchParams.get('region')
+    const urlRegionValue = urlRegion ? Number(urlRegion) : ''
+
+    // URL과 현재 상태가 다르면 동기화 (뒤로가기/앞으로가기 감지)
+    const needsUpdate = urlPage !== page || urlKeyword !== keyword || urlSort !== sortBy || urlRegionValue !== selectedRegion
+
+    if (needsUpdate) {
+      setPage(urlPage)
+      setKeyword(urlKeyword)
+      setSearchInput(urlKeyword)
+      setSortBy(urlSort)
+      setSelectedRegion(urlRegionValue)
+    }
+  }, [searchParams])
 
   const handleCompanyClick = (slug: string) => {
     router.push(`/companies/${slug}`)
@@ -343,7 +414,12 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
                         })),
                     ]}
                     value={selectedRegion === '' ? '' : selectedRegion.toString()}
-                    onChange={(value) => setSelectedRegion(value === '' ? '' : Number(value))}
+                    onChange={(value) => {
+                      const newRegion = value === '' ? '' : Number(value)
+                      setSelectedRegion(newRegion)
+                      setPage(0)
+                      updateURL({ region: newRegion, page: 0 })
+                    }}
                   />
                 </div>
               ) : null}

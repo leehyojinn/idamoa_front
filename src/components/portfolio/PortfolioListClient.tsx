@@ -25,6 +25,19 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
   const basePath = pathname || '/'
 
+  // URL에서 초기 상태 읽기
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+  const getInitialKeyword = () => searchParams.get('keyword') || ''
+  const getInitialSort = () => searchParams.get('sort') || 'createdAt,DESC'
+  const getInitialFilterIds = () => {
+    const ids = searchParams.get('filterIds')
+    return ids ? ids.split(',').map(Number).filter(n => !isNaN(n)) : []
+  }
+  const getInitialBookmarked = () => searchParams.get('bookmarked') === 'true'
+  const getInitialMyPosts = () => searchParams.get('myPosts') === 'true'
+  const getInitialCompanyUuid = () => searchParams.get('companyUuid') || null
+  const getInitialCompanyName = () => searchParams.get('companyName') || null
+
   const [portfolios, setPortfolios] = useState<PortfolioListItem[]>(initialData?.content || [])
   const [isLoading, setIsLoading] = useState(!initialData)
 
@@ -57,21 +70,57 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return getCdnUrl(url)
   }
 
-  const [currentPage, setCurrentPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(getInitialPage)
   const [totalPages, setTotalPages] = useState(initialData?.totalPages || 0)
   const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
-  const [keyword, setKeyword] = useState('')
+  const [keyword, setKeyword] = useState(getInitialKeyword)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>([])
-  const [sortBy, setSortBy] = useState<string>('createdAt,DESC')
-  const [onlyBookmarked, setOnlyBookmarked] = useState(false)
-  const [onlyMyPosts, setOnlyMyPosts] = useState(false)
-  const [companyUuid, setCompanyUuid] = useState<string | null>(null)
-  const [companyName, setCompanyName] = useState<string | null>(null)
+  const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>(getInitialFilterIds)
+  const [sortBy, setSortBy] = useState<string>(getInitialSort)
+  const [onlyBookmarked, setOnlyBookmarked] = useState(getInitialBookmarked)
+  const [onlyMyPosts, setOnlyMyPosts] = useState(getInitialMyPosts)
+  const [companyUuid, setCompanyUuid] = useState<string | null>(getInitialCompanyUuid)
+  const [companyName, setCompanyName] = useState<string | null>(getInitialCompanyName)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    page?: number
+    keyword?: string
+    sort?: string
+    filterIds?: number[]
+    bookmarked?: boolean
+    myPosts?: boolean
+    companyUuid?: string | null
+    companyName?: string | null
+  }) => {
+    const urlParams = new URLSearchParams()
+
+    const page = params.page ?? currentPage
+    const kw = params.keyword ?? keyword
+    const sort = params.sort ?? sortBy
+    const filterIds = params.filterIds ?? selectedFilterOptionIds
+    const bookmarked = params.bookmarked ?? onlyBookmarked
+    const myPosts = params.myPosts ?? onlyMyPosts
+    const cUuid = params.companyUuid !== undefined ? params.companyUuid : companyUuid
+    const cName = params.companyName !== undefined ? params.companyName : companyName
+
+    if (page > 0) urlParams.set('page', page.toString())
+    if (kw) urlParams.set('keyword', kw)
+    if (sort && sort !== 'createdAt,DESC') urlParams.set('sort', sort)
+    if (filterIds.length > 0) urlParams.set('filterIds', filterIds.join(','))
+    if (bookmarked) urlParams.set('bookmarked', 'true')
+    if (myPosts) urlParams.set('myPosts', 'true')
+    if (cUuid) urlParams.set('companyUuid', cUuid)
+    if (cName) urlParams.set('companyName', cName)
+
+    const queryString = urlParams.toString()
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [currentPage, keyword, sortBy, selectedFilterOptionIds, onlyBookmarked, onlyMyPosts, companyUuid, companyName, basePath, router])
 
   // 필터 로드
   useEffect(() => {
@@ -198,6 +247,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSelectedFilterOptionIds(newFilterOptionIds)
     setSelectedTags(newTags)
     setCurrentPage(0)
+    updateURL({ page: 0, filterIds: newFilterOptionIds })
     fetchPortfolios({
       page: 0,
       keyword,
@@ -234,6 +284,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSelectedTags(newTags)
     setSelectedFilterOptionIds(newFilterOptionIds)
     setCurrentPage(0)
+    updateURL({ page: 0, filterIds: newFilterOptionIds })
     fetchPortfolios({
       page: 0,
       keyword,
@@ -249,6 +300,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSelectedTags([])
     setSelectedFilterOptionIds([])
     setCurrentPage(0)
+    updateURL({ page: 0, filterIds: [] })
     fetchPortfolios({
       page: 0,
       keyword,
@@ -270,6 +322,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setCompanyUuid(null)
     setCompanyName(null)
     setCurrentPage(0)
+    router.replace(basePath, { scroll: false })
     fetchPortfolios({
       page: 0,
       sort: 'createdAt,DESC',
@@ -361,29 +414,61 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return () => clearTimeout(timer)
   }, [isLoading, portfolios.length, prefetchNextPage])
 
+  // URL 변경 시 (뒤로가기/앞으로가기) 상태 동기화
   useEffect(() => {
-    const companyUuidParam = searchParams.get('companyUuid') || null
-    const companyNameParam = searchParams.get('companyName') || null
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+    const urlKeyword = searchParams.get('keyword') || ''
+    const urlSort = searchParams.get('sort') || 'createdAt,DESC'
+    const urlFilterIds = searchParams.get('filterIds')
+    const urlFilterOptionIds = urlFilterIds ? urlFilterIds.split(',').map(Number).filter(n => !isNaN(n)) : []
+    const urlBookmarked = searchParams.get('bookmarked') === 'true'
+    const urlMyPosts = searchParams.get('myPosts') === 'true'
+    const urlCompanyUuid = searchParams.get('companyUuid') || null
+    const urlCompanyName = searchParams.get('companyName') || null
 
-    if (companyUuidParam) {
-      setCompanyUuid(companyUuidParam)
-      setCompanyName(companyNameParam)
-      setCurrentPage(0)
+    // 상태와 URL이 다를 때만 업데이트 (뒤로가기/앞으로가기 감지)
+    const needsUpdate =
+      urlPage !== currentPage ||
+      urlKeyword !== keyword ||
+      urlSort !== sortBy ||
+      JSON.stringify(urlFilterOptionIds) !== JSON.stringify(selectedFilterOptionIds) ||
+      urlBookmarked !== onlyBookmarked ||
+      urlMyPosts !== onlyMyPosts ||
+      urlCompanyUuid !== companyUuid
+
+    if (needsUpdate && !isInitialLoad) {
+      setCurrentPage(urlPage)
+      setKeyword(urlKeyword)
+      setSortBy(urlSort)
+      setSelectedFilterOptionIds(urlFilterOptionIds)
+      setOnlyBookmarked(urlBookmarked)
+      setOnlyMyPosts(urlMyPosts)
+      setCompanyUuid(urlCompanyUuid)
+      setCompanyName(urlCompanyName)
+
       fetchPortfolios({
-        page: 0,
-        companyUuid: companyUuidParam,
-        sort: 'createdAt,DESC',
+        page: urlPage,
+        keyword: urlKeyword || undefined,
+        filterOptionIds: urlFilterOptionIds.length > 0 ? urlFilterOptionIds : undefined,
+        companyUuid: urlCompanyUuid || undefined,
+        sort: urlSort,
+        onlyBookmarked: urlBookmarked,
+        onlyMyPosts: urlMyPosts,
       })
     } else if (isInitialLoad) {
-      // 초기 로드 시 항상 최신 데이터 fetch (캐시 문제 방지)
+      // 초기 로드 시 URL 파라미터 기반으로 데이터 fetch
       fetchPortfolios({
-        page: 0,
-        sort: 'createdAt,DESC',
+        page: urlPage,
+        keyword: urlKeyword || undefined,
+        filterOptionIds: urlFilterOptionIds.length > 0 ? urlFilterOptionIds : undefined,
+        companyUuid: urlCompanyUuid || undefined,
+        sort: urlSort,
+        onlyBookmarked: urlBookmarked,
+        onlyMyPosts: urlMyPosts,
       })
+      setIsInitialLoad(false)
     }
-
-    setIsInitialLoad(false)
-  }, [searchParams, fetchPortfolios, isInitialLoad])
+  }, [searchParams])
 
   // 로그인 상태 변경 시 좋아요/북마크 상태 갱신을 위해 데이터 다시 로드
   useEffect(() => {
@@ -418,6 +503,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
   const handleSearch = () => {
     setCurrentPage(0)
+    updateURL({ page: 0, keyword })
     fetchPortfolios({
       page: 0,
       keyword,
@@ -437,10 +523,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
       setTotalPages(nextPageCache.totalPages)
       setTotalElements(nextPageCache.totalElements)
       setNextPageCache(null)
+      updateURL({ page: newPage })
       return
     }
 
     setCurrentPage(newPage)
+    updateURL({ page: newPage })
     fetchPortfolios({
       page: newPage,
       keyword,
@@ -456,6 +544,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSortBy(newSort)
     setCurrentPage(0)
     setNextPageCache(null)
+    updateURL({ page: 0, sort: newSort })
     fetchPortfolios({
       page: 0,
       keyword,
@@ -715,6 +804,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSelectedFilterOptionIds(newFilterOptionIds)
     setSelectedTags(newTags)
     setCurrentPage(0)
+    updateURL({ page: 0, filterIds: newFilterOptionIds })
     fetchPortfolios({
       page: 0,
       keyword,
@@ -972,6 +1062,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     const newValue = !onlyBookmarked
                     setOnlyBookmarked(newValue)
                     setCurrentPage(0)
+                    updateURL({ page: 0, bookmarked: newValue })
                     fetchPortfolios({
                       page: 0,
                       keyword,
@@ -996,6 +1087,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     const newValue = !onlyMyPosts
                     setOnlyMyPosts(newValue)
                     setCurrentPage(0)
+                    updateURL({ page: 0, myPosts: newValue })
                     fetchPortfolios({
                       page: 0,
                       keyword,

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FiBell, FiCalendar, FiArchive, FiEye, FiClock, FiImage } from 'react-icons/fi'
@@ -12,15 +13,43 @@ import { getMyInfo } from '@/lib/api/auth'
 type TabType = 'notice' | 'event' | 'ended'
 
 export default function NoticeListClient() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const { user, isAuthenticated } = useAuth()
-  const [activeTab, setActiveTab] = useState<TabType>('notice')
+  const isInitialLoadRef = useRef(true)
+
+  // URL에서 초기값 읽기
+  const getInitialTab = () => (searchParams.get('tab') as TabType) || 'notice'
+  const getInitialPage = () => parseInt(searchParams.get('page') || '0', 10)
+
+  const [activeTab, setActiveTab] = useState<TabType>(getInitialTab())
   const [items, setItems] = useState<NoticeEventListItem[]>([])
   const [pinnedItems, setPinnedItems] = useState<NoticeEventListItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [currentPage, setCurrentPage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(getInitialPage())
   const [totalPages, setTotalPages] = useState(0)
   const [totalElements, setTotalElements] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
+
+  // URL 업데이트 함수
+  const updateURL = useCallback((params: {
+    tab?: TabType
+    page?: number
+  }) => {
+    const urlParams = new URLSearchParams()
+
+    const newTab = params.tab ?? activeTab
+    const newPage = params.page ?? currentPage
+
+    if (newTab && newTab !== 'notice') urlParams.set('tab', newTab)
+    if (newPage > 0) urlParams.set('page', newPage.toString())
+
+    const queryString = urlParams.toString()
+    const basePath = pathname || '/notices'
+    const newUrl = queryString ? `${basePath}?${queryString}` : basePath
+    router.replace(newUrl, { scroll: false })
+  }, [activeTab, currentPage, pathname, router])
 
   // 로그인된 사용자만 관리자 여부 확인
   useEffect(() => {
@@ -122,12 +151,35 @@ export default function NoticeListClient() {
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
+    setCurrentPage(0)
+    updateURL({ tab, page: 0 })
   }
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage)
+    updateURL({ page: newPage })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
+  // URL 변경 감지 (뒤로가기/앞으로가기)
+  useEffect(() => {
+    // 초기 로드 시에는 스킵
+    if (isInitialLoadRef.current) {
+      isInitialLoadRef.current = false
+      return
+    }
+
+    const urlTab = (searchParams.get('tab') as TabType) || 'notice'
+    const urlPage = parseInt(searchParams.get('page') || '0', 10)
+
+    // URL과 현재 상태가 다르면 동기화 (뒤로가기/앞으로가기 감지)
+    const needsUpdate = urlTab !== activeTab || urlPage !== currentPage
+
+    if (needsUpdate) {
+      setActiveTab(urlTab)
+      setCurrentPage(urlPage)
+    }
+  }, [searchParams])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
