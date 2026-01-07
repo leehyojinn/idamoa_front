@@ -24,13 +24,18 @@ export async function generateMetadata({ params }: NoticeDetailPageProps): Promi
 
     const notice = result.data
     const description = notice.content?.substring(0, 160) || notice.title
+    const canonicalUrl = `https://i-damoa.com/notices/${uuid}`
     return {
       title: `${notice.title} | 다모아`,
       description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: notice.title,
         description,
         type: 'article',
+        url: canonicalUrl,
         publishedTime: notice.publishedAt,
         images: notice.thumbnail?.fileUrl ? [{ url: notice.thumbnail.fileUrl }] : [],
       },

@@ -23,14 +23,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const document = result.data
     const primaryImage = document.thumbnail?.fileUrl || '/images/img-placeholder.png'
+    const canonicalUrl = `https://i-damoa.com/resources/${uuid}`
 
     return {
       title: `${document.title} - 자료실 | 다모아`,
       description: document.content || `${document.title} - 인테리어 자료실`,
       keywords: document.tags?.join(', '),
+      alternates: {
+        canonical: canonicalUrl,
+      },
       openGraph: {
         title: document.title,
         description: document.content || undefined,
+        url: canonicalUrl,
         images: [{ url: primaryImage, width: 1200, height: 630, alt: document.title }],
         type: 'article',
       },
