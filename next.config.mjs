@@ -9,6 +9,7 @@ const nextConfig = {
   output: 'standalone', // Docker 배포를 위한 standalone 빌드
   reactStrictMode: true,
   productionBrowserSourceMaps: false, // 프로덕션에서 소스맵 비활성화
+  trailingSlash: false, // URL 정규화: /page/ -> /page (리다이렉트 방지)
 
   // 컴파일러 최적화
   compiler: {

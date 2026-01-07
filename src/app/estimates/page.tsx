@@ -2,12 +2,13 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import EstimatesListClient from '@/components/estimate/EstimatesListClient'
 import { getEstimateRequests } from '@/lib/api/estimate'
-import type { Metadata } from 'next'
+import { createPageMetadata } from '@/lib/metadata'
 
-export const metadata: Metadata = {
-  title: '견적 요청 | 다모아',
+export const metadata = createPageMetadata({
+  title: '견적 요청',
   description: '시공 견적 요청을 확인하고 제안서를 제출하세요',
-}
+  path: '/estimates',
+})
 
 export default async function EstimatesPage() {
   // SSR: 서버에서 초기 데이터 로드 (SEO 최적화)
