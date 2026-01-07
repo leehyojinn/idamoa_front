@@ -167,14 +167,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const portfoliosResult = await searchPortfolios({ page: 0, size: 500 })
     if (portfoliosResult.success && portfoliosResult.data) {
-      portfolioPages = portfoliosResult.data.content
-        .filter((portfolio) => portfolio.company?.slug || portfolio.company?.uuid)
-        .map((portfolio) => ({
-          url: `${baseUrl}/companies/${portfolio.company?.slug || portfolio.company?.uuid}/portfolio/${portfolio.uuid}`,
-          lastModified: safeDate(portfolio.updatedAt || portfolio.createdAt),
-          changeFrequency: 'monthly' as const,
-          priority: 0.7,
-        }))
+      portfolioPages = portfoliosResult.data.content.map((portfolio) => ({
+        url: `${baseUrl}/portfolios/${portfolio.uuid}`,
+        lastModified: safeDate(portfolio.updatedAt || portfolio.createdAt),
+        changeFrequency: 'weekly' as const,
+        priority: 0.9,
+      }))
     }
   } catch (error) {
     console.error('Failed to fetch portfolios for sitemap:', error)
