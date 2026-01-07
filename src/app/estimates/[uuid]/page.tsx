@@ -23,10 +23,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
 
     const estimate = result.data
+    const canonicalUrl = `https://i-damoa.com/estimates/${uuid}`
 
     return {
       title: `${estimate.title} | 견적 요청 | 다모아`,
       description: estimate.description,
+      alternates: {
+        canonical: canonicalUrl,
+      },
     }
   } catch {
     return {
