@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -36,6 +36,8 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectUrl = searchParams.get('redirect')
   const [isLoading, setIsLoading] = useState(false)
   const setUser = useAuthStore((state) => state.setUser)
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
@@ -79,6 +81,9 @@ export default function LoginPage() {
         // 프로필 완성 여부에 따라 리다이렉트
         if (!response.data.profileCompleted) {
           router.push('/signup/profile-type')
+        } else if (redirectUrl) {
+          // 세션 만료로 리다이렉트된 경우 원래 페이지로 이동
+          router.push(decodeURIComponent(redirectUrl))
         } else {
           router.push('/')
         }

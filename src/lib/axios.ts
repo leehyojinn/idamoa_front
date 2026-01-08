@@ -14,6 +14,31 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 // 리다이렉트 중복 방지 플래그
 let isRedirecting = false;
 
+// 로그인이 필요한 페이지 경로 (이 페이지에서만 토큰 만료 시 로그인 페이지로 리다이렉트)
+const AUTH_REQUIRED_PATHS = [
+  '/mypage',
+  '/admin',
+  '/consultations/new',
+  '/planner/create',
+  '/planner/my',
+  '/inquiries/my',
+  '/payment',
+  '/proposals',
+]
+
+// 현재 페이지가 로그인이 필요한 페이지인지 확인
+const isAuthRequiredPage = (path: string): boolean => {
+  // 경로가 AUTH_REQUIRED_PATHS로 시작하면 로그인 필요
+  if (AUTH_REQUIRED_PATHS.some(authPath => path.startsWith(authPath))) {
+    return true
+  }
+  // /create 또는 /edit으로 끝나는 경로는 로그인 필요
+  if (path.endsWith('/create') || path.endsWith('/edit')) {
+    return true
+  }
+  return false
+}
+
 // 서버 사이드에서 self-signed certificate 허용 (개발 환경용)
 // TODO: 프로덕션 배포 시 정식 SSL 인증서 적용 후 제거
 const httpsAgent = typeof window === 'undefined'
@@ -130,21 +155,32 @@ axiosInstance.interceptors.response.use(
 
           // 이미 리다이렉트 중이거나 로그인 페이지에 있으면 스킵
           const currentPath = window.location.pathname
+          const currentSearch = window.location.search
           if (!isRedirecting && !currentPath.startsWith('/login') && !currentPath.startsWith('/signup')) {
-            isRedirecting = true
+            // 로그인이 필요한 페이지에서만 로그인 페이지로 리다이렉트
+            if (isAuthRequiredPage(currentPath)) {
+              isRedirecting = true
 
-            toast.error('세션이 만료되었습니다. 다시 로그인해주세요.', {
-              duration: 3000,
-            })
+              toast.error('세션이 만료되었습니다. 다시 로그인해주세요.', {
+                duration: 3000,
+              })
 
-            // 잠시 후 로그인 페이지로 이동
-            setTimeout(() => {
-              window.location.href = '/login'
-              // 리다이렉트 완료 후 플래그 리셋
+              // 잠시 후 로그인 페이지로 이동
               setTimeout(() => {
-                isRedirecting = false
+                // 로그인 후 원래 페이지로 돌아가도록 redirect 파라미터 추가
+                const redirectUrl = encodeURIComponent(currentPath + currentSearch)
+                window.location.href = `/login?redirect=${redirectUrl}`
+                // 리다이렉트 완료 후 플래그 리셋
+                setTimeout(() => {
+                  isRedirecting = false
+                }, 1000)
               }, 1000)
-            }, 1000)
+            } else {
+              // 로그인이 필요없는 페이지에서는 토스트 메시지만 표시
+              toast.error('세션이 만료되었습니다.', {
+                duration: 3000,
+              })
+            }
           }
         }
 
