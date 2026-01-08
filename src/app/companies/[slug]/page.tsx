@@ -188,7 +188,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
           {/* 뒤로가기 버튼 */}
           <Link
-            href="/"
+            href="/companies"
             className="absolute top-6 right-6 inline-flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-900 rounded-lg hover:bg-white transition-all shadow-lg"
           >
             <IoArrowBack className="w-5 h-5" />
