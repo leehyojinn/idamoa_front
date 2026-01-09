@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight, FiChevronLeft, FiChevronsLeft, FiChevronsRight, FiVideo } from 'react-icons/fi'
@@ -18,7 +18,6 @@ interface PortfolioListClientProps {
 }
 
 export default function PortfolioListClient({ initialData }: PortfolioListClientProps) {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const { user } = useAuth()
@@ -86,7 +85,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
 
-  // URL 업데이트 함수
+  // URL 업데이트 함수 (스크롤 영향 없이 URL만 변경)
   const updateURL = useCallback((params: {
     page?: number
     keyword?: string
@@ -119,8 +118,10 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
     const queryString = urlParams.toString()
     const newUrl = queryString ? `${basePath}?${queryString}` : basePath
-    router.replace(newUrl, { scroll: false })
-  }, [currentPage, keyword, sortBy, selectedFilterOptionIds, onlyBookmarked, onlyMyPosts, companyUuid, companyName, basePath, router])
+
+    // Next.js 라우터 대신 브라우저 History API 직접 사용 (스크롤 영향 없음)
+    window.history.replaceState(null, '', newUrl)
+  }, [currentPage, keyword, sortBy, selectedFilterOptionIds, onlyBookmarked, onlyMyPosts, companyUuid, companyName, basePath])
 
   // 필터 로드
   useEffect(() => {
@@ -322,7 +323,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setCompanyUuid(null)
     setCompanyName(null)
     setCurrentPage(0)
-    router.replace(basePath, { scroll: false })
+    window.history.replaceState(null, '', basePath)
     fetchPortfolios({
       page: 0,
       sort: 'createdAt,DESC',
@@ -490,7 +491,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setCompanyUuid(null)
     setCompanyName(null)
     setCurrentPage(0)
-    router.push(basePath, { scroll: false })
+    window.history.replaceState(null, '', basePath)
     fetchPortfolios({
       page: 0,
       keyword,
