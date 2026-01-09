@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight, FiVideo } from 'react-icons/fi'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight, FiChevronLeft, FiChevronsLeft, FiChevronsRight, FiVideo } from 'react-icons/fi'
 import { searchPortfolios, deletePortfolio, toggleBookmark, toggleLike, type PortfolioListItem, type PortfolioSearchParams, type PortfolioSearchResponse } from '@/lib/api/portfolio'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { getCdnUrl } from '@/lib/utils'
@@ -833,12 +833,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
             const someSelected = selectedCount > 0 && !allSelected
 
             return (
-              <div key={category.id} className="border-b border-gray-100 pb-3 last:border-b-0">
-                {/* 전체 영역 클릭 시 카테고리 선택 */}
+              <div key={category.id} className="mb-3 last:mb-0">
+                {/* 카테고리 헤더 - 진한 배경색과 흰색 텍스트로 강조 */}
                 <button
                   type="button"
                   onClick={() => handleToggleCategory(category)}
-                  className="w-full flex items-center py-1 px-1 text-left hover:bg-gray-50 rounded transition-colors"
+                  className={`w-full flex items-center py-2 px-2 text-left rounded-lg transition-colors ${
+                    selectedCount > 0
+                      ? 'bg-primary hover:bg-primary-700'
+                      : 'bg-gray-700 hover:bg-gray-800'
+                  }`}
                 >
                   {/* 펼침/접힘 버튼 */}
                   <div
@@ -846,24 +850,24 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       e.stopPropagation()
                       toggleCategoryCollapse(category.id)
                     }}
-                    className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors"
+                    className="flex-shrink-0 p-0.5 rounded hover:bg-white/20 transition-colors"
                   >
                     {isCollapsed ? (
-                      <FiChevronRight className="w-4 h-4 text-gray-500" />
+                      <FiChevronRight className="w-4 h-4 text-white" />
                     ) : (
-                      <FiChevronDown className="w-4 h-4 text-gray-500" />
+                      <FiChevronDown className="w-4 h-4 text-white" />
                     )}
                   </div>
                   {/* 체크박스 */}
-                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                  <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ml-1 ${
                     allSelected
-                      ? 'bg-primary border-primary'
+                      ? 'bg-white border-white'
                       : someSelected
-                      ? 'bg-primary-200 border-primary-400'
-                      : 'border-gray-300'
+                      ? 'bg-white/50 border-white'
+                      : 'border-white/70 bg-transparent'
                   }`}>
                     {allSelected && (
-                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     )}
@@ -872,16 +876,19 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     )}
                   </div>
                   {/* 카테고리 이름 */}
-                  <span className="font-semibold text-gray-900 text-sm flex-1 ml-2">{category.name}</span>
+                  <span className="font-bold text-white text-sm flex-1 ml-2">{category.name}</span>
                   {selectedCount > 0 && (
-                    <span className="bg-primary-100 text-primary text-xs px-1.5 py-0.5 rounded-full">
+                    <span className="bg-white text-primary text-xs px-2 py-0.5 rounded-full font-medium">
                       {selectedCount}
                     </span>
                   )}
                 </button>
+                {/* 옵션 영역 - 들여쓰기와 배경으로 구분 */}
                 {!isCollapsed && (
-                  <div className="space-y-1 mt-2 ml-6">
-                    {category.options.map((option) => renderFilterOption(option, 0))}
+                  <div className="mt-1 ml-2 pl-3 py-2 border-l-2 border-gray-200 bg-gray-50/50 rounded-r-lg">
+                    <div className="space-y-0.5">
+                      {category.options.map((option) => renderFilterOption(option, 0))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1161,12 +1168,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         </div>
 
         {/* 포트폴리오 그리드 */}
-        {isLoading ? (
+        {isLoading && portfolios.length === 0 ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-300 border-t-primary"></div>
             <p className="mt-4 text-gray-600">포트폴리오 불러오는 중...</p>
           </div>
-        ) : portfolios.length === 0 ? (
+        ) : !isLoading && portfolios.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <p className="text-gray-500 text-lg">등록된 포트폴리오가 없습니다.</p>
             {user && (
@@ -1181,7 +1188,17 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="relative">
+              {/* 로딩 오버레이 */}
+              {isLoading && (
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-lg">
+                  <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-gray-300 border-t-primary"></div>
+                    <p className="mt-3 text-gray-600 text-sm">불러오는 중...</p>
+                  </div>
+                </div>
+              )}
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${isLoading ? 'pointer-events-none' : ''}`}>
               {portfolios.map((portfolio, index) => {
                 // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
                 const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
@@ -1390,19 +1407,33 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                 )
               })}
             </div>
+            </div>
 
             {/* 페이지네이션 */}
             {totalPages >= 1 && (
               <div className="flex justify-center items-center gap-1 sm:gap-2 mt-8 overflow-x-auto pb-2">
+                {/* 처음 */}
+                <button
+                  onClick={() => handlePageChange(0)}
+                  disabled={currentPage === 0}
+                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  title="처음"
+                >
+                  <FiChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* 이전 */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
-                  className="flex-shrink-0 px-3 py-2 text-sm sm:px-4 sm:text-base border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  title="이전"
                 >
-                  이전
+                  <FiChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
 
-                <div className="flex gap-1 sm:gap-2">
+                {/* 모바일: 5개 */}
+                <div className="flex gap-1 sm:hidden">
                   {(() => {
                     const maxButtons = 5
                     const pages: number[] = []
@@ -1427,7 +1458,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`flex-shrink-0 min-w-[36px] px-2 py-2 text-sm sm:min-w-[40px] sm:px-3 sm:text-base rounded-lg ${
+                        className={`flex-shrink-0 min-w-[36px] px-2 py-2 text-sm rounded-lg ${
                           currentPage === pageNum
                             ? 'bg-primary text-white'
                             : 'border border-gray-300 hover:bg-gray-50'
@@ -1439,12 +1470,62 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                   })()}
                 </div>
 
+                {/* PC: 10개 */}
+                <div className="hidden sm:flex gap-2">
+                  {(() => {
+                    const maxButtons = 10
+                    const pages: number[] = []
+
+                    if (totalPages <= maxButtons) {
+                      for (let i = 0; i < totalPages; i++) pages.push(i)
+                    } else {
+                      const half = Math.floor(maxButtons / 2)
+                      let start = Math.max(0, currentPage - half)
+                      let end = Math.min(totalPages - 1, currentPage + half)
+
+                      if (currentPage < half) {
+                        end = maxButtons - 1
+                      } else if (currentPage > totalPages - 1 - half) {
+                        start = totalPages - maxButtons
+                      }
+
+                      for (let i = start; i <= end; i++) pages.push(i)
+                    }
+
+                    return pages.map(pageNum => (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`flex-shrink-0 min-w-[40px] px-3 py-2 text-base rounded-lg ${
+                          currentPage === pageNum
+                            ? 'bg-primary text-white'
+                            : 'border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum + 1}
+                      </button>
+                    ))
+                  })()}
+                </div>
+
+                {/* 다음 */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
-                  className="flex-shrink-0 px-3 py-2 text-sm sm:px-4 sm:text-base border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  title="다음"
                 >
-                  다음
+                  <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+
+                {/* 끝 */}
+                <button
+                  onClick={() => handlePageChange(totalPages - 1)}
+                  disabled={currentPage === totalPages - 1}
+                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  title="끝"
+                >
+                  <FiChevronsRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             )}
@@ -1613,53 +1694,61 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     const someSelected = selectedCount > 0 && !allSelected
 
                     return (
-                      <div key={category.id} className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                        <div className="flex items-center mb-3">
+                      <div key={category.id} className="rounded-lg overflow-hidden shadow-sm">
+                        {/* 카테고리 헤더 - 진한 배경색과 흰색 텍스트 */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleCategory(category)}
+                          className={`w-full flex items-center py-3 px-3 text-left transition-colors ${
+                            selectedCount > 0
+                              ? 'bg-primary hover:bg-primary-700'
+                              : 'bg-gray-700 hover:bg-gray-800'
+                          }`}
+                        >
                           {/* 펼침/접힘 버튼 */}
-                          <button
-                            type="button"
-                            onClick={() => toggleCategoryCollapse(category.id)}
-                            className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors"
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              toggleCategoryCollapse(category.id)
+                            }}
+                            className="flex-shrink-0 p-0.5 rounded hover:bg-white/20 transition-colors"
                           >
                             {isCollapsed ? (
-                              <FiChevronRight className="w-4 h-4 text-gray-500" />
+                              <FiChevronRight className="w-4 h-4 text-white" />
                             ) : (
-                              <FiChevronDown className="w-4 h-4 text-gray-500" />
+                              <FiChevronDown className="w-4 h-4 text-white" />
                             )}
-                          </button>
-                          {/* 카테고리 선택 */}
-                          <button
-                            type="button"
-                            onClick={() => handleToggleCategory(category)}
-                            className="flex-1 flex items-center gap-2 py-1 px-1 text-left hover:bg-gray-100 rounded transition-colors"
-                          >
-                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
-                              allSelected
-                                ? 'bg-primary border-primary'
-                                : someSelected
-                                ? 'bg-primary-200 border-primary-400'
-                                : 'border-gray-300'
-                            }`}>
-                              {allSelected && (
-                                <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                              )}
-                              {someSelected && !allSelected && (
-                                <div className="w-2 h-0.5 bg-primary rounded"></div>
-                              )}
-                            </div>
-                            <h4 className="font-bold text-gray-900 flex-1">{category.name}</h4>
-                          </button>
+                          </div>
+                          {/* 체크박스 */}
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ml-1 ${
+                            allSelected
+                              ? 'bg-white border-white'
+                              : someSelected
+                              ? 'bg-white/50 border-white'
+                              : 'border-white/70 bg-transparent'
+                          }`}>
+                            {allSelected && (
+                              <svg className="w-3 h-3 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            )}
+                            {someSelected && !allSelected && (
+                              <div className="w-2 h-0.5 bg-primary rounded"></div>
+                            )}
+                          </div>
+                          <h4 className="font-bold text-white flex-1 ml-2">{category.name}</h4>
                           {selectedCount > 0 && (
-                            <span className="bg-primary text-white text-xs px-2 py-0.5 rounded-full font-medium">
+                            <span className="bg-white text-primary text-xs px-2 py-0.5 rounded-full font-medium">
                               {selectedCount}
                             </span>
                           )}
-                        </div>
+                        </button>
+                        {/* 옵션 영역 */}
                         {!isCollapsed && (
-                          <div className="space-y-1 max-h-64 overflow-y-auto">
-                            {category.options.map((option) => renderFilterOption(option, 0))}
+                          <div className="bg-gray-50 p-3 border border-gray-200 border-t-0 rounded-b-lg">
+                            <div className="space-y-0.5 max-h-64 overflow-y-auto pl-2 border-l-2 border-gray-300">
+                              {category.options.map((option) => renderFilterOption(option, 0))}
+                            </div>
                           </div>
                         )}
                       </div>
