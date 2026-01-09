@@ -42,12 +42,13 @@ export default function Quickmenu() {
             label: '업체찾기',
             icon: FaBuilding,
             href: '/companies'
-        }, {
-            id: 'resources',
-            label: '자료실',
-            icon: FaFolderOpen,
-            href: '/resources'
         }
+        // {
+        //     id: 'resources',
+        //     label: '자료실',
+        //     icon: FaFolderOpen,
+        //     href: '/resources'
+        // }
     ]
 
     const [hovered, setHovered] = useState < string | null > (null)
