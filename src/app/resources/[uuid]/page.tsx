@@ -1,3 +1,11 @@
+import { redirect } from 'next/navigation'
+
+// 자료실 상세 페이지 숨김 처리 - 메인으로 리다이렉트
+export default function DocumentDetailPage() {
+  redirect('/')
+}
+
+/* 원래 코드 - 나중에 복원 시 주석 해제
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -51,7 +59,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function DocumentDetailPage({ params }: PageProps) {
+export default async function DocumentDetailPageOriginal({ params }: PageProps) {
   const { uuid } = await params
 
   // SSR: 서버에서 초기 데이터 로드
@@ -101,3 +109,4 @@ export default async function DocumentDetailPage({ params }: PageProps) {
     </div>
   )
 }
+*/

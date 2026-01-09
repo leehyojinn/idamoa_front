@@ -44,7 +44,8 @@
       "Skill(frontend-design)",
       "Bash(cmd /c:*)",
       "Bash(powershell -Command:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

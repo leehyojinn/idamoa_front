@@ -1,3 +1,11 @@
+import { redirect } from 'next/navigation'
+
+// 자료실 수정 페이지 숨김 처리 - 메인으로 리다이렉트
+export default function DocumentEditPage() {
+  redirect('/')
+}
+
+/* 원래 코드 - 나중에 복원 시 주석 해제
 import { Suspense } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -7,7 +15,7 @@ interface PageProps {
   params: Promise<{ uuid: string }>
 }
 
-export default async function DocumentEditPage({ params }: PageProps) {
+export default async function DocumentEditPageOriginal({ params }: PageProps) {
   const { uuid } = await params
 
   return (
@@ -26,3 +34,4 @@ export default async function DocumentEditPage({ params }: PageProps) {
     </div>
   )
 }
+*/
