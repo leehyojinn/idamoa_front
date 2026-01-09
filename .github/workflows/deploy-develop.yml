@@ -106,6 +106,9 @@ jobs:
               sleep 3
             done
 
+            echo "🔄 Reloading Nginx (if exists)..."
+            docker exec nginx-core nginx -s reload 2>/dev/null || echo "⚠️ Nginx not found or reload skipped"
+
             echo "📊 Container status:"
             docker ps | grep damoa-frontend-dev || true
         env:

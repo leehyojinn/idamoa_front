@@ -108,6 +108,10 @@ jobs:
               sleep 3
             done
 
+            echo "🔄 Reloading Nginx to update upstream..."
+            docker exec nginx-core nginx -s reload
+            echo "✅ Nginx reloaded!"
+
             echo "📊 Container status:"
             docker ps | grep damoa-frontend-prod || true
         env:
