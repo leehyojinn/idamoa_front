@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const canonicalUrl = `https://h-damoa.com/community/posts/${uuid}`
 
     return {
-      title: `${post.title} | 커뮤니티 | 병원 인테리어 다모아`,
+      title: `${post.title} | 커뮤니티 | 인테리어 다모아`,
       description: post.content?.substring(0, 160).replace(/<[^>]*>/g, '') || '커뮤니티 게시글',
       alternates: {
         canonical: canonicalUrl,
