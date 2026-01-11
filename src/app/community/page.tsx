@@ -7,9 +7,9 @@ import { createPageMetadata } from '@/lib/metadata'
 
 export const metadata: Metadata = createPageMetadata({
   title: '커뮤니티',
-  description: '병원 인테리어에 관한 다양한 이야기를 나눠보세요. 자유롭게 질문하고 정보를 공유하세요.',
+  description: '인테리어에 관한 다양한 이야기를 나눠보세요. 자유롭게 질문하고 정보를 공유하세요.',
   path: '/community',
-  keywords: ['병원 인테리어 커뮤니티', '인테리어 질문', '병원 시공 후기', '인테리어 정보'],
+  keywords: ['인테리어 커뮤니티', '인테리어 질문', '시공 후기', '인테리어 정보'],
 })
 
 export const dynamic = 'force-dynamic'
@@ -44,7 +44,7 @@ export default async function CommunityPage() {
           <div className="max-w-6xl mx-auto px-4">
             <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">커뮤니티</h1>
             <p className="text-lg md:text-xl text-blue-100">
-              병원 인테리어에 관한 다양한 이야기를 나눠보세요
+              인테리어에 관한 다양한 이야기를 나눠보세요
             </p>
           </div>
         </div>

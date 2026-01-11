@@ -301,7 +301,7 @@ export default function AdminCompanyCreatePage() {
                     type="text"
                     {...register('description', { required: '간단한 소개를 입력해주세요' })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="예: 20년 경력의 병원 인테리어 전문 업체입니다"
+                    placeholder="예: 20년 경력의 인테리어 전문 업체입니다"
                   />
                   {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
                 </div>
