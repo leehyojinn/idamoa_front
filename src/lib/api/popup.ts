@@ -5,6 +5,7 @@ import axiosInstance from '@/lib/axios'
 // ========================================
 
 export type PopupPosition = 'CENTER' | 'TOP_LEFT' | 'TOP_RIGHT' | 'BOTTOM_LEFT' | 'BOTTOM_RIGHT' | 'CUSTOM'
+export type SizeUnit = 'px' | '%' | 'vw' | 'vh' | 'em' | 'rem'
 
 export interface Popup {
   uuid: string
@@ -13,11 +14,30 @@ export interface Popup {
   imageUuid: string | null
   imageUrl: string | null
   linkUrl: string | null
+
+  // PC 설정
   width: number | null
+  widthUnit: SizeUnit
   height: number | null
+  heightUnit: SizeUnit
   position: PopupPosition | null
-  offsetX: number | null
-  offsetY: number | null
+  offsetX: number
+  offsetXUnit: SizeUnit
+  offsetY: number
+  offsetYUnit: SizeUnit
+
+  // 모바일 설정
+  mobileEnabled: boolean
+  mobileWidth: number | null
+  mobileWidthUnit: SizeUnit
+  mobileHeight: number | null
+  mobileHeightUnit: SizeUnit
+  mobilePosition: PopupPosition
+  mobileOffsetX: number
+  mobileOffsetXUnit: SizeUnit
+  mobileOffsetY: number
+  mobileOffsetYUnit: SizeUnit
+
   displayStartDate: string | null
   displayEndDate: string | null
   displayOrder: number
@@ -35,11 +55,30 @@ export interface PopupCreateRequest {
   content?: string
   imageUuid?: string
   linkUrl?: string
+
+  // PC 설정
   width?: number
+  widthUnit?: SizeUnit
   height?: number
+  heightUnit?: SizeUnit
   position?: PopupPosition
   offsetX?: number
+  offsetXUnit?: SizeUnit
   offsetY?: number
+  offsetYUnit?: SizeUnit
+
+  // 모바일 설정
+  mobileEnabled?: boolean
+  mobileWidth?: number
+  mobileWidthUnit?: SizeUnit
+  mobileHeight?: number
+  mobileHeightUnit?: SizeUnit
+  mobilePosition?: PopupPosition
+  mobileOffsetX?: number
+  mobileOffsetXUnit?: SizeUnit
+  mobileOffsetY?: number
+  mobileOffsetYUnit?: SizeUnit
+
   displayStartDate?: string
   displayEndDate?: string
   displayOrder?: number
@@ -51,11 +90,30 @@ export interface PopupUpdateRequest {
   content?: string
   imageUuid?: string
   linkUrl?: string
+
+  // PC 설정
   width?: number
+  widthUnit?: SizeUnit
   height?: number
+  heightUnit?: SizeUnit
   position?: PopupPosition
   offsetX?: number
+  offsetXUnit?: SizeUnit
   offsetY?: number
+  offsetYUnit?: SizeUnit
+
+  // 모바일 설정
+  mobileEnabled?: boolean
+  mobileWidth?: number
+  mobileWidthUnit?: SizeUnit
+  mobileHeight?: number
+  mobileHeightUnit?: SizeUnit
+  mobilePosition?: PopupPosition
+  mobileOffsetX?: number
+  mobileOffsetXUnit?: SizeUnit
+  mobileOffsetY?: number
+  mobileOffsetYUnit?: SizeUnit
+
   displayStartDate?: string
   displayEndDate?: string
   displayOrder?: number
@@ -79,6 +137,17 @@ export const POSITION_LABELS: Record<PopupPosition, string> = {
   BOTTOM_LEFT: '좌측 하단',
   BOTTOM_RIGHT: '우측 하단',
   CUSTOM: '사용자 정의',
+}
+
+export const SIZE_UNITS: SizeUnit[] = ['px', '%', 'vw', 'vh', 'em', 'rem']
+
+export const SIZE_UNIT_LABELS: Record<SizeUnit, string> = {
+  px: 'px (픽셀)',
+  '%': '% (퍼센트)',
+  vw: 'vw (뷰포트 너비)',
+  vh: 'vh (뷰포트 높이)',
+  em: 'em (폰트 크기)',
+  rem: 'rem (루트 폰트)',
 }
 
 // ========================================

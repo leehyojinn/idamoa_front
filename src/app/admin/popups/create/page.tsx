@@ -8,8 +8,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import {
   createPopup,
   POSITION_LABELS,
+  SIZE_UNITS,
   type PopupCreateRequest,
   type PopupPosition,
+  type SizeUnit,
 } from '@/lib/api/popup'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
@@ -38,11 +40,28 @@ export default function CreatePopupPage() {
   const [formData, setFormData] = useState<PopupCreateRequest>({
     title: '',
     linkUrl: '',
+    // PC 설정
     width: 600,
+    widthUnit: 'px',
     height: 800,
+    heightUnit: 'px',
     position: 'CENTER',
     offsetX: 0,
+    offsetXUnit: 'px',
     offsetY: 0,
+    offsetYUnit: 'px',
+    // 모바일 설정
+    mobileEnabled: true,
+    mobileWidth: 90,
+    mobileWidthUnit: '%',
+    mobileHeight: undefined,
+    mobileHeightUnit: 'px',
+    mobilePosition: 'CENTER',
+    mobileOffsetX: 0,
+    mobileOffsetXUnit: 'px',
+    mobileOffsetY: 0,
+    mobileOffsetYUnit: 'px',
+    // 노출 설정
     displayOrder: 0,
     isActive: true,
   })
@@ -167,58 +186,68 @@ export default function CreatePopupPage() {
             </div>
           </div>
 
-          {/* 크기 및 위치 */}
+          {/* PC 설정 */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900 pb-3 border-b">크기 및 위치</h2>
+            <h2 className="text-lg font-semibold text-gray-900 pb-3 border-b flex items-center gap-2">
+              <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded">PC</span>
+              크기 및 위치
+            </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="width" className="block text-sm font-medium text-gray-700 mb-2">
-                  너비 (px)
-                </label>
-                <input
-                  type="number"
-                  id="width"
-                  value={formData.width || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, width: parseInt(e.target.value) || undefined })
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">너비</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={formData.width || ''}
+                    onChange={(e) => setFormData({ ...formData, width: parseInt(e.target.value) || undefined })}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                    placeholder="600"
+                  />
+                  <select
+                    value={formData.widthUnit}
+                    onChange={(e) => setFormData({ ...formData, widthUnit: e.target.value as SizeUnit })}
+                    className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                  >
+                    {SIZE_UNITS.map((unit) => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <div>
-                <label htmlFor="height" className="block text-sm font-medium text-gray-700 mb-2">
-                  높이 (px)
-                </label>
-                <input
-                  type="number"
-                  id="height"
-                  value={formData.height || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, height: parseInt(e.target.value) || undefined })
-                  }
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">높이</label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={formData.height || ''}
+                    onChange={(e) => setFormData({ ...formData, height: parseInt(e.target.value) || undefined })}
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                    placeholder="800"
+                  />
+                  <select
+                    value={formData.heightUnit}
+                    onChange={(e) => setFormData({ ...formData, heightUnit: e.target.value as SizeUnit })}
+                    className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                  >
+                    {SIZE_UNITS.map((unit) => (
+                      <option key={unit} value={unit}>{unit}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
             <div>
-              <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-2">
-                위치
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">위치</label>
               <select
-                id="position"
                 value={formData.position}
-                onChange={(e) =>
-                  setFormData({ ...formData, position: e.target.value as PopupPosition })
-                }
+                onChange={(e) => setFormData({ ...formData, position: e.target.value as PopupPosition })}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
               >
                 {(Object.keys(POSITION_LABELS) as PopupPosition[]).map((pos) => (
-                  <option key={pos} value={pos}>
-                    {POSITION_LABELS[pos]}
-                  </option>
+                  <option key={pos} value={pos}>{POSITION_LABELS[pos]}</option>
                 ))}
               </select>
             </div>
@@ -226,35 +255,179 @@ export default function CreatePopupPage() {
             {formData.position === 'CUSTOM' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="offsetX" className="block text-sm font-medium text-gray-700 mb-2">
-                    X 오프셋 (px)
-                  </label>
-                  <input
-                    type="number"
-                    id="offsetX"
-                    value={formData.offsetX || 0}
-                    onChange={(e) =>
-                      setFormData({ ...formData, offsetX: parseInt(e.target.value) || 0 })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">X 오프셋</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={formData.offsetX || 0}
+                      onChange={(e) => setFormData({ ...formData, offsetX: parseInt(e.target.value) || 0 })}
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                    />
+                    <select
+                      value={formData.offsetXUnit}
+                      onChange={(e) => setFormData({ ...formData, offsetXUnit: e.target.value as SizeUnit })}
+                      className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                    >
+                      {SIZE_UNITS.map((unit) => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <div>
-                  <label htmlFor="offsetY" className="block text-sm font-medium text-gray-700 mb-2">
-                    Y 오프셋 (px)
-                  </label>
-                  <input
-                    type="number"
-                    id="offsetY"
-                    value={formData.offsetY || 0}
-                    onChange={(e) =>
-                      setFormData({ ...formData, offsetY: parseInt(e.target.value) || 0 })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Y 오프셋</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={formData.offsetY || 0}
+                      onChange={(e) => setFormData({ ...formData, offsetY: parseInt(e.target.value) || 0 })}
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                    />
+                    <select
+                      value={formData.offsetYUnit}
+                      onChange={(e) => setFormData({ ...formData, offsetYUnit: e.target.value as SizeUnit })}
+                      className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                    >
+                      {SIZE_UNITS.map((unit) => (
+                        <option key={unit} value={unit}>{unit}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* 모바일 설정 */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded">모바일</span>
+                크기 및 위치
+              </h2>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.mobileEnabled}
+                  onChange={(e) => setFormData({ ...formData, mobileEnabled: e.target.checked })}
+                  className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary-400"
+                />
+                <span className="ml-2 text-sm text-gray-700">모바일 설정 사용</span>
+              </label>
+            </div>
+
+            {formData.mobileEnabled && (
+              <>
+                <p className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                  모바일에서는 별도의 크기와 위치 설정이 적용됩니다. 비활성화하면 PC 설정이 그대로 사용됩니다.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">너비</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        value={formData.mobileWidth || ''}
+                        onChange={(e) => setFormData({ ...formData, mobileWidth: parseInt(e.target.value) || undefined })}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        placeholder="90"
+                      />
+                      <select
+                        value={formData.mobileWidthUnit}
+                        onChange={(e) => setFormData({ ...formData, mobileWidthUnit: e.target.value as SizeUnit })}
+                        className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                      >
+                        {SIZE_UNITS.map((unit) => (
+                          <option key={unit} value={unit}>{unit}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">높이</label>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        value={formData.mobileHeight || ''}
+                        onChange={(e) => setFormData({ ...formData, mobileHeight: parseInt(e.target.value) || undefined })}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        placeholder="auto"
+                      />
+                      <select
+                        value={formData.mobileHeightUnit}
+                        onChange={(e) => setFormData({ ...formData, mobileHeightUnit: e.target.value as SizeUnit })}
+                        className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                      >
+                        {SIZE_UNITS.map((unit) => (
+                          <option key={unit} value={unit}>{unit}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">위치</label>
+                  <select
+                    value={formData.mobilePosition}
+                    onChange={(e) => setFormData({ ...formData, mobilePosition: e.target.value as PopupPosition })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                  >
+                    {(Object.keys(POSITION_LABELS) as PopupPosition[]).map((pos) => (
+                      <option key={pos} value={pos}>{POSITION_LABELS[pos]}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {formData.mobilePosition === 'CUSTOM' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">X 오프셋</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={formData.mobileOffsetX || 0}
+                          onChange={(e) => setFormData({ ...formData, mobileOffsetX: parseInt(e.target.value) || 0 })}
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        />
+                        <select
+                          value={formData.mobileOffsetXUnit}
+                          onChange={(e) => setFormData({ ...formData, mobileOffsetXUnit: e.target.value as SizeUnit })}
+                          className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        >
+                          {SIZE_UNITS.map((unit) => (
+                            <option key={unit} value={unit}>{unit}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Y 오프셋</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          value={formData.mobileOffsetY || 0}
+                          onChange={(e) => setFormData({ ...formData, mobileOffsetY: parseInt(e.target.value) || 0 })}
+                          className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        />
+                        <select
+                          value={formData.mobileOffsetYUnit}
+                          onChange={(e) => setFormData({ ...formData, mobileOffsetYUnit: e.target.value as SizeUnit })}
+                          className="w-24 px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+                        >
+                          {SIZE_UNITS.map((unit) => (
+                            <option key={unit} value={unit}>{unit}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
 
