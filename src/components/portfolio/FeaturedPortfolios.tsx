@@ -215,12 +215,10 @@ export default function FeaturedPortfolios({ count = 8 }: Props) {
                       {portfolio.company && (
                         <div className="flex items-center gap-2 mt-1 text-white/90 text-sm">
                           <span>{portfolio.company.companyName}</span>
-                          {portfolio.company.averageRating && (
                             <span className="flex items-center gap-1">
                               <FiStar className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                              {portfolio.company.averageRating.toFixed(1)}
+                              {(portfolio.company.averageRating ?? 0).toFixed(1)}
                             </span>
-                          )}
                         </div>
                       )}
                     </div>
@@ -234,15 +232,13 @@ export default function FeaturedPortfolios({ count = 8 }: Props) {
                     {portfolio.company && (
                       <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
                         <span>{portfolio.company.companyName}</span>
-                        {portfolio.company.averageRating && (
                           <span className="flex items-center gap-1 text-yellow-600">
                             <FiStar className="w-3 h-3 fill-yellow-400" />
-                            {portfolio.company.averageRating.toFixed(1)}
+                            {(portfolio.company.averageRating ?? 0).toFixed(1)}
                             <span className="text-gray-400">
-                              ({portfolio.company.reviewCount})
+                              ({portfolio.company.reviewCount ?? 0})
                             </span>
                           </span>
-                        )}
                       </div>
                     )}
                   </div>

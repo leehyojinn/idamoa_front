@@ -632,15 +632,13 @@ export default function PortfolioDetailPage({ params }: Props) {
                         <h3 className="font-bold text-gray-900 text-lg">
                           {portfolio.company.companyName}
                         </h3>
-                        {portfolio.company.averageRating && (
                           <div className="flex items-center gap-1 text-sm text-gray-600 mt-1">
                             <FiStar className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                            <span>{portfolio.company.averageRating.toFixed(1)}</span>
+                            <span>{(portfolio.company.averageRating ?? 0).toFixed(1)}</span>
                             <span className="text-gray-400">
-                              ({portfolio.company.reviewCount}개 리뷰)
+                              ({portfolio.company.reviewCount ?? 0}개 리뷰)
                             </span>
                           </div>
-                        )}
                       </div>
                     </div>
 
