@@ -9,52 +9,91 @@ import {
   incrementViewCount,
   incrementClickCount,
   type Popup,
+  type PopupPosition,
 } from '@/lib/api/popup'
+import { useIsMobile } from '@/hooks/useMediaQuery'
 
 const STORAGE_KEY = 'popup_hidden_until'
 
-const getPositionStyle = (popup: Popup) => {
-  const position = popup.position || 'CENTER'
+// 팝업 사이즈 계산 (단위 포함)
+const getPopupSize = (popup: Popup, isMobile: boolean) => {
+  if (isMobile && popup.mobileEnabled) {
+    return {
+      width: popup.mobileWidth ? `${popup.mobileWidth}${popup.mobileWidthUnit}` : 'auto',
+      height: popup.mobileHeight ? `${popup.mobileHeight}${popup.mobileHeightUnit}` : 'auto',
+    }
+  }
+  return {
+    width: popup.width ? `${popup.width}${popup.widthUnit}` : '600px',
+    height: popup.height ? `${popup.height}${popup.heightUnit}` : 'auto',
+  }
+}
 
-  switch (position) {
+// 팝업 위치 정보 계산
+const getPopupPositionInfo = (popup: Popup, isMobile: boolean) => {
+  if (isMobile && popup.mobileEnabled) {
+    return {
+      position: popup.mobilePosition || 'CENTER',
+      offsetX: `${popup.mobileOffsetX || 0}${popup.mobileOffsetXUnit || 'px'}`,
+      offsetY: `${popup.mobileOffsetY || 0}${popup.mobileOffsetYUnit || 'px'}`,
+    }
+  }
+  return {
+    position: popup.position || 'CENTER',
+    offsetX: `${popup.offsetX || 0}${popup.offsetXUnit || 'px'}`,
+    offsetY: `${popup.offsetY || 0}${popup.offsetYUnit || 'px'}`,
+  }
+}
+
+// 위치에 따른 CSS 스타일
+const getPositionStyle = (popup: Popup, isMobile: boolean): React.CSSProperties => {
+  const positionInfo = getPopupPositionInfo(popup, isMobile)
+  const base: React.CSSProperties = {
+    position: 'fixed',
+    zIndex: 50,
+  }
+
+  switch (positionInfo.position) {
     case 'CENTER':
       return {
+        ...base,
         top: '50%',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
+        transform: `translate(-50%, -50%) translate(${positionInfo.offsetX}, ${positionInfo.offsetY})`,
       }
     case 'TOP_LEFT':
       return {
-        top: '16px',
-        left: '16px',
-        transform: 'translate(-50%, -50%)',
+        ...base,
+        top: positionInfo.offsetY,
+        left: positionInfo.offsetX,
       }
     case 'TOP_RIGHT':
       return {
-        top: '16px',
-        right: '16px',
-        transform: 'translate(50%, -50%)',
+        ...base,
+        top: positionInfo.offsetY,
+        right: positionInfo.offsetX,
       }
     case 'BOTTOM_LEFT':
       return {
-        bottom: '16px',
-        left: '16px',
-        transform: 'translate(-50%, 50%)',
+        ...base,
+        bottom: positionInfo.offsetY,
+        left: positionInfo.offsetX,
       }
     case 'BOTTOM_RIGHT':
       return {
-        bottom: '16px',
-        right: '16px',
-        transform: 'translate(50%, 50%)',
+        ...base,
+        bottom: positionInfo.offsetY,
+        right: positionInfo.offsetX,
       }
     case 'CUSTOM':
       return {
-        top: `${popup.offsetY || 0}px`,
-        left: `${popup.offsetX || 0}px`,
-        transform: 'translate(-50%, -50%)',
+        ...base,
+        top: positionInfo.offsetY,
+        left: positionInfo.offsetX,
       }
     default:
       return {
+        ...base,
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
@@ -66,6 +105,7 @@ export default function PopupManager() {
   const [popups, setPopups] = useState<Popup[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     const loadPopups = async () => {
@@ -148,15 +188,14 @@ export default function PopupManager() {
 
   const currentPopup = popups[currentIndex]
   const hasMultiplePopups = popups.length > 1
+  const size = getPopupSize(currentPopup, isMobile)
 
   return (
     <AnimatePresence>
       {isVisible && (
         <div
           className="fixed z-50"
-          style={{
-            ...getPositionStyle(currentPopup),
-          }}
+          style={getPositionStyle(currentPopup, isMobile)}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -164,7 +203,7 @@ export default function PopupManager() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2 }}
             style={{
-              width: currentPopup.width ? `${currentPopup.width}px` : '600px',
+              width: size.width,
               maxWidth: 'calc(100vw - 32px)',
             }}
           >
@@ -173,7 +212,7 @@ export default function PopupManager() {
               <div
                 className="relative"
                 style={{
-                  height: currentPopup.height ? `${currentPopup.height}px` : 'auto',
+                  height: size.height,
                   maxHeight: 'calc(100vh - 200px)',
                   overflow: 'auto',
                 }}
