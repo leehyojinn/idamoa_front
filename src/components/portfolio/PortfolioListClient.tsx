@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -85,6 +85,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const [companyName, setCompanyName] = useState<string | null>(getInitialCompanyName)
   const [expandedOptions, setExpandedOptions] = useState<Set<number>>(new Set())
   const [collapsedCategories, setCollapsedCategories] = useState<Set<number>>(new Set())
+
+  // 카테고리 필터 모드 (카테고리 클릭 시 해당 카테고리 전체 필터)
+  const [activeCategoryFilterId, setActiveCategoryFilterId] = useState<number | null>(null)
+  const [categoryFilterOptionIds, setCategoryFilterOptionIds] = useState<number[]>([])
+  // URL 동기화 건너뛰기 플래그 (카테고리 필터 모드에서 사용)
+  const skipUrlSyncRef = useRef(false)
 
   // URL 업데이트 함수 (스크롤 영향 없이 URL만 변경)
   const updateURL = useCallback((params: {
@@ -288,6 +294,10 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   }, [filterCategories])
 
   const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
+    // 개별 옵션 선택 시 카테고리 필터 모드 해제
+    setActiveCategoryFilterId(null)
+    setCategoryFilterOptionIds([])
+
     // 한 개만 선택 가능 (라디오 버튼 방식)
     let newFilterOptionIds: number[]
     let newTags: string[]
@@ -311,6 +321,36 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
       page: 0,
       keyword,
       filterOptionIds: newFilterOptionIds,
+      companyUuid: companyUuid || undefined,
+      sort: sortBy,
+      onlyBookmarked,
+      onlyMyPosts,
+    })
+  }
+
+  // 카테고리 전체 필터 (카테고리 클릭 시 - 전체 리스트 표시, 선택 표시 없음)
+  const handleSelectCategoryFilter = (categoryId: number, allOptionIds: number[], categoryName: string) => {
+    // URL 동기화 건너뛰기 플래그 설정
+    skipUrlSyncRef.current = true
+
+    // 카테고리 필터 모드 활성화 (API 호출용)
+    setActiveCategoryFilterId(categoryId)
+    setCategoryFilterOptionIds(allOptionIds)
+
+    // UI에 선택 표시 안 함 (옵션 선택, 태그 모두 비움)
+    setSelectedFilterOptionIds([])
+    setSelectedTags([])
+
+    setCurrentPage(0)
+    setNextPageCache(null)
+    // URL에는 filterIds를 비워둠 (선택 표시 안 함)
+    updateURL({ page: 0, filterIds: [] })
+
+    // 카테고리의 모든 옵션 ID로 검색 → 해당 카테고리 전체 리스트 표시
+    fetchPortfolios({
+      page: 0,
+      keyword,
+      filterOptionIds: allOptionIds,
       companyUuid: companyUuid || undefined,
       sort: sortBy,
       onlyBookmarked,
@@ -360,6 +400,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setKeyword('')
     setSelectedTags([])
     setSelectedFilterOptionIds([])
+    setActiveCategoryFilterId(null) // 카테고리 필터 모드 해제
+    setCategoryFilterOptionIds([])
     setSortBy('createdAt,DESC')
     setOnlyBookmarked(false)
     setOnlyMyPosts(false)
@@ -471,6 +513,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
   // URL 변경 시 (뒤로가기/앞으로가기) 상태 동기화
   useEffect(() => {
+    // 카테고리 필터 모드에서는 URL 동기화 건너뛰기
+    if (skipUrlSyncRef.current) {
+      skipUrlSyncRef.current = false
+      return
+    }
+
     const urlPage = parseInt(searchParams.get('page') || '0', 10)
     const urlKeyword = searchParams.get('keyword') || ''
     const urlSort = searchParams.get('sort') || 'createdAt,DESC'
@@ -1100,6 +1148,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
             })}
             selectedOptionIds={selectedFilterOptionIds}
             onToggleOption={handleToggleFilterOption}
+            onSelectCategoryFilter={handleSelectCategoryFilter}
+            activeCategoryFilterId={activeCategoryFilterId}
             isLoading={isLoadingFilters}
             keyword={keyword}
             onKeywordChange={setKeyword}

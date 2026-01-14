@@ -23,6 +23,8 @@ interface HorizontalSlideFilterProps {
   categories: FilterCategory[]
   selectedOptionIds: number[]
   onToggleOption: (optionId: number, optionName: string, checked: boolean) => void
+  onSelectCategoryFilter?: (categoryId: number, allOptionIds: number[], categoryName: string) => void
+  activeCategoryFilterId?: number | null
   isLoading?: boolean
   // 검색 관련
   keyword?: string
@@ -35,6 +37,8 @@ export default function HorizontalSlideFilter({
   categories,
   selectedOptionIds,
   onToggleOption,
+  onSelectCategoryFilter,
+  activeCategoryFilterId = null,
   isLoading = false,
   keyword = '',
   onKeywordChange,
@@ -219,17 +223,38 @@ export default function HorizontalSlideFilter({
     }
   }, [selectedOptionIds])
 
-  // 카테고리 선택 핸들러 (펼침만, 선택은 안함)
+  // 카테고리 내 모든 옵션 ID 수집 (재귀)
+  const getAllOptionIdsInCategory = useCallback((category: FilterCategory): number[] => {
+    const collectIds = (options: FilterOption[]): number[] => {
+      return options.flatMap(opt => {
+        const ids = [opt.id]
+        if (opt.children && opt.children.length > 0) {
+          ids.push(...collectIds(opt.children))
+        }
+        return ids
+      })
+    }
+    return collectIds(category.options)
+  }, [])
+
+  // 카테고리 선택 핸들러 (펼침 + 카테고리 전체 필터)
   const handleCategoryClick = (category: FilterCategory) => {
     if (hasDragged) return
 
-    // 펼침/접기만 처리 (카테고리는 선택 불가, 필터 옵션만 선택 가능)
     if (activeCategoryId === category.id) {
+      // 이미 펼쳐진 카테고리 클릭 → 접기
       setActiveCategoryId(null)
       setSelectedPath([])
     } else {
+      // 새 카테고리 클릭 → 펼치고, 카테고리 전체 필터 적용
       setActiveCategoryId(category.id)
       setSelectedPath([])
+
+      // 카테고리 필터 핸들러가 있으면 호출 (모든 옵션 ID 전달)
+      if (onSelectCategoryFilter && category.options.length > 0) {
+        const allOptionIds = getAllOptionIdsInCategory(category)
+        onSelectCategoryFilter(category.id, allOptionIds, category.name)
+      }
     }
   }
 
@@ -360,8 +385,11 @@ export default function HorizontalSlideFilter({
         onTouchStart={(e) => handleTouchStart(e, categoryScrollRef.current)}
       >
         {categories.map(category => {
-          const isActive = activeCategoryId === category.id
+          const isExpanded = activeCategoryId === category.id
+          const isCategoryFiltered = activeCategoryFilterId === category.id
           const selectedCount = getSelectedCountInCategory(category)
+          // 펼쳐져 있거나 카테고리 필터가 적용된 경우 활성 상태로 표시
+          const isActive = isExpanded || isCategoryFiltered
 
           return (
             <button
@@ -386,7 +414,7 @@ export default function HorizontalSlideFilter({
                 </span>
               )}
               <FiChevronDown
-                className={`w-4 h-4 transition-transform duration-200 ${isActive ? 'rotate-180' : ''}`}
+                className={`w-4 h-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
               />
             </button>
           )
