@@ -305,6 +305,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSelectedFilterOptionIds(newFilterOptionIds)
     setSelectedTags(newTags)
     setCurrentPage(0)
+    setNextPageCache(null) // 필터 변경 시 캐시 초기화
     updateURL({ page: 0, filterIds: newFilterOptionIds })
     fetchPortfolios({
       page: 0,
@@ -342,6 +343,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setSelectedTags(newTags)
     setSelectedFilterOptionIds(newFilterOptionIds)
     setCurrentPage(0)
+    setNextPageCache(null) // 태그 제거 시 캐시 초기화
     updateURL({ page: 0, filterIds: newFilterOptionIds })
     fetchPortfolios({
       page: 0,
@@ -364,6 +366,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setCompanyUuid(null)
     setCompanyName(null)
     setCurrentPage(0)
+    setNextPageCache(null) // 필터 초기화 시 캐시 초기화
     window.history.replaceState(null, '', basePath)
     fetchPortfolios({
       page: 0,
@@ -407,7 +410,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     } finally {
       setIsLoading(false)
     }
-  }, [sortBy])
+  }, [sortBy, getExpandedFilterIds])
 
   // 다음 페이지 데이터 + 이미지 프리페치
   const prefetchNextPage = useCallback(async () => {
@@ -415,11 +418,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     if (nextPageCache?.page === currentPage + 1) return
 
     try {
+      // 선택된 필터 ID들을 하위 ID들도 포함하도록 확장
+      const expandedFilterIds = selectedFilterOptionIds.length > 0
+        ? getExpandedFilterIds(selectedFilterOptionIds)
+        : undefined
+
       const result = await searchPortfolios({
         page: currentPage + 1,
         size: 12,
         keyword: keyword || undefined,
-        filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
+        filterOptionIds: expandedFilterIds,
         companyUuid: companyUuid || undefined,
         sort: sortBy,
         onlyBookmarked,
@@ -448,7 +456,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     } catch {
       // 프리페치 실패는 무시
     }
-  }, [currentPage, totalPages, keyword, selectedFilterOptionIds, companyUuid, sortBy, onlyBookmarked, onlyMyPosts, nextPageCache?.page])
+  }, [currentPage, totalPages, keyword, selectedFilterOptionIds, companyUuid, sortBy, onlyBookmarked, onlyMyPosts, nextPageCache?.page, getExpandedFilterIds])
 
   // 현재 페이지 로드 후 다음 페이지 프리페치
   useEffect(() => {
@@ -537,6 +545,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     setCompanyUuid(null)
     setCompanyName(null)
     setCurrentPage(0)
+    setNextPageCache(null) // 업체 필터 해제 시 캐시 초기화
     window.history.replaceState(null, '', basePath)
     fetchPortfolios({
       page: 0,
@@ -550,6 +559,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
   const handleSearch = () => {
     setCurrentPage(0)
+    setNextPageCache(null) // 검색 시 캐시 초기화
     updateURL({ page: 0, keyword })
     fetchPortfolios({
       page: 0,
@@ -1145,6 +1155,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     const newValue = !onlyBookmarked
                     setOnlyBookmarked(newValue)
                     setCurrentPage(0)
+                    setNextPageCache(null) // 북마크 필터 변경 시 캐시 초기화
                     updateURL({ page: 0, bookmarked: newValue })
                     fetchPortfolios({
                       page: 0,
@@ -1170,6 +1181,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     const newValue = !onlyMyPosts
                     setOnlyMyPosts(newValue)
                     setCurrentPage(0)
+                    setNextPageCache(null) // 내 글 필터 변경 시 캐시 초기화
                     updateURL({ page: 0, myPosts: newValue })
                     fetchPortfolios({
                       page: 0,
