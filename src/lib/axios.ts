@@ -1,5 +1,4 @@
 import axios from 'axios'
-import https from 'https'
 import toast from 'react-hot-toast'
 import { logError, logInfo } from './errorHandler'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +12,19 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 // 리다이렉트 중복 방지 플래그
 let isRedirecting = false;
+
+// 토큰 갱신 중복 방지 (race condition 방지)
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = []
+
+const subscribeTokenRefresh = (callback: (token: string) => void) => {
+  refreshSubscribers.push(callback)
+}
+
+const onTokenRefreshed = (token: string) => {
+  refreshSubscribers.forEach(callback => callback(token))
+  refreshSubscribers = []
+}
 
 // 로그인이 필요한 페이지 경로 (이 페이지에서만 토큰 만료 시 로그인 페이지로 리다이렉트)
 const AUTH_REQUIRED_PATHS = [
@@ -39,20 +51,13 @@ const isAuthRequiredPage = (path: string): boolean => {
   return false
 }
 
-// 서버 사이드에서 self-signed certificate 허용 (개발 환경용)
-// TODO: 프로덕션 배포 시 정식 SSL 인증서 적용 후 제거
-const httpsAgent = typeof window === 'undefined'
-  ? new https.Agent({ rejectUnauthorized: false })
-  : undefined;
-
 const axiosInstance = axios.create({
   baseURL: `${apiBaseUrl}/api`,
-  timeout: 10000,
+  timeout: 30000, // 30초 (파일 업로드 등 고려)
   headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: true, // ⭐ 쿠키 자동 전송/수신 활성화
-  httpsAgent, // 서버 사이드에서만 적용
 })
 
 /**
@@ -122,6 +127,18 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !isConsultationVerify) {
       originalRequest._retry = true
 
+      // 이미 토큰 갱신 중이면 대기 후 재시도
+      if (isRefreshing) {
+        return new Promise((resolve) => {
+          subscribeTokenRefresh((token: string) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`
+            resolve(axiosInstance(originalRequest))
+          })
+        })
+      }
+
+      isRefreshing = true
+
       try {
         logInfo('토큰 갱신 시도')
 
@@ -142,10 +159,16 @@ axiosInstance.interceptors.response.use(
 
         logInfo('토큰 갱신 성공', '원래 요청 재시도')
 
+        // 대기 중인 요청들에게 새 토큰 전달
+        onTokenRefreshed(newAccessToken)
+        isRefreshing = false
+
         // 실패했던 원래 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
         return axiosInstance(originalRequest)
       } catch (refreshError) {
+        isRefreshing = false
+        refreshSubscribers = []
         // Refresh Token도 만료됨 → 로그아웃 처리
         logError('토큰 갱신 실패', refreshError)
 

@@ -31,6 +31,51 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>
 
 // ========================================
+// Helper Functions
+// ========================================
+
+/**
+ * redirectUrl이 안전한 내부 경로인지 검증
+ * Open Redirect 공격 방지
+ */
+const isValidRedirectUrl = (url: string): boolean => {
+  try {
+    const decoded = decodeURIComponent(url)
+
+    // 반드시 /로 시작해야 함 (상대 경로)
+    if (!decoded.startsWith('/')) {
+      return false
+    }
+
+    // //로 시작하면 안됨 (프로토콜 상대 URL)
+    if (decoded.startsWith('//')) {
+      return false
+    }
+
+    // javascript: 스킴 차단
+    if (decoded.toLowerCase().includes('javascript:')) {
+      return false
+    }
+
+    // data: 스킴 차단
+    if (decoded.toLowerCase().includes('data:')) {
+      return false
+    }
+
+    // URL 파싱해서 외부 호스트가 포함되어 있는지 확인
+    // 예: /foo@evil.com, /foo?url=http://evil.com
+    const testUrl = new URL(decoded, 'http://localhost')
+    if (testUrl.host !== 'localhost') {
+      return false
+    }
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+// ========================================
 // Component
 // ========================================
 
@@ -81,8 +126,8 @@ export default function LoginPage() {
         // 프로필 완성 여부에 따라 리다이렉트
         if (!response.data.profileCompleted) {
           router.push('/signup/profile-type')
-        } else if (redirectUrl) {
-          // 세션 만료로 리다이렉트된 경우 원래 페이지로 이동
+        } else if (redirectUrl && isValidRedirectUrl(redirectUrl)) {
+          // 세션 만료로 리다이렉트된 경우 원래 페이지로 이동 (검증된 URL만)
           router.push(decodeURIComponent(redirectUrl))
         } else {
           router.push('/')

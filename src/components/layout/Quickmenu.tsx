@@ -58,6 +58,9 @@ export default function Quickmenu() {
         window.scrollTo({top: 0, behavior: 'smooth'})
     }
 
+    // 퀵메뉴 숨김 처리
+    return null
+
     return (
         <div>
             {/* PC 퀵메뉴 패널 */}

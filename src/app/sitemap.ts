@@ -13,7 +13,7 @@ function safeDate(dateValue: any): Date {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://i-damoa.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://i-damoa.com'
 
   // Static pages - 메인 페이지들
   const staticPages: MetadataRoute.Sitemap = [
@@ -96,87 +96,92 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Fetch company pages - 업체 상세 페이지
-  let companyPages: MetadataRoute.Sitemap = []
-  try {
-    const companiesResult = await getCompanies({ page: 0, size: 500 })
-    if (companiesResult.success && companiesResult.data) {
-      companyPages = companiesResult.data.content.map((company) => ({
-        url: `${baseUrl}/companies/${company.slug || company.uuid}`,
-        lastModified: safeDate(company.createdAt),
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-      }))
-    }
-  } catch (error) {
-    console.error('Failed to fetch companies for sitemap:', error)
-  }
+  // 모든 API 호출을 병렬로 실행
+  const [
+    companiesResult,
+    estimatesResult,
+    resourcesResult,
+    noticesResult,
+    portfoliosResult,
+  ] = await Promise.all([
+    getCompanies({ page: 0, size: 500 }).catch((error) => {
+      console.error('Failed to fetch companies for sitemap:', error)
+      return { success: false, data: null }
+    }),
+    getEstimateRequests(0, 200, 'createdAt,desc').catch((error) => {
+      console.error('Failed to fetch estimates for sitemap:', error)
+      return { success: false, data: null }
+    }),
+    searchDocuments({ page: 0, size: 200 }).catch((error) => {
+      console.error('Failed to fetch resources for sitemap:', error)
+      return { success: false, data: null }
+    }),
+    searchNoticeEvents({ page: 0, size: 200 }).catch((error) => {
+      console.error('Failed to fetch notices for sitemap:', error)
+      return { success: false, data: null }
+    }),
+    searchPortfolios({ page: 0, size: 500 }).catch((error) => {
+      console.error('Failed to fetch portfolios for sitemap:', error)
+      return { success: false, data: null }
+    }),
+  ])
 
-  // Fetch public estimate pages - 공개 견적 요청 페이지
-  let estimatePages: MetadataRoute.Sitemap = []
-  try {
-    const estimatesResult = await getEstimateRequests(0, 200, 'createdAt,desc')
-    if (estimatesResult.success && estimatesResult.data) {
-      estimatePages = estimatesResult.data.content
-        .filter((estimate) => estimate.visibility === 'PUBLIC' && estimate.status === 'PUBLISHED')
-        .map((estimate) => ({
-          url: `${baseUrl}/estimates/${estimate.uuid}`,
-          lastModified: safeDate(estimate.updatedAt),
+  // 업체 상세 페이지
+  const companyPages: MetadataRoute.Sitemap =
+    companiesResult.success && companiesResult.data
+      ? companiesResult.data.content.map((company) => ({
+          url: `${baseUrl}/companies/${company.slug || company.uuid}`,
+          lastModified: safeDate(company.createdAt),
           changeFrequency: 'weekly' as const,
+          priority: 0.8,
+        }))
+      : []
+
+  // 공개 견적 요청 페이지
+  const estimatePages: MetadataRoute.Sitemap =
+    estimatesResult.success && estimatesResult.data
+      ? estimatesResult.data.content
+          .filter((estimate) => estimate.visibility === 'PUBLIC' && estimate.status === 'PUBLISHED')
+          .map((estimate) => ({
+            url: `${baseUrl}/estimates/${estimate.uuid}`,
+            lastModified: safeDate(estimate.updatedAt),
+            changeFrequency: 'weekly' as const,
+            priority: 0.6,
+          }))
+      : []
+
+  // 자료실 상세 페이지
+  const resourcePages: MetadataRoute.Sitemap =
+    resourcesResult.success && resourcesResult.data
+      ? resourcesResult.data.content.map((doc) => ({
+          url: `${baseUrl}/resources/${doc.uuid}`,
+          lastModified: safeDate(doc.updatedAt || doc.createdAt),
+          changeFrequency: 'monthly' as const,
           priority: 0.6,
         }))
-    }
-  } catch (error) {
-    console.error('Failed to fetch estimates for sitemap:', error)
-  }
+      : []
 
-  // Fetch resource pages - 자료실 상세 페이지
-  let resourcePages: MetadataRoute.Sitemap = []
-  try {
-    const resourcesResult = await searchDocuments({ page: 0, size: 200 })
-    if (resourcesResult.success && resourcesResult.data) {
-      resourcePages = resourcesResult.data.content.map((doc) => ({
-        url: `${baseUrl}/resources/${doc.uuid}`,
-        lastModified: safeDate(doc.updatedAt || doc.createdAt),
-        changeFrequency: 'monthly' as const,
-        priority: 0.6,
-      }))
-    }
-  } catch (error) {
-    console.error('Failed to fetch resources for sitemap:', error)
-  }
+  // 공지/이벤트 상세 페이지
+  const noticePages: MetadataRoute.Sitemap =
+    noticesResult.success && noticesResult.data
+      ? noticesResult.data.content.map((notice) => ({
+          url: `${baseUrl}/notices/${notice.uuid}`,
+          lastModified: safeDate(notice.publishedAt || notice.createdAt),
+          changeFrequency: 'weekly' as const,
+          priority: 0.5,
+        }))
+      : []
 
-  // Fetch notice/event pages - 공지/이벤트 상세 페이지
-  let noticePages: MetadataRoute.Sitemap = []
-  try {
-    const noticesResult = await searchNoticeEvents({ page: 0, size: 200 })
-    if (noticesResult.success && noticesResult.data) {
-      noticePages = noticesResult.data.content.map((notice) => ({
-        url: `${baseUrl}/notices/${notice.uuid}`,
-        lastModified: safeDate(notice.publishedAt || notice.createdAt),
-        changeFrequency: 'weekly' as const,
-        priority: 0.5,
-      }))
-    }
-  } catch (error) {
-    console.error('Failed to fetch notices for sitemap:', error)
-  }
-
-  // Fetch portfolio pages - 포트폴리오 상세 페이지
-  let portfolioPages: MetadataRoute.Sitemap = []
-  try {
-    const portfoliosResult = await searchPortfolios({ page: 0, size: 500 })
-    if (portfoliosResult.success && portfoliosResult.data) {
-      portfolioPages = portfoliosResult.data.content.map((portfolio) => ({
-        url: `${baseUrl}/portfolios/${portfolio.uuid}`,
-        lastModified: safeDate(portfolio.updatedAt || portfolio.createdAt),
-        changeFrequency: 'weekly' as const,
-        priority: 0.9,
-      }))
-    }
-  } catch (error) {
-    console.error('Failed to fetch portfolios for sitemap:', error)
-  }
+  // 포트폴리오 상세 페이지
+  const portfolioPages: MetadataRoute.Sitemap =
+    portfoliosResult.success && portfoliosResult.data
+      ? portfoliosResult.data.content.map((portfolio) => ({
+          url: `${baseUrl}/portfolios/${portfolio.uuid}`,
+          lastModified: safeDate(portfolio.updatedAt || portfolio.createdAt),
+          changeFrequency: 'weekly' as const,
+          priority: 0.9,
+        }))
+      : []
 
   return [
     ...staticPages,

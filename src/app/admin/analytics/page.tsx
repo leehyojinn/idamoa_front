@@ -1,20 +1,7 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from 'chart.js'
-import { Line, Doughnut } from 'react-chartjs-2'
+import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import {
   Users,
   Eye,
@@ -42,18 +29,17 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import AdminGuard from '@/components/auth/AdminGuard'
 
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
+// Chart.js를 동적으로 로드 (번들 사이즈 최적화)
+const AnalyticsCharts = dynamic(
+  () => import('@/components/admin/AnalyticsCharts'),
+  {
+    loading: () => (
+      <div className="h-80 bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+        <span className="text-gray-500">차트 로딩 중...</span>
+      </div>
+    ),
+    ssr: false,
+  }
 )
 
 export default function AdminAnalyticsPage() {
@@ -198,94 +184,6 @@ export default function AdminAnalyticsPage() {
     return `${minutes}m ${secs}s`
   }
 
-  // Traffic chart data
-  const trafficChartData = {
-    labels: dailyTrafficData.map((d) => d.date),
-    datasets: [
-      {
-        label: '활성 사용자',
-        data: dailyTrafficData.map((d) => d.activeUsers),
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: '세션',
-        data: dailyTrafficData.map((d) => d.sessions),
-        borderColor: 'rgb(16, 185, 129)',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-      {
-        label: '페이지뷰',
-        data: dailyTrafficData.map((d) => d.screenPageViews),
-        borderColor: 'rgb(249, 115, 22)',
-        backgroundColor: 'rgba(249, 115, 22, 0.1)',
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  }
-
-  const trafficChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top' as const,
-      },
-      title: {
-        display: true,
-        text: '일별 트래픽',
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  }
-
-  // Device chart data
-  const deviceChartData = {
-    labels: deviceStatsData.map((d) => d.deviceCategory),
-    datasets: [
-      {
-        label: '세션',
-        data: deviceStatsData.map((d) => d.sessions),
-        backgroundColor: [
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(16, 185, 129, 0.8)',
-          'rgba(249, 115, 22, 0.8)',
-          'rgba(139, 92, 246, 0.8)',
-        ],
-        borderColor: [
-          'rgb(59, 130, 246)',
-          'rgb(16, 185, 129)',
-          'rgb(249, 115, 22)',
-          'rgb(139, 92, 246)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  }
-
-  const deviceChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'right' as const,
-      },
-      title: {
-        display: true,
-        text: '기기별 세션',
-      },
-    },
-  }
-
   return (
     <AdminGuard>
       <Navbar />
@@ -420,22 +318,11 @@ export default function AdminAnalyticsPage() {
           </>
         )}
 
-        {/* 차트 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* 일별 트래픽 차트 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-300">
-            <div className="h-80">
-              <Line data={trafficChartData} options={trafficChartOptions} />
-            </div>
-          </div>
-
-          {/* 기기별 통계 차트 */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-300">
-            <div className="h-80">
-              <Doughnut data={deviceChartData} options={deviceChartOptions} />
-            </div>
-          </div>
-        </div>
+        {/* 차트 (동적 로드) */}
+        <AnalyticsCharts
+          dailyTrafficData={dailyTrafficData}
+          deviceStatsData={deviceStatsData}
+        />
 
         {/* 페이지별 조회수 */}
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-300 mb-6">

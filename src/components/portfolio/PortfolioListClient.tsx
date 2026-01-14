@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -12,6 +12,7 @@ import Select from '@/components/ui/Select'
 import Checkbox from '@/components/ui/Checkbox'
 import { useAuth } from '@/hooks/useAuth'
 import { getPublicFilters, type PublicFilterCategory } from '@/lib/api/filter'
+import HorizontalSlideFilter from '@/components/ui/HorizontalSlideFilter'
 
 interface PortfolioListClientProps {
   initialData?: PortfolioSearchResponse
@@ -229,20 +230,76 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return { ids, names }
   }
 
-  const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
-    // 해당 옵션과 하위 옵션들 가져오기
-    const { ids: targetIds, names: targetNames } = getOptionWithDescendants(optionId)
+  // [성능 최적화] 선택된 ID들의 하위 ID들도 모두 포함한 배열 반환 (useCallback으로 메모이제이션)
+  const getExpandedFilterIds = useCallback((selectedIds: number[]): number[] => {
+    if (selectedIds.length === 0) {
+      return []
+    }
 
+    // filterCategories가 비어있으면 원래 ID 그대로 반환
+    if (!filterCategories || filterCategories.length === 0) {
+      return selectedIds
+    }
+
+    const result = new Set<number>()
+
+    const collectAllChildren = (options: typeof filterCategories[0]['options']) => {
+      for (const opt of options) {
+        result.add(opt.id)
+        if (opt.children) {
+          collectAllChildren(opt.children)
+        }
+      }
+    }
+
+    const findAndCollect = (options: typeof filterCategories[0]['options'], targetId: number): boolean => {
+      for (const opt of options) {
+        if (opt.id === targetId) {
+          // 찾은 옵션과 모든 하위 옵션 수집
+          result.add(opt.id)
+          if (opt.children) {
+            collectAllChildren(opt.children)
+          }
+          return true
+        }
+        if (opt.children && findAndCollect(opt.children, targetId)) {
+          return true
+        }
+      }
+      return false
+    }
+
+    for (const selectedId of selectedIds) {
+      // 옵션에서 찾기
+      let found = false
+      for (const cat of filterCategories) {
+        if (findAndCollect(cat.options, selectedId)) {
+          found = true
+          break
+        }
+      }
+      // 찾지 못하면 원래 ID 그대로 추가
+      if (!found) {
+        result.add(selectedId)
+      }
+    }
+
+    return Array.from(result)
+  }, [filterCategories])
+
+  const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
+    // 한 개만 선택 가능 (라디오 버튼 방식)
     let newFilterOptionIds: number[]
     let newTags: string[]
 
     if (checked) {
-      // 중복 제거하면서 추가
-      newFilterOptionIds = [...new Set([...selectedFilterOptionIds, ...targetIds])]
-      newTags = [...new Set([...selectedTags, ...targetNames])]
+      // 새로 선택하면 기존 선택 해제하고 이것만 선택
+      newFilterOptionIds = [optionId]
+      newTags = [optionName]
     } else {
-      newFilterOptionIds = selectedFilterOptionIds.filter(id => !targetIds.includes(id))
-      newTags = selectedTags.filter(t => !targetNames.includes(t))
+      // 선택 해제
+      newFilterOptionIds = []
+      newTags = []
     }
 
     setSelectedFilterOptionIds(newFilterOptionIds)
@@ -297,22 +354,6 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     })
   }
 
-  const handleClearAllTags = () => {
-    setSelectedTags([])
-    setSelectedFilterOptionIds([])
-    setCurrentPage(0)
-    updateURL({ page: 0, filterIds: [] })
-    fetchPortfolios({
-      page: 0,
-      keyword,
-      filterOptionIds: [],
-      companyUuid: companyUuid || undefined,
-      sort: sortBy,
-      onlyBookmarked,
-      onlyMyPosts,
-    })
-  }
-
   const handleResetFilters = () => {
     setKeyword('')
     setSelectedTags([])
@@ -333,11 +374,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const fetchPortfolios = useCallback(async (params: PortfolioSearchParams = {}) => {
     setIsLoading(true)
     try {
+      // 선택된 필터 ID들을 하위 ID들도 포함하도록 확장
+      const expandedFilterIds = params.filterOptionIds && params.filterOptionIds.length > 0
+        ? getExpandedFilterIds(params.filterOptionIds)
+        : undefined
+
       const result = await searchPortfolios({
         page: params.page || 0,
         size: 12,
         keyword: params.keyword || undefined,
-        filterOptionIds: params.filterOptionIds || undefined,
+        filterOptionIds: expandedFilterIds,
         companyUuid: params.companyUuid || undefined,
         sort: params.sort || sortBy,
         onlyBookmarked: params.onlyBookmarked,
@@ -905,9 +951,9 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   )
 
   return (
-    <div className="flex gap-6">
-      {/* PC: 왼쪽 고정 필터 사이드바 */}
-      <aside className="hidden lg:block w-64 flex-shrink-0">
+    <div>
+      {/* PC: 왼쪽 고정 필터 사이드바 - 숨김 처리 */}
+      <aside className="hidden">
         <div className="sticky top-[9rem] bg-white rounded-lg shadow-sm p-4 max-h-[calc(100vh-120px)] overflow-y-auto space-y-4">
           <div>
             <div className="relative">
@@ -1023,10 +1069,39 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           </div>
         )}
 
+        {/* 무신사 스타일 가로 슬라이드 필터 */}
+        <div className="bg-white rounded-lg shadow-sm p-4">
+          <HorizontalSlideFilter
+            categories={filterCategories.map(cat => {
+              // 재귀적으로 옵션과 자식들을 변환하는 함수
+              const mapOption = (opt: typeof cat.options[0]): any => ({
+                id: opt.id,
+                name: opt.name,
+                parentId: opt.parentId,
+                children: opt.children?.map(mapOption),
+              })
+
+              return {
+                id: cat.id,
+                name: cat.name,
+                code: cat.code || cat.uuid || '',
+                options: cat.options.map(mapOption),
+              }
+            })}
+            selectedOptionIds={selectedFilterOptionIds}
+            onToggleOption={handleToggleFilterOption}
+            isLoading={isLoadingFilters}
+            keyword={keyword}
+            onKeywordChange={setKeyword}
+            onSearch={handleSearch}
+            onReset={handleResetFilters}
+          />
+        </div>
+
         {/* 검색 및 필터 */}
         <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">
-          {/* 모바일 검색바 */}
-          <div className="lg:hidden flex flex-col sm:flex-row gap-2 sm:gap-3">
+          {/* 모바일 검색바 - 숨김 처리 (HorizontalSlideFilter에서 검색 제공) */}
+          {/* <div className="lg:hidden flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="flex-1">
               <div className="relative">
                 <input
@@ -1046,10 +1121,10 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
             >
               검색
             </button>
-          </div>
+          </div> */}
 
           {/* 정렬 및 필터 버튼 */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2" style={{marginTop:'0 !important;'}}>
             <div className="w-full sm:w-auto sm:min-w-[140px]">
               <Select
                 label=""
@@ -1118,8 +1193,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
               </>
             )}
 
-            {/* 모바일: 필터 버튼 */}
-            <button
+            {/* 모바일: 필터 버튼 - 숨김 처리 (HorizontalSlideFilter 사용) */}
+            {/* <button
               onClick={() => setShowMobileFilterPopup(true)}
               className={`lg:hidden flex items-center gap-2 px-3 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ml-auto ${
                 selectedFilterOptionIds.length > 0
@@ -1134,38 +1209,9 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                   {selectedFilterOptionIds.length}
                 </span>
               )}
-            </button>
+            </button> */}
           </div>
 
-          {/* 선택된 필터 미리보기 (모바일) */}
-          {selectedTags.length > 0 && (
-            <div className="lg:hidden flex flex-wrap items-center gap-2 p-3 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200">
-              <span className="text-sm font-semibold text-gray-700 flex items-center gap-1">
-                <FiTag />
-                선택된 필터:
-              </span>
-              {selectedTags.map(tag => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 bg-white text-primary px-3 py-1 rounded-full text-sm font-medium shadow-sm border border-primary-200"
-                >
-                  {tag}
-                  <button
-                    onClick={() => handleRemoveTag(tag)}
-                    className="ml-1 hover:text-primary transition-colors"
-                  >
-                    <FiX className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-              <button
-                onClick={handleClearAllTags}
-                className="ml-auto text-sm text-red-600 hover:text-red-700 font-medium"
-              >
-                모두 지우기
-              </button>
-            </div>
-          )}
         </div>
 
         {/* 포트폴리오 그리드 */}
@@ -1199,7 +1245,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                   </div>
                 </div>
               )}
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${isLoading ? 'pointer-events-none' : ''}`}>
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isLoading ? 'pointer-events-none' : ''}`}>
               {portfolios.map((portfolio, index) => {
                 // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
                 const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
