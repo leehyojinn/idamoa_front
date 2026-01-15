@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import {
   UserPlus,
   Building2,
@@ -689,20 +690,20 @@ export default function GuideContent() {
                 </p>
               </div>
               <div className="flex flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-                <a
+                <Link
                   href="/inquiries"
                   className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-primary font-medium rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                   문의하기
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/notices"
                   className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 sm:py-3 bg-primary-700 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                   공지사항
-                </a>
+                </Link>
               </div>
             </div>
           </div>
