@@ -34,6 +34,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">서비스</h4>
             <ul className="space-y-2 text-gray-400">
+              <li><Link href="/guide" className="hover:text-white transition-colors">이용가이드</Link></li>
               <li><Link href="/contact" className="hover:text-white transition-colors">제휴/광고 문의</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">이용약관</Link></li>
               <li><Link href="/privacy" className="hover:text-white transition-colors">개인정보처리방침</Link></li>
