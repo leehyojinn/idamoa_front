@@ -2,7 +2,14 @@ import axiosInstance from '@/lib/axios'
 
 // ========== Types ==========
 
-// 카테고리
+// 부모 카테고리 정보 (간략)
+export interface ParentCategoryInfo {
+  uuid: string
+  name: string
+  slug: string
+}
+
+// 카테고리 (계층 구조 지원)
 export interface CommunityCategory {
   uuid: string
   name: string
@@ -16,6 +23,10 @@ export interface CommunityCategory {
   allowAttachments: boolean
   maxAttachments: number
   createdAt: string
+  // 계층 구조 필드
+  depth: number
+  parent: ParentCategoryInfo | null
+  children: CommunityCategory[] | null
 }
 
 // 첨부파일
@@ -149,6 +160,7 @@ export interface ApiResponse<T> {
 // 검색 파라미터
 export interface CommunityPostSearchParams {
   categorySlug?: string
+  includeChildren?: boolean  // 하위 카테고리 게시글 포함 여부
   keyword?: string
   page?: number
   size?: number
@@ -157,7 +169,7 @@ export interface CommunityPostSearchParams {
 
 // ========== API Functions ==========
 
-// 카테고리 목록 조회
+// 카테고리 트리 조회 (활성화된 카테고리만)
 export async function getCommunityCategories(): Promise<ApiResponse<CommunityCategory[]>> {
   try {
     const response = await axiosInstance.get('/community/categories')
@@ -167,10 +179,30 @@ export async function getCommunityCategories(): Promise<ApiResponse<CommunityCat
   }
 }
 
-// 카테고리 상세 조회
+// 카테고리 트리 조회 (별칭)
+export async function getCommunityTree(): Promise<ApiResponse<CommunityCategory[]>> {
+  try {
+    const response = await axiosInstance.get('/community/categories/tree')
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+// 카테고리 상세 조회 (하위 카테고리 포함)
 export async function getCommunityCategory(uuid: string): Promise<ApiResponse<CommunityCategory>> {
   try {
     const response = await axiosInstance.get(`/community/categories/${uuid}`)
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+// 카테고리 슬러그로 조회
+export async function getCommunityBySlug(slug: string): Promise<ApiResponse<CommunityCategory>> {
+  try {
+    const response = await axiosInstance.get(`/community/categories/slug/${slug}`)
     return response.data
   } catch (error: any) {
     throw error
@@ -183,6 +215,8 @@ export async function getCommunityPosts(params: CommunityPostSearchParams = {}):
     const queryParams = new URLSearchParams()
 
     if (params.categorySlug) queryParams.append('categorySlug', params.categorySlug)
+    // 상위 카테고리로 조회 시 하위 카테고리 게시글 포함 여부
+    if (params.includeChildren !== undefined) queryParams.append('includeChildren', params.includeChildren.toString())
     if (params.keyword) queryParams.append('keyword', params.keyword)
     if (params.page !== undefined) queryParams.append('page', params.page.toString())
     if (params.size !== undefined) queryParams.append('size', params.size.toString())

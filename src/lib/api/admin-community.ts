@@ -2,7 +2,14 @@ import axiosInstance from '@/lib/axios'
 
 // ========== Types ==========
 
-// 관리자용 카테고리
+// 부모 카테고리 정보 (간략)
+export interface ParentCategoryInfo {
+  uuid: string
+  name: string
+  slug: string
+}
+
+// 관리자용 카테고리 (계층 구조 지원)
 export interface AdminCommunityCategory {
   uuid: string
   name: string
@@ -16,6 +23,10 @@ export interface AdminCommunityCategory {
   allowAttachments: boolean
   maxAttachments: number
   createdAt: string
+  // 계층 구조 필드
+  depth: number
+  parent: ParentCategoryInfo | null
+  children: AdminCommunityCategory[] | null
 }
 
 // 카테고리 생성 요청
@@ -30,6 +41,7 @@ export interface AdminCommunityCategoryCreateRequest {
   requireLogin?: boolean
   allowAttachments?: boolean
   maxAttachments?: number
+  parentUuid?: string // 부모 카테고리 UUID
 }
 
 // 카테고리 수정 요청
@@ -43,6 +55,8 @@ export interface AdminCommunityCategoryUpdateRequest {
   requireLogin?: boolean
   allowAttachments?: boolean
   maxAttachments?: number
+  parentUuid?: string // 새 부모 카테고리 UUID
+  changeParent?: boolean // 부모 변경 여부 (true일 때만 parentUuid 적용)
 }
 
 // 관리자용 게시글 목록 아이템
@@ -174,7 +188,7 @@ export interface AdminCommunityCategorySearchParams {
 
 // ========== Category API Functions ==========
 
-// 카테고리 목록 조회 (관리자)
+// 카테고리 목록 조회 (관리자 - 플랫 리스트, 페이지네이션)
 export async function getAdminCommunityCategories(params: AdminCommunityCategorySearchParams = {}): Promise<ApiResponse<PageResponse<AdminCommunityCategory>>> {
   try {
     const queryParams = new URLSearchParams()
@@ -186,6 +200,16 @@ export async function getAdminCommunityCategories(params: AdminCommunityCategory
 
     const url = `/admin/community/categories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
     const response = await axiosInstance.get(url)
+    return response.data
+  } catch (error: any) {
+    throw error
+  }
+}
+
+// 카테고리 트리 조회 (관리자 - 비활성 포함)
+export async function getAdminCommunityCategoryTree(): Promise<ApiResponse<AdminCommunityCategory[]>> {
+  try {
+    const response = await axiosInstance.get('/admin/community/categories/tree')
     return response.data
   } catch (error: any) {
     throw error
