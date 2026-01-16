@@ -3,10 +3,22 @@ import { notFound } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CommunityListClient from '@/components/community/CommunityListClient'
-import { getCommunityCategories, getCommunityPosts } from '@/lib/api/community'
+import { getCommunityCategories, getCommunityPosts, type CommunityCategory } from '@/lib/api/community'
 
 interface PageProps {
   params: Promise<{ categorySlug: string }>
+}
+
+// 계층 구조에서 slug로 카테고리 찾기
+function findCategoryBySlug(categories: CommunityCategory[], slug: string): CommunityCategory | null {
+  for (const cat of categories) {
+    if (cat.slug === slug) return cat
+    if (cat.children) {
+      const found = findCategoryBySlug(cat.children, slug)
+      if (found) return found
+    }
+  }
+  return null
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -18,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       return { title: '커뮤니티 | 병원 인테리어 다모아' }
     }
 
-    const category = categoriesResult.data.find((c) => c.slug === categorySlug)
+    const category = findCategoryBySlug(categoriesResult.data, categorySlug)
     if (!category) {
       return { title: '커뮤니티 | 병원 인테리어 다모아' }
     }
@@ -55,12 +67,12 @@ export default async function CommunityCategoryPage({ params }: PageProps) {
   try {
     const [categoriesResult, postsResult] = await Promise.all([
       getCommunityCategories(),
-      getCommunityPosts({ categorySlug, page: 0, size: 20, sort: 'createdAt,desc' }),
+      getCommunityPosts({ categorySlug, includeChildren: true, page: 0, size: 20, sort: 'createdAt,desc' }),
     ])
 
     if (categoriesResult.success && categoriesResult.data) {
       categories = categoriesResult.data
-      currentCategory = categories.find((c) => c.slug === categorySlug)
+      currentCategory = findCategoryBySlug(categories, categorySlug)
     }
     if (postsResult.success) {
       posts = postsResult.data

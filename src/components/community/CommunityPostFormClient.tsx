@@ -15,7 +15,19 @@ import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
 import { uploadFile } from '@/lib/api/file'
 import Checkbox from '@/components/ui/Checkbox'
-import Select from '@/components/ui/Select'
+import CategorySelect from '@/components/community/CategorySelect'
+
+// 계층 구조에서 uuid로 카테고리 찾기
+function findCategoryByUuid(categories: CommunityCategory[], uuid: string): CommunityCategory | null {
+  for (const cat of categories) {
+    if (cat.uuid === uuid) return cat
+    if (cat.children) {
+      const found = findCategoryByUuid(cat.children, uuid)
+      if (found) return found
+    }
+  }
+  return null
+}
 
 interface Props {
   categories: CommunityCategory[]
@@ -146,8 +158,8 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  // 선택된 카테고리의 설정 확인
-  const selectedCategory = categories.find((c) => c.uuid === categoryUuid)
+  // 선택된 카테고리의 설정 확인 (계층 구조에서 찾기)
+  const selectedCategory = findCategoryByUuid(categories, categoryUuid)
 
   return (
     <div className="space-y-6">
@@ -171,17 +183,17 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
 
         <div className="p-4 md:p-6 space-y-6">
           {/* 카테고리 선택 */}
-          <Select
-            label="카테고리 *"
-            value={categoryUuid}
-            onChange={(value) => setCategoryUuid(value)}
-            disabled={isEdit}
-            placeholder="카테고리를 선택하세요"
-            options={categories.map((cat) => ({
-              value: cat.uuid,
-              label: cat.icon ? `${cat.icon} ${cat.name}` : cat.name,
-            }))}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              카테고리 <span className="text-red-500">*</span>
+            </label>
+            <CategorySelect
+              value={categoryUuid}
+              onChange={(cat) => setCategoryUuid(cat.uuid)}
+              disabled={isEdit}
+              placeholder="카테고리를 선택하세요"
+            />
+          </div>
 
           {/* 제목 */}
           <div>
@@ -224,7 +236,7 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
                   onChange={handleFileUpload}
                   className="hidden"
                   id="file-upload"
-                  disabled={selectedCategory && files.length >= selectedCategory.maxAttachments}
+                  disabled={!!(selectedCategory && files.length >= selectedCategory.maxAttachments)}
                 />
                 <label htmlFor="file-upload" className="cursor-pointer">
                   <FiUpload className="w-8 h-8 mx-auto text-gray-400 mb-2" />

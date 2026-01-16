@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { FiMessageSquare, FiEye, FiThumbsUp, FiThumbsDown, FiPaperclip, FiSearch, FiEdit, FiClock } from 'react-icons/fi'
+import { FiEye, FiThumbsUp, FiThumbsDown, FiPaperclip, FiSearch, FiEdit, FiClock, FiChevronDown } from 'react-icons/fi'
 import {
   getCommunityCategories,
   getCommunityPosts,
@@ -13,6 +13,7 @@ import {
 } from '@/lib/api/community'
 import { showErrorToast } from '@/lib/errorHandler'
 import { useAuth } from '@/hooks/useAuth'
+import { findCategoryBySlug } from '@/hooks/useCommunityCategory'
 
 interface Props {
   initialCategories?: CommunityCategory[]
@@ -78,6 +79,7 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
     try {
       const result = await getCommunityPosts({
         categorySlug: categorySlug || undefined,
+        includeChildren: true,  // 하위 카테고리 게시글 포함
         keyword: keyword || undefined,
         page: currentPage,
         size: 20,
@@ -161,9 +163,29 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
     })
   }
 
+  // 현재 카테고리 찾기 (계층 구조에서)
+  const currentCategory = categorySlug ? findCategoryBySlug(categories, categorySlug) : null
+
+  // 현재 선택된 카테고리가 하위 카테고리인 경우 부모 찾기
+  const findParentCategory = (cats: CommunityCategory[], slug: string): CommunityCategory | null => {
+    for (const cat of cats) {
+      if (cat.children?.some(child => child.slug === slug)) {
+        return cat
+      }
+      if (cat.children) {
+        const found = findParentCategory(cat.children, slug)
+        if (found) return found
+      }
+    }
+    return null
+  }
+
+  const parentCategory = categorySlug ? findParentCategory(categories, categorySlug) : null
+  const activeParentSlug = parentCategory?.slug || (currentCategory?.depth === 0 ? currentCategory?.slug : null)
+
   return (
     <div className="space-y-6">
-      {/* 카테고리 탭 */}
+      {/* 상위 카테고리 탭 */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-200">
           <Link
@@ -176,20 +198,55 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
           >
             전체
           </Link>
-          {categories.map((cat) => (
-            <Link
-              key={cat.uuid}
-              href={`/community/${cat.slug}`}
-              className={`flex-shrink-0 px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-medium transition-colors whitespace-nowrap ${
-                categorySlug === cat.slug
-                  ? 'text-primary border-b-2 border-primary bg-primary-50'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-              }`}
-            >
-              {cat.name}
-            </Link>
-          ))}
+          {/* 최상위 카테고리만 표시 (depth === 0) */}
+          {categories.filter(cat => cat.depth === 0).map((cat) => {
+            const isActive = categorySlug === cat.slug || activeParentSlug === cat.slug
+            const hasChildren = cat.children && cat.children.length > 0
+            // 하위 카테고리가 있으면 첫 번째 하위 카테고리로 이동
+            const targetSlug = hasChildren ? cat.children![0].slug : cat.slug
+
+            return (
+              <Link
+                key={cat.uuid}
+                href={`/community/${targetSlug}`}
+                className={`flex-shrink-0 px-4 md:px-6 py-3 md:py-4 text-sm md:text-base font-medium transition-colors whitespace-nowrap flex items-center gap-1 ${
+                  isActive
+                    ? 'text-primary border-b-2 border-primary bg-primary-50'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                {cat.icon && <span className="mr-1">{cat.icon}</span>}
+                {cat.name}
+                {hasChildren && <FiChevronDown className="w-3.5 h-3.5 opacity-50" />}
+              </Link>
+            )
+          })}
         </div>
+
+        {/* 하위 카테고리 탭 (선택된 상위 카테고리의 자식들) */}
+        {activeParentSlug && (() => {
+          const activeParent = categories.find(c => c.slug === activeParentSlug)
+          if (!activeParent?.children || activeParent.children.length === 0) return null
+
+          return (
+            <div className="flex overflow-x-auto scrollbar-hide bg-gray-50 border-b border-gray-100">
+              {activeParent.children.map((subCat) => (
+                <Link
+                  key={subCat.uuid}
+                  href={`/community/${subCat.slug}`}
+                  className={`flex-shrink-0 px-4 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
+                    categorySlug === subCat.slug
+                      ? 'text-primary bg-white border-b-2 border-primary'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {subCat.icon && <span className="mr-1">{subCat.icon}</span>}
+                  {subCat.name}
+                </Link>
+              ))}
+            </div>
+          )
+        })()}
       </div>
 
       {/* 검색 및 글쓰기 */}
