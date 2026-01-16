@@ -8,11 +8,13 @@ import {
   FiPlus,
   FiChevronRight,
   FiChevronDown,
+  FiChevronUp,
   FiRefreshCw,
 } from 'react-icons/fi'
 import {
   useAdminCategoryTree,
   useDeleteCategory,
+  useUpdateCategory,
 } from '@/hooks/useCommunityCategory'
 import { type AdminCommunityCategory } from '@/lib/api/admin-community'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
@@ -24,6 +26,7 @@ import CategoryFormModal from '@/components/admin/community/CategoryFormModal'
 export default function AdminCommunityCategoriesPage() {
   const { data: categories, isLoading, refetch, error } = useAdminCategoryTree()
   const deleteCategory = useDeleteCategory()
+  const updateCategory = useUpdateCategory()
 
   const [editingCategory, setEditingCategory] = useState<AdminCommunityCategory | null>(null)
   const [parentForNew, setParentForNew] = useState<AdminCommunityCategory | null>(null)
@@ -93,6 +96,35 @@ export default function AdminCommunityCategoriesPage() {
     refetch()
   }
 
+  // 순서 변경 (위/아래)
+  const handleMoveOrder = async (category: AdminCommunityCategory, direction: 'up' | 'down', siblings: AdminCommunityCategory[]) => {
+    const currentIndex = siblings.findIndex(c => c.uuid === category.uuid)
+    if (currentIndex === -1) return
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+    if (targetIndex < 0 || targetIndex >= siblings.length) return
+
+    const targetCategory = siblings[targetIndex]
+
+    try {
+      // 두 카테고리의 displayOrder 교환
+      await Promise.all([
+        updateCategory.mutateAsync({
+          uuid: category.uuid,
+          data: { displayOrder: targetCategory.displayOrder }
+        }),
+        updateCategory.mutateAsync({
+          uuid: targetCategory.uuid,
+          data: { displayOrder: category.displayOrder }
+        })
+      ])
+      showSuccessToast('순서가 변경되었습니다.')
+      refetch()
+    } catch (error: any) {
+      showErrorToast(error, '순서 변경에 실패했습니다.')
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ko-KR', {
       year: 'numeric',
@@ -101,9 +133,12 @@ export default function AdminCommunityCategoriesPage() {
     })
   }
 
-  const renderCategory = (category: AdminCommunityCategory, level = 0) => {
+  const renderCategory = (category: AdminCommunityCategory, level = 0, siblings: AdminCommunityCategory[] = []) => {
     const hasChildren = !!(category.children && category.children.length > 0)
     const isExpanded = expandedIds.has(category.uuid)
+    const currentIndex = siblings.findIndex(c => c.uuid === category.uuid)
+    const isFirst = currentIndex === 0
+    const isLast = currentIndex === siblings.length - 1
 
     return (
       <div key={category.uuid}>
@@ -179,10 +214,30 @@ export default function AdminCommunityCategoriesPage() {
             )}
           </div>
 
-          {/* 순서 */}
-          <span className="hidden md:block text-xs text-gray-400 w-16 text-center">
-            순서: {category.displayOrder}
-          </span>
+          {/* 순서 변경 버튼 */}
+          <div className="hidden md:flex items-center gap-0.5">
+            <button
+              onClick={() => handleMoveOrder(category, 'up', siblings)}
+              disabled={isFirst}
+              className={`p-1 rounded transition-colors ${
+                isFirst ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-200'
+              }`}
+              title="위로 이동"
+            >
+              <FiChevronUp className="w-4 h-4" />
+            </button>
+            <span className="text-xs text-gray-400 w-6 text-center">{category.displayOrder}</span>
+            <button
+              onClick={() => handleMoveOrder(category, 'down', siblings)}
+              disabled={isLast}
+              className={`p-1 rounded transition-colors ${
+                isLast ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-200'
+              }`}
+              title="아래로 이동"
+            >
+              <FiChevronDown className="w-4 h-4" />
+            </button>
+          </div>
 
           {/* 생성일 */}
           <span className="hidden md:block text-xs text-gray-400 w-24">
@@ -223,7 +278,7 @@ export default function AdminCommunityCategoriesPage() {
         {/* 자식 카테고리 */}
         {hasChildren && isExpanded && (
           <div>
-            {category.children!.map((child) => renderCategory(child, level + 1))}
+            {category.children!.map((child) => renderCategory(child, level + 1, category.children!))}
           </div>
         )}
       </div>
@@ -292,13 +347,13 @@ export default function AdminCommunityCategoriesPage() {
               <span className="w-8 text-center">아이콘</span>
               <span className="flex-1">카테고리명 / 슬러그</span>
               <span className="hidden lg:block w-48">설정</span>
-              <span className="hidden md:block w-16 text-center">순서</span>
+              <span className="hidden md:block w-20 text-center">순서</span>
               <span className="hidden md:block w-24">생성일</span>
               <span className="w-28 text-center">액션</span>
             </div>
 
             {/* 카테고리 목록 */}
-            {categories.map((category) => renderCategory(category))}
+            {categories.map((category) => renderCategory(category, 0, categories))}
           </div>
         )}
 
