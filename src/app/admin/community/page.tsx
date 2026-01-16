@@ -12,16 +12,13 @@ import {
   FiEyeOff,
   FiEye,
   FiSearch,
-  FiArrowUp,
-  FiArrowDown,
-  FiCheck,
-  FiX,
+  FiChevronRight,
+  FiChevronDown,
+  FiChevronUp,
   FiEdit2,
+  FiRefreshCw,
 } from 'react-icons/fi'
 import {
-  getAdminCommunityCategories,
-  deleteAdminCommunityCategory,
-  updateAdminCommunityCategory,
   getAdminCommunityPosts,
   deleteAdminCommunityPost,
   hideAdminCommunityPost,
@@ -36,6 +33,12 @@ import {
   type AdminCommunityPostSearchParams,
   type AdminCommunityCommentSearchParams,
 } from '@/lib/api/admin-community'
+import {
+  useAdminCategoryTree,
+  useDeleteCategory,
+  useUpdateCategory,
+} from '@/hooks/useCommunityCategory'
+import CategoryFormModal from '@/components/admin/community/CategoryFormModal'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -97,71 +100,96 @@ export default function AdminCommunityPage() {
 
 // ============ 카테고리 탭 ============
 function CategoriesTab() {
-  const [categories, setCategories] = useState<AdminCommunityCategory[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isReordering, setIsReordering] = useState(false)
+  const { data: categories, isLoading, refetch, error } = useAdminCategoryTree()
+  const deleteCategory = useDeleteCategory()
+  const updateCategory = useUpdateCategory()
 
-  const fetchCategories = async () => {
-    setIsLoading(true)
-    try {
-      const response = await getAdminCommunityCategories({ sort: 'displayOrder,asc' })
-      if (response.success && response.data) {
-        const data = response.data as any
-        if (Array.isArray(data)) {
-          setCategories(data)
-        } else if (data.content && Array.isArray(data.content)) {
-          setCategories(data.content)
-        } else {
-          setCategories([])
+  const [editingCategory, setEditingCategory] = useState<AdminCommunityCategory | null>(null)
+  const [parentForNew, setParentForNew] = useState<AdminCommunityCategory | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+
+  // 초기에 모든 카테고리 확장
+  useEffect(() => {
+    if (categories) {
+      const allIds = new Set<string>()
+      const collectIds = (cats: AdminCommunityCategory[]) => {
+        for (const cat of cats) {
+          if (cat.children && cat.children.length > 0) {
+            allIds.add(cat.uuid)
+            collectIds(cat.children)
+          }
         }
       }
-    } catch (error) {
-      showErrorToast(error, '카테고리 목록을 불러오는데 실패했습니다.')
-    } finally {
-      setIsLoading(false)
+      collectIds(categories)
+      setExpandedIds(allIds)
     }
+  }, [categories])
+
+  const toggleExpand = (uuid: string) => {
+    const newExpanded = new Set(expandedIds)
+    if (newExpanded.has(uuid)) {
+      newExpanded.delete(uuid)
+    } else {
+      newExpanded.add(uuid)
+    }
+    setExpandedIds(newExpanded)
   }
 
-  useEffect(() => {
-    fetchCategories()
-  }, [])
+  const handleCreate = (parent?: AdminCommunityCategory) => {
+    setEditingCategory(null)
+    setParentForNew(parent || null)
+    setIsModalOpen(true)
+  }
+
+  const handleEdit = (category: AdminCommunityCategory) => {
+    setEditingCategory(category)
+    setParentForNew(null)
+    setIsModalOpen(true)
+  }
 
   const handleDelete = async (category: AdminCommunityCategory) => {
+    const hasChildren = !!(category.children && category.children.length > 0)
+    if (hasChildren) {
+      showErrorToast(null, '하위 카테고리가 있어 삭제할 수 없습니다.')
+      return
+    }
     if (!confirm(`정말로 "${category.name}" 카테고리를 삭제하시겠습니까?`)) return
     try {
-      await deleteAdminCommunityCategory(category.uuid)
+      await deleteCategory.mutateAsync(category.uuid)
       showSuccessToast('카테고리가 삭제되었습니다.')
-      fetchCategories()
-    } catch (error) {
+    } catch (error: any) {
       showErrorToast(error, '카테고리 삭제에 실패했습니다.')
     }
   }
 
-  const moveCategory = (index: number, direction: 'up' | 'down') => {
-    const newCategories = [...categories]
-    const targetIndex = direction === 'up' ? index - 1 : index + 1
-    if (targetIndex < 0 || targetIndex >= categories.length) return
-    ;[newCategories[index], newCategories[targetIndex]] = [newCategories[targetIndex], newCategories[index]]
-    setCategories(newCategories)
-    setIsReordering(true)
+  const handleModalSuccess = () => {
+    setIsModalOpen(false)
+    setEditingCategory(null)
+    setParentForNew(null)
+    refetch()
   }
 
-  const saveOrder = async () => {
+  // 순서 변경
+  const handleMoveOrder = async (category: AdminCommunityCategory, direction: 'up' | 'down', siblings: AdminCommunityCategory[]) => {
+    const currentIndex = siblings.findIndex(c => c.uuid === category.uuid)
+    if (currentIndex === -1) return
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+    if (targetIndex < 0 || targetIndex >= siblings.length) return
+
+    const targetCategory = siblings[targetIndex]
+
     try {
-      for (let i = 0; i < categories.length; i++) {
-        await updateAdminCommunityCategory(categories[i].uuid, { displayOrder: i + 1 })
-      }
-      showSuccessToast('순서가 저장되었습니다.')
-      setIsReordering(false)
-      fetchCategories()
-    } catch (error) {
-      showErrorToast(error, '순서 저장에 실패했습니다.')
+      await Promise.all([
+        updateCategory.mutateAsync({ uuid: category.uuid, data: { displayOrder: targetCategory.displayOrder } }),
+        updateCategory.mutateAsync({ uuid: targetCategory.uuid, data: { displayOrder: category.displayOrder } })
+      ])
+      showSuccessToast('순서가 변경되었습니다.')
+      refetch()
+    } catch (error: any) {
+      showErrorToast(error, '순서 변경에 실패했습니다.')
     }
-  }
-
-  const cancelReorder = () => {
-    fetchCategories()
-    setIsReordering(false)
   }
 
   const formatDate = (dateString: string) => {
@@ -170,6 +198,104 @@ function CategoriesTab() {
       month: '2-digit',
       day: '2-digit',
     })
+  }
+
+  const renderCategory = (category: AdminCommunityCategory, level = 0, siblings: AdminCommunityCategory[] = []) => {
+    const hasChildren = !!(category.children && category.children.length > 0)
+    const isExpanded = expandedIds.has(category.uuid)
+    const currentIndex = siblings.findIndex(c => c.uuid === category.uuid)
+    const isFirst = currentIndex === 0
+    const isLast = currentIndex === siblings.length - 1
+
+    return (
+      <div key={category.uuid}>
+        <div
+          className={`flex items-center gap-3 py-3 px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
+            !category.isActive ? 'bg-gray-50/50' : ''
+          }`}
+          style={{ paddingLeft: `${16 + level * 24}px` }}
+        >
+          {/* 확장/축소 버튼 */}
+          <button
+            onClick={() => toggleExpand(category.uuid)}
+            className={`w-6 h-6 flex items-center justify-center rounded hover:bg-gray-200 transition-colors ${
+              !hasChildren ? 'invisible' : ''
+            }`}
+            disabled={!hasChildren}
+          >
+            {hasChildren && (isExpanded ? <FiChevronDown className="w-4 h-4 text-gray-500" /> : <FiChevronRight className="w-4 h-4 text-gray-500" />)}
+          </button>
+
+          {/* 아이콘 */}
+          <span className="w-8 text-center text-lg">{category.icon || '📁'}</span>
+
+          {/* 정보 */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`font-medium ${!category.isActive ? 'text-gray-400' : 'text-gray-900'}`}>{category.name}</span>
+              <span className="text-xs text-gray-400">/{category.slug}</span>
+              {!category.isActive && <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded">비활성</span>}
+              {category.depth > 0 && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">하위 Lv.{category.depth}</span>}
+            </div>
+            {category.description && <p className="text-sm text-gray-500 truncate mt-0.5">{category.description}</p>}
+          </div>
+
+          {/* 설정 태그 */}
+          <div className="hidden lg:flex flex-wrap gap-1 w-40">
+            {category.allowAnonymous && <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded">익명</span>}
+            {category.requireLogin && <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded">로그인</span>}
+            {category.allowAttachments && <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">첨부({category.maxAttachments})</span>}
+          </div>
+
+          {/* 순서 변경 버튼 */}
+          <div className="hidden md:flex items-center gap-0.5">
+            <button
+              onClick={() => handleMoveOrder(category, 'up', siblings)}
+              disabled={isFirst}
+              className={`p-1 rounded transition-colors ${isFirst ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-200'}`}
+              title="위로 이동"
+            >
+              <FiChevronUp className="w-4 h-4" />
+            </button>
+            <span className="text-xs text-gray-400 w-6 text-center">{category.displayOrder}</span>
+            <button
+              onClick={() => handleMoveOrder(category, 'down', siblings)}
+              disabled={isLast}
+              className={`p-1 rounded transition-colors ${isLast ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-200'}`}
+              title="아래로 이동"
+            >
+              <FiChevronDown className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* 생성일 */}
+          <span className="hidden md:block text-xs text-gray-400 w-24">{formatDate(category.createdAt)}</span>
+
+          {/* 액션 버튼 */}
+          <div className="flex items-center gap-0.5">
+            <button onClick={() => handleCreate(category)} className="p-1.5 text-green-600 hover:bg-green-50 rounded transition-colors" title="하위 카테고리 추가">
+              <FiPlus className="w-4 h-4" />
+            </button>
+            <button onClick={() => handleEdit(category)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="수정">
+              <FiEdit2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleDelete(category)}
+              className={`p-1.5 rounded transition-colors ${hasChildren ? 'text-gray-300 cursor-not-allowed' : 'text-red-600 hover:bg-red-50'}`}
+              title={hasChildren ? '하위 카테고리가 있어 삭제할 수 없습니다' : '삭제'}
+              disabled={hasChildren}
+            >
+              <FiTrash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* 자식 카테고리 */}
+        {hasChildren && isExpanded && (
+          <div>{category.children!.map((child) => renderCategory(child, level + 1, category.children!))}</div>
+        )}
+      </div>
+    )
   }
 
   if (isLoading) {
@@ -181,123 +307,65 @@ function CategoriesTab() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="text-center py-12 bg-white rounded-lg border border-red-200">
+        <p className="text-red-500">카테고리를 불러오는데 실패했습니다.</p>
+        <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+          다시 시도
+        </button>
+      </div>
+    )
+  }
+
   return (
     <>
       <div className="flex justify-end gap-2 mb-4">
-        {isReordering && (
-          <>
-            <button
-              onClick={cancelReorder}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <FiX className="w-4 h-4" />
-              취소
-            </button>
-            <button
-              onClick={saveOrder}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <FiCheck className="w-4 h-4" />
-              순서 저장
-            </button>
-          </>
-        )}
-        <Link
-          href="/admin/community/categories/create"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-        >
+        <button onClick={() => refetch()} className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+          <FiRefreshCw className="w-4 h-4" />
+          새로고침
+        </button>
+        <button onClick={() => handleCreate()} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
           <FiPlus className="w-4 h-4" />
-          카테고리 추가
-        </Link>
+          최상위 카테고리 추가
+        </button>
       </div>
 
-      {categories.length === 0 ? (
+      {!categories || categories.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+          <div className="text-5xl mb-4">📂</div>
           <p className="text-gray-500">등록된 카테고리가 없습니다.</p>
+          <button onClick={() => handleCreate()} className="inline-flex items-center gap-2 mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <FiPlus className="w-4 h-4" />
+            첫 카테고리 만들기
+          </button>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">순서</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">카테고리명</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">슬러그</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">설정</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {categories.map((category, index) => (
-                <tr key={category.uuid} className="hover:bg-gray-50">
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => moveCategory(index, 'up')}
-                        disabled={index === 0}
-                        className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <FiArrowUp className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => moveCategory(index, 'down')}
-                        disabled={index === categories.length - 1}
-                        className="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                      >
-                        <FiArrowDown className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-2">
-                      {category.icon && <span>{category.icon}</span>}
-                      <span className="font-medium text-gray-900">{category.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{category.slug}</td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <div className="flex flex-wrap gap-1">
-                      {category.allowAnonymous && (
-                        <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded">익명허용</span>
-                      )}
-                      {category.requireLogin && (
-                        <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded">로그인필수</span>
-                      )}
-                      {category.allowAttachments && (
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">첨부({category.maxAttachments})</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${category.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {category.isActive ? '활성' : '비활성'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(category.createdAt)}</td>
-                  <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                    <Link
-                      href={`/admin/community/categories/${category.uuid}/edit`}
-                      className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900"
-                    >
-                      <FiEdit2 className="w-4 h-4" />
-                      수정
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(category)}
-                      className="inline-flex items-center gap-1 text-red-600 hover:text-red-900"
-                    >
-                      <FiTrash2 className="w-4 h-4" />
-                      삭제
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {/* 헤더 */}
+          <div className="flex items-center gap-3 py-3 px-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-500">
+            <span className="w-6" />
+            <span className="w-8 text-center">아이콘</span>
+            <span className="flex-1">카테고리명 / 슬러그</span>
+            <span className="hidden lg:block w-40">설정</span>
+            <span className="hidden md:block w-20 text-center">순서</span>
+            <span className="hidden md:block w-24">생성일</span>
+            <span className="w-24 text-center">액션</span>
+          </div>
+
+          {/* 카테고리 목록 */}
+          {categories.map((category) => renderCategory(category, 0, categories))}
         </div>
       )}
+
+      {/* 생성/수정 모달 */}
+      <CategoryFormModal
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingCategory(null); setParentForNew(null) }}
+        category={editingCategory}
+        parentCategory={parentForNew}
+        onSuccess={handleModalSuccess}
+      />
     </>
   )
 }
