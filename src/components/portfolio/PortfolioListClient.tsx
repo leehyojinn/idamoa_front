@@ -541,39 +541,100 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return [optionId] // 못 찾으면 자기 자신만
   }, [filterCategories])
 
-  const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
-    // 개별 옵션 선택 시 카테고리 필터 모드 해제
-    setActiveCategoryFilterId(null)
-    setCategoryFilterOptionIds([])
-
-    // 한 개만 선택 가능 (라디오 버튼 방식)
-    let newFilterOptionIds: number[]
-    let newTags: string[]
-
-    if (checked) {
-      // 새로 선택하면 기존 선택 해제하고 이것만 선택 (자식 포함)
-      newFilterOptionIds = getAllChildOptionIds(optionId)
-      newTags = [optionName]
-    } else {
-      // 선택 해제
-      newFilterOptionIds = []
-      newTags = []
+  // 옵션이 자식을 가지고 있는지 확인하는 헬퍼 함수
+  const hasChildren = useCallback((optionId: number): boolean => {
+    const findOption = (options: typeof filterCategories[0]['options']): boolean => {
+      for (const opt of options) {
+        if (opt.id === optionId) {
+          return opt.children && opt.children.length > 0
+        }
+        if (opt.children && opt.children.length > 0) {
+          const found = findOption(opt.children)
+          if (found) return found
+        }
+      }
+      return false
     }
 
-    setSelectedFilterOptionIds(newFilterOptionIds)
-    setSelectedTags(newTags)
-    setCurrentPage(0)
-    setNextPageCache(null) // 필터 변경 시 캐시 초기화
-    updateURL({ page: 0, filterIds: newFilterOptionIds })
-    fetchPortfolios({
-      page: 0,
-      keyword,
-      filterOptionIds: newFilterOptionIds,
-      companyUuid: companyUuid || undefined,
-      sort: sortBy,
-      onlyBookmarked,
-      onlyMyPosts,
-    })
+    for (const category of filterCategories) {
+      const found = findOption(category.options)
+      if (found) return true
+    }
+    return false
+  }, [filterCategories])
+
+  const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
+    const optionHasChildren = hasChildren(optionId)
+
+    if (optionHasChildren) {
+      // 자식이 있는 옵션 클릭 → 카테고리 필터 모드처럼 동작 (선택 표시 없이 전체 리스트)
+      if (checked) {
+        const allOptionIds = getAllChildOptionIds(optionId)
+        setActiveCategoryFilterId(optionId) // 자식 옵션을 활성 카테고리처럼
+        setCategoryFilterOptionIds(allOptionIds)
+        setSelectedFilterOptionIds([]) // UI에 선택 표시 안 함
+        setSelectedTags([])
+        setCurrentPage(0)
+        setNextPageCache(null)
+        updateURL({ page: 0, filterIds: [] })
+        fetchPortfolios({
+          page: 0,
+          keyword,
+          filterOptionIds: allOptionIds,
+          companyUuid: companyUuid || undefined,
+          sort: sortBy,
+          onlyBookmarked,
+          onlyMyPosts,
+        })
+      } else {
+        // 선택 해제 → 전체 보기
+        setActiveCategoryFilterId(null)
+        setCategoryFilterOptionIds([])
+        setSelectedFilterOptionIds([])
+        setSelectedTags([])
+        setCurrentPage(0)
+        setNextPageCache(null)
+        updateURL({ page: 0, filterIds: [] })
+        fetchPortfolios({
+          page: 0,
+          keyword,
+          companyUuid: companyUuid || undefined,
+          sort: sortBy,
+          onlyBookmarked,
+          onlyMyPosts,
+        })
+      }
+    } else {
+      // 자식이 없는 옵션 (손자) 클릭 → 개별 선택
+      setActiveCategoryFilterId(null)
+      setCategoryFilterOptionIds([])
+
+      let newFilterOptionIds: number[]
+      let newTags: string[]
+
+      if (checked) {
+        newFilterOptionIds = [optionId]
+        newTags = [optionName]
+      } else {
+        newFilterOptionIds = []
+        newTags = []
+      }
+
+      setSelectedFilterOptionIds(newFilterOptionIds)
+      setSelectedTags(newTags)
+      setCurrentPage(0)
+      setNextPageCache(null)
+      updateURL({ page: 0, filterIds: newFilterOptionIds })
+      fetchPortfolios({
+        page: 0,
+        keyword,
+        filterOptionIds: newFilterOptionIds,
+        companyUuid: companyUuid || undefined,
+        sort: sortBy,
+        onlyBookmarked,
+        onlyMyPosts,
+      })
+    }
   }
 
   // 카테고리 전체 필터 (카테고리 클릭 시 - 전체 리스트 표시, 선택 표시 없음)
