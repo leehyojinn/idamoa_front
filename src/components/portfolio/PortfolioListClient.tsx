@@ -543,22 +543,22 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
   // 옵션이 자식을 가지고 있는지 확인하는 헬퍼 함수
   const hasChildren = useCallback((optionId: number): boolean => {
-    const findOption = (options: typeof filterCategories[0]['options']): boolean => {
+    const findOption = (options: typeof filterCategories[0]['options']): boolean | null => {
       for (const opt of options) {
         if (opt.id === optionId) {
-          return opt.children && opt.children.length > 0
+          return !!(opt.children && opt.children.length > 0)
         }
         if (opt.children && opt.children.length > 0) {
           const found = findOption(opt.children)
-          if (found) return found
+          if (found !== null) return found
         }
       }
-      return false
+      return null
     }
 
     for (const category of filterCategories) {
       const found = findOption(category.options)
-      if (found) return true
+      if (found !== null) return found
     }
     return false
   }, [filterCategories])
