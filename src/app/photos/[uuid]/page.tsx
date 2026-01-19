@@ -1,10 +1,16 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import GalleryDetailClient from '@/components/gallery/GalleryDetailClient'
 import { getGallery } from '@/lib/api/gallery'
+
+// React cache를 사용하여 같은 요청 내에서 API 호출 중복 제거 (조회수 중복 증가 방지)
+const getCachedGallery = cache(async (uuid: string) => {
+  return getGallery(uuid)
+})
 
 interface PageProps {
   params: Promise<{ uuid: string }>
@@ -14,7 +20,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { uuid } = await params
-    const result = await getGallery(uuid)
+    const result = await getCachedGallery(uuid)
 
     if (!result.success || !result.data) {
       return { title: '포트폴리오를 찾을 수 없습니다' }
@@ -48,8 +54,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function GalleryDetailPage({ params }: PageProps) {
   const { uuid } = await params
 
-  // SSR: 서버에서 초기 데이터 로드
-  const result = await getGallery(uuid)
+  // SSR: 서버에서 초기 데이터 로드 (캐시된 함수 사용)
+  const result = await getCachedGallery(uuid)
 
   if (!result.success || !result.data) {
     notFound()

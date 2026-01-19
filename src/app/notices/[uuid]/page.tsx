@@ -1,9 +1,15 @@
 import { Metadata } from 'next'
+import { cache } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import NoticeDetailClient from '@/components/notice/NoticeDetailClient'
 import { getNoticeEvent } from '@/lib/api/notice-event'
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
+
+// React cache를 사용하여 같은 요청 내에서 API 호출 중복 제거 (조회수 중복 증가 방지)
+const getCachedNotice = cache(async (uuid: string) => {
+  return getNoticeEvent(uuid)
+})
 
 interface NoticeDetailPageProps {
   params: Promise<{
@@ -14,7 +20,7 @@ interface NoticeDetailPageProps {
 export async function generateMetadata({ params }: NoticeDetailPageProps): Promise<Metadata> {
   try {
     const { uuid } = await params
-    const result = await getNoticeEvent(uuid)
+    const result = await getCachedNotice(uuid)
 
     if (!result.success || !result.data) {
       return {
@@ -52,7 +58,7 @@ export default async function NoticeDetailPage({ params }: NoticeDetailPageProps
 
   let notice = null
   try {
-    const result = await getNoticeEvent(uuid)
+    const result = await getCachedNotice(uuid)
     if (result.success && result.data) {
       notice = result.data
     }
@@ -86,7 +92,7 @@ export default async function NoticeDetailPage({ params }: NoticeDetailPageProps
       <Navbar />
       <main className="flex-1 bg-gray-50 py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <NoticeDetailClient uuid={uuid} />
+          <NoticeDetailClient uuid={uuid} initialData={notice || undefined} />
         </div>
       </main>
       <Footer />

@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { cache } from 'react'
 import {
   IoEye,
   IoCheckmarkCircle,
@@ -27,25 +28,30 @@ import CompanyReviewsWrapper from '@/components/company/CompanyReviewsWrapper'
 import CompanyChatButton from '@/components/company/CompanyChatButton'
 import { LocalBusinessSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
 
-interface PageProps {
-  params: Promise<{
-    slug: string
-  }>
-}
-
 // UUID 형식인지 확인하는 헬퍼 함수
 const isUuid = (str: string): boolean => {
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   return uuidPattern.test(str)
 }
 
+// React cache를 사용하여 같은 요청 내에서 API 호출 중복 제거 (조회수 중복 증가 방지)
+const getCachedCompany = cache(async (slug: string) => {
+  return isUuid(slug)
+    ? getCompanyByUuid(slug)
+    : getCompanyBySlug(slug)
+})
+
+interface PageProps {
+  params: Promise<{
+    slug: string
+  }>
+}
+
 // SEO 메타데이터 생성
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params
-    const result = isUuid(slug)
-      ? await getCompanyByUuid(slug)
-      : await getCompanyBySlug(slug)
+    const result = await getCachedCompany(slug)
 
     if (!result.success || !result.data) {
       return {
@@ -99,9 +105,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
   let result
   try {
-    result = isUuid(slug)
-      ? await getCompanyByUuid(slug)
-      : await getCompanyBySlug(slug)
+    result = await getCachedCompany(slug)
   } catch (error) {
     console.error('업체 상세 로드 실패:', error)
     notFound()

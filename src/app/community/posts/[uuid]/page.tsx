@@ -1,9 +1,15 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CommunityPostDetailClient from '@/components/community/CommunityPostDetailClient'
 import { getCommunityPost } from '@/lib/api/community'
+
+// React cache를 사용하여 같은 요청 내에서 API 호출 중복 제거 (조회수 중복 증가 방지)
+const getCachedPost = cache(async (uuid: string) => {
+  return getCommunityPost(uuid)
+})
 
 interface PageProps {
   params: Promise<{ uuid: string }>
@@ -12,7 +18,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { uuid } = await params
-    const result = await getCommunityPost(uuid)
+    const result = await getCachedPost(uuid)
 
     if (!result.success || !result.data) {
       return { title: '게시글을 찾을 수 없습니다' }
@@ -44,7 +50,7 @@ export default async function CommunityPostDetailPage({ params }: PageProps) {
 
   let post = null
   try {
-    const result = await getCommunityPost(uuid)
+    const result = await getCachedPost(uuid)
     if (result.success && result.data) {
       post = result.data
     }

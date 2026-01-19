@@ -46,10 +46,22 @@ export default function CommunityPostDetailClient({ uuid, initialData }: Props) 
   const [dislikeCount, setDislikeCount] = useState(initialData?.dislikeCount || 0)
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null)
 
-  // 클라이언트에서 항상 다시 fetch하여 isOwner 등 사용자별 데이터 갱신
+  // 로그인한 사용자만 클라이언트에서 다시 fetch하여 isOwner 등 사용자별 데이터 갱신
+  // 비로그인 사용자는 initialData 사용 (조회수 중복 방지)
+  const [hasFetched, setHasFetched] = useState(false)
+
   useEffect(() => {
-    fetchPost()
-  }, [uuid])
+    // initialData가 없으면 무조건 fetch
+    if (!initialData) {
+      fetchPost()
+      return
+    }
+
+    // 로그인한 사용자만 isOwner 확인을 위해 다시 fetch (단, 한 번만)
+    if (isAuthenticated && !hasFetched) {
+      fetchPostForAuth()
+    }
+  }, [uuid, isAuthenticated, hasFetched])
 
   const fetchPost = async () => {
     setIsLoading(true)
@@ -67,6 +79,25 @@ export default function CommunityPostDetailClient({ uuid, initialData }: Props) 
       router.push('/community')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // 로그인 사용자용: 로딩 표시 없이 isOwner 등 사용자 데이터만 갱신
+  const fetchPostForAuth = async () => {
+    try {
+      const result = await getCommunityPost(uuid)
+      if (result.success && result.data) {
+        setPost(result.data)
+        setIsLiked(result.data.isLiked)
+        setIsDisliked(result.data.isDisliked)
+        setLikeCount(result.data.likeCount)
+        setDislikeCount(result.data.dislikeCount)
+      }
+    } catch (error) {
+      // 인증용 fetch 실패는 조용히 처리 (initialData가 있으므로)
+      console.error('사용자 데이터 갱신 실패:', error)
+    } finally {
+      setHasFetched(true)
     }
   }
 

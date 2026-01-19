@@ -21,13 +21,14 @@ import { useAuth } from '@/hooks/useAuth'
 
 interface NoticeDetailClientProps {
   uuid: string
+  initialData?: NoticeEvent
 }
 
-export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
+export default function NoticeDetailClient({ uuid, initialData }: NoticeDetailClientProps) {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
-  const [notice, setNotice] = useState<NoticeEvent | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [notice, setNotice] = useState<NoticeEvent | null>(initialData || null)
+  const [isLoading, setIsLoading] = useState(!initialData)
   const [isAdmin, setIsAdmin] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -55,6 +56,9 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
   }, [isAuthenticated])
 
   useEffect(() => {
+    // initialData가 있으면 fetch 건너뛰기 (SSR 데이터 사용, 조회수 중복 방지)
+    if (initialData) return
+
     const fetchNotice = async () => {
       setIsLoading(true)
       try {
@@ -74,7 +78,7 @@ export default function NoticeDetailClient({ uuid }: NoticeDetailClientProps) {
     }
 
     fetchNotice()
-  }, [uuid, router])
+  }, [uuid, router, initialData])
 
   const handleDelete = async () => {
     if (!notice) return
