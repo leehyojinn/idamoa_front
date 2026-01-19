@@ -63,7 +63,21 @@ export default function PortfolioDetailPage({ params }: Props) {
   const modalThumbnailContainerRef = useRef<HTMLDivElement>(null)
   const dragState = useRef({ isDown: false, startX: 0, scrollLeft: 0, hasDragged: false })
 
+  // 이미지 슬라이드 드래그 관련
+  const imageSwipeState = useRef({
+    startX: 0,
+    startY: 0,
+    isDragging: false,
+    hasSwiped: false
+  })
+
+  // API 중복 호출 방지
+  const hasFetchedRef = useRef(false)
+
   useEffect(() => {
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
+
     const fetchPortfolio = async () => {
       try {
         setIsLoading(true)
@@ -229,6 +243,78 @@ export default function PortfolioDetailPage({ params }: Props) {
     dragState.current.hasDragged = false
   }
 
+  // 이미지 슬라이드 드래그/터치 핸들러
+  const handleImageSwipeStart = (clientX: number, clientY: number) => {
+    imageSwipeState.current = {
+      startX: clientX,
+      startY: clientY,
+      isDragging: true,
+      hasSwiped: false
+    }
+  }
+
+  const handleImageSwipeMove = (clientX: number, clientY: number) => {
+    if (!imageSwipeState.current.isDragging) return
+
+    const deltaX = clientX - imageSwipeState.current.startX
+    const deltaY = clientY - imageSwipeState.current.startY
+
+    // 수평 이동이 수직 이동보다 크고, 50px 이상 이동했을 때만 스와이프로 인식
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50 && !imageSwipeState.current.hasSwiped) {
+      imageSwipeState.current.hasSwiped = true
+      if (deltaX > 0) {
+        handlePrevImage()
+      } else {
+        handleNextImage()
+      }
+    }
+  }
+
+  const handleImageSwipeEnd = () => {
+    imageSwipeState.current.isDragging = false
+  }
+
+  // 마우스 이벤트 핸들러 (메인 이미지용)
+  const handleImageMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    handleImageSwipeStart(e.clientX, e.clientY)
+  }
+
+  const handleImageMouseMove = (e: React.MouseEvent) => {
+    handleImageSwipeMove(e.clientX, e.clientY)
+  }
+
+  const handleImageMouseUp = () => {
+    handleImageSwipeEnd()
+  }
+
+  const handleImageMouseLeave = () => {
+    handleImageSwipeEnd()
+  }
+
+  // 터치 이벤트 핸들러 (메인 이미지용)
+  const handleImageTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    handleImageSwipeStart(touch.clientX, touch.clientY)
+  }
+
+  const handleImageTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    handleImageSwipeMove(touch.clientX, touch.clientY)
+  }
+
+  const handleImageTouchEnd = () => {
+    handleImageSwipeEnd()
+  }
+
+  // 이미지 클릭 처리 (드래그 후에는 모달 열지 않음)
+  const handleImageClick = () => {
+    if (!imageSwipeState.current.hasSwiped) {
+      setShowImageModal(true)
+    }
+    imageSwipeState.current.hasSwiped = false
+  }
+
   // TODO: 서버에서 isOwner 반환하면 해당 값 사용
   // 현재는 관리자이거나 COMPANY 역할이면 수정/삭제 버튼 표시 (서버에서 권한 체크됨)
   const isOwner = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
@@ -344,8 +430,15 @@ export default function PortfolioDetailPage({ params }: Props) {
             <div className="lg:col-span-2">
               {/* 메인 이미지 */}
               <div
-                className="relative aspect-[4/3] bg-gray-200 rounded-2xl overflow-hidden cursor-pointer group"
-                onClick={() => setShowImageModal(true)}
+                className="relative aspect-[4/3] bg-gray-200 rounded-2xl overflow-hidden cursor-grab group select-none"
+                onClick={handleImageClick}
+                onMouseDown={handleImageMouseDown}
+                onMouseMove={handleImageMouseMove}
+                onMouseUp={handleImageMouseUp}
+                onMouseLeave={handleImageMouseLeave}
+                onTouchStart={handleImageTouchStart}
+                onTouchMove={handleImageTouchMove}
+                onTouchEnd={handleImageTouchEnd}
               >
                 {portfolio.images && portfolio.images.length > 0 ? (
                   <>
@@ -354,9 +447,10 @@ export default function PortfolioDetailPage({ params }: Props) {
                       alt={portfolio.title}
                       fill
                       sizes="(max-width: 1024px) 100vw, 66vw"
-                      className="object-cover"
+                      className="object-cover pointer-events-none"
                       priority={currentImageIndex === 0}
                       loading={currentImageIndex === 0 ? 'eager' : 'lazy'}
+                      draggable={false}
                     />
                     {/* 이미지 네비게이션 */}
                     {portfolio.images.length > 1 && (
@@ -714,14 +808,24 @@ export default function PortfolioDetailPage({ params }: Props) {
             {currentImageIndex + 1} / {portfolio.images.length}
           </div>
 
-          <div className="h-full flex items-center justify-center p-4">
+          <div
+            className="h-full flex items-center justify-center p-4 cursor-grab select-none"
+            onMouseDown={handleImageMouseDown}
+            onMouseMove={handleImageMouseMove}
+            onMouseUp={handleImageMouseUp}
+            onMouseLeave={handleImageMouseLeave}
+            onTouchStart={handleImageTouchStart}
+            onTouchMove={handleImageTouchMove}
+            onTouchEnd={handleImageTouchEnd}
+          >
             <Image
               src={getCdnUrl(portfolio.images[currentImageIndex]?.fileUrl) || '/images/img-placeholder.png'}
               alt={portfolio.title}
               fill
               sizes="100vw"
-              className="object-contain"
+              className="object-contain pointer-events-none"
               priority
+              draggable={false}
             />
           </div>
 

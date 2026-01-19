@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiStar, FiChevronDown, FiChevronRight, FiChevronLeft, FiChevronsLeft, FiChevronsRight, FiVideo } from 'react-icons/fi'
-import { searchPortfolios, deletePortfolio, toggleBookmark, toggleLike, type PortfolioListItem, type PortfolioSearchParams, type PortfolioSearchResponse } from '@/lib/api/portfolio'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiChevronDown, FiChevronRight, FiChevronLeft, FiChevronsLeft, FiChevronsRight, FiVideo, FiStar } from 'react-icons/fi'
+import { searchPortfolios, deletePortfolio, toggleBookmark, toggleLike, getFeaturedPortfolios, type PortfolioListItem, type PortfolioSearchParams, type PortfolioSearchResponse } from '@/lib/api/portfolio'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { getCdnUrl } from '@/lib/utils'
 import Select from '@/components/ui/Select'
@@ -91,6 +91,222 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const [categoryFilterOptionIds, setCategoryFilterOptionIds] = useState<number[]>([])
   // URL 동기화 건너뛰기 플래그 (카테고리 필터 모드에서 사용)
   const skipUrlSyncRef = useRef(false)
+
+  // 추천 포트폴리오
+  const [featuredPortfolios, setFeaturedPortfolios] = useState<PortfolioListItem[]>([])
+  const [featuredIndex, setFeaturedIndex] = useState(0)
+  const featuredContainerRef = useRef<HTMLDivElement>(null)
+  const [isLoadingFeatured, setIsLoadingFeatured] = useState(false)
+
+  // 추천 포트폴리오 fetch
+  const fetchFeaturedPortfolios = useCallback(async (filterIds?: number[]) => {
+    setIsLoadingFeatured(true)
+    try {
+      const result = await getFeaturedPortfolios({
+        filterOptionIds: filterIds && filterIds.length > 0 ? filterIds : undefined,
+        count: 12, // 6개씩 2페이지 분량
+      })
+      if (result.success && result.data) {
+        setFeaturedPortfolios(result.data)
+        setFeaturedIndex(0)
+      }
+    } catch (error) {
+      console.error('추천 포트폴리오 조회 실패:', error)
+      setFeaturedPortfolios([])
+    } finally {
+      setIsLoadingFeatured(false)
+    }
+  }, [])
+
+  // 초기 추천 포트폴리오 로드 & 필터 변경 시 재로드
+  useEffect(() => {
+    // 카테고리 필터 모드일 때는 categoryFilterOptionIds 사용
+    const filterIds = categoryFilterOptionIds.length > 0
+      ? categoryFilterOptionIds
+      : selectedFilterOptionIds.length > 0
+        ? selectedFilterOptionIds
+        : undefined
+    fetchFeaturedPortfolios(filterIds)
+  }, [categoryFilterOptionIds, selectedFilterOptionIds, fetchFeaturedPortfolios])
+
+  // 화면 크기에 따른 슬라이더 아이템 수
+  const getVisibleCount = () => {
+    if (typeof window === 'undefined') return 6
+    if (window.innerWidth < 640) return 2 // 모바일
+    if (window.innerWidth < 768) return 3 // 태블릿 작은
+    if (window.innerWidth < 1024) return 4 // 태블릿
+    if (window.innerWidth < 1280) return 5 // 데스크탑 작은
+    return 6 // 데스크탑
+  }
+
+  const [visibleCount, setVisibleCount] = useState(6)
+
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      setVisibleCount(getVisibleCount())
+    }
+    updateVisibleCount()
+    window.addEventListener('resize', updateVisibleCount)
+    return () => window.removeEventListener('resize', updateVisibleCount)
+  }, [])
+
+  // 추천 포트폴리오 슬라이더 - 1개씩 이동
+  const maxFeaturedIndex = Math.max(0, featuredPortfolios.length - visibleCount)
+
+  const handleFeaturedPrev = () => {
+    setFeaturedIndex(prev => (prev <= 0 ? maxFeaturedIndex : prev - 1))
+  }
+
+  const handleFeaturedNext = () => {
+    setFeaturedIndex(prev => (prev >= maxFeaturedIndex ? 0 : prev + 1))
+  }
+
+  // 자동 슬라이드
+  useEffect(() => {
+    if (featuredPortfolios.length <= visibleCount) return
+
+    const interval = setInterval(() => {
+      setFeaturedIndex(prev => (prev >= maxFeaturedIndex ? 0 : prev + 1))
+    }, 4000) // 4초마다
+
+    return () => clearInterval(interval)
+  }, [featuredPortfolios.length, visibleCount, maxFeaturedIndex])
+
+  // 드래그 슬라이드 상태
+  const featuredDragState = useRef({
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    currentX: 0,
+    hasMoved: false,
+    isHorizontal: false,
+  })
+  const sliderRef = useRef<HTMLDivElement>(null)
+
+  // DOM 직접 조작으로 부드러운 드래그
+  const updateSliderTransform = useCallback((dragOffset: number, animate: boolean = false) => {
+    if (!sliderRef.current) return
+    const slider = sliderRef.current
+    if (animate) {
+      slider.style.transition = 'transform 0.5s ease-out'
+    } else {
+      slider.style.transition = 'none'
+    }
+    slider.style.transform = `translateX(calc(-${featuredIndex} * (100% + 8px) / ${visibleCount} + ${dragOffset}px))`
+  }, [featuredIndex, visibleCount])
+
+  // featuredIndex 변경 시 애니메이션 적용
+  useEffect(() => {
+    updateSliderTransform(0, true)
+  }, [featuredIndex, updateSliderTransform])
+
+  const handleFeaturedDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+    featuredDragState.current = {
+      isDragging: true,
+      startX: clientX,
+      startY: clientY,
+      currentX: clientX,
+      hasMoved: false,
+      isHorizontal: false,
+    }
+  }
+
+  const handleFeaturedDragMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!featuredDragState.current.isDragging) return
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
+
+    const diffX = Math.abs(clientX - featuredDragState.current.startX)
+    const diffY = Math.abs(clientY - featuredDragState.current.startY)
+
+    // 처음 움직임 방향 결정
+    if (!featuredDragState.current.isHorizontal && diffX > 10) {
+      if (diffX > diffY) {
+        featuredDragState.current.isHorizontal = true
+        featuredDragState.current.hasMoved = true
+      }
+    }
+
+    // 수평 드래그일 때 실시간 DOM 업데이트
+    if (featuredDragState.current.isHorizontal) {
+      const offset = clientX - featuredDragState.current.startX
+      updateSliderTransform(offset, false)
+    }
+
+    featuredDragState.current.currentX = clientX
+  }
+
+  const handleFeaturedDragEnd = () => {
+    if (!featuredDragState.current.isDragging) return
+
+    const diff = featuredDragState.current.startX - featuredDragState.current.currentX
+    const threshold = 50
+
+    if (featuredDragState.current.isHorizontal) {
+      if (diff > threshold) {
+        handleFeaturedNext()
+      } else if (diff < -threshold) {
+        handleFeaturedPrev()
+      } else {
+        // threshold 미달 시 원위치
+        updateSliderTransform(0, true)
+      }
+    }
+
+    // 약간의 딜레이 후 드래그 상태 초기화 (클릭 방지용)
+    setTimeout(() => {
+      featuredDragState.current.isDragging = false
+      featuredDragState.current.hasMoved = false
+      featuredDragState.current.isHorizontal = false
+    }, 10)
+  }
+
+  const handleFeaturedLinkClick = (e: React.MouseEvent) => {
+    if (featuredDragState.current.hasMoved) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }
+
+  // 모바일 터치 이벤트 (passive: false로 등록해야 preventDefault 작동)
+  useEffect(() => {
+    const container = featuredContainerRef.current
+    if (!container) return
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!featuredDragState.current.isDragging) return
+
+      const clientX = e.touches[0].clientX
+      const clientY = e.touches[0].clientY
+
+      const diffX = Math.abs(clientX - featuredDragState.current.startX)
+      const diffY = Math.abs(clientY - featuredDragState.current.startY)
+
+      if (!featuredDragState.current.isHorizontal && diffX > 10) {
+        if (diffX > diffY) {
+          featuredDragState.current.isHorizontal = true
+          featuredDragState.current.hasMoved = true
+        }
+      }
+
+      if (featuredDragState.current.isHorizontal) {
+        e.preventDefault()
+        const offset = clientX - featuredDragState.current.startX
+        updateSliderTransform(offset, false)
+      }
+
+      featuredDragState.current.currentX = clientX
+    }
+
+    container.addEventListener('touchmove', handleTouchMove, { passive: false })
+
+    return () => {
+      container.removeEventListener('touchmove', handleTouchMove)
+    }
+  }, [updateSliderTransform])
 
   // URL 업데이트 함수 (스크롤 영향 없이 URL만 변경)
   const updateURL = useCallback((params: {
@@ -332,6 +548,27 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const handleSelectCategoryFilter = (categoryId: number, allOptionIds: number[], categoryName: string) => {
     // URL 동기화 건너뛰기 플래그 설정
     skipUrlSyncRef.current = true
+
+    // categoryId가 0이면 필터 해제 (전체 보기)
+    if (categoryId === 0 || allOptionIds.length === 0) {
+      setActiveCategoryFilterId(null)
+      setCategoryFilterOptionIds([])
+      setSelectedFilterOptionIds([])
+      setSelectedTags([])
+      setCurrentPage(0)
+      setNextPageCache(null)
+      updateURL({ page: 0, filterIds: [] })
+      // 전체 포트폴리오 조회
+      fetchPortfolios({
+        page: 0,
+        keyword,
+        companyUuid: companyUuid || undefined,
+        sort: sortBy,
+        onlyBookmarked,
+        onlyMyPosts,
+      })
+      return
+    }
 
     // 카테고리 필터 모드 활성화 (API 호출용)
     setActiveCategoryFilterId(categoryId)
@@ -1088,22 +1325,22 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
       </aside>
 
       {/* 메인 컨텐츠 */}
-      <div className="flex-1 min-w-0 space-y-6 overflow-x-hidden">
+      <div className="flex-1 min-w-0 space-y-6">
         {/* 헤더 */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">포트폴리오</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-xl md:text-3xl font-bold text-gray-900">포트폴리오</h1>
+            <p className="text-gray-600 text-xs md:text-base mt-1 md:mt-2">
               {totalElements}개의 포트폴리오
             </p>
           </div>
           {user && (
             <Link
               href="/portfolios/create"
-              className="flex items-center gap-2 bg-primary hover:bg-primary-800 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+              className="flex items-center gap-1 md:gap-2 bg-primary hover:bg-primary-800 text-white px-3 md:px-6 py-2 md:py-3 rounded-md md:rounded-lg text-xs md:text-base font-semibold transition-colors"
             >
-              <FiPlus className="text-xl" />
-              포트폴리오 등록
+              <FiPlus className="text-sm md:text-xl" />
+              <span className="hidden sm:inline">포트폴리오</span> 등록
             </Link>
           )}
         </div>
@@ -1128,7 +1365,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         )}
 
         {/* 무신사 스타일 가로 슬라이드 필터 */}
-        <div className="bg-white rounded-lg shadow-sm p-4">
+        <div className="bg-white shadow-sm p-3 md:p-4 sticky md:static top-[64px] z-30 -mx-4 px-4 md:mx-0 md:rounded-lg">
           <HorizontalSlideFilter
             categories={filterCategories.map(cat => {
               // 재귀적으로 옵션과 자식들을 변환하는 함수
@@ -1184,8 +1421,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           </div> */}
 
           {/* 정렬 및 필터 버튼 */}
-          <div className="flex flex-wrap items-center gap-2" style={{marginTop:'0 !important;'}}>
-            <div className="w-full sm:w-auto sm:min-w-[140px]">
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-2" style={{marginTop:'0 !important;'}}>
+            <div className="w-auto min-w-[100px] md:min-w-[140px]">
               <Select
                 label=""
                 options={[
@@ -1195,6 +1432,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                 ]}
                 value={sortBy}
                 onChange={handleSortChange}
+                className="text-xs md:text-sm py-1.5 md:py-2"
               />
             </div>
 
@@ -1217,14 +1455,14 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       onlyMyPosts,
                     })
                   }}
-                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+                  className={`flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-3 rounded-md md:rounded-lg text-xs md:text-base font-medium transition-colors ${
                     onlyBookmarked
-                      ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300'
-                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                      ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
+                      : 'bg-gray-100 text-gray-700 border border-transparent hover:bg-gray-200'
                   }`}
                 >
-                  <FiBookmark className={onlyBookmarked ? 'fill-current' : ''} />
-                  <span className="whitespace-nowrap">북마크만</span>
+                  <FiBookmark className={`w-3 h-3 md:w-4 md:h-4 ${onlyBookmarked ? 'fill-current' : ''}`} />
+                  <span className="whitespace-nowrap">북마크</span>
                 </button>
                 <button
                   onClick={() => {
@@ -1243,14 +1481,14 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       onlyMyPosts: newValue,
                     })
                   }}
-                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-colors ${
+                  className={`flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-3 rounded-md md:rounded-lg text-xs md:text-base font-medium transition-colors ${
                     onlyMyPosts
-                      ? 'bg-primary-100 text-primary border-2 border-primary-300'
-                      : 'bg-gray-100 text-gray-700 border-2 border-transparent hover:bg-gray-200'
+                      ? 'bg-primary-100 text-primary border border-primary-300'
+                      : 'bg-gray-100 text-gray-700 border border-transparent hover:bg-gray-200'
                   }`}
                 >
-                  <FiEdit />
-                  <span className="whitespace-nowrap">내 글만</span>
+                  <FiEdit className="w-3 h-3 md:w-4 md:h-4" />
+                  <span className="whitespace-nowrap">내 글</span>
                 </button>
               </>
             )}
@@ -1275,6 +1513,132 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           </div>
 
         </div>
+
+        {/* 추천 포트폴리오 슬라이더 */}
+        {featuredPortfolios.length > 0 && (
+          <div className="relative overflow-hidden rounded-xl md:rounded-2xl p-4 md:p-6 bg-gradient-to-br from-slate-900 via-primary to-indigo-900">
+            {/* 배경 장식 */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-primary-400/20 rounded-full blur-2xl" />
+            </div>
+
+            <div className="relative z-10 flex items-center justify-between mb-4">
+              <div>
+                <h2 className="flex items-center gap-1.5 md:gap-2 text-sm md:text-xl font-bold text-white">
+                  <span className="text-yellow-400">✨</span>
+                  추천 포트폴리오
+                </h2>
+                <p className="text-[10px] md:text-xs text-white/70 mt-0.5">엄선된 인테리어 포트폴리오</p>
+              </div>
+              {featuredPortfolios.length > visibleCount && (
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handleFeaturedPrev}
+                    className="p-1.5 md:p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/30 transition-colors text-white"
+                  >
+                    <FiChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  </button>
+                  <button
+                    onClick={handleFeaturedNext}
+                    className="p-1.5 md:p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/30 transition-colors text-white"
+                  >
+                    <FiChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div
+              className="relative z-10 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+              ref={featuredContainerRef}
+              onMouseDown={(e) => {
+                e.preventDefault()
+                handleFeaturedDragStart(e)
+              }}
+              onMouseMove={handleFeaturedDragMove}
+              onMouseUp={handleFeaturedDragEnd}
+              onMouseLeave={handleFeaturedDragEnd}
+              onTouchStart={handleFeaturedDragStart}
+              onTouchMove={handleFeaturedDragMove}
+              onTouchEnd={handleFeaturedDragEnd}
+              onDragStart={(e) => e.preventDefault()}
+            >
+              {isLoadingFeatured ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-4 border-white/30 border-t-white"></div>
+                </div>
+              ) : (
+                <div
+                  ref={sliderRef}
+                  className="flex gap-2"
+                  style={{
+                    transform: `translateX(calc(-${featuredIndex} * (100% + 8px) / ${visibleCount}))`,
+                    transition: 'transform 0.5s ease-out',
+                  }}
+                >
+                  {featuredPortfolios.map((portfolio) => (
+                    <Link
+                      key={portfolio.uuid}
+                      href={`/portfolios/${portfolio.uuid}`}
+                      onClick={handleFeaturedLinkClick}
+                      draggable={false}
+                      className="flex-shrink-0 bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
+                      style={{
+                        width: `calc((100% - ${(visibleCount - 1) * 8}px) / ${visibleCount})`,
+                      }}
+                    >
+                      <div className="aspect-video bg-gray-200 relative overflow-hidden pointer-events-none">
+                        {getThumbnailUrl(portfolio) ? (
+                          <Image
+                            src={getThumbnailUrl(portfolio)}
+                            alt={portfolio.title}
+                            fill
+                            sizes="200px"
+                            className="object-cover"
+                            draggable={false}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <FiImage className="w-8 h-8" />
+                          </div>
+                        )}
+                        {/* 추천 뱃지 */}
+                        <div className="absolute top-1.5 left-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-1.5 py-0.5 rounded-full text-[9px] md:text-[10px] font-bold flex items-center gap-0.5 shadow-lg">
+                          <span>✨</span>
+                          추천
+                        </div>
+                      </div>
+                      <div className="p-1.5 md:p-2">
+                        <h3 className="text-[11px] md:text-xs font-medium text-gray-900 line-clamp-1">
+                          {portfolio.title}
+                        </h3>
+                        <div className="flex items-center justify-between mt-1 text-[10px] text-gray-500">
+                          <div className="flex items-center gap-1.5">
+                            <span className="flex items-center gap-0.5">
+                              <FiEye className="w-2.5 h-2.5" />
+                              {portfolio.viewCount}
+                            </span>
+                            <span className="flex items-center gap-0.5">
+                              <FiHeart className={`w-2.5 h-2.5 ${portfolio.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                              {portfolio.likeCount}
+                            </span>
+                          </div>
+                          {portfolio.company?.averageRating != null && portfolio.company.averageRating > 0 && (
+                            <span className="flex items-center gap-0.5 text-yellow-600">
+                              <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                              {portfolio.company.averageRating.toFixed(1)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 포트폴리오 그리드 */}
         {isLoading && portfolios.length === 0 ? (
@@ -1307,7 +1671,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                   </div>
                 </div>
               )}
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 ${isLoading ? 'pointer-events-none' : ''}`}>
+            <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 ${isLoading ? 'pointer-events-none' : ''}`}>
               {portfolios.map((portfolio, index) => {
                 // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
                 const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
@@ -1405,16 +1769,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                           </div>
                         )}
                         {/* 이미지/영상 개수 배지 */}
-                        <div className="absolute top-2 left-2 flex gap-1 z-20">
+                        <div className="absolute top-1 left-1 flex gap-0.5 z-20">
                           {portfolio.images && portfolio.images.length > 1 && (
-                            <div className="bg-black bg-opacity-60 text-white px-2 py-1 rounded text-sm flex items-center gap-1">
-                              <FiImage className="w-3 h-3" />
+                            <div className="bg-black bg-opacity-60 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5">
+                              <FiImage className="w-2.5 h-2.5" />
                               {portfolio.images.length}
                             </div>
                           )}
                           {portfolio.videos && portfolio.videos.length > 0 && (
-                            <div className="bg-primary bg-opacity-90 text-white px-2 py-1 rounded text-sm flex items-center gap-1">
-                              <FiVideo className="w-3 h-3" />
+                            <div className="bg-primary bg-opacity-90 text-white px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5">
+                              <FiVideo className="w-2.5 h-2.5" />
                               {portfolio.videos.length}
                             </div>
                           )}
@@ -1423,40 +1787,37 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                         {user && (
                           <button
                             onClick={(e) => handleToggleBookmark(portfolio.uuid, e)}
-                            className={`absolute bottom-2 left-2 z-10 p-2 rounded-full shadow-md transition-all ${
+                            className={`absolute bottom-1 left-1 z-10 p-1.5 rounded-full shadow-md transition-all ${
                               portfolio.isBookmarked
                                 ? 'bg-yellow-100 bg-opacity-90 hover:bg-opacity-100'
                                 : 'bg-white bg-opacity-90 hover:bg-opacity-100'
                             }`}
                           >
-                            <FiBookmark className={`w-5 h-5 ${portfolio.isBookmarked ? 'fill-current text-yellow-600' : 'text-gray-600'}`} />
+                            <FiBookmark className={`w-4 h-4 ${portfolio.isBookmarked ? 'fill-current text-yellow-600' : 'text-gray-600'}`} />
                           </button>
                         )}
                       </div>
 
                       {/* 정보 */}
-                      <div className="p-4 space-y-3">
-                        <h3 className="font-bold text-lg text-gray-900 line-clamp-1">
+                      <div className="p-2 space-y-1.5">
+                        <h3 className="font-bold text-sm text-gray-900 line-clamp-1">
                           {portfolio.title}
                         </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">
-                          {portfolio.description || portfolio.content || ''}
-                        </p>
 
                         {/* 필터 옵션 배지 */}
                         {portfolio.filterOptions && portfolio.filterOptions.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {portfolio.filterOptions.slice(0, 3).map(filter => (
+                          <div className="flex flex-wrap gap-0.5">
+                            {portfolio.filterOptions.slice(0, 2).map(filter => (
                               <span
                                 key={filter.id}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700"
+                                className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-700"
                               >
                                 {filter.displayName || filter.value}
                               </span>
                             ))}
-                            {portfolio.filterOptions.length > 3 && (
-                              <span className="text-xs text-gray-400">
-                                +{portfolio.filterOptions.length - 3}
+                            {portfolio.filterOptions.length > 2 && (
+                              <span className="text-[10px] text-gray-400">
+                                +{portfolio.filterOptions.length - 2}
                               </span>
                             )}
                           </div>
@@ -1464,48 +1825,48 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
                         {/* 태그 */}
                         {portfolio.tags && portfolio.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {portfolio.tags.slice(0, 3).map(tag => (
+                          <div className="flex flex-wrap gap-0.5">
+                            {portfolio.tags.slice(0, 2).map(tag => (
                               <span
                                 key={tag}
-                                className="inline-flex items-center gap-1 bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs"
+                                className="inline-flex items-center gap-0.5 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded text-[10px]"
                               >
-                                <FiTag className="text-xs" />
+                                <FiTag className="w-2 h-2" />
                                 {tag}
                               </span>
                             ))}
-                            {portfolio.tags.length > 3 && (
-                              <span className="text-xs text-gray-400">
-                                +{portfolio.tags.length - 3}
+                            {portfolio.tags.length > 2 && (
+                              <span className="text-[10px] text-gray-400">
+                                +{portfolio.tags.length - 2}
                               </span>
                             )}
                           </div>
                         )}
 
-                        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center text-xs text-gray-600">
+                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                          <div className="flex items-center gap-1">
+                            <div className="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-600">
                               {portfolio.company?.companyName?.charAt(0) || 'U'}
                             </div>
-                            <span>{portfolio.company?.companyName || '알 수 없음'}</span>
-                            <span className="flex items-center gap-1 text-yellow-500">
-                              <FiStar className="fill-current" />
-                              {(portfolio.company?.averageRating ?? 0).toFixed(1)}
-                              <span className="text-gray-400">({portfolio.company?.reviewCount ?? 0})</span>
-                            </span>
+                            {portfolio.company?.averageRating != null && portfolio.company.averageRating > 0 && (
+                              <span className="flex items-center gap-0.5 text-[10px] text-yellow-600">
+                                <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                                {portfolio.company.averageRating.toFixed(1)}
+                              </span>
+                            )}
                           </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
-                            <span className="flex items-center gap-1">
-                              <FiEye />
+                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                            <span className="flex items-center gap-0.5">
+                              <FiEye className="w-3 h-3" />
                               {portfolio.viewCount}
                             </span>
                             <button
                               onClick={(e) => handleToggleLike(portfolio.uuid, e)}
-                              className={`flex items-center gap-1 transition-colors ${
+                              className={`flex items-center gap-0.5 transition-colors ${
                                 portfolio.isLiked ? 'text-red-500' : 'hover:text-red-500'
                               }`}
                             >
-                              <FiHeart className={portfolio.isLiked ? 'fill-current' : ''} />
+                              <FiHeart className={`w-3 h-3 ${portfolio.isLiked ? 'fill-current' : ''}`} />
                               {portfolio.likeCount}
                             </button>
                           </div>
@@ -1520,29 +1881,29 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
             {/* 페이지네이션 */}
             {totalPages >= 1 && (
-              <div className="flex justify-center items-center gap-1 sm:gap-2 mt-8 overflow-x-auto pb-2">
+              <div className="flex justify-center items-center gap-0.5 sm:gap-2 mt-8 pb-2">
                 {/* 처음 */}
                 <button
                   onClick={() => handlePageChange(0)}
                   disabled={currentPage === 0}
-                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                   title="처음"
                 >
-                  <FiChevronsLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <FiChevronsLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </button>
 
                 {/* 이전 */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 0}
-                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                   title="이전"
                 >
-                  <FiChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <FiChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </button>
 
                 {/* 모바일: 5개 */}
-                <div className="flex gap-1 sm:hidden">
+                <div className="flex gap-0.5 sm:hidden">
                   {(() => {
                     const maxButtons = 5
                     const pages: number[] = []
@@ -1567,7 +1928,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       <button
                         key={pageNum}
                         onClick={() => handlePageChange(pageNum)}
-                        className={`flex-shrink-0 min-w-[36px] px-2 py-2 text-sm rounded-lg ${
+                        className={`flex-shrink-0 min-w-[28px] px-1.5 py-1.5 text-xs rounded-md ${
                           currentPage === pageNum
                             ? 'bg-primary text-white'
                             : 'border border-gray-300 hover:bg-gray-50'
@@ -1621,20 +1982,20 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages - 1}
-                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                   title="다음"
                 >
-                  <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <FiChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </button>
 
                 {/* 끝 */}
                 <button
                   onClick={() => handlePageChange(totalPages - 1)}
                   disabled={currentPage === totalPages - 1}
-                  className="flex-shrink-0 p-2 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                   title="끝"
                 >
-                  <FiChevronsRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <FiChevronsRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                 </button>
               </div>
             )}

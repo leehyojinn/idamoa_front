@@ -66,8 +66,8 @@ export default function Select({
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
           className={`
-            w-full px-4 py-3 text-left rounded-xl border-2 transition-all duration-200
-            flex items-center justify-between
+            w-full px-2.5 md:px-4 py-1.5 md:py-3 text-left rounded-lg md:rounded-xl border md:border-2 transition-all duration-200
+            flex items-center justify-between text-xs md:text-base
             ${disabled
               ? 'bg-gray-100 cursor-not-allowed text-gray-400 border-gray-200'
               : error
@@ -78,10 +78,10 @@ export default function Select({
             }
           `}
         >
-          <span className={`flex items-center gap-2 ${selectedOption ? 'text-gray-900' : 'text-gray-400'}`}>
+          <span className={`flex items-center gap-1.5 md:gap-2 ${selectedOption ? 'text-gray-900' : 'text-gray-400'}`}>
             {selectedOption?.color && (
               <span
-                className="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0"
+                className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-gray-300 flex-shrink-0"
                 style={{ backgroundColor: selectedOption.color }}
               />
             )}
@@ -91,7 +91,7 @@ export default function Select({
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: 0.2 }}
           >
-            <IoChevronDown className={`text-xl ${disabled ? 'text-gray-300' : 'text-gray-500'}`} />
+            <IoChevronDown className={`text-sm md:text-xl ${disabled ? 'text-gray-300' : 'text-gray-500'}`} />
           </motion.div>
         </button>
 
@@ -102,7 +102,7 @@ export default function Select({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl overflow-hidden"
+              className="absolute z-50 w-full mt-1 md:mt-2 bg-white border md:border-2 border-gray-200 rounded-lg md:rounded-xl shadow-xl overflow-hidden"
             >
               <div className="max-h-60 overflow-y-auto">
                 {options.map((option) => (
@@ -111,8 +111,8 @@ export default function Select({
                     type="button"
                     onClick={() => handleSelect(option.value)}
                     className={`
-                      w-full px-4 py-3 text-left transition-all duration-150
-                      flex items-center gap-2
+                      w-full px-2.5 md:px-4 py-2 md:py-3 text-left transition-all duration-150
+                      flex items-center gap-1.5 md:gap-2 text-xs md:text-base
                       ${option.value === value
                         ? 'bg-primary text-white hover:bg-primary-800 font-medium'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
@@ -121,7 +121,7 @@ export default function Select({
                   >
                     {option.color && (
                       <span
-                        className="w-4 h-4 rounded-full border border-gray-300 flex-shrink-0"
+                        className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-gray-300 flex-shrink-0"
                         style={{ backgroundColor: option.color }}
                       />
                     )}

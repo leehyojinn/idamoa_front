@@ -4,7 +4,6 @@ import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
 import PopupManager from '@/components/popup/PopupManager'
 import PortfolioListClient from '@/components/portfolio/PortfolioListClient'
-import FeaturedPortfolios from '@/components/portfolio/FeaturedPortfolios'
 import FeaturedPartnerships from '@/components/partnership/FeaturedPartnerships'
 import { searchPortfolios } from '@/lib/api/portfolio'
 import { OrganizationSchema, WebSiteSchema } from '@/components/seo/JsonLd'
@@ -85,9 +84,6 @@ export default async function Home() {
 
       {/* 제휴 업체 슬라이드 */}
       <FeaturedPartnerships count={8} />
-
-      {/* 추천 포트폴리오 슬라이드 */}
-      <FeaturedPortfolios count={8} />
 
       <main id="portfolio" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Suspense fallback={
