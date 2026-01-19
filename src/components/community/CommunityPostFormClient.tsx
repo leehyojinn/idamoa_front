@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { FiArrowLeft, FiUpload, FiX, FiFile, FiImage } from 'react-icons/fi'
+import DOMPurify from 'isomorphic-dompurify'
+import { FiArrowLeft, FiUpload, FiX, FiFile, FiImage, FiCode, FiEye } from 'react-icons/fi'
 import {
   createCommunityPost,
   updateCommunityPost,
@@ -42,6 +43,8 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
   const [categoryUuid, setCategoryUuid] = useState(initialData?.categoryUuid || '')
   const [title, setTitle] = useState(initialData?.title || '')
   const [content, setContent] = useState(initialData?.content || '')
+  const [contentMode, setContentMode] = useState<'text' | 'html'>(initialData?.contentType === 'HTML' ? 'html' : 'text')
+  const [isHtmlPreview, setIsHtmlPreview] = useState(false)
   const [isAnonymous, setIsAnonymous] = useState(initialData?.isAnonymous || false)
   const [files, setFiles] = useState<CommunityFile[]>(initialData?.attachments || [])
   const [uploadingFiles, setUploadingFiles] = useState<File[]>([])
@@ -123,7 +126,7 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
         await updateCommunityPost(initialData.uuid, {
           title,
           content,
-          contentType: 'TEXT',
+          contentType: contentMode === 'html' ? 'HTML' : 'TEXT',
           isAnonymous,
           fileUuids: files.map((f) => f.uuid),
         })
@@ -134,7 +137,7 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
           categoryUuid,
           title,
           content,
-          contentType: 'TEXT',
+          contentType: contentMode === 'html' ? 'HTML' : 'TEXT',
           isAnonymous,
           fileUuids: files.map((f) => f.uuid),
         })
@@ -213,16 +216,81 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
 
           {/* 내용 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              내용 <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="내용을 입력하세요"
-              rows={12}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm md:text-base resize-y"
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                내용 <span className="text-red-500">*</span>
+              </label>
+              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setContentMode('text')
+                    setIsHtmlPreview(false)
+                  }}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    contentMode === 'text'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  일반 텍스트
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setContentMode('html')
+                    setIsHtmlPreview(false)
+                  }}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    contentMode === 'html'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <FiCode className="w-4 h-4" />
+                  HTML 코드
+                </button>
+                {contentMode === 'html' && (
+                  <button
+                    type="button"
+                    onClick={() => setIsHtmlPreview(!isHtmlPreview)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                      isHtmlPreview
+                        ? 'bg-primary text-white'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <FiEye className="w-4 h-4" />
+                    미리보기
+                  </button>
+                )}
+              </div>
+            </div>
+            {contentMode === 'html' && isHtmlPreview ? (
+              <div
+                className="w-full min-h-[300px] p-3 border border-gray-300 rounded-lg bg-gray-50 prose prose-sm max-w-none overflow-auto"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }}
+              />
+            ) : contentMode === 'html' ? (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="HTML 코드를 입력하세요.&#10;&#10;예시:&#10;<h3>제목</h3>&#10;<p>내용입니다.</p>&#10;<ul><li>목록 1</li><li>목록 2</li></ul>"
+                rows={12}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm md:text-base resize-y font-mono"
+              />
+            ) : (
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="내용을 입력하세요"
+                rows={12}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm md:text-base resize-y"
+              />
+            )}
+            <p className="text-xs text-gray-500 mt-1 text-right">
+              {content.length}자{contentMode === 'html' && ' | HTML 모드'}
+            </p>
           </div>
 
           {/* 첨부파일 */}

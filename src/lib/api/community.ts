@@ -160,7 +160,6 @@ export interface ApiResponse<T> {
 // 검색 파라미터
 export interface CommunityPostSearchParams {
   categorySlug?: string
-  includeChildren?: boolean  // 하위 카테고리 게시글 포함 여부
   keyword?: string
   page?: number
   size?: number
@@ -215,8 +214,6 @@ export async function getCommunityPosts(params: CommunityPostSearchParams = {}):
     const queryParams = new URLSearchParams()
 
     if (params.categorySlug) queryParams.append('categorySlug', params.categorySlug)
-    // 상위 카테고리로 조회 시 하위 카테고리 게시글 포함 여부
-    if (params.includeChildren !== undefined) queryParams.append('includeChildren', params.includeChildren.toString())
     if (params.keyword) queryParams.append('keyword', params.keyword)
     if (params.page !== undefined) queryParams.append('page', params.page.toString())
     if (params.size !== undefined) queryParams.append('size', params.size.toString())

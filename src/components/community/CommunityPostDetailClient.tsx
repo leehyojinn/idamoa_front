@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import DOMPurify from 'isomorphic-dompurify'
 import {
   FiArrowLeft,
   FiThumbsUp,
@@ -262,7 +263,7 @@ export default function CommunityPostDetailClient({ uuid, initialData }: Props) 
             {post.isHiddenByAdmin ? (
               <p>관리자에 의해 비공개 처리된 게시글입니다.</p>
             ) : post.contentType === 'HTML' ? (
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} />
             ) : (
               <div className="whitespace-pre-wrap">{post.content}</div>
             )}

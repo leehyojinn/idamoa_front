@@ -67,15 +67,20 @@ export default async function CommunityCategoryPage({ params }: PageProps) {
   try {
     const [categoriesResult, postsResult] = await Promise.all([
       getCommunityCategories(),
-      getCommunityPosts({ categorySlug, includeChildren: true, page: 0, size: 20, sort: 'createdAt,desc' }),
+      getCommunityPosts({ categorySlug, page: 0, size: 20, sort: 'createdAt,desc' }),
     ])
+
+    console.log('[Community Page] categorySlug:', categorySlug)
+    console.log('[Community Page] postsResult:', JSON.stringify(postsResult, null, 2))
 
     if (categoriesResult.success && categoriesResult.data) {
       categories = categoriesResult.data
       currentCategory = findCategoryBySlug(categories, categorySlug)
+      console.log('[Community Page] currentCategory:', currentCategory?.name, currentCategory?.uuid)
     }
     if (postsResult.success) {
       posts = postsResult.data
+      console.log('[Community Page] posts count:', posts?.content?.length || 0)
     }
   } catch (error) {
     console.error('커뮤니티 데이터 로드 실패:', error)

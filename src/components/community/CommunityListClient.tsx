@@ -42,6 +42,16 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
   const [totalPages, setTotalPages] = useState(initialPosts?.totalPages || 0)
   const [totalElements, setTotalElements] = useState(initialPosts?.totalElements || 0)
 
+  // initialPosts가 변경되면 상태 동기화 (탭 전환 시)
+  useEffect(() => {
+    if (initialPosts) {
+      setPosts(initialPosts.content || [])
+      setTotalPages(initialPosts.totalPages || 0)
+      setTotalElements(initialPosts.totalElements || 0)
+      setIsLoading(false)
+    }
+  }, [initialPosts, categorySlug])
+
   // 현재 카테고리 경로 계산
   const basePath = categorySlug ? `/community/${categorySlug}` : '/community'
 
@@ -79,7 +89,6 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
     try {
       const result = await getCommunityPosts({
         categorySlug: categorySlug || undefined,
-        includeChildren: true,  // 하위 카테고리 게시글 포함
         keyword: keyword || undefined,
         page: currentPage,
         size: 20,
@@ -113,10 +122,16 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
     }
   }, [categorySlug, keyword, currentPage])
 
-  // 검색/필터 변경 시 게시글 로드
+  // 검색/페이지 변경 시 게시글 로드 (initialPosts가 없거나 검색/페이지 변경 시)
   useEffect(() => {
+    // initialPosts가 있고 검색어나 페이지가 초기값이면 서버 데이터 사용
+    const isInitialState = currentPage === 0 && !keyword
+    if (initialPosts && isInitialState) {
+      return
+    }
+    // 검색어나 페이지가 변경되면 클라이언트에서 fetch
     fetchPosts()
-  }, [fetchPosts])
+  }, [keyword, currentPage, fetchPosts, initialPosts])
 
   // 검색
   const handleSearch = () => {
@@ -202,8 +217,8 @@ export default function CommunityListClient({ initialCategories, initialPosts, c
           {categories.filter(cat => cat.depth === 0).map((cat) => {
             const isActive = categorySlug === cat.slug || activeParentSlug === cat.slug
             const hasChildren = cat.children && cat.children.length > 0
-            // 하위 카테고리가 있으면 첫 번째 하위 카테고리로 이동
-            const targetSlug = hasChildren ? cat.children![0].slug : cat.slug
+            // 상위 카테고리 클릭 시 해당 카테고리로 이동 (includeChildren으로 하위 게시글 포함)
+            const targetSlug = cat.slug
 
             return (
               <Link

@@ -30,6 +30,12 @@ export default async function CommunityPage() {
     }
     if (postsResult.success) {
       initialPosts = postsResult.data
+      // 각 게시글의 카테고리 정보 로그
+      console.log('[Community All] posts:', initialPosts?.content?.map(p => ({
+        title: p.title,
+        categoryName: p.categoryName,
+        categorySlug: p.categorySlug
+      })))
     }
   } catch (error) {
     console.error('커뮤니티 데이터 로드 실패:', error)
