@@ -567,16 +567,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     const optionHasChildren = hasChildren(optionId)
 
     if (optionHasChildren) {
-      // 자식이 있는 옵션 클릭 → 카테고리 필터 모드처럼 동작 (선택 표시 없이 전체 리스트)
+      // 자식이 있는 옵션 클릭 → 전체 리스트 (자식만 액티브 표시, 손자는 표시 안 함)
       if (checked) {
         const allOptionIds = getAllChildOptionIds(optionId)
-        setActiveCategoryFilterId(optionId) // 자식 옵션을 활성 카테고리처럼
+        // activeCategoryFilterId는 건드리지 않음 (부모 카테고리용)
         setCategoryFilterOptionIds(allOptionIds)
-        setSelectedFilterOptionIds([]) // UI에 선택 표시 안 함
-        setSelectedTags([])
+        setSelectedFilterOptionIds([optionId]) // 자식 자체만 액티브 표시
+        setSelectedTags([optionName])
         setCurrentPage(0)
         setNextPageCache(null)
-        updateURL({ page: 0, filterIds: [] })
+        updateURL({ page: 0, filterIds: [optionId] })
         fetchPortfolios({
           page: 0,
           keyword,
@@ -586,27 +586,10 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           onlyBookmarked,
           onlyMyPosts,
         })
-      } else {
-        // 선택 해제 → 전체 보기
-        setActiveCategoryFilterId(null)
-        setCategoryFilterOptionIds([])
-        setSelectedFilterOptionIds([])
-        setSelectedTags([])
-        setCurrentPage(0)
-        setNextPageCache(null)
-        updateURL({ page: 0, filterIds: [] })
-        fetchPortfolios({
-          page: 0,
-          keyword,
-          companyUuid: companyUuid || undefined,
-          sort: sortBy,
-          onlyBookmarked,
-          onlyMyPosts,
-        })
       }
+      // checked가 false여도 아무것도 안 함 (펼침만 유지)
     } else {
       // 자식이 없는 옵션 (손자) 클릭 → 개별 선택
-      setActiveCategoryFilterId(null)
       setCategoryFilterOptionIds([])
 
       let newFilterOptionIds: number[]
