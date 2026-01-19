@@ -181,7 +181,7 @@ export default function AdminCommunityPostDetailPage({ params }: PageProps) {
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-wrap items-center gap-2 mb-3">
               <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded">
-                {post.categoryName}
+                {post.categoryName} (slug: {post.categorySlug})
               </span>
               {post.isPinned && (
                 <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">

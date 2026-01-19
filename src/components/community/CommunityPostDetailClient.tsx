@@ -46,11 +46,10 @@ export default function CommunityPostDetailClient({ uuid, initialData }: Props) 
   const [dislikeCount, setDislikeCount] = useState(initialData?.dislikeCount || 0)
   const [downloadingFile, setDownloadingFile] = useState<string | null>(null)
 
+  // 클라이언트에서 항상 다시 fetch하여 isOwner 등 사용자별 데이터 갱신
   useEffect(() => {
-    if (!initialData) {
-      fetchPost()
-    }
-  }, [uuid, initialData])
+    fetchPost()
+  }, [uuid])
 
   const fetchPost = async () => {
     setIsLoading(true)

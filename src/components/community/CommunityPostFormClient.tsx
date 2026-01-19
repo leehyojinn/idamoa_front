@@ -8,6 +8,7 @@ import { FiArrowLeft, FiUpload, FiX, FiFile, FiImage, FiCode, FiEye } from 'reac
 import {
   createCommunityPost,
   updateCommunityPost,
+  getCommunityPost,
   type CommunityCategory,
   type CommunityPostDetail,
   type CommunityFile,
@@ -58,12 +59,25 @@ export default function CommunityPostFormClient({ categories, initialData, isEdi
     }
   }, [isAuthenticated, router])
 
-  // 수정 모드에서 소유자 확인
+  // 수정 모드에서 소유자 확인 (클라이언트에서 다시 확인)
   useEffect(() => {
-    if (isEdit && initialData && !initialData.isOwner) {
-      showErrorToast(null, '수정 권한이 없습니다')
-      router.push('/community')
+    const checkOwnership = async () => {
+      if (isEdit && initialData) {
+        try {
+          const result = await getCommunityPost(initialData.uuid)
+          if (result.success && result.data) {
+            if (!result.data.isOwner) {
+              showErrorToast(null, '수정 권한이 없습니다')
+              router.push('/community')
+            }
+          }
+        } catch (error) {
+          showErrorToast(null, '권한 확인에 실패했습니다')
+          router.push('/community')
+        }
+      }
     }
+    checkOwnership()
   }, [isEdit, initialData, router])
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
