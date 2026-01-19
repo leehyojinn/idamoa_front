@@ -216,12 +216,13 @@ export default function HorizontalSlideFilter({
     }
   }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd])
 
-  // [필터 상태 관련] 선택된 옵션이 없으면 selectedPath 초기화
+  // [필터 상태 관련] 선택된 옵션이 없고 카테고리 필터도 없으면 selectedPath 초기화
+  // activeCategoryFilterId가 있으면 카테고리/자식 필터링 중이므로 selectedPath 유지
   useEffect(() => {
-    if (selectedOptionIds.length === 0) {
+    if (selectedOptionIds.length === 0 && activeCategoryFilterId === null) {
       setSelectedPath([])
     }
-  }, [selectedOptionIds])
+  }, [selectedOptionIds, activeCategoryFilterId])
 
   // 카테고리 내 모든 옵션 ID 수집 (재귀)
   const getAllOptionIdsInCategory = useCallback((category: FilterCategory): number[] => {
