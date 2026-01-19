@@ -509,6 +509,38 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return Array.from(result)
   }, [filterCategories])
 
+  // 옵션과 모든 자식 ID를 재귀적으로 수집하는 헬퍼 함수
+  const getAllChildOptionIds = useCallback((optionId: number): number[] => {
+    const findOptionAndCollectIds = (options: typeof filterCategories[0]['options']): number[] => {
+      for (const opt of options) {
+        if (opt.id === optionId) {
+          // 해당 옵션을 찾으면, 자신 + 모든 자식 ID 수집
+          const collectIds = (option: typeof opt): number[] => {
+            const ids = [option.id]
+            if (option.children && option.children.length > 0) {
+              for (const child of option.children) {
+                ids.push(...collectIds(child))
+              }
+            }
+            return ids
+          }
+          return collectIds(opt)
+        }
+        if (opt.children && opt.children.length > 0) {
+          const found = findOptionAndCollectIds(opt.children)
+          if (found.length > 0) return found
+        }
+      }
+      return []
+    }
+
+    for (const category of filterCategories) {
+      const ids = findOptionAndCollectIds(category.options)
+      if (ids.length > 0) return ids
+    }
+    return [optionId] // 못 찾으면 자기 자신만
+  }, [filterCategories])
+
   const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
     // 개별 옵션 선택 시 카테고리 필터 모드 해제
     setActiveCategoryFilterId(null)
@@ -519,8 +551,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     let newTags: string[]
 
     if (checked) {
-      // 새로 선택하면 기존 선택 해제하고 이것만 선택
-      newFilterOptionIds = [optionId]
+      // 새로 선택하면 기존 선택 해제하고 이것만 선택 (자식 포함)
+      newFilterOptionIds = getAllChildOptionIds(optionId)
       newTags = [optionName]
     } else {
       // 선택 해제
@@ -1624,11 +1656,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                               {portfolio.likeCount}
                             </span>
                           </div>
-                          {portfolio.company?.averageRating != null && portfolio.company.averageRating > 0 && (
-                            <span className="flex items-center gap-0.5 text-yellow-600">
-                              <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
-                              {portfolio.company.averageRating.toFixed(1)}
-                            </span>
+                          {portfolio.company && (
+                            <div className="flex items-center gap-1">
+                              <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center text-[8px] text-gray-600">
+                                {portfolio.company.companyName?.charAt(0) || 'U'}
+                              </div>
+                              <span className="flex items-center gap-0.5 text-yellow-600">
+                                <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                                {(portfolio.company.averageRating ?? 0).toFixed(1)}
+                              </span>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -1848,10 +1885,10 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                             <div className="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-600">
                               {portfolio.company?.companyName?.charAt(0) || 'U'}
                             </div>
-                            {portfolio.company?.averageRating != null && portfolio.company.averageRating > 0 && (
+                            {portfolio.company && (
                               <span className="flex items-center gap-0.5 text-[10px] text-yellow-600">
                                 <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
-                                {portfolio.company.averageRating.toFixed(1)}
+                                {(portfolio.company.averageRating ?? 0).toFixed(1)}
                               </span>
                             )}
                           </div>
