@@ -6,13 +6,33 @@ import PopupManager from '@/components/popup/PopupManager'
 import PortfolioListClient from '@/components/portfolio/PortfolioListClient'
 import FeaturedPartnerships from '@/components/partnership/FeaturedPartnerships'
 import { searchPortfolios } from '@/lib/api/portfolio'
-import { OrganizationSchema, WebSiteSchema } from '@/components/seo/JsonLd'
+import { OrganizationSchema, WebSiteSchema, FAQSchema, ServiceSchema } from '@/components/seo/JsonLd'
+
+// 메인 페이지 FAQ 데이터 (검색 결과에 리치 스니펫으로 표시됨)
+const mainPageFAQ = [
+  {
+    question: '인테리어 비용은 평균 얼마인가요?',
+    answer: '인테리어 비용은 평수, 시공 범위, 자재에 따라 다릅니다. 일반적으로 20평 아파트 기준 부분 인테리어는 500~1,500만원, 전체 인테리어는 2,000~5,000만원 정도입니다. 다모아에서 무료 견적을 받아 정확한 비용을 확인하세요.',
+  },
+  {
+    question: '인테리어 업체는 어떻게 선택해야 하나요?',
+    answer: '인테리어 업체 선택 시 1) 포트폴리오 확인 2) 실제 시공 사례 및 후기 확인 3) 여러 업체 견적 비교 4) 계약서 꼼꼼히 확인이 중요합니다. 다모아에서는 검증된 전문 업체들의 포트폴리오와 리뷰를 한눈에 비교할 수 있습니다.',
+  },
+  {
+    question: '인테리어 견적은 무료인가요?',
+    answer: '네, 다모아에서 인테리어 견적 요청은 완전 무료입니다. 원하는 조건을 입력하시면 여러 인테리어 업체로부터 견적을 받아보실 수 있으며, 견적 비교 후 마음에 드는 업체를 선택하시면 됩니다.',
+  },
+  {
+    question: '인테리어 기간은 얼마나 걸리나요?',
+    answer: '인테리어 기간은 시공 범위에 따라 다릅니다. 부분 인테리어(도배, 장판)는 1~3일, 욕실/주방 리모델링은 1~2주, 전체 인테리어는 3~8주 정도 소요됩니다. 정확한 기간은 업체 상담을 통해 확인하세요.',
+  },
+]
 
 export const metadata = createPageMetadata({
-  title: '인테리어 다모아 - 인테리어 전문 플랫폼',
-  description: '다양한 인테리어 전문 업체들을 한곳에서 확인하세요. 사진, 견적, AI 추천까지 인테리어의 모든 것.',
+  title: '인테리어 업체 비교 & 무료 견적 | 인테리어 다모아',
+  description: '인테리어 업체 비교부터 무료 견적까지! 아파트, 주택, 상가 인테리어 전문 업체 포트폴리오를 확인하고 내 집에 딱 맞는 업체를 찾아보세요. 전국 인테리어 시공 사례와 실시간 견적 비교.',
   path: '/',
-  keywords: ['홈','인테리어', '메인', '리모델링', '집꾸미기', '인테리어 사진'],
+  keywords: ['인테리어', '인테리어 업체', '인테리어 견적', '인테리어 비용', '인테리어 업체 추천', '리모델링', '아파트 인테리어', '인테리어 비교', '무료 견적'],
 })
 
 export default async function Home() {
@@ -33,6 +53,11 @@ export default async function Home() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <OrganizationSchema />
       <WebSiteSchema />
+      <FAQSchema items={mainPageFAQ} />
+      <ServiceSchema
+        name="인테리어 업체 비교 서비스"
+        description="전국 인테리어 전문 업체 포트폴리오 비교, 무료 견적 요청, 시공 사례 확인까지 인테리어의 모든 것을 한 곳에서 해결하세요."
+      />
       <Navbar />
 
       {/* 히어로 섹션 */}

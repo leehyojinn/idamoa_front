@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import CommunityPostDetailClient from '@/components/community/CommunityPostDetailClient'
 import { getCommunityPost } from '@/lib/api/community'
+import { DiscussionPostSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
 
 // React cache를 사용하여 같은 요청 내에서 API 호출 중복 제거 (조회수 중복 증가 방지)
 const getCachedPost = cache(async (uuid: string) => {
@@ -62,8 +63,30 @@ export default async function CommunityPostDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  const postUrl = `https://i-damoa.com/community/posts/${uuid}`
+
   return (
     <>
+      {/* SEO 구조화 데이터 */}
+      <DiscussionPostSchema
+        title={post.title}
+        content={post.content?.replace(/<[^>]*>/g, '') || ''}
+        url={postUrl}
+        authorName={post.authorName || '익명'}
+        datePublished={post.createdAt}
+        dateModified={post.updatedAt}
+        commentCount={post.commentCount}
+        likeCount={post.likeCount}
+        image={post.attachments?.find(a => a.attachmentType === 'IMAGE')?.fileUrl}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: '홈', url: 'https://i-damoa.com' },
+          { name: '커뮤니티', url: 'https://i-damoa.com/community' },
+          { name: post.categoryName || '게시판', url: `https://i-damoa.com/community/${post.categorySlug || ''}` },
+          { name: post.title, url: postUrl },
+        ]}
+      />
       <Navbar />
       <main className="min-h-screen bg-gray-50 py-6 md:py-8">
         <div className="max-w-4xl mx-auto px-4">

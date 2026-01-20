@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 // 기본 메타데이터 설정
 const siteUrl = 'https://i-damoa.com'
 const siteName = '인테리어 다모아'
-const siteDescription = '인테리어 전문 업체를 한눈에! 업체 비교, 견적 요청, 포트폴리오 확인까지 인테리어의 모든 것을 다모아에서 만나보세요.'
+const siteDescription = '인테리어 업체 비교, 무료 견적, 시공 사례까지! 아파트·주택·상가 인테리어 전문 업체를 한눈에 비교하고 내 집에 딱 맞는 인테리어를 찾아보세요. 전국 인테리어 업체 포트폴리오와 실시간 견적을 다모아에서 확인하세요.'
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -19,17 +19,30 @@ export const defaultMetadata: Metadata = {
     '인테리어',
     '인테리어 업체',
     '인테리어 견적',
+    '인테리어 비용',
+    '인테리어 업체 추천',
     '인테리어 비교',
     '리모델링',
+    '리모델링 업체',
+    '리모델링 비용',
+    '집 인테리어',
     '집꾸미기',
     '아파트 인테리어',
-    '주거 인테리어',
-    '상업 인테리어',
+    '아파트 인테리어 비용',
+    '신혼집 인테리어',
+    '주택 인테리어',
+    '빌라 인테리어',
+    '오피스텔 인테리어',
+    '상가 인테리어',
     '사무실 인테리어',
+    '병원 인테리어',
     '인테리어 포트폴리오',
     '인테리어 시공',
+    '인테리어 시공 사례',
     '인테리어 디자인',
-    '다모아',
+    '인테리어 견적 비교',
+    '무료 인테리어 견적',
+    '인테리어 다모아',
   ],
   authors: [{ name: siteName, url: siteUrl }],
   creator: siteName,
