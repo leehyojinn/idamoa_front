@@ -55,7 +55,13 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
+        if (state) {
+          // accessToken이 있으면 isAuthenticated를 true로 설정 (일관성 보장)
+          if (state.accessToken && !state.isAuthenticated) {
+            state.setAccessToken(state.accessToken)
+          }
+          state.setHasHydrated(true)
+        }
       },
       partialize: (state) => ({
         user: state.user,

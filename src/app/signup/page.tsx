@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import toast from 'react-hot-toast'
 import { useSignupStart } from '@/hooks/useAuthMutations'
+import { useAuthStore } from '@/stores/authStore'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -50,9 +52,19 @@ type SignupForm = z.infer<typeof signupSchema>
 export default function SignupPage() {
   const router = useRouter()
   const [allAgreed, setAllAgreed] = useState(false)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const _hasHydrated = useAuthStore((state) => state._hasHydrated)
 
   // React Query mutation
   const signupStartMutation = useSignupStart()
+
+  // 이미 로그인된 상태면 메인 페이지로 리다이렉트
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated) {
+      toast('이미 로그인되어 있습니다.', { icon: 'ℹ️' })
+      router.replace('/')
+    }
+  }, [_hasHydrated, isAuthenticated, router])
 
   const {
     register,

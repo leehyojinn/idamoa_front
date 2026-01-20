@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
 import Image from 'next/image'
+import toast from 'react-hot-toast'
 import {
   login,
   getKakaoAuthUrl,
@@ -86,7 +87,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const setUser = useAuthStore((state) => state.setUser)
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const _hasHydrated = useAuthStore((state) => state._hasHydrated)
   const openPasswordResetModal = usePasswordResetStore((state) => state.openModal)
+
+  // 이미 로그인된 상태면 메인 페이지로 리다이렉트
+  useEffect(() => {
+    if (_hasHydrated && isAuthenticated) {
+      toast('이미 로그인되어 있습니다.', { icon: 'ℹ️' })
+      router.replace('/')
+    }
+  }, [_hasHydrated, isAuthenticated, router])
 
   const {
     register,

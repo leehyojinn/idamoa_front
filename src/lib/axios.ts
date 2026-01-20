@@ -2,6 +2,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { logError, logInfo } from './errorHandler'
 import { useAuthStore } from '@/stores/authStore'
+import { refreshAccessToken, isTokenRefreshing, subscribeTokenRefresh } from './tokenRefresh'
 
 /**
  * Axios 인스턴스 설정
@@ -12,19 +13,6 @@ const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 // 리다이렉트 중복 방지 플래그
 let isRedirecting = false;
-
-// 토큰 갱신 중복 방지 (race condition 방지)
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = []
-
-const subscribeTokenRefresh = (callback: (token: string) => void) => {
-  refreshSubscribers.push(callback)
-}
-
-const onTokenRefreshed = (token: string) => {
-  refreshSubscribers.forEach(callback => callback(token))
-  refreshSubscribers = []
-}
 
 // 로그인이 필요한 페이지 경로 (이 페이지에서만 토큰 만료 시 로그인 페이지로 리다이렉트)
 const AUTH_REQUIRED_PATHS = [
@@ -128,54 +116,40 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true
 
       // 이미 토큰 갱신 중이면 대기 후 재시도
-      if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh((token: string) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`
-            resolve(axiosInstance(originalRequest))
+      // tokenRefresh.ts의 subscriber를 통해 완료 알림을 받음
+      if (isTokenRefreshing()) {
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh((token: string | null) => {
+            if (token) {
+              originalRequest.headers.Authorization = `Bearer ${token}`
+              resolve(axiosInstance(originalRequest))
+            } else {
+              reject(error)
+            }
           })
         })
       }
 
-      isRefreshing = true
-
       try {
-        logInfo('토큰 갱신 시도')
+        // 공유 토큰 갱신 함수 사용
+        // refreshAccessToken 내부에서 subscriber들에게 알림을 보냄
+        const newAccessToken = await refreshAccessToken()
 
-        // Refresh Token으로 새 Access Token 발급
-        // refreshToken은 httpOnly 쿠키로 자동 전송됨
-        const response = await axios.post(
-          `${apiBaseUrl}/api/auth/refresh`,
-          {}, // ⭐ 빈 객체 (쿠키가 자동으로 전송됨)
-          { withCredentials: true } // ⭐ 쿠키 전송 활성화
-        )
+        if (newAccessToken) {
+          logInfo('토큰 갱신 성공', '원래 요청 재시도')
 
-        const newAccessToken = response.data.data.accessToken
-
-        // ✅ 새 Access Token을 메모리에만 저장 (Refresh Token은 쿠키에 자동 저장)
-        if (typeof window !== 'undefined') {
-          useAuthStore.getState().setAccessToken(newAccessToken)
+          // 실패했던 원래 요청 재시도
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
+          return axiosInstance(originalRequest)
+        } else {
+          // 갱신 실패
+          throw new Error('Token refresh failed')
         }
-
-        logInfo('토큰 갱신 성공', '원래 요청 재시도')
-
-        // 대기 중인 요청들에게 새 토큰 전달
-        onTokenRefreshed(newAccessToken)
-        isRefreshing = false
-
-        // 실패했던 원래 요청 재시도
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-        return axiosInstance(originalRequest)
       } catch (refreshError) {
-        isRefreshing = false
-        refreshSubscribers = []
-        // Refresh Token도 만료됨 → 로그아웃 처리
+        // Refresh Token도 만료됨 → 리다이렉트 처리
         logError('토큰 갱신 실패', refreshError)
 
-        // ✅ 인증 상태 초기화 (메모리의 accessToken도 자동 제거됨)
         if (typeof window !== 'undefined') {
-          useAuthStore.getState().clearAuth()
-
           // 이미 리다이렉트 중이거나 로그인 페이지에 있으면 스킵
           const currentPath = window.location.pathname
           const currentSearch = window.location.search
