@@ -1690,6 +1690,17 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                           {portfolio.title}
                         </h3>
                         <div className="flex items-center justify-between mt-1 text-[10px] text-gray-500">
+                          {portfolio.company && (
+                            <div className="flex items-center gap-[0.1rem]">
+                              <span className="text-[8px] sm:text-[10px] text-gray-700 font-medium">
+                                {portfolio.company.companyName && portfolio.company.companyName.length > 7 ? portfolio.company.companyName.slice(0, 7) + '...' : portfolio.company.companyName}
+                              </span>
+                              <span className="flex items-center gap-0.5 text-yellow-600">
+                                <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                                {(portfolio.company.averageRating ?? 0).toFixed(1)}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-1.5">
                             <span className="flex items-center gap-0.5">
                               <FiEye className="w-2.5 h-2.5" />
@@ -1700,17 +1711,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                               {portfolio.likeCount}
                             </span>
                           </div>
-                          {portfolio.company && (
-                            <div className="flex items-center gap-1">
-                              <div className="w-4 h-4 rounded-full bg-gray-300 flex items-center justify-center text-[8px] text-gray-600">
-                                {portfolio.company.companyName?.charAt(0) || 'U'}
-                              </div>
-                              <span className="flex items-center gap-0.5 text-yellow-600">
-                                <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
-                                {(portfolio.company.averageRating ?? 0).toFixed(1)}
-                              </span>
-                            </div>
-                          )}
+                          
                         </div>
                       </div>
                     </Link>
@@ -1752,7 +1753,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                   </div>
                 </div>
               )}
-            <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 ${isLoading ? 'pointer-events-none' : ''}`}>
+            <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 ${isLoading ? 'pointer-events-none' : ''}`}>
               {portfolios.map((portfolio, index) => {
                 // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
                 const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
@@ -1925,18 +1926,20 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                         )}
 
                         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                          <div className="flex items-center gap-1">
-                            <div className="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-600">
-                              {portfolio.company?.companyName?.charAt(0) || 'U'}
-                            </div>
+                          <div className="flex items-center gap-1.5">
                             {portfolio.company && (
-                              <span className="flex items-center gap-0.5 text-[10px] text-yellow-600">
-                                <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
-                                {(portfolio.company.averageRating ?? 0).toFixed(1)}
-                              </span>
+                              <>
+                                <span className="text-[8px] sm:text-[10px] text-gray-700 font-medium">
+                                  {portfolio.company.companyName && portfolio.company.companyName.length > 7 ? portfolio.company.companyName.slice(0, 7) + '...' : portfolio.company.companyName}
+                                </span>
+                                <span className="flex items-center gap-0.5 text-[10px] text-yellow-600">
+                                  <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                                  {(portfolio.company.averageRating ?? 0).toFixed(1)}
+                                </span>
+                              </>
                             )}
                           </div>
-                          <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
                             <span className="flex items-center gap-0.5">
                               <FiEye className="w-3 h-3" />
                               {portfolio.viewCount}

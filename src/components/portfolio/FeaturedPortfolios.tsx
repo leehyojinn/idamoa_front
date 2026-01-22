@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { FiChevronLeft, FiChevronRight, FiStar, FiEye } from 'react-icons/fi'
+import { FiChevronLeft, FiChevronRight, FiStar, FiEye, FiHeart } from 'react-icons/fi'
 import { getFeaturedPortfolios, type PortfolioListItem } from '@/lib/api/portfolio'
 import { showErrorToast } from '@/lib/errorHandler'
 import { getCdnUrl } from '@/lib/utils'
@@ -201,12 +201,6 @@ export default function FeaturedPortfolios({ count = 8 }: Props) {
                       </span>
                     )}
 
-                    {/* 조회수 */}
-                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                      <FiEye className="w-3 h-3" />
-                      {portfolio.viewCount}
-                    </div>
-
                     {/* 하단 정보 (호버 시) */}
                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform bg-[rgba(0,0,0,0.8)] z-20">
                       <h3 className="text-white font-bold text-lg line-clamp-1 drop-shadow-lg">
@@ -214,7 +208,7 @@ export default function FeaturedPortfolios({ count = 8 }: Props) {
                       </h3>
                       {portfolio.company && (
                         <div className="flex items-center gap-2 mt-1 text-white/90 text-sm">
-                          <span>{portfolio.company.companyName}</span>
+                          <span>{portfolio.company.companyName && portfolio.company.companyName.length > 7 ? portfolio.company.companyName.slice(0, 7) + '...' : portfolio.company.companyName}</span>
                             <span className="flex items-center gap-1">
                               <FiStar className="w-3 h-3 text-yellow-400 fill-yellow-400" />
                               {(portfolio.company.averageRating ?? 0).toFixed(1)}
@@ -224,23 +218,36 @@ export default function FeaturedPortfolios({ count = 8 }: Props) {
                     </div>
                   </div>
 
-                  {/* 하단 정보 (기본) */}
+                  {/* 하단 정보 (기본) - 포트폴리오 리스트와 동일한 레이아웃 */}
                   <div className="mt-3 px-1">
                     <h3 className="font-semibold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
                       {portfolio.title}
                     </h3>
-                    {portfolio.company && (
-                      <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
-                        <span>{portfolio.company.companyName}</span>
-                          <span className="flex items-center gap-1 text-yellow-600">
-                            <FiStar className="w-3 h-3 fill-yellow-400" />
-                            {(portfolio.company.averageRating ?? 0).toFixed(1)}
-                            <span className="text-gray-400">
-                              ({portfolio.company.reviewCount ?? 0})
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                      <div className="flex items-center gap-1.5">
+                        {portfolio.company && (
+                          <>
+                            <span className="text-[8px] sm:text-[10px] text-gray-700 font-medium">
+                              {portfolio.company.companyName && portfolio.company.companyName.length > 7 ? portfolio.company.companyName.slice(0, 7) + '...' : portfolio.company.companyName}
                             </span>
-                          </span>
+                            <span className="flex items-center gap-0.5 text-[10px] text-yellow-600">
+                              <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                              {(portfolio.company.averageRating ?? 0).toFixed(1)}
+                            </span>
+                          </>
+                        )}
                       </div>
-                    )}
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-0.5">
+                          <FiEye className="w-3 h-3" />
+                          {portfolio.viewCount}
+                        </span>
+                        <span className="flex items-center gap-0.5">
+                          <FiHeart className={`w-3 h-3 ${portfolio.isLiked ? 'fill-red-500 text-red-500' : ''}`} />
+                          {portfolio.likeCount}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </Link>
               </div>
