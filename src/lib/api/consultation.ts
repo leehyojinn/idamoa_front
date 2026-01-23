@@ -297,3 +297,111 @@ export async function adminDeleteConsultation(
     throw error
   }
 }
+
+// ========== 업체 API ==========
+
+/**
+ * 업체 상담 목록 조회
+ */
+export async function getCompanyConsultations(
+  companyUuid: string,
+  params?: {
+    status?: ConsultationStatus
+    page?: number
+    size?: number
+  }
+): Promise<ApiResponse<PageResponse<ConsultationListItem>>> {
+  try {
+    const queryParams = new URLSearchParams()
+
+    if (params?.status) queryParams.append('status', params.status)
+    if (params?.page !== undefined) queryParams.append('page', params.page.toString())
+    if (params?.size !== undefined) queryParams.append('size', params.size.toString())
+    queryParams.append('sort', 'createdAt,DESC')
+
+    const url = `/companies/${companyUuid}/consultations${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+    const response = await axiosInstance.get(url)
+    return { success: true, data: response.data.data }
+  } catch (error: any) {
+    console.error('업체 상담 목록 조회 실패:', error)
+    throw error
+  }
+}
+
+/**
+ * 업체 상담 상세 조회
+ */
+export async function getCompanyConsultation(
+  companyUuid: string,
+  consultationUuid: string
+): Promise<ApiResponse<Consultation>> {
+  try {
+    const response = await axiosInstance.get(
+      `/companies/${companyUuid}/consultations/${consultationUuid}`
+    )
+    return { success: true, data: response.data.data }
+  } catch (error: any) {
+    console.error('업체 상담 상세 조회 실패:', error)
+    throw error
+  }
+}
+
+/**
+ * 업체 상담 상태 변경
+ */
+export async function updateCompanyConsultationStatus(
+  companyUuid: string,
+  consultationUuid: string,
+  status: ConsultationStatus
+): Promise<ApiResponse<void>> {
+  try {
+    await axiosInstance.patch(
+      `/companies/${companyUuid}/consultations/${consultationUuid}/status`,
+      { status }
+    )
+    return { success: true }
+  } catch (error: any) {
+    console.error('업체 상담 상태 변경 실패:', error)
+    throw error
+  }
+}
+
+/**
+ * 업체 상담 답변 등록
+ */
+export async function createCompanyConsultationAnswer(
+  companyUuid: string,
+  consultationUuid: string,
+  answer: string
+): Promise<ApiResponse<void>> {
+  try {
+    await axiosInstance.patch(
+      `/companies/${companyUuid}/consultations/${consultationUuid}/answer`,
+      { answer }
+    )
+    return { success: true }
+  } catch (error: any) {
+    console.error('업체 상담 답변 등록 실패:', error)
+    throw error
+  }
+}
+
+/**
+ * 업체 상담 메모 등록
+ */
+export async function createCompanyConsultationMemo(
+  companyUuid: string,
+  consultationUuid: string,
+  memo: string
+): Promise<ApiResponse<void>> {
+  try {
+    await axiosInstance.patch(
+      `/companies/${companyUuid}/consultations/${consultationUuid}/memo`,
+      { memo }
+    )
+    return { success: true }
+  } catch (error: any) {
+    console.error('업체 상담 메모 등록 실패:', error)
+    throw error
+  }
+}

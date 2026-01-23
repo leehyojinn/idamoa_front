@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { FaStar, FaHeart, FaEye, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaCrown, FaUser, FaGlobe, FaInstagram, FaFacebook, FaYoutube, FaAward } from 'react-icons/fa'
+import { FaStar, FaHeart, FaEye, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCheckCircle, FaCrown, FaUser, FaGlobe, FaInstagram, FaFacebook, FaYoutube, FaChartLine } from 'react-icons/fa'
 import { SiKakaotalk, SiNaver } from 'react-icons/si'
 import DOMPurify from 'isomorphic-dompurify'
 import Navbar from '@/components/layout/Navbar'
@@ -306,6 +306,12 @@ export default function MyPage() {
                   내 문의 내역
                 </button>
                 <button
+                  onClick={() => router.push('/mypage/portfolio-consultations')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 견적상담 신청
+                </button>
+                <button
                   onClick={() => router.push('/mypage/password-change')}
                   className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
                 >
@@ -450,17 +456,16 @@ export default function MyPage() {
                   업체 기본 정보 수정
                 </button>
                 <button
-                  onClick={() => router.push('/mypage/promoted-portfolios')}
-                  className="w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                >
-                  <FaAward />
-                  내 우대 포트폴리오
-                </button>
-                <button
                   onClick={() => router.push('/inquiries/my')}
                   className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
                 >
                   내 문의 내역
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/portfolio-consultations')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 견적상담 신청
                 </button>
                 <button
                   onClick={() => router.push('/mypage/password-change')}
@@ -940,6 +945,13 @@ export default function MyPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-4">계정 설정</h2>
               <div className="space-y-2">
                 <button
+                  onClick={() => router.push('/mypage/company-dashboard')}
+                  className="w-full py-2 px-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <FaChartLine />
+                  업체 대시보드
+                </button>
+                <button
                   onClick={() => router.push('/mypage/company-profile-edit')}
                   className="w-full py-2 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors text-sm font-medium"
                 >
@@ -952,17 +964,16 @@ export default function MyPage() {
                   업체 상세정보 수정
                 </button>
                 <button
-                  onClick={() => router.push('/mypage/promoted-portfolios')}
-                  className="w-full py-2 px-4 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
-                >
-                  <FaAward />
-                  내 우대 포트폴리오
-                </button>
-                <button
                   onClick={() => router.push('/inquiries/my')}
                   className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
                 >
                   내 문의 내역
+                </button>
+                <button
+                  onClick={() => router.push('/mypage/portfolio-consultations')}
+                  className="w-full py-2 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors text-sm font-medium"
+                >
+                  내 견적상담 신청
                 </button>
                 <button
                   onClick={() => router.push('/mypage/password-change')}

@@ -26,6 +26,7 @@ import {
   FiHome,
   FiExternalLink,
   FiMessageSquare,
+  FiFileText,
 } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
@@ -39,8 +40,12 @@ import {
 } from '@/lib/api/portfolio'
 import { useAuth } from '@/hooks/useAuth'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
-import { getCdnUrl } from '@/lib/utils'
+import { getCdnUrl, formatPhoneNumber } from '@/lib/utils'
 import StartChatButton from '@/components/chat/StartChatButton'
+import { createPortfolioConsultation } from '@/lib/api/portfolio-consultation'
+import type { ContactMethod, PortfolioConsultationCreateRequest } from '@/types/portfolio-consultation'
+import { CONTACT_METHOD_LABELS } from '@/types/portfolio-consultation'
+import { useMyCompanyDashboard } from '@/hooks/useCompanyDashboard'
 
 interface Props {
   params: Promise<{ uuid: string }>
@@ -50,6 +55,8 @@ export default function PortfolioDetailPage({ params }: Props) {
   const resolvedParams = use(params)
   const router = useRouter()
   const { user } = useAuth()
+  const { data: myCompanyResponse } = useMyCompanyDashboard()
+  const myCompany = myCompanyResponse?.data
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -57,6 +64,17 @@ export default function PortfolioDetailPage({ params }: Props) {
   const [isLiked, setIsLiked] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [likeCount, setLikeCount] = useState(0)
+  const [showConsultationModal, setShowConsultationModal] = useState(false)
+  const [isSubmittingConsultation, setIsSubmittingConsultation] = useState(false)
+  const [consultationForm, setConsultationForm] = useState<Omit<PortfolioConsultationCreateRequest, 'portfolioUuid'>>({
+    name: '',
+    phone: '',
+    email: '',
+    title: '',
+    content: '',
+    contactMethod: 'PHONE',
+    availableTime: '',
+  })
 
   // 썸네일 스크롤 관련
   const thumbnailContainerRef = useRef<HTMLDivElement>(null)
@@ -313,6 +331,68 @@ export default function PortfolioDetailPage({ params }: Props) {
       setShowImageModal(true)
     }
     imageSwipeState.current.hasSwiped = false
+  }
+
+  // 자기 포트폴리오인지 확인 (업체 사용자가 자신의 포트폴리오에 견적의뢰하는 것 방지)
+  const isMyPortfolio = myCompany && portfolio?.company && (
+    myCompany.uuid === portfolio.company.uuid ||
+    myCompany.uuid === portfolio.company.companyUuid
+  )
+
+  // 견적의뢰 모달 열기
+  const handleOpenConsultation = () => {
+    if (!user) {
+      showErrorToast(null, '로그인이 필요합니다')
+      router.push('/login')
+      return
+    }
+    if (isMyPortfolio) {
+      showErrorToast(null, '자신의 포트폴리오에는 견적의뢰를 할 수 없습니다')
+      return
+    }
+    setShowConsultationModal(true)
+  }
+
+  // 견적의뢰 제출
+  const handleSubmitConsultation = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!portfolio) return
+
+    // 전화번호 형식 검증
+    const phoneRegex = /^\d{2,3}-\d{3,4}-\d{4}$/
+    if (!phoneRegex.test(consultationForm.phone)) {
+      showErrorToast(null, '전화번호 형식이 올바르지 않습니다 (예: 010-1234-5678)')
+      return
+    }
+
+    setIsSubmittingConsultation(true)
+
+    try {
+      const response = await createPortfolioConsultation({
+        portfolioUuid: portfolio.uuid,
+        ...consultationForm,
+      })
+
+      if (response.success) {
+        showSuccessToast('견적 상담 신청이 완료되었습니다')
+        setShowConsultationModal(false)
+        // 폼 초기화
+        setConsultationForm({
+          name: '',
+          phone: '',
+          email: '',
+          title: '',
+          content: '',
+          contactMethod: 'PHONE',
+          availableTime: '',
+        })
+      }
+    } catch (error: any) {
+      showErrorToast(error, '견적 상담 신청에 실패했습니다')
+    } finally {
+      setIsSubmittingConsultation(false)
+    }
   }
 
   // TODO: 서버에서 isOwner 반환하면 해당 값 사용
@@ -768,6 +848,21 @@ export default function PortfolioDetailPage({ params }: Props) {
                     </div>
 
                     <div className="space-y-2">
+                      {/* 견적의뢰 버튼 - 자기 포트폴리오에는 비활성화 */}
+                      {!isMyPortfolio ? (
+                        <button
+                          onClick={handleOpenConsultation}
+                          className="w-full py-3 text-center bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                        >
+                          <FiFileText className="w-5 h-5" />
+                          이 스타일로 견적의뢰
+                        </button>
+                      ) : (
+                        <div className="w-full py-3 text-center bg-gray-200 text-gray-500 font-semibold rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
+                          <FiFileText className="w-5 h-5" />
+                          내 포트폴리오
+                        </div>
+                      )}
                       {portfolio.company.ownerUuid && (
                         <StartChatButton
                           targetUserUuid={portfolio.company.ownerUuid}
@@ -876,6 +971,153 @@ export default function PortfolioDetailPage({ params }: Props) {
                 />
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* 견적의뢰 모달 */}
+      {showConsultationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">견적 상담 신청</h2>
+              <button
+                onClick={() => setShowConsultationModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <FiX className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitConsultation} className="p-6 space-y-4">
+              {/* 포트폴리오 정보 */}
+              <div className="bg-gray-50 rounded-xl p-4 mb-2">
+                <p className="text-sm text-gray-500 mb-1">상담할 포트폴리오</p>
+                <p className="font-semibold text-gray-900">{portfolio?.title}</p>
+                <p className="text-sm text-gray-600 mt-1">{portfolio?.company?.companyName}</p>
+              </div>
+
+              {/* 이름 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  이름 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={consultationForm.name}
+                  onChange={(e) => setConsultationForm({ ...consultationForm, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  placeholder="이름을 입력하세요"
+                />
+              </div>
+
+              {/* 연락처 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  연락처 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={consultationForm.phone}
+                  onChange={(e) => setConsultationForm({ ...consultationForm, phone: formatPhoneNumber(e.target.value) })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  placeholder="010-1234-5678"
+                />
+              </div>
+
+              {/* 이메일 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  이메일 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={consultationForm.email}
+                  onChange={(e) => setConsultationForm({ ...consultationForm, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  placeholder="email@example.com"
+                />
+              </div>
+
+              {/* 상담 제목 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  상담 제목 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={consultationForm.title}
+                  onChange={(e) => setConsultationForm({ ...consultationForm, title: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  placeholder="상담 제목을 입력하세요"
+                />
+              </div>
+
+              {/* 상담 내용 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  상담 내용 <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={5}
+                  value={consultationForm.content}
+                  onChange={(e) => setConsultationForm({ ...consultationForm, content: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors resize-none"
+                  placeholder="상담하고 싶은 내용을 자세히 적어주세요.&#10;(예: 평수, 예산, 원하는 스타일 등)"
+                />
+              </div>
+
+              {/* 연락 방법 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  선호하는 연락 방법 <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {(Object.keys(CONTACT_METHOD_LABELS) as ContactMethod[]).map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() => setConsultationForm({ ...consultationForm, contactMethod: method })}
+                      className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                        consultationForm.contactMethod === method
+                          ? 'bg-primary text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {CONTACT_METHOD_LABELS[method]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 연락 가능 시간 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  연락 가능 시간
+                </label>
+                <input
+                  type="text"
+                  value={consultationForm.availableTime}
+                  onChange={(e) => setConsultationForm({ ...consultationForm, availableTime: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                  placeholder="예: 평일 오전 10시~12시"
+                />
+              </div>
+
+              {/* 제출 버튼 */}
+              <button
+                type="submit"
+                disabled={isSubmittingConsultation}
+                className="w-full py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl disabled:shadow-none"
+              >
+                {isSubmittingConsultation ? '신청 중...' : '견적 상담 신청하기'}
+              </button>
+            </form>
           </div>
         </div>
       )}
