@@ -37,6 +37,7 @@ export default function VerifyPage() {
   const [email, setEmail] = useState<string>('')
   const [timer, setTimer] = useState(600) // 10분 = 600초
   const setAccessToken = useAuthStore((state) => state.setAccessToken)
+  const setUser = useAuthStore((state) => state.setUser)
 
   const {
     register,
@@ -129,13 +130,20 @@ export default function VerifyPage() {
         setAccessToken(response.data.accessToken)
       }
 
-      // 4. signupToken 제거
+      // 4. 사용자 정보 저장 (자동 로그인)
+      setUser({
+        email: email,
+        profileCompleted: response.data.profileCompleted,
+        currentRole: response.data.currentRole,
+      })
+
+      // 5. signupToken 제거
       sessionStorage.removeItem('signupToken')
       sessionStorage.removeItem('signupEmail')
 
-      // 5. 로그인 페이지로 이동
-      showSuccessToast('회원가입이 완료되었습니다. 로그인해주세요')
-      router.push('/login')
+      // 6. 프로필 설정 페이지로 이동
+      showSuccessToast('회원가입이 완료되었습니다. 프로필을 설정해주세요')
+      router.push('/signup/profile-type')
     } catch (error: unknown) {
       logError('인증 실패', error)
       showErrorToast(error, '인증에 실패했습니다')
