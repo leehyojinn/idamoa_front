@@ -430,6 +430,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
+            {/* 우대 포트폴리오 기능 숨김 처리
             <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200 p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
@@ -469,6 +470,7 @@ export default function AdminDashboardPage() {
                 </Link>
               </div>
             </div>
+            */}
           </div>
         </div>
 

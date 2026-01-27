@@ -140,6 +140,8 @@ export default function CompanyProfilePage() {
       })
 
       toast.success('업체 프로필이 생성되었습니다!')
+      // 온보딩 모달 표시를 위한 플래그 설정
+      localStorage.setItem('showCompanyOnboarding', 'true')
       router.push('/') // 메인 페이지로 이동
     } catch (error: unknown) {
       logError('프로필 생성 실패', error)

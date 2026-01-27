@@ -12,6 +12,7 @@ import {
   type PopupPosition,
 } from '@/lib/api/popup'
 import { useIsMobile } from '@/hooks/useMediaQuery'
+import { usePopupStore } from '@/stores/popupStore'
 
 const STORAGE_KEY = 'popup_hidden_until'
 
@@ -106,6 +107,7 @@ export default function PopupManager() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
   const isMobile = useIsMobile()
+  const { isOnboardingActive } = usePopupStore()
 
   useEffect(() => {
     const loadPopups = async () => {
@@ -182,7 +184,8 @@ export default function PopupManager() {
     setCurrentIndex((prev) => (prev === popups.length - 1 ? 0 : prev + 1))
   }
 
-  if (!isVisible || popups.length === 0) {
+  // 온보딩 팝업이 표시 중이면 일반 팝업은 표시하지 않음
+  if (!isVisible || popups.length === 0 || isOnboardingActive) {
     return null
   }
 

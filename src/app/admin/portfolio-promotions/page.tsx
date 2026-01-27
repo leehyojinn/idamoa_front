@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiArrowLeft, FiExternalLink, FiCalendar, FiRefreshCw } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
@@ -10,10 +11,17 @@ import { adminGetPromotions, type PortfolioPromotion } from '@/lib/api/portfolio
 import { showErrorToast } from '@/lib/errorHandler'
 
 export default function AdminPortfolioPromotionsPage() {
+  const router = useRouter()
   const [promotions, setPromotions] = useState<PortfolioPromotion[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<'ACTIVE' | 'EXPIRED' | 'CANCELLED' | undefined>('ACTIVE')
 
+  // 우대 포트폴리오 기능 숨김 처리 - 관리자 페이지로 리다이렉트
+  useEffect(() => {
+    router.replace('/admin')
+  }, [router])
+
+  /* 기존 fetchPromotions - 숨김 처리 */
   const fetchPromotions = async () => {
     try {
       setIsLoading(true)

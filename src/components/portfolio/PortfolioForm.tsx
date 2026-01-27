@@ -1008,8 +1008,8 @@ export default function PortfolioForm({ portfolio, isEdit = false }: Props) {
           </div>
         )}
 
-        {/* 우대등록 (생성 시만 표시) */}
-        {!isEdit && promotionPrices.length > 0 && (
+        {/* 우대등록 (생성 시만 표시) - 숨김 처리 */}
+        {false && !isEdit && promotionPrices.length > 0 && (
           <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-xl border border-yellow-200 p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
               <FiStar className="w-5 h-5 text-yellow-500" />

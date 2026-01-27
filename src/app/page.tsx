@@ -3,6 +3,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
 import PopupManager from '@/components/popup/PopupManager'
+import OnboardingHandler from '@/components/onboarding/OnboardingHandler'
 import PortfolioListClient from '@/components/portfolio/PortfolioListClient'
 import FeaturedPartnerships from '@/components/partnership/FeaturedPartnerships'
 import { searchPortfolios } from '@/lib/api/portfolio'
@@ -60,9 +61,8 @@ export default async function Home() {
       />
       <Navbar />
 
-      {/* 히어로 섹션 */}
+      {/* 히어로 섹션 - 숨김 처리
       <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary to-indigo-900">
-        {/* 배경 장식 요소 */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-800/20 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl" />
@@ -71,7 +71,6 @@ export default async function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
           <div className="text-center">
-            {/* 뱃지 */}
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -80,18 +79,15 @@ export default async function Home() {
               <span className="text-sm text-primary-100">지금 바로 시작하세요</span>
             </div>
 
-            {/* 메인 타이틀 */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight">
               인테리어,<br className="md:hidden" />
               <span className="bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300 bg-clip-text text-transparent"> 다 모아 </span>
             </h1>
 
-            {/* 서브 타이틀 */}
             <p className="text-xl md:text-2xl text-primary-100/90 max-w-3xl mx-auto mb-10 leading-relaxed">
               <span className="font-semibold text-white">모든 인테리어를</span>한 곳에서, 다 모아놓은 원스톱 플랫폼
             </p>
 
-            {/* CTA 버튼 */}
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a
                 href="#portfolio"
@@ -106,9 +102,11 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      */}
 
-      {/* 제휴 업체 슬라이드 */}
+      {/* 제휴 업체 슬라이드 - 숨김 처리
       <FeaturedPartnerships count={8} />
+      */}
 
       <main id="portfolio" className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Suspense fallback={
@@ -120,6 +118,7 @@ export default async function Home() {
         </Suspense>
       </main>
       <Footer />
+      <OnboardingHandler />
       <PopupManager />
     </div>
   )

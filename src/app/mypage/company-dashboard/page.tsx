@@ -493,6 +493,7 @@ export default function CompanyDashboardPage() {
                 <FaWallet className="w-5 h-5 text-green-500" />
                 <span className="font-medium text-gray-700">크레딧 충전</span>
               </Link>
+              {/* 우대 포트폴리오 기능 숨김 처리
               <Link
                 href="/mypage/promoted-portfolios"
                 className="flex items-center gap-3 p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
@@ -500,6 +501,7 @@ export default function CompanyDashboardPage() {
                 <FaClock className="w-5 h-5 text-yellow-500" />
                 <span className="font-medium text-gray-700">우대 포트폴리오</span>
               </Link>
+              */}
             </div>
           </div>
         </div>

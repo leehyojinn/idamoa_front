@@ -1590,8 +1590,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
         </div>
 
-        {/* 추천 포트폴리오 슬라이더 */}
-        {featuredPortfolios.length > 0 && (
+        {/* 추천 포트폴리오 슬라이더 - 숨김 처리 (false && 조건으로 렌더링 비활성화) */}
+        {false && featuredPortfolios.length > 0 && (
           <div className="relative overflow-hidden rounded-xl md:rounded-2xl p-4 md:p-6 bg-gradient-to-br from-slate-900 via-primary to-indigo-900">
             {/* 배경 장식 */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">

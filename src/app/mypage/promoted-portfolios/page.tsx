@@ -19,6 +19,12 @@ export default function PromotedPortfoliosPage() {
   const [page, setPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
 
+  // 우대 포트폴리오 기능 숨김 처리 - 마이페이지로 리다이렉트
+  useEffect(() => {
+    router.replace('/mypage')
+  }, [router])
+
+  /* 기존 useEffect - 숨김 처리
   useEffect(() => {
     if (!_hasHydrated) return
 
@@ -30,6 +36,7 @@ export default function PromotedPortfoliosPage() {
 
     fetchPromotedPortfolios()
   }, [accessToken, _hasHydrated, page])
+  */
 
   const fetchPromotedPortfolios = async () => {
     try {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiArrowLeft, FiPlus, FiEdit2, FiTrash2, FiRefreshCw } from 'react-icons/fi'
 import Navbar from '@/components/layout/Navbar'
@@ -16,10 +17,16 @@ import {
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 
 export default function AdminPromotionSettingsPage() {
+  const router = useRouter()
   const [settings, setSettings] = useState<PromotionTypeSetting[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editingSetting, setEditingSetting] = useState<PromotionTypeSetting | null>(null)
+
+  // 우대 포트폴리오 기능 숨김 처리 - 관리자 페이지로 리다이렉트
+  useEffect(() => {
+    router.replace('/admin')
+  }, [router])
 
   // 폼 상태
   const [formData, setFormData] = useState({

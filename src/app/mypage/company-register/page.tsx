@@ -432,7 +432,9 @@ export default function CompanyRegisterPage() {
               console.error('프로필 상태 업데이트 실패:', error)
             }
             showSuccessToast('회사 정보가 등록되었습니다!')
-            router.push('/mypage')
+            // 온보딩 중이면 메인 페이지로 (포트폴리오 팝업 표시), 아니면 마이페이지로
+            const isOnboarding = localStorage.getItem('showPortfolioOnboarding') === 'true'
+            router.push(isOnboarding ? '/' : '/mypage')
           },
           onError: (error) => {
             showErrorToast(error, '회사 등록 중 오류가 발생했습니다')
