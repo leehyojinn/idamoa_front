@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiChevronDown, FiChevronRight, FiChevronLeft, FiChevronsLeft, FiChevronsRight, FiVideo, FiStar } from 'react-icons/fi'
+import { FiSearch, FiPlus, FiEye, FiBookmark, FiTag, FiImage, FiX, FiMoreVertical, FiEdit, FiTrash2, FiExternalLink, FiFilter, FiHeart, FiChevronDown, FiChevronRight, FiChevronLeft, FiVideo, FiStar } from 'react-icons/fi'
 import { searchPortfolios, deletePortfolio, toggleBookmark, toggleLike, getFeaturedPortfolios, type PortfolioListItem, type PortfolioSearchParams, type PortfolioSearchResponse } from '@/lib/api/portfolio'
 import { showErrorToast, showSuccessToast } from '@/lib/errorHandler'
 import { getCdnUrl } from '@/lib/utils'
@@ -75,10 +75,16 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   const [totalElements, setTotalElements] = useState(initialData?.totalElements || 0)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
 
+  // 무한 스크롤 관련 상태
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const loadMoreRef = useRef<HTMLDivElement>(null)
+
   const [keyword, setKeyword] = useState(getInitialKeyword)
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [selectedFilterOptionIds, setSelectedFilterOptionIds] = useState<number[]>(getInitialFilterIds)
   const [sortBy, setSortBy] = useState<string>(getInitialSort)
+  const [pageSize, setPageSize] = useState<number>(10) // 한 번에 보여줄 개수
   const [onlyBookmarked, setOnlyBookmarked] = useState(getInitialBookmarked)
   const [onlyMyPosts, setOnlyMyPosts] = useState(getInitialMyPosts)
   const [companyUuid, setCompanyUuid] = useState<string | null>(getInitialCompanyUuid)
@@ -729,8 +735,14 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     })
   }
 
-  const fetchPortfolios = useCallback(async (params: PortfolioSearchParams = {}) => {
-    setIsLoading(true)
+  const fetchPortfolios = useCallback(async (params: PortfolioSearchParams & { append?: boolean } = {}) => {
+    const isAppend = params.append
+    if (isAppend) {
+      setIsLoadingMore(true)
+    } else {
+      setIsLoading(true)
+      setHasMore(true) // 새로 로드 시 hasMore 리셋
+    }
     try {
       // 선택된 필터 ID들을 하위 ID들도 포함하도록 확장
       const expandedFilterIds = params.filterOptionIds && params.filterOptionIds.length > 0
@@ -739,7 +751,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
       const result = await searchPortfolios({
         page: params.page || 0,
-        size: 12,
+        size: params.size || pageSize, // 선택한 개수만큼 로드
         keyword: params.keyword || undefined,
         filterOptionIds: expandedFilterIds,
         companyUuid: params.companyUuid || undefined,
@@ -749,23 +761,39 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
       })
 
       if (result.success && result.data) {
-        setPortfolios(result.data.content || [])
+        if (isAppend) {
+          // 무한 스크롤: 기존 데이터에 추가
+          setPortfolios(prev => [...prev, ...(result.data?.content || [])])
+        } else {
+          // 새로 로드: 기존 데이터 교체
+          setPortfolios(result.data.content || [])
+        }
         setTotalPages(result.data.totalPages || 0)
         setTotalElements(result.data.totalElements || 0)
+        // 더 불러올 데이터가 있는지 확인
+        const currentPageNum = params.page || 0
+        setHasMore(currentPageNum < (result.data.totalPages || 0) - 1)
       } else {
+        if (!isAppend) {
+          setPortfolios([])
+        }
+        setTotalPages(0)
+        setTotalElements(0)
+        setHasMore(false)
+      }
+    } catch (error) {
+      showErrorToast(error, '포트폴리오 목록을 불러오는데 실패했습니다')
+      if (!isAppend) {
         setPortfolios([])
         setTotalPages(0)
         setTotalElements(0)
       }
-    } catch (error) {
-      showErrorToast(error, '포트폴리오 목록을 불러오는데 실패했습니다')
-      setPortfolios([])
-      setTotalPages(0)
-      setTotalElements(0)
+      setHasMore(false)
     } finally {
       setIsLoading(false)
+      setIsLoadingMore(false)
     }
-  }, [sortBy, getExpandedFilterIds])
+  }, [sortBy, pageSize, getExpandedFilterIds])
 
   // 다음 페이지 데이터 + 이미지 프리페치
   const prefetchNextPage = useCallback(async () => {
@@ -823,6 +851,35 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
     return () => clearTimeout(timer)
   }, [isLoading, portfolios.length, prefetchNextPage])
+
+  // 무한 스크롤: Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading && !isLoadingMore) {
+          const nextPage = currentPage + 1
+          setCurrentPage(nextPage)
+          fetchPortfolios({
+            page: nextPage,
+            keyword: keyword || undefined,
+            filterOptionIds: selectedFilterOptionIds.length > 0 ? selectedFilterOptionIds : undefined,
+            companyUuid: companyUuid || undefined,
+            sort: sortBy,
+            onlyBookmarked,
+            onlyMyPosts,
+            append: true,
+          })
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    )
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [hasMore, isLoading, isLoadingMore, currentPage, keyword, selectedFilterOptionIds, companyUuid, sortBy, onlyBookmarked, onlyMyPosts, fetchPortfolios])
 
   // URL 변경 시 (뒤로가기/앞으로가기) 상태 동기화
   useEffect(() => {
@@ -1511,6 +1568,35 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                 className="text-xs md:text-sm py-1.5 md:py-2"
               />
             </div>
+            <div className="w-auto min-w-[90px] md:min-w-[120px]">
+              <Select
+                label=""
+                options={[
+                  { value: '5', label: '5개씩' },
+                  { value: '10', label: '10개씩' },
+                  { value: '20', label: '20개씩' },
+                ]}
+                value={String(pageSize)}
+                onChange={(value) => {
+                  const newSize = parseInt(value, 10)
+                  setPageSize(newSize)
+                  setCurrentPage(0)
+                  setPortfolios([])
+                  setHasMore(true)
+                  fetchPortfolios({
+                    page: 0,
+                    size: newSize,
+                    keyword,
+                    filterOptionIds: selectedFilterOptionIds,
+                    companyUuid: companyUuid || undefined,
+                    sort: sortBy,
+                    onlyBookmarked,
+                    onlyMyPosts,
+                  })
+                }}
+                className="text-xs md:text-sm py-1.5 md:py-2"
+              />
+            </div>
 
             {user && (
               <>
@@ -1753,7 +1839,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                   </div>
                 </div>
               )}
-            <div className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-2 ${isLoading ? 'pointer-events-none' : ''}`}>
+            <div className={`grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 ${isLoading ? 'pointer-events-none' : ''}`}>
               {portfolios.map((portfolio, index) => {
                 // 관리자이거나 COMPANY 역할이면 수정/삭제 메뉴 표시 (서버에서 권한 체크됨)
                 const canManage = user?.currentRole === 'ADMIN' || user?.currentRole === 'COMPANY'
@@ -1886,6 +1972,13 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                           {portfolio.title}
                         </h3>
 
+                        {/* 간단한 설명 */}
+                        {portfolio.description && (
+                          <p className="text-xs text-gray-600 line-clamp-2">
+                            {portfolio.description}
+                          </p>
+                        )}
+
                         {/* 필터 옵션 배지 */}
                         {portfolio.filterOptions && portfolio.filterOptions.length > 0 && (
                           <div className="flex flex-wrap gap-0.5">
@@ -1929,11 +2022,11 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                           <div className="flex items-center gap-1.5">
                             {portfolio.company && (
                               <>
-                                <span className="text-[8px] sm:text-[10px] text-gray-700 font-medium">
+                                <span className="text-[8px] sm:text-[10px] md:text-sm text-gray-700 font-medium">
                                   {portfolio.company.companyName && portfolio.company.companyName.length > 7 ? portfolio.company.companyName.slice(0, 7) + '...' : portfolio.company.companyName}
                                 </span>
-                                <span className="flex items-center gap-0.5 text-[10px] text-yellow-600">
-                                  <FiStar className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
+                                <span className="flex items-center gap-0.5 text-[10px] md:text-sm text-yellow-600">
+                                  <FiStar className="w-2.5 h-2.5 md:w-4 md:h-4 fill-yellow-400 text-yellow-400" />
                                   {(portfolio.company.averageRating ?? 0).toFixed(1)}
                                 </span>
                               </>
@@ -1963,126 +2056,17 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
             </div>
             </div>
 
-            {/* 페이지네이션 */}
-            {totalPages >= 1 && (
-              <div className="flex justify-center items-center gap-0.5 sm:gap-2 mt-8 pb-2">
-                {/* 처음 */}
-                <button
-                  onClick={() => handlePageChange(0)}
-                  disabled={currentPage === 0}
-                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  title="처음"
-                >
-                  <FiChevronsLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                </button>
-
-                {/* 이전 */}
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 0}
-                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  title="이전"
-                >
-                  <FiChevronLeft className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                </button>
-
-                {/* 모바일: 5개 */}
-                <div className="flex gap-0.5 sm:hidden">
-                  {(() => {
-                    const maxButtons = 5
-                    const pages: number[] = []
-
-                    if (totalPages <= maxButtons) {
-                      for (let i = 0; i < totalPages; i++) pages.push(i)
-                    } else {
-                      const half = Math.floor(maxButtons / 2)
-                      let start = Math.max(0, currentPage - half)
-                      let end = Math.min(totalPages - 1, currentPage + half)
-
-                      if (currentPage < half) {
-                        end = maxButtons - 1
-                      } else if (currentPage > totalPages - 1 - half) {
-                        start = totalPages - maxButtons
-                      }
-
-                      for (let i = start; i <= end; i++) pages.push(i)
-                    }
-
-                    return pages.map(pageNum => (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`flex-shrink-0 min-w-[28px] px-1.5 py-1.5 text-xs rounded-md ${
-                          currentPage === pageNum
-                            ? 'bg-primary text-white'
-                            : 'border border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {pageNum + 1}
-                      </button>
-                    ))
-                  })()}
+            {/* 무한 스크롤 로딩 인디케이터 */}
+            <div ref={loadMoreRef} className="py-8">
+              {isLoadingMore && (
+                <div className="flex justify-center">
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-primary"></div>
                 </div>
-
-                {/* PC: 10개 */}
-                <div className="hidden sm:flex gap-2">
-                  {(() => {
-                    const maxButtons = 10
-                    const pages: number[] = []
-
-                    if (totalPages <= maxButtons) {
-                      for (let i = 0; i < totalPages; i++) pages.push(i)
-                    } else {
-                      const half = Math.floor(maxButtons / 2)
-                      let start = Math.max(0, currentPage - half)
-                      let end = Math.min(totalPages - 1, currentPage + half)
-
-                      if (currentPage < half) {
-                        end = maxButtons - 1
-                      } else if (currentPage > totalPages - 1 - half) {
-                        start = totalPages - maxButtons
-                      }
-
-                      for (let i = start; i <= end; i++) pages.push(i)
-                    }
-
-                    return pages.map(pageNum => (
-                      <button
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`flex-shrink-0 min-w-[40px] px-3 py-2 text-base rounded-lg ${
-                          currentPage === pageNum
-                            ? 'bg-primary text-white'
-                            : 'border border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {pageNum + 1}
-                      </button>
-                    ))
-                  })()}
-                </div>
-
-                {/* 다음 */}
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages - 1}
-                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  title="다음"
-                >
-                  <FiChevronRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                </button>
-
-                {/* 끝 */}
-                <button
-                  onClick={() => handlePageChange(totalPages - 1)}
-                  disabled={currentPage === totalPages - 1}
-                  className="flex-shrink-0 p-1.5 sm:p-2.5 border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                  title="끝"
-                >
-                  <FiChevronsRight className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                </button>
-              </div>
-            )}
+              )}
+              {!hasMore && portfolios.length > 0 && (
+                <p className="text-center text-gray-500 text-sm">모든 포트폴리오를 불러왔습니다</p>
+              )}
+            </div>
           </>
         )}
       </div>
