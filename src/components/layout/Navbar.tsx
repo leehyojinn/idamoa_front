@@ -117,7 +117,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
       {user?.currentRole === 'ADMIN' && (
         <button
           onClick={() => setIsAdminMenuOpen(true)}
-          className="fixed top-4 left-4 z-50 p-3 rounded-lg bg-primary text-white shadow-lg hover:bg-primary-800 transition-colors"
+          className="fixed top-4 left-4 z-[60] p-3 rounded-lg bg-primary text-white shadow-lg hover:bg-primary-800 transition-colors"
           aria-label="관리자 메뉴"
         >
           <FiSettings className="w-5 h-5" />
@@ -125,7 +125,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
       )}
 
       <nav
-        className={`sticky top-0 z-40 border-b border-gray-200 backdrop-blur-sm transition-all duration-200 ${
+        className={`sticky top-0 z-50 border-b border-gray-200 backdrop-blur-sm transition-all duration-200 ${
           isScrolled || variant === 'default'
             ? 'bg-white shadow-sm'
             : 'bg-white/80 shadow-[0_1px_2px_0_rgb(0_0_0/0.05)]'
@@ -204,7 +204,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/50 z-50"
+              className="fixed inset-0 bg-black/50 z-[70]"
               onClick={() => setIsAdminMenuOpen(false)}
               aria-hidden="true"
             />
@@ -215,7 +215,7 @@ export default function Navbar({ variant = 'default', showQuickmenu = true }: Na
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl z-50"
+              className="fixed top-0 left-0 bottom-0 w-[280px] bg-white shadow-2xl z-[70]"
               role="dialog"
               aria-label="관리자 메뉴"
             >

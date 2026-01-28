@@ -569,7 +569,15 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return false
   }, [filterCategories])
 
+  // 모바일에서 필터/검색 시 최상단으로 스크롤
+  const scrollToTopOnMobile = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      window.scrollTo(0, 0)
+    }
+  }
+
   const handleToggleFilterOption = (optionId: number, optionName: string, checked: boolean) => {
+    scrollToTopOnMobile()
     const optionHasChildren = hasChildren(optionId)
 
     if (optionHasChildren) {
@@ -628,6 +636,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
 
   // 카테고리 전체 필터 (카테고리 클릭 시 - 전체 리스트 표시, 선택 표시 없음)
   const handleSelectCategoryFilter = (categoryId: number, allOptionIds: number[], categoryName: string) => {
+    scrollToTopOnMobile()
     // URL 동기화 건너뛰기 플래그 설정
     skipUrlSyncRef.current = true
 
@@ -678,6 +687,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   }
 
   const handleRemoveTag = (tag: string) => {
+    scrollToTopOnMobile()
     let optionIdToRemove: number | null = null
     for (const category of filterCategories) {
       const findOption = (options: typeof category.options): number | null => {
@@ -716,6 +726,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   }
 
   const handleResetFilters = () => {
+    scrollToTopOnMobile()
     setKeyword('')
     setSelectedTags([])
     setSelectedFilterOptionIds([])
@@ -976,8 +987,12 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   }
 
   const handleSearch = () => {
+    scrollToTopOnMobile()
     setCurrentPage(0)
     setNextPageCache(null) // 검색 시 캐시 초기화
+    // 무한 스크롤 초기화
+    setPortfolios([])
+    setHasMore(true)
     updateURL({ page: 0, keyword })
     fetchPortfolios({
       page: 0,
@@ -1016,6 +1031,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
   }
 
   const handleSortChange = (newSort: string) => {
+    scrollToTopOnMobile()
     setSortBy(newSort)
     setCurrentPage(0)
     setNextPageCache(null)
@@ -1498,7 +1514,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         )}
 
         {/* 무신사 스타일 가로 슬라이드 필터 */}
-        <div className="bg-white shadow-sm p-3 md:p-4 sticky md:static top-[64px] z-30 -mx-4 px-4 md:mx-0 md:rounded-lg">
+        <div className="bg-white shadow-sm p-3 md:p-4 sticky top-[66px] md:top-[125px] z-40 -mx-4 px-4 md:mx-0 md:rounded-lg">
           <HorizontalSlideFilter
             categories={filterCategories.map(cat => {
               // 재귀적으로 옵션과 자식들을 변환하는 함수
@@ -1578,6 +1594,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                 ]}
                 value={String(pageSize)}
                 onChange={(value) => {
+                  scrollToTopOnMobile()
                   const newSize = parseInt(value, 10)
                   setPageSize(newSize)
                   setCurrentPage(0)

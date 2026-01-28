@@ -249,7 +249,7 @@ export default function AdminDashboardPage() {
         {/* 상담 및 문의 통계 */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-4">상담 및 문의</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <StatCard
               title="대기중인 빠른상담"
               value={overview.pendingConsultations}
@@ -274,6 +274,25 @@ export default function AdminDashboardPage() {
               color="bg-violet-500"
               link="/admin/general-inquiries"
             />
+            <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl border border-teal-200 p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-teal-500 rounded-lg flex items-center justify-center">
+                  <FiFileText className="w-6 h-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-teal-900">포트폴리오 상담</h3>
+              </div>
+              <p className="text-sm text-teal-700 mb-4">
+                포트폴리오 상담신청을 관리합니다
+              </p>
+              <div className="space-y-2">
+                <Link
+                  href="/admin/portfolio-consultations"
+                  className="block w-full py-2 px-4 text-center bg-white hover:bg-teal-50 text-teal-700 rounded-lg font-medium transition-colors text-sm border border-teal-200"
+                >
+                  상담신청 관리
+                </Link>
+              </div>
+            </div>
             <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-200 p-6">
               <h3 className="text-sm font-semibold text-primary mb-3">빠른 이동</h3>
               <div className="space-y-2">
