@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { createPageMetadata } from '@/lib/metadata'
@@ -89,7 +90,7 @@ export default async function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <a
+              <Link
                 href="/portfolios/create"
                 className="group inline-flex items-center justify-center gap-2 bg-white text-primary px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-white/25 hover:shadow-white/40 hover:scale-105 transition-all duration-300"
               >
@@ -97,7 +98,7 @@ export default async function Home() {
                 <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
