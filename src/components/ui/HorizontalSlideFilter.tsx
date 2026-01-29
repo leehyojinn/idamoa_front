@@ -357,10 +357,10 @@ export default function HorizontalSlideFilter({
   }
 
   return (
-    <div className="space-y-2 md:space-y-3">
+    <div className="space-y-2 md:space-y-1.5">
       {/* 검색 입력란 */}
       {onKeywordChange && (
-        <div className="flex gap-1.5 md:gap-2">
+        <div className="flex gap-1.5 md:gap-1.5">
           <div className="relative flex-1">
             <input
               type="text"
@@ -368,14 +368,14 @@ export default function HorizontalSlideFilter({
               onChange={(e) => onKeywordChange(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="검색어를 입력하세요..."
-              className="w-full pl-8 md:pl-10 pr-3 md:pr-4 py-2 md:py-2.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent text-xs md:text-sm"
+              className="w-full pl-8 md:pl-8 pr-3 md:pr-3 py-2 md:py-1.5 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent text-xs md:text-xs"
             />
-            <FiSearch className="absolute left-2.5 md:left-3.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 md:w-4 md:h-4" />
+            <FiSearch className="absolute left-2.5 md:left-2.5 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 md:w-3.5 md:h-3.5" />
           </div>
           {onSearch && (
             <button
               onClick={onSearch}
-              className="px-3 md:px-5 py-2 md:py-2.5 bg-primary hover:bg-primary-700 text-white rounded-full text-xs md:text-sm font-medium transition-colors flex-shrink-0"
+              className="px-3 md:px-3 py-2 md:py-1.5 bg-primary hover:bg-primary-700 text-white rounded-full text-xs md:text-xs font-medium transition-colors flex-shrink-0"
             >
               검색
             </button>
@@ -383,7 +383,7 @@ export default function HorizontalSlideFilter({
           {onReset && (
             <button
               onClick={onReset}
-              className={`px-2.5 md:px-4 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-colors flex-shrink-0 ${
+              className={`px-2.5 md:px-3 py-2 md:py-1.5 rounded-full text-xs md:text-xs font-medium transition-colors flex-shrink-0 ${
                 keyword || selectedOptionIds.length > 0
                   ? 'bg-red-100 hover:bg-red-200 text-red-600'
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-400'
@@ -400,7 +400,7 @@ export default function HorizontalSlideFilter({
       {/* 카테고리 탭 (최상위 - 펼침만, 선택 불가) */}
       <div
         ref={categoryScrollRef}
-        className="flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-hide cursor-grab select-none pb-1 -mx-1 px-1"
+        className="flex gap-1.5 md:gap-1.5 overflow-x-auto scrollbar-hide cursor-grab select-none pb-1 -mx-1 px-1"
         style={{ WebkitOverflowScrolling: 'touch' }}
         onMouseDown={(e) => handleMouseDown(e, categoryScrollRef.current)}
         onTouchStart={(e) => handleTouchStart(e, categoryScrollRef.current)}
@@ -417,8 +417,8 @@ export default function HorizontalSlideFilter({
               key={category.id}
               onClick={() => handleCategoryClick(category)}
               className={`
-                flex items-center gap-1 md:gap-1.5 px-2.5 md:px-4 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold
-                transition-all duration-200 whitespace-nowrap flex-shrink-0 border md:border-2
+                flex items-center gap-1 md:gap-1 px-2.5 md:px-3 py-1.5 md:py-1.5 rounded-full text-xs md:text-xs font-semibold
+                transition-all duration-200 whitespace-nowrap flex-shrink-0 border md:border
                 active:scale-95 hover:shadow-md
                 ${isActive
                   ? 'bg-gray-900 text-white border-gray-900 shadow-lg scale-[1.02]'
@@ -430,7 +430,7 @@ export default function HorizontalSlideFilter({
             >
               <span>{category.name}</span>
               {selectedCount > 0 && (
-                <span className={`text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 rounded-full font-bold min-w-[16px] md:min-w-[20px] text-center ${isActive ? 'bg-white text-gray-900' : 'bg-primary text-white'}`}>
+                <span className={`text-[10px] md:text-[10px] px-1 md:px-1 py-0.5 rounded-full font-bold min-w-[16px] md:min-w-[16px] text-center ${isActive ? 'bg-white text-gray-900' : 'bg-primary text-white'}`}>
                   {selectedCount}
                 </span>
               )}
@@ -458,7 +458,7 @@ export default function HorizontalSlideFilter({
           >
             <div
               ref={(el) => { scrollRefs.current[levelIndex] = el }}
-              className={`flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-hide cursor-grab select-none py-1.5 md:py-2 px-2 md:px-3 ${bgColor} rounded-lg md:rounded-xl -mx-1`}
+              className={`flex gap-1.5 md:gap-1.5 overflow-x-auto scrollbar-hide cursor-grab select-none py-1.5 md:py-1 px-2 md:px-2 ${bgColor} rounded-lg md:rounded-lg -mx-1`}
               style={{ WebkitOverflowScrolling: 'touch' }}
               onMouseDown={(e) => handleMouseDown(e, scrollRefs.current[levelIndex])}
               onTouchStart={(e) => handleTouchStart(e, scrollRefs.current[levelIndex])}
@@ -475,7 +475,7 @@ export default function HorizontalSlideFilter({
                     key={option.id}
                     onClick={() => handleOptionClick(option, levelIndex)}
                     className={`
-                      flex items-center gap-1 md:gap-1.5 px-2.5 md:px-3.5 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium
+                      flex items-center gap-1 md:gap-1 px-2.5 md:px-2.5 py-1.5 md:py-1.5 rounded-full text-xs md:text-xs font-medium
                       transition-all duration-200 whitespace-nowrap flex-shrink-0 border
                       active:scale-95 hover:shadow-md
                       ${isSelected
@@ -487,17 +487,17 @@ export default function HorizontalSlideFilter({
                     `}
                   >
                     {isSelected && (
-                      <FiCheck className="w-3 h-3 md:w-3.5 md:h-3.5 animate-in zoom-in duration-200" />
+                      <FiCheck className="w-3 h-3 md:w-3 md:h-3 animate-in zoom-in duration-200" />
                     )}
                     <span>{option.name}</span>
                     {hasChildren && selectedChildCount > 0 && !isSelected && (
-                      <span className="text-[10px] md:text-xs bg-primary text-white px-1 md:px-1.5 py-0.5 rounded-full font-bold">
+                      <span className="text-[10px] md:text-[10px] bg-primary text-white px-1 md:px-1 py-0.5 rounded-full font-bold">
                         {selectedChildCount}
                       </span>
                     )}
                     {hasChildren && (
                       <FiChevronRight
-                        className={`w-3 h-3 md:w-3.5 md:h-3.5 transition-transform duration-200 ${isPathSelected ? 'rotate-90' : ''}`}
+                        className={`w-3 h-3 md:w-3 md:h-3 transition-transform duration-200 ${isPathSelected ? 'rotate-90' : ''}`}
                       />
                     )}
                   </button>

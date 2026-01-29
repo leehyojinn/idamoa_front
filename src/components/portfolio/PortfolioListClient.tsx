@@ -569,9 +569,9 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
     return false
   }, [filterCategories])
 
-  // 모바일에서 필터/검색 시 최상단으로 스크롤
+  // 필터/검색 시 최상단으로 스크롤
   const scrollToTopOnMobile = () => {
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    if (typeof window !== 'undefined') {
       window.scrollTo(0, 0)
     }
   }
@@ -1514,7 +1514,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         )}
 
         {/* 무신사 스타일 가로 슬라이드 필터 */}
-        <div className="bg-white shadow-sm p-3 md:p-4 sticky top-[66px] md:top-[125px] z-40 -mx-4 px-4 md:mx-0 md:rounded-lg">
+        <div className="bg-white shadow-sm p-3 md:p-2 sticky top-[66px] md:top-[125px] z-40 -mx-4 px-4 md:mx-0 md:rounded-lg">
           <HorizontalSlideFilter
             categories={filterCategories.map(cat => {
               // 재귀적으로 옵션과 자식들을 변환하는 함수
@@ -1545,7 +1545,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
         </div>
 
         {/* 검색 및 필터 */}
-        <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 space-y-4">
+        <div className="bg-white rounded-lg shadow-sm p-4 md:p-2 space-y-4 md:space-y-1.5">
           {/* 모바일 검색바 - 숨김 처리 (HorizontalSlideFilter에서 검색 제공) */}
           {/* <div className="lg:hidden flex flex-col sm:flex-row gap-2 sm:gap-3">
             <div className="flex-1">
@@ -1570,8 +1570,8 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
           </div> */}
 
           {/* 정렬 및 필터 버튼 */}
-          <div className="flex flex-wrap items-center gap-1.5 md:gap-2" style={{marginTop:'0 !important;'}}>
-            <div className="w-auto min-w-[100px] md:min-w-[140px]">
+          <div className="flex flex-wrap items-center gap-1.5 md:gap-1.5" style={{marginTop:'0 !important;'}}>
+            <div className="w-auto min-w-[100px] md:min-w-[100px]">
               <Select
                 label=""
                 options={[
@@ -1581,10 +1581,10 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                 ]}
                 value={sortBy}
                 onChange={handleSortChange}
-                className="text-xs md:text-sm py-1.5 md:py-2"
+                className="text-xs md:text-xs py-1.5 md:py-1.5"
               />
             </div>
-            <div className="w-auto min-w-[90px] md:min-w-[120px]">
+            <div className="w-auto min-w-[90px] md:min-w-[90px]">
               <Select
                 label=""
                 options={[
@@ -1611,7 +1611,7 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                     onlyMyPosts,
                   })
                 }}
-                className="text-xs md:text-sm py-1.5 md:py-2"
+                className="text-xs md:text-xs py-1.5 md:py-1.5"
               />
             </div>
 
@@ -1634,13 +1634,13 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       onlyMyPosts,
                     })
                   }}
-                  className={`flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-3 rounded-md md:rounded-lg text-xs md:text-base font-medium transition-colors ${
+                  className={`flex items-center gap-1 md:gap-1 px-2 md:px-2.5 py-1.5 md:py-1.5 rounded-md md:rounded-md text-xs md:text-xs font-medium transition-colors ${
                     onlyBookmarked
                       ? 'bg-yellow-100 text-yellow-700 border border-yellow-300'
                       : 'bg-gray-100 text-gray-700 border border-transparent hover:bg-gray-200'
                   }`}
                 >
-                  <FiBookmark className={`w-3 h-3 md:w-4 md:h-4 ${onlyBookmarked ? 'fill-current' : ''}`} />
+                  <FiBookmark className={`w-3 h-3 md:w-3 md:h-3 ${onlyBookmarked ? 'fill-current' : ''}`} />
                   <span className="whitespace-nowrap">북마크</span>
                 </button>
                 <button
@@ -1660,13 +1660,13 @@ export default function PortfolioListClient({ initialData }: PortfolioListClient
                       onlyMyPosts: newValue,
                     })
                   }}
-                  className={`flex items-center gap-1 md:gap-2 px-2 md:px-4 py-1.5 md:py-3 rounded-md md:rounded-lg text-xs md:text-base font-medium transition-colors ${
+                  className={`flex items-center gap-1 md:gap-1 px-2 md:px-2.5 py-1.5 md:py-1.5 rounded-md md:rounded-md text-xs md:text-xs font-medium transition-colors ${
                     onlyMyPosts
                       ? 'bg-primary-100 text-primary border border-primary-300'
                       : 'bg-gray-100 text-gray-700 border border-transparent hover:bg-gray-200'
                   }`}
                 >
-                  <FiEdit className="w-3 h-3 md:w-4 md:h-4" />
+                  <FiEdit className="w-3 h-3 md:w-3 md:h-3" />
                   <span className="whitespace-nowrap">내 글</span>
                 </button>
               </>
