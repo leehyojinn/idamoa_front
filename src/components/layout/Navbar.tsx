@@ -59,11 +59,12 @@ const NAV_ITEMS = [
     children: [
       { id: 'consultations', label: '빠른상담', href: '/consultations' },
       { id: 'planner', label: '플래너', href: '/planner' },
+      { id: 'inquiry', label: '일반문의', href: '/inquiries' },
     ]
   },
   // { id: 'floorplan-tool', label: '평면도 설계툴', href: '/mock-tools/floorplan-tool' },
   { id: 'notices', label: '공지/이벤트', href: '/notices' },
-  { id: 'inquiry', label: '일반문의', href: '/inquiries' },
+  { id: 'partnership-inquiry', label: '제휴/광고 문의', href: '/contact' },
 ]
 
 const ADMIN_PAGES = [
