@@ -1,8 +1,8 @@
 import { Metadata } from 'next'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
-import CommunityListClient from '@/components/community/CommunityListClient'
-import { getCommunityCategories, getCommunityPosts } from '@/lib/api/community'
+import CommunityGridView from '@/components/community/CommunityGridView'
+import { getCommunityCategories } from '@/lib/api/community'
 import { createPageMetadata } from '@/lib/metadata'
 
 export const metadata: Metadata = createPageMetadata({
@@ -15,30 +15,16 @@ export const metadata: Metadata = createPageMetadata({
 export const dynamic = 'force-dynamic'
 
 export default async function CommunityPage() {
-  // 초기 데이터 로드
+  // 카테고리 데이터 로드
   let initialCategories = null
-  let initialPosts = null
 
   try {
-    const [categoriesResult, postsResult] = await Promise.all([
-      getCommunityCategories(),
-      getCommunityPosts({ page: 0, size: 20, sort: 'createdAt,desc' }),
-    ])
-
+    const categoriesResult = await getCommunityCategories()
     if (categoriesResult.success) {
       initialCategories = categoriesResult.data
     }
-    if (postsResult.success) {
-      initialPosts = postsResult.data
-      // 각 게시글의 카테고리 정보 로그
-      console.log('[Community All] posts:', initialPosts?.content?.map(p => ({
-        title: p.title,
-        categoryName: p.categoryName,
-        categorySlug: p.categorySlug
-      })))
-    }
   } catch (error) {
-    console.error('커뮤니티 데이터 로드 실패:', error)
+    console.error('커뮤니티 카테고리 로드 실패:', error)
   }
 
   return (
@@ -46,22 +32,18 @@ export default async function CommunityPage() {
       <Navbar />
       <main className="min-h-screen bg-gray-50">
         {/* Hero Section */}
-        <div className="bg-gradient-to-r from-primary to-indigo-700 text-white py-16">
+        <div className="bg-gradient-to-r from-primary to-indigo-700 text-white py-12 md:py-16">
           <div className="max-w-6xl mx-auto px-4">
-            <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4">커뮤니티</h1>
-            <p className="text-lg md:text-xl text-blue-100">
+            <h1 className="text-2xl md:text-4xl font-bold mb-2 md:mb-4">커뮤니티</h1>
+            <p className="text-base md:text-xl text-blue-100">
               인테리어에 관한 다양한 이야기를 나눠보세요
             </p>
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content - Grid View */}
         <div className="max-w-6xl mx-auto px-4 py-6 md:py-8">
-          <CommunityListClient
-            initialCategories={initialCategories || undefined}
-            initialPosts={initialPosts || undefined}
-            categorySlug=""
-          />
+          <CommunityGridView initialCategories={initialCategories || undefined} />
         </div>
       </main>
       <Footer />
