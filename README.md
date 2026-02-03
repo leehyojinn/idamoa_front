@@ -48,11 +48,24 @@ npm run start
 
 ### 환경변수
 
-`.env.local` 파일을 생성하고 다음 환경변수를 설정하세요:
+`.env.example` 파일을 참고하여 `.env.local` 파일을 생성하세요:
+
+```bash
+cp .env.example .env.local
+```
 
 ```env
-NEXT_PUBLIC_API_URL=백엔드 API URL
-NEXT_PUBLIC_WS_URL=WebSocket URL
+# 사이트 URL (OpenGraph, Twitter 이미지용)
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+
+# Kakao API Key (JavaScript Key)
+NEXT_PUBLIC_KAKAO_APP_KEY=your_kakao_app_key
+
+# Toss Payments Client Key
+NEXT_PUBLIC_TOSS_CLIENT_KEY=your_toss_client_key
+
+# CloudFront CDN URL (이미지 최적화)
+NEXT_PUBLIC_CDN_URL=https://your-cloudfront-url.cloudfront.net
 ```
 
 ## 프로젝트 구조
