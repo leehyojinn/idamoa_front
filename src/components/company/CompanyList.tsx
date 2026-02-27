@@ -133,9 +133,22 @@ export default function CompanyList({ initialData, selectedTag }: CompanyListPro
         })
 
         if (matchingOption) {
+          // 매칭된 옵션의 ID + 모든 하위 옵션 ID를 수집 (flat 배열에서 parentId 기반)
+          const collectAllChildIds = (parentId: number, allOptions: typeof specialtyCategory.options): number[] => {
+            const childIds: number[] = []
+            allOptions.forEach(opt => {
+              if (opt.parentId === parentId) {
+                childIds.push(opt.id)
+                childIds.push(...collectAllChildIds(opt.id, allOptions))
+              }
+            })
+            return childIds
+          }
+          const allOptionIds = [matchingOption.id, ...collectAllChildIds(matchingOption.id, specialtyCategory.options)]
+
           setFilters(prev => ({
             ...prev,
-            [specialtyCategory.id]: [matchingOption.id]
+            [specialtyCategory.id]: allOptionIds
           }))
         } else {
           setFilters(prev => {

@@ -1276,37 +1276,63 @@ export default function CompanyRegisterPage() {
 
                       if (hasChildren) {
                         const childSelectedCount = getSelectedChildrenCount(option)
+                        const isSelected = selectedFilterOptionIds.includes(option.id)
                         return (
                           <div key={option.id} className={depth > 0 ? 'ml-3' : ''}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setExpandedOptions(prev => {
-                                  const newSet = new Set(prev)
-                                  if (newSet.has(option.id)) {
-                                    newSet.delete(option.id)
+                            <div className="flex items-center gap-1">
+                              {/* 선택 가능한 체크박스 버튼 */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setSelectedFilterOptionIds(selectedFilterOptionIds.filter(id => id !== option.id))
                                   } else {
-                                    newSet.add(option.id)
+                                    setSelectedFilterOptionIds([...selectedFilterOptionIds, option.id])
                                   }
-                                  return newSet
-                                })
-                              }}
-                              className="w-full flex items-center justify-between py-2 px-3 text-left hover:bg-gray-50 rounded-lg transition-colors"
-                            >
-                              <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                                }}
+                                className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                  isSelected
+                                    ? 'bg-primary text-white shadow-md'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                              >
+                                <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                                  isSelected
+                                    ? 'bg-white border-white'
+                                    : 'border-gray-400'
+                                }`}>
+                                  {isSelected && <FiCheck className="w-3 h-3 text-primary" />}
+                                </span>
+                                <span className="truncate">{option.name}</span>
+                              </button>
+                              {/* 펼침/접기 버튼 */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setExpandedOptions(prev => {
+                                    const newSet = new Set(prev)
+                                    if (newSet.has(option.id)) {
+                                      newSet.delete(option.id)
+                                    } else {
+                                      newSet.add(option.id)
+                                    }
+                                    return newSet
+                                  })
+                                }}
+                                className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+                              >
                                 {isExpanded ? (
                                   <FiChevronDown className="w-4 h-4 text-gray-400" />
                                 ) : (
                                   <FiChevronRight className="w-4 h-4 text-gray-400" />
                                 )}
-                                {option.name}
-                              </span>
+                              </button>
                               {childSelectedCount > 0 && (
-                                <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full">
+                                <span className="bg-primary-100 text-primary text-xs px-2 py-0.5 rounded-full flex-shrink-0">
                                   {childSelectedCount}
                                 </span>
                               )}
-                            </button>
+                            </div>
                             {isExpanded && (
                               <div className="ml-2 mt-1 space-y-1 border-l-2 border-gray-100 pl-2">
                                 {option.children.map((child: any) => renderFilterOption(child, depth + 1))}
